@@ -5,5 +5,11 @@
     <color name="colorAccent">#FF4081</color>
     <!-- SceneRE-->
     <color name="sreWhite">#FFFFFF</color>
+    <color name="sreLightGray">#dddddd</color>
+    <color name="sreSteelGray">#b5b6d2</color>
+    <color name="sreMediumGray">#aaaaaa</color>
+    <color name="sreAnthrazit">#555555</color>
+    <color name="sreQuarz">#444444</color>
+    <color name="sreDarkGray">#222222</color>
     <color name="sreBlack">#000000</color>
 </resources>

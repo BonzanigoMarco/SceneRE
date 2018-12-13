@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.ScenariosActivity">
+    <TextView
+        android:id="@+id/scenario_management_text_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_margin="@dimen/margin"
+        android:textColor="@color/sreWhite"
+        android:background="@color/colorPrimary"
+        android:text="Scenarios"/>
+
+    <Button
+        android:id="@+id/scenario_management_button_scenario_editors"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:onClick="onNavigationButtonClicked"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/scenario_management_text_label"
+        android:text="Editor"
+        tools:ignore="OnClick" />
+
+    <Button
+        android:id="@+id/scenario_management_button_resource_management"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:onClick="onNavigationButtonClicked"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/scenario_management_button_scenario_editors"
+        android:text="Resources"
+        tools:ignore="OnClick" />
+</android.support.constraint.ConstraintLayout>

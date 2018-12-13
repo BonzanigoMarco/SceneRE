@@ -2,10 +2,10 @@ package uzh.scenere.activities;
 
 import java.util.*;
 
-public class Compile {
+public class _JavaCompile {
     public void compile() {
         List<Integer> list = new ArrayList<Integer>();
-        for (Integer i : list){
+        for (int i = 0; i < 5; i++){
 
         }
     }

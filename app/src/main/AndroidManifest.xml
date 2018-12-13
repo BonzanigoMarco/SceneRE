@@ -9,14 +9,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.StartupActivity">
+        <activity android:name=".activities.CockpitActivity"
+            android:theme="@style/AppThemeToolbar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.MainActivity"></activity>
+        <activity android:name=".activities.StartupActivity"></activity>
+        <activity android:name=".activities.MainMenuActivity"></activity>
+        <activity android:name=".activities.AnalyticsActivity"></activity>
+        <activity android:name=".activities.ProjectsActivity"></activity>
+        <!--<activity android:name=".activities.CockpitActivity"></activity>-->
+        <activity android:name=".activities.ResourcesActivity"></activity>
+        <activity android:name=".activities.EditorActivity"></activity>
+        <activity android:name=".activities.ScenariosActivity"></activity>
+        <activity android:name=".activities.ShareActivity"></activity>
+        <activity android:name=".activities.WalkthroughActivity"></activity>
     </application>
 
 </manifest>
