@@ -1,12 +1,16 @@
 package uzh.scenere.activities
 
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import uzh.scenere.R
 import android.widget.Toast
-
+import android.widget.Toolbar
+import kotlinx.android.synthetic.main.activity_cockpit.*
+import kotlinx.android.synthetic.main.activity_projects.*
+import uzh.scenere.views.SwipeButton
 
 
 class CockpitActivity : AbstractBaseActivity() {
@@ -17,8 +21,15 @@ class CockpitActivity : AbstractBaseActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mTopToolbar = findViewById(R.id.my_toolbar);
+        mTopToolbar = findViewById(R.id.cockpit_toolbar);
         setSupportActionBar(mTopToolbar);
+        cockpit_linear_layout_holder.addView(
+                SwipeButton(this,"Create New Project")
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setColors(Color.WHITE, Color.GRAY)
+                        .setButtonStates(false,true,false,false)
+                        .updateViews()
+        )
     }
 
     //enable bluetooth, wifi, nfc, sensors

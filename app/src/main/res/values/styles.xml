@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppThemeToolbar" parent="Theme.AppCompat.NoActionBar">
+    <style name="SceneReToolbarTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:colorBackground">@color/sreWhite</item>
@@ -9,7 +9,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+
+    <style name="SceneReTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
