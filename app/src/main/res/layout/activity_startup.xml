@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:textColor="@color/sreWhite"
-        android:background="@color/colorPrimary"
+        android:background="@color/srePrimary"
         android:text="Startup"/>
 
     <TextView

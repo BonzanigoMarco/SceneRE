@@ -186,3 +186,9 @@ k
 ;app/src/main/java/uzh/scenere/activities/CockpitActivity.kt,1\8\18825cb78c5567953f5104a803cab19228f28e7f
 d
 4app/src/main/res/drawable/swipe_button_bg_bottom.xml,5\4\54c5184f9999c9a965b014f6c4d08a7f97518fe7
+a
+1app/src/main/res/drawable/swipe_button_bg_mid.xml,d\f\df6962c6c379bd23ea26c6c8185a4757a0c9890e
+`
+0app/src/main/java/uzh/scenere/const/Constants.kt,0\1\01cef9e4d2dee3489cc45583d72229fdc250faaf
+j
+:app/src/main/java/uzh/scenere/helpers/PermissionHandler.kt,2\7\27b22e0e52c1cebfc66f6cf13b6b4505bad2d250

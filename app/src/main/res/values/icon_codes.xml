@@ -9,4 +9,7 @@
     <string name="icon_eye_closed">&#xf070;</string>
     <string name="icon_delete">&#xf2ed;</string>
     <string name="icon_edit">&#xf044;</string>
+    <string name="icon_sign">&#xf56b;</string>
+    <string name="icon_check">&#xf00c;</string>
+    <string name="icon_cross">&#xf00d;</string>
 </resources>

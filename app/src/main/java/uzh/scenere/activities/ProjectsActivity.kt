@@ -7,7 +7,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_projects.*
 import uzh.scenere.R
-import uzh.scenere.sensors.AbstractSensorListener
+import uzh.scenere.sensors.SensorHelper
 import uzh.scenere.views.SwipeButton
 
 class ProjectsActivity : AbstractManagementActivity() {
@@ -23,7 +23,7 @@ class ProjectsActivity : AbstractManagementActivity() {
                         .setColors(Color.WHITE,Color.GRAY)
                         .setButtonStates(false,true,false,false)
                         .setExecutable(generateExecutable())
-                        .updateViews()
+                        .updateViews(false)
         )
         for (i in 1..5) {
             project_management_linear_layout_holder.addView(
@@ -31,13 +31,12 @@ class ProjectsActivity : AbstractManagementActivity() {
                             .setColors(Color.WHITE,Color.GRAY)
                             .setButtonStates(false,true,true,true)
                             .setExecutable(generateExecutable())
-                            .updateViews()
+                            .updateViews(false)
             )
         }
     }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
+    override fun onLayoutRendered() {
         addSpacerLayout(project_management_layout_scenario_management)
     }
 
@@ -60,10 +59,9 @@ class ProjectsActivity : AbstractManagementActivity() {
                 Toast.makeText(applicationContext,"Up", Toast.LENGTH_SHORT).show()
             }
             override fun execDown() {
-                Toast.makeText(applicationContext,AbstractSensorListener.getInstance(applicationContext).createSensorArray(), Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,SensorHelper.getInstance(applicationContext).createSensorArray(), Toast.LENGTH_SHORT).show()
             }
             override fun execReset() {
-                Toast.makeText(applicationContext,AbstractSensorListener.getInstance(applicationContext).get(), Toast.LENGTH_SHORT).show()
             }
 
         }

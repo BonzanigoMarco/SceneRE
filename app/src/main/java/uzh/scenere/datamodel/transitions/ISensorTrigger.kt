@@ -1,11 +1,10 @@
 package uzh.scenere.datamodel.transitions
 
-import android.content.Context
-import uzh.scenere.sensors.AbstractSensorListener
+import uzh.scenere.sensors.SensorHelper
 
 interface ISensorTrigger: ITrigger {
     fun initSensors() {
-        val sensorListener: AbstractSensorListener = AbstractSensorListener.getInstance(getContext())
+        val sensorListener: SensorHelper = SensorHelper.getInstance(getContext())
         sensorListener.createSensorArray()
     }
 }

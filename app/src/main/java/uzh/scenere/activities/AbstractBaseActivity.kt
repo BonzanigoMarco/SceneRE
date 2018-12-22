@@ -27,11 +27,18 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             R.id.scenario_management_button_scenario_editors->startActivity(Intent(this,EditorActivity::class.java))
         }
     }
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        onLayoutRendered()
+    }
+
+    open fun onLayoutRendered(){
+        //NOP
+    }
 
     open fun onButtonClicked(view: View){
         //NOP
     }
-
 
 
 }

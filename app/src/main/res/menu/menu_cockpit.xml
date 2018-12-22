@@ -5,10 +5,10 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_favorite"
+        android:id="@+id/cockpit_menu_next"
         android:orderInCategory="300"
-        android:title="User"
-        android:icon="@drawable/wrench"
-        app:showAsAction="ifRoom"></item>
+        android:title="Next"
+        android:icon="@drawable/fast_forward"
+        app:showAsAction="ifRoom"/>
 
 </menu>
