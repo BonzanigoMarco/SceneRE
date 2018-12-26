@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">SceneRE</string>
+    <string name="cockpit_info_permissions">Info Text\nThis view shows you all missing Permissions.\nSwipe left to see further Details.\nSwipe right to grant the Permission.\nNote:\nMost of these Permissions are needed for the App to function.</string>
+    <string name="cockpit_info_communications">Info Text\nThis view shows the available Communication Technologies.\nSwipe right to enable, or left to disable each Communication.</string>
+    <string name="cockpit_info_sensors">Info Text\nThis view shows all Sensors used in this App.\nSwipe right to start a Diagnosis.\nSwipe left to disable the Diagnosis again.</string>
+
+    <string name="permission_description_network">Network-Permissions\n\nUsed to connect to the Internet.</string>
+    <string name="permission_description_storage">Storage-Permissions\n\nUsed to store Data and Settings.</string>
+    <string name="permission_description_audio">Audio-Permissions (Optional)\n\nUsed to record Audio-Memos.</string>
+    <string name="permission_description_bluetooth">Bluetooth-Permissions\n\nUsed to scan and connect to other Devices for Transmission.</string>
+    <string name="permission_description_wifi">Wi-Fi-Permissions\n\nUsed to scan for Access-Points.</string>
+    <string name="permission_description_nfc">NFC-Permissions\n\nUsed to interact with other Stakeholders.</string>
+    <string name="permission_description_sms">SMS-Permissions\n\nUsed for special Triggers.</string>
+
 </resources>

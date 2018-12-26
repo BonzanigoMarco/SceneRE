@@ -19,20 +19,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:layout_margin="@dimen/margin"
+        android:layout_margin="@dimen/dimMarginNormal"
         android:text="S C E N E - R E"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
+        android:layout_margin="@dimen/dimMarginNormal"
         android:text="Enter your Name..."/>
 
     <Button
         android:id="@+id/startup_button_continue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
+        android:layout_margin="@dimen/dimMarginNormal"
         android:onClick="onNavigationButtonClicked"
         android:text="Continue"
         tools:ignore="OnClick" />
@@ -40,7 +40,7 @@
     <ProgressBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
+        android:layout_margin="@dimen/dimMarginNormal"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:progress="75"/>
 </LinearLayout>

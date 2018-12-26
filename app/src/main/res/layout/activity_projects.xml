@@ -39,7 +39,7 @@
             android:id="@+id/project_management_button_scenario_management"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
+            android:layout_margin="@dimen/dimMarginNormal"
             android:onClick="onNavigationButtonClicked"
             android:gravity="center_horizontal"
             android:text="Scenarios"

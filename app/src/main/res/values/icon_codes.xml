@@ -12,4 +12,11 @@
     <string name="icon_sign">&#xf56b;</string>
     <string name="icon_check">&#xf00c;</string>
     <string name="icon_cross">&#xf00d;</string>
+
+    <!--<string name="icon_storage">&#xf;</string>-->
+    <string name="icon_mobile">&#xf1eb;</string>
+    <!--<string name="icon_wifi">&#xf;</string>-->
+    <string name="icon_bluetooth">&#xf293;</string>
+    <!--<string name="icon_nfc">&#xf;</string>-->
+    <!--<string name="icon_sms">&#xf;</string>-->
 </resources>

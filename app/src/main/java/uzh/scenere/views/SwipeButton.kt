@@ -85,7 +85,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     private val dpiPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt();
     private val dpiSliderMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt();
     private val dpiHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150f, resources.displayMetrics).toInt();
-    private val dpiSideMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20f, resources.displayMetrics).toInt();
+    private val dpiSideMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt();
 
     init {
         init(context)
@@ -121,7 +121,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
 
         val masterLayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dpiHeight)
         masterLayoutParams.marginStart = dpiSideMargin
-        masterLayoutParams.marginEnd = dpiSideMargin
+        masterLayoutParams.marginEnd = dpiSideMargin+NumberHelper.nvl(context?.resources?.getDimension(R.dimen.dimScrollbar),0).toInt()
         masterLayoutParams.topMargin = dpiSideMargin / 5
         masterLayoutParams.weight = 10f
         layoutParams = masterLayoutParams

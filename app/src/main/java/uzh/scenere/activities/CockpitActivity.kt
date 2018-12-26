@@ -1,11 +1,13 @@
 package uzh.scenere.activities
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.hardware.Sensor
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.Toolbar
 import android.view.*
 import android.widget.LinearLayout
@@ -14,15 +16,17 @@ import uzh.scenere.R
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_cockpit.*
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_ALL
+import uzh.scenere.datamodel.Project
 import uzh.scenere.helpers.CommunicationHelper
 import uzh.scenere.helpers.PermissionHelper
 import uzh.scenere.sensors.SensorHelper
 import uzh.scenere.views.SwipeButton
 
-
 class CockpitActivity : AbstractBaseActivity() {
-    enum class CockpitMode(var id: Int, var label: String) {
-        PERMISSIONS(0,"Missing Permissions"), COMMUNICATIONS(1,"Communication Systems"), SENSORS(2,"Available Sensors");
+    enum class CockpitMode(var id: Int, var label: String, var description: Int) {
+        PERMISSIONS(0,"Missing Permissions",R.string.cockpit_info_permissions),
+        COMMUNICATIONS(1,"Communication Systems", R.string.cockpit_info_communications),
+        SENSORS(2,"Available Sensors", R.string.cockpit_info_sensors);
         fun next(): CockpitMode {
             return get((id+1))
         }
@@ -32,6 +36,9 @@ class CockpitActivity : AbstractBaseActivity() {
                     return m
             }
             return get(0)
+        }
+        fun getDescription(context: Context): String{
+            return context.resources.getString(description)
         }
     }
     private var mode: CockpitMode = CockpitMode.PERMISSIONS
@@ -46,7 +53,6 @@ class CockpitActivity : AbstractBaseActivity() {
         toolbar = findViewById(R.id.cockpit_toolbar);
         setSupportActionBar(toolbar);
     }
-
     private fun createViews() {
         cockpit_linear_layout_holder.removeAllViews()
         createTitle(mode.label)
@@ -83,7 +89,7 @@ class CockpitActivity : AbstractBaseActivity() {
             }
             CockpitMode.SENSORS -> {
                 for (sensor in SensorHelper.getInstance(this).getSensorArray()){
-                    val swipeButton = SwipeButton(this, sensor.name)
+                    val swipeButton = SwipeButton(this, SensorHelper.getInstance(this).getTypeName(sensor.name))
                             .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                             .setIndividualButtonColors(Color.WHITE, Color.WHITE, Color.GRAY, Color.GRAY)
                             .setButtonIcons(R.string.icon_eye_closed, R.string.icon_eye, null, null)
@@ -122,11 +128,11 @@ class CockpitActivity : AbstractBaseActivity() {
             }
 
             override fun execLeft() {
-                cockpit_text_info.text = permission.label
+                cockpit_text_info.text = permission.getDescription(applicationContext)
             }
 
             override fun execReset() {
-                cockpit_text_info.text = null
+                cockpit_text_info.text = mode.getDescription(applicationContext)
             }
         }
     }
@@ -155,24 +161,24 @@ class CockpitActivity : AbstractBaseActivity() {
             }
 
             override fun execReset() {
-                cockpit_text_info.text = null
+                cockpit_text_info.text = mode.getDescription(applicationContext)
             }
         }
     }
     private fun generateSensorExecutable(sensor: Sensor, button: SwipeButton): SwipeButton.SwipeButtonExecution {
         return object : SwipeButton.SwipeButtonExecution{
             override fun execRight() {
-                SensorHelper.getInstance(applicationContext).register(sensor,cockpit_text_info, true)
+                SensorHelper.getInstance(applicationContext).registerTextGraphListener(sensor,cockpit_text_info)
                 Handler().postDelayed({button.collapse()}, 500)
             }
 
             override fun execLeft() {
-                SensorHelper.getInstance(applicationContext).unregister()
+                SensorHelper.getInstance(applicationContext).unregisterTextGraphListener()
                 Handler().postDelayed({button.collapse()}, 500)
             }
 
             override fun execReset() {
-                cockpit_text_info.text = null
+                cockpit_text_info.text = mode.getDescription(applicationContext)
             }
         }
     }
@@ -246,20 +252,17 @@ class CockpitActivity : AbstractBaseActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_cockpit, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         val id = item.itemId
 
 
         if (item.itemId == R.id.cockpit_menu_next) {
             mode = mode.next()
+            cockpit_text_info.text = mode.getDescription(applicationContext)
             createViews()
             return true
         }

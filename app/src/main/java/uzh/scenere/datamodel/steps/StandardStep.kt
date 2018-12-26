@@ -1,4 +1,4 @@
 package uzh.scenere.datamodel.steps
 
-class StandardStep: AbstractStep() {
+class StandardStep(id: String): AbstractStep(id) {
 }

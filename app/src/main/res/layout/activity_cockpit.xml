@@ -39,7 +39,7 @@
             android:layout_height="0dp"
             android:background="@color/sreLightGray"
             android:scrollbarAlwaysDrawVerticalTrack="true"
-            android:scrollbarSize="15dp"
+            android:scrollbarSize="@dimen/dimScrollbar"
             android:fadeScrollbars="false"
             android:scrollbarFadeDuration="0"
             android:scrollbarThumbVertical="@drawable/blue_scrollbar"
@@ -58,7 +58,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="3"
-            android:background="@drawable/blue_border_background_tb">
+            android:weightSum="3"
+            android:orientation="horizontal"
+            android:background="@drawable/blue_border_background">
 
             <TextView
                 android:id="@+id/cockpit_text_info"
@@ -66,10 +68,11 @@
                 android:layout_height="match_parent"
                 android:textColor="@color/sreWhite"
                 android:background="@color/srePrimary"
-                android:layout_margin="@dimen/margin"
+                android:layout_margin="@dimen/dimMarginSmall"
+                android:padding="@dimen/dimPaddingNormal"
                 android:onClick="onNavigationButtonClicked"
                 android:gravity="center_horizontal"
-                android:text="Info Text\nSwipe Left on a button to access more Information."
+                android:text="@string/cockpit_info_permissions"
                 tools:ignore="OnClick"/>
         </LinearLayout>
 

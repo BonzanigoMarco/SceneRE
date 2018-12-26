@@ -5,6 +5,6 @@
         android:angle="45"
         android:endColor="@color/srePrimaryDark"
         android:centerColor="@color/srePrimary"
-        android:startColor="@color/sreSteelGray" />
+        android:startColor="@color/srePrimaryLight" />
     <corners android:radius="20dp" />
 </shape>
