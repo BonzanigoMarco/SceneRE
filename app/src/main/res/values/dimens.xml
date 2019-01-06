@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="dimMarginSmallHalf">2.5dp</dimen>
     <dimen name="dimMarginSmall">5dp</dimen>
     <dimen name="dimMarginNormal">10dp</dimen>
     <dimen name="dimMarginLarge">15dp</dimen>
+    <dimen name="dimMarginToolbarCenter">35dp</dimen>
     <dimen name="dimPaddingSmall">1dp</dimen>
     <dimen name="dimPaddingNormal">2dp</dimen>
     <dimen name="dimPaddingLarge">3dp</dimen>
     <dimen name="dimScrollbar">15dp</dimen>
+    <dimen name="text_large">25sp</dimen>
 </resources>

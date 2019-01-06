@@ -1,11 +1,7 @@
 package uzh.scenere.datamodel
 
 class Project private constructor(private val name: String, private val description: String) {
-    private var scenarios: List<Scenario> = ArrayList()
-
-    fun getScenarios(): List<Scenario>{
-        return scenarios
-    }
+    var scenarios: List<Scenario> = ArrayList()
 
     class ProjectBuilder(val name: String, val description: String){
         private var scenarios: List<Scenario> = ArrayList()

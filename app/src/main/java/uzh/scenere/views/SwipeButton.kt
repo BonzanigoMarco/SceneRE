@@ -22,8 +22,8 @@ import uzh.scenere.R
 import uzh.scenere.helpers.NumberHelper
 import android.opengl.ETC1.getHeight
 import android.opengl.ETC1.getWidth
-
-
+import android.os.Handler
+import android.widget.Toast
 
 
 class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : LinearLayout(context, attributeSet, defStyleAttr, defStyleRes) {
@@ -57,6 +57,8 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     private var initialButtonWidth = 0
     private var sliderButton: IconTextView? = null
     private var sliderLane: RelativeLayout? = null
+    private var firstAction: Boolean = true
+    private val animationDuration: Long = 200L
     //Layout
     private var labelText: TextView? = null
     private var topText: TextView? = null
@@ -70,7 +72,8 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     private var rIdx: Int = 1
     private var tIdx: Int = 2
     private var bIdx: Int = 3
-    private var icons: IntArray = intArrayOf(R.string.icon_delete, R.string.icon_edit, R.string.icon_email, R.string.icon_lock)
+    private var cIdx: Int = 4
+    private var icons: IntArray = intArrayOf(R.string.icon_delete, R.string.icon_edit, R.string.icon_email, R.string.icon_lock,R.string.icon_null)
     private var react: BooleanArray = booleanArrayOf(true, true, true, true)
     private var colors: IntArray = intArrayOf(Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
     //State
@@ -79,10 +82,10 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     private var activeColor: Int = Color.WHITE
     private var inactiveColor: Int = Color.GRAY
     private var individualColor: Boolean = false
-    public var interacted: Boolean = false
+    var interacted: Boolean = false
     //Measurement
     private var dpiText = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics);
-    private val dpiPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt();
+    private var dpiPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt();
     private val dpiSliderMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt();
     private val dpiHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150f, resources.displayMetrics).toInt();
     private val dpiSideMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt();
@@ -131,7 +134,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         this.topLayout = topLayout
         topLayout.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_bg_top)
         val topLayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
-        topLayoutParams.weight = 3f
+        topLayoutParams.weight = 2f
         topLayout.layoutParams = topLayoutParams
         addView(topLayout)
 
@@ -159,7 +162,6 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val bottomBackgroundLayout = RelativeLayout(context)
         this.bottomBackgroundLayout = bottomBackgroundLayout
         val backgroundLayoutParams = createParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, RelativeLayout.CENTER_HORIZONTAL)
-        bottomBackgroundLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.sreAnthrazit))
         bottomBackgroundLayout.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_bg_mid)
         bottomLayout.addView(bottomBackgroundLayout, backgroundLayoutParams)
 
@@ -194,14 +196,13 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val topText = IconTextView(context)
         this.topText = topText
         val topTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
-        topText.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
         topText.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_top)
 
         //Top Background
         val topBg = IconTextView(context)
         this.topBg = topBg
         val topBgParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
-        topBg.setPadding(dpiPadding * 4, dpiPadding, dpiPadding * 4, dpiPadding)
+        topBg.setPadding(dpiPadding * 4, dpiPadding, dpiPadding * 4, dpiPadding*2)
         topBg.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_top)
         bottomBackgroundLayout.addView(topBg, topBgParams)
         bottomBackgroundLayout.addView(topText, topTextParams)
@@ -210,14 +211,13 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val bottomText = IconTextView(context)
         this.bottomText = bottomText
         val bottomTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
-        bottomText.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
         bottomText.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_bottom)
 
         //Bottom Background
         val bottomBg = IconTextView(context)
         this.bottomBg = bottomBg
         val bottomBgParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
-        bottomBg.setPadding(dpiPadding * 4, dpiPadding, dpiPadding * 4, dpiPadding)
+        bottomBg.setPadding(dpiPadding * 4, dpiPadding*2, dpiPadding * 4, dpiPadding)
         bottomBg.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_bottom)
         bottomBackgroundLayout.addView(bottomBg, bottomBgParams)
         bottomBackgroundLayout.addView(bottomText, bottomTextParams)
@@ -226,7 +226,6 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val leftText = IconTextView(context)
         this.leftText = leftText
         val leftTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_LEFT)
-        leftText.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
         this.leftText = leftText
         sliderLane.addView(leftText, leftTextParams)
 
@@ -235,7 +234,6 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         this.rightText = rightText
         val rightTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_RIGHT)
         rightText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
-        rightText.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
         sliderLane.addView(rightText, rightTextParams)
 
         //Touch Listener
@@ -359,11 +357,12 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     }
 
     //Configuration
-    fun setButtonIcons(lIcon: Int?, rIcon: Int?, tIcon: Int?, bIcon: Int?): SwipeButton {
+    fun setButtonIcons(lIcon: Int?, rIcon: Int?, tIcon: Int?, bIcon: Int?, cIcon: Int?): SwipeButton {
         icons[lIdx] = lIcon ?: icons[lIdx]
         icons[rIdx] = rIcon ?: icons[rIdx]
         icons[tIdx] = tIcon ?: icons[tIdx]
         icons[bIdx] = bIcon ?: icons[bIdx]
+        icons[cIdx] = cIcon ?: icons[cIdx]
         return this
     }
 
@@ -403,18 +402,22 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
 
     fun updateViews(minimal: Boolean): SwipeButton {
         if (!minimal) {
+            var modifier: Float = 1.5f
             if (mode == SwipeButtonMode.DOUBLE) {
-                dpiText *= 2
+                dpiText *= 1.5f
+                dpiPadding *= 2
                 topText?.visibility = View.GONE
                 topBg?.visibility = View.GONE
                 bottomText?.visibility = View.GONE
                 bottomBg?.visibility = View.GONE
+                modifier = 2f
             }
             leftText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
             rightText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
+
             topText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
             bottomText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
-            sliderButton?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText * 1.5f)
+            sliderButton?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText * modifier)
         }
         //Color & States
         sliderButton?.setTextColor(activeColor)
@@ -428,6 +431,12 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         rightText?.text = resources.getText(icons[rIdx])
         topText?.text = resources.getText(icons[tIdx])
         bottomText?.text = resources.getText(icons[bIdx])
+        sliderButton?.text = resources.getText(icons[cIdx])
+        //Icons
+        rightText?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
+        leftText?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
+        topText?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
+        bottomText?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
         return this
     }
 
@@ -447,7 +456,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
             params?.width = widthAnimator.animatedValue as Int
             sliderButton?.layoutParams = params
         }
-        val positionYAnimator = createAnimator(Direction.Y, 200)
+        val positionYAnimator = createAnimator(Direction.Y, animationDuration)
         val listener = object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
@@ -460,9 +469,9 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         execute()
     }
 
-    public fun collapse() {
+    fun collapse() {
         this.state = SwipeButtonState.MIDDLE
-        sliderButton?.text = null
+        sliderButton?.text = resources.getText(icons[cIdx])
         initialEventX = -1f
         initialEventY = -1f
         val sliderWidth = NumberHelper.nvl(sliderButton?.width, 0).toInt()
@@ -495,8 +504,8 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     }
 
     private fun reset() {
-        val positionXAnimator = createAnimator(Direction.X, 200L)
-        val positionYAnimator = createAnimator(Direction.Y, 200L)
+        val positionXAnimator = createAnimator(Direction.X, animationDuration)
+        val positionYAnimator = createAnimator(Direction.Y, animationDuration)
 
         val rightTextAnimator = ObjectAnimator.ofFloat(rightText as TextView, "alpha", 1f)
         val leftTextAnimator = ObjectAnimator.ofFloat(leftText as TextView, "alpha", 1f)
@@ -540,12 +549,17 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     }
 
     private fun execute() {
-        when (state) {
-            SwipeButtonState.LEFT -> exec.execLeft()
-            SwipeButtonState.RIGHT -> exec.execRight()
-            SwipeButtonState.UP -> exec.execUp()
-            SwipeButtonState.DOWN -> exec.execDown()
-            SwipeButtonState.MIDDLE -> exec.execReset()
+        if (firstAction){ //On First Interaction, the Setup needs a Delay
+            Handler().postDelayed({ execute() }, (animationDuration*1.25).toLong())
+            firstAction = false
+        }else{
+            when (state) {
+                SwipeButtonState.LEFT -> exec.execLeft()
+                SwipeButtonState.RIGHT -> exec.execRight()//Toast.makeText(context,"",Toast.LENGTH_SHORT).show()
+                SwipeButtonState.UP -> exec.execUp()
+                SwipeButtonState.DOWN -> exec.execDown()
+                SwipeButtonState.MIDDLE -> exec.execReset()
+            }
         }
     }
 

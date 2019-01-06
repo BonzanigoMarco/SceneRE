@@ -1,10 +1,10 @@
 package uzh.scenere.datamodel.trigger
 
-abstract class AbstractTrigger(val id: String, val ownerId: String) : ITrigger {
-    private val steps: List<String> = ArrayList()
+abstract class AbstractTrigger(val id: String, var ownerStepId: String) : ITrigger {
+    private val nextStepsIds: List<String> = ArrayList()
 
     fun hasSingleTransition(): Boolean{
-        return steps.size==1
+        return nextStepsIds.size==1
     }
 
     fun getTransition(): String{

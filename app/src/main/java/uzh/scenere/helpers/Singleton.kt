@@ -3,7 +3,7 @@ package uzh.scenere.helpers
 import android.content.Context
 import uzh.scenere.sensors.SensorHelper
 
-class Singleton(context: Context) {
+class Singleton private constructor(context: Context) {
 
     companion object {
         // Volatile: writes to this field are immediately made visible to other threads.

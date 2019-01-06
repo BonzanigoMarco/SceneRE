@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="10"
+    android:background="@color/srePrimary">
+
+
+    <uzh.scenere.views.SwipeButtonScrollView
+        android:id="@+id/holder_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/sreSteelGray"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarSize="@dimen/dimScrollbar"
+        android:fadeScrollbars="false"
+        android:scrollbarFadeDuration="0"
+        android:scrollbarThumbVertical="@drawable/blue_scrollbar"
+        android:layout_weight="7">
+
+        <LinearLayout
+            android:id="@+id/holder_linear_layout_holder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"/>
+
+    </uzh.scenere.views.SwipeButtonScrollView>
+
+    <LinearLayout
+        android:id="@+id/holder_layout_info"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:weightSum="3"
+        android:orientation="vertical"
+        android:background="@color/srePrimaryDark">
+
+        <TextView
+            android:id="@+id/holder_text_info_title"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:textColor="@color/sreWhite"
+            android:background="@color/srePrimary"
+            android:layout_marginTop="@dimen/dimMarginSmall"
+            android:layout_marginLeft="@dimen/dimMarginSmall"
+            android:layout_marginRight="@dimen/dimMarginSmall"
+            android:layout_marginBottom="@dimen/dimMarginSmallHalf"
+            android:gravity="center"
+            android:textAlignment="gravity"
+            android:text="@string/holder_info_title"/>
+
+        <LinearLayout
+            android:id="@+id/holder_text_info_content_wrap"
+            android:layout_weight="2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:weightSum="3"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/holder_text_info_content"
+                android:layout_weight="3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textColor="@color/sreWhite"
+                android:background="@color/srePrimary"
+                android:layout_marginTop="@dimen/dimMarginSmallHalf"
+                android:layout_marginLeft="@dimen/dimMarginSmall"
+                android:layout_marginRight="@dimen/dimMarginSmall"
+                android:layout_marginBottom="@dimen/dimMarginSmall"
+                android:gravity="center_horizontal"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

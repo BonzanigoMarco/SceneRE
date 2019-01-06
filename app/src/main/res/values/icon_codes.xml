@@ -12,11 +12,46 @@
     <string name="icon_sign">&#xf56b;</string>
     <string name="icon_check">&#xf00c;</string>
     <string name="icon_cross">&#xf00d;</string>
+    <string name="icon_menu">&#xf03a;</string>
+    <string name="icon_backward">&#xf04a;</string>
+    <string name="icon_forward">&#xf04e;</string>
+    <string name="icon_win_min">&#xf068;</string>
+    <string name="icon_win_norm">&#xf52c;</string>
+    <string name="icon_win_max">&#xf0c9;</string>
+
+
+    <string name="icon_dice_one">&#xf525;</string>
+    <string name="icon_dice_two">&#xf528;</string>
+    <string name="icon_dice_three">&#xf527;</string>
+    <string name="icon_dice_four">&#xf524;</string>
+    <string name="icon_dice_five">&#xf523;</string>
+    <string name="icon_dice_six">&#xf526;</string>
+
+
+    <string name="icon_null"> </string>
 
     <!--<string name="icon_storage">&#xf;</string>-->
-    <string name="icon_mobile">&#xf1eb;</string>
-    <!--<string name="icon_wifi">&#xf;</string>-->
+    <string name="icon_wifi">&#xf1eb;</string>
+    <string name="icon_mobile">&#xf012;</string>
+    <string name="icon_map">&#xf5a0;</string>
+    <string name="icon_marker">&#xf3c5;</string>
+    <string name="icon_pin">&#xf276;</string>
     <string name="icon_bluetooth">&#xf293;</string>
-    <!--<string name="icon_nfc">&#xf;</string>-->
-    <!--<string name="icon_sms">&#xf;</string>-->
+    <string name="icon_nfc">&#xf09e;</string>
+    <string name="icon_phone">&#xf095;</string>
+    <string name="icon_qr">&#xf029;</string>
+    <string name="icon_sim">&#xf7c4;</string>
+    <string name="icon_tags">&#xf02c;</string>
+    <string name="icon_toggle_off">&#xf204;</string>
+    <string name="icon_toggle_on">&#xf205;</string>
+    <string name="icon_vol_down">&#xf027;</string>
+    <string name="icon_vol_up">&#xf028;</string>
+    <string name="icon_vol_off">&#xf6a9;</string>
+    <string name="icon_undo">&#xf2ea;</string>
+    <string name="icon_chip">&#xf2db;</string>
+
+    <string name="icon_sms">&#xf199;</string>
+    <string name="icon_trash">&#xf2ed;</string>
+    <string name="icon_search">&#xf002;</string>
+    <string name="icon_image">&#xf03e;</string>
 </resources>

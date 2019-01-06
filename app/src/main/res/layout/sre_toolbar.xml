@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize"
+    android:background="?colorPrimary"
+    app:contentInsetRight="@dimen/dimMarginLarge"
+    app:contentInsetEnd="@dimen/dimMarginLarge"
+    tools:showIn="@layout/activity_cockpit">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <Button
+            android:id="@+id/toolbar_action_left"
+            android:background="@null"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerInside"
+            android:text="@string/icon_backward"
+            android:fontFamily="@font/font_awesome_900"
+            android:onClick="onToolbarClicked"
+            android:textSize="@dimen/text_large"
+            tools:ignore="OnClick" />
+
+        <Button
+            android:id="@+id/toolbar_action_center_left"
+            android:background="@null"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_toStartOf="@+id/toolbar_action_center"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="@dimen/dimMarginToolbarCenter"
+            android:scaleType="centerInside"
+            android:text="@string/icon_menu"
+            android:fontFamily="@font/font_awesome_900"
+            android:onClick="onToolbarClicked"
+            android:textSize="@dimen/text_large"
+            tools:ignore="OnClick" />
+
+        <TextView
+            android:id="@+id/toolbar_action_center"
+            android:background="@null"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerInside"
+            android:gravity="center"
+            android:onClick="onToolbarClicked"
+            android:textSize="@dimen/text_large"
+            tools:ignore="OnClick" />
+
+        <Button
+            android:id="@+id/toolbar_action_center_right"
+            android:background="@null"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_toEndOf="@+id/toolbar_action_center"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="@dimen/dimMarginToolbarCenter"
+            android:scaleType="centerInside"
+            android:text="@string/icon_win_max"
+            android:fontFamily="@font/font_awesome_900"
+            android:onClick="onToolbarClicked"
+            android:textSize="@dimen/text_large"
+            tools:ignore="OnClick" />
+
+        <Button
+            android:id="@+id/toolbar_action_right"
+            android:background="@null"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerInside"
+            android:text="@string/icon_forward"
+            android:fontFamily="@font/font_awesome_900"
+            android:onClick="onToolbarClicked"
+            android:textSize="@dimen/text_large"
+            tools:ignore="OnClick" />
+    </RelativeLayout>
+</android.support.v7.widget.Toolbar>
