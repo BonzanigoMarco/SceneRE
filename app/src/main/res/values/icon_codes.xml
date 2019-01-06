@@ -5,6 +5,7 @@
     <string name="icon_user">&#xf2bd;</string>
     <string name="icon_lock">&#xf023;</string>
     <string name="icon_checkbox_checked">&#xf046;</string>
+    <string name="icon_comment">&#xf27a;</string>
     <string name="icon_eye">&#xf06e;</string>
     <string name="icon_eye_closed">&#xf070;</string>
     <string name="icon_delete">&#xf2ed;</string>

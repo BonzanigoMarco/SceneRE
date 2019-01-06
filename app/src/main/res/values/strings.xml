@@ -25,5 +25,6 @@
     <string name="projects_title">Projects</string>
     <string name="holder_info_title">Info Text</string>
     <string name="projects_create">Creating a new Project</string>
+    <string name="label">%1$s:</string>
 
 </resources>

@@ -1,5 +1,7 @@
 package uzh.scenere.helpers
 
+import android.app.Activity
+
 class NumberHelper{
     companion object { //Static Reference
         fun <T : Number> nvl(value: T?, valueIfNull: T): T {

@@ -22,24 +22,6 @@ class WeightAnimator private constructor() {
     fun play(){
         animator?.start()
     }
-//
-//    private inner class ViewGroupWeightWrapper(private val viewGroup: ViewGroup) {
-//        init {
-//            if (viewGroup.layoutParams !is LinearLayout.LayoutParams){
-//                throw IllegalArgumentException("The Parent of this View needs to be of Type LinearLayout")
-//            }
-//        }
-//
-//        fun setWeight(weight: Float) {
-//            val params = viewGroup.layoutParams as LinearLayout.LayoutParams
-//            params.weight = weight
-//            viewGroup.parent.requestLayout()
-//        }
-//
-//        fun getWeight(): Float {
-//            return (viewGroup.layoutParams as LinearLayout.LayoutParams).weight
-//        }
-//    }
 
     private inner class ViewWeightWrapper(private val view: View) {
         init {

@@ -1,10 +1,13 @@
 package uzh.scenere.datamodel
 
-class Project private constructor(private val name: String, private val description: String) {
+import java.util.*
+
+class Project private constructor(val name: String, val description: String, val id: String) {
     var scenarios: List<Scenario> = ArrayList()
 
     class ProjectBuilder(val name: String, val description: String){
         private var scenarios: List<Scenario> = ArrayList()
+        private var id: String? = null
 
         fun withScenarios(scenarios: List<Scenario>): ProjectBuilder{
             if (this.scenarios.isEmpty()){
@@ -18,8 +21,12 @@ class Project private constructor(private val name: String, private val descript
             this.scenarios.plus(scenario)
             return this
         }
+        fun copyId(project: Project): ProjectBuilder{
+            this.id = project.id
+            return this
+        }
         fun build(): Project{
-            val project = Project(name,description)
+            val project = Project(name,description,id?: UUID.randomUUID().toString())
             project.scenarios = this.scenarios
             return project
         }
