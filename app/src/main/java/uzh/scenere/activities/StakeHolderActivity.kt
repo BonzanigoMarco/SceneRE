@@ -29,12 +29,12 @@ class StakeHolderActivity : AbstractManagementActivity() {
     }
 
     enum class StakeholderMode{
-        VIEW, EDIT_CREATE, OBJECT, STAKEHOLDER
+        VIEW, EDIT_CREATE
     }
 
     private val inputMap: HashMap<String,EditText> = HashMap()
     private val inputLabelName = "Stakeholder Name"
-    private val inputLabelIntroduction = "Stakeholder Description"
+    private val inputLabelDescription = "Stakeholder Description"
     private var activeProject: Project? = null
     private var activeStakeholder: Stakeholder? = null
 
@@ -55,18 +55,19 @@ class StakeHolderActivity : AbstractManagementActivity() {
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
         holder_linear_layout_holder.addView(creationButton)
         createTitle("",holder_linear_layout_holder)
-//        for (stakeholder in DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class)){
-//            addStakeholderToList(stakeholder)
-//        }
-//        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholders),fontAwesome)
+        for (stakeholder in DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class,activeProject)){
+            addStakeholderToList(stakeholder)
+        }
+        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholder),fontAwesome)
         customizeToolbarText(null,null,getLockIcon(),null,null)
     }
 
     private fun addStakeholderToList(stakeholder: Stakeholder) {
         val swipeButton = SwipeButton(this, stakeholder.name)
                 .setColors(Color.WHITE, Color.GRAY)
-                .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_person, R.string.icon_object, null)
-                .setButtonStates(lockState == LockState.UNLOCKED, true, true, true)
+                .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                .setButtonIcons(R.string.icon_delete, R.string.icon_edit, null, null, null)
+                .setButtonStates(lockState == LockState.UNLOCKED, true, false, false)
                 .updateViews(true)
         swipeButton.dataObject = stakeholder
         swipeButton.setExecutable(generateStakeholderExecutable(swipeButton, stakeholder))
@@ -93,37 +94,18 @@ class StakeHolderActivity : AbstractManagementActivity() {
                 activeButton = button
                 openInput(StakeholderMode.EDIT_CREATE,stakeholder)
             }
-            override fun execUp() {
-                activeButton = button
-                openInput(StakeholderMode.STAKEHOLDER,stakeholder)
-            }
-            override fun execDown() {
-                activeButton = button
-                openInput(StakeholderMode.OBJECT,stakeholder)
-            }
         }
     }
 
     private fun openInput(stakeholdersMode: StakeholderMode, stakeholder: Stakeholder? = null) {
         activeStakeholder = stakeholder
         this.stakeholdersMode = stakeholdersMode
-        cleanInfoHolder(getString(R.string.stakeholders_create))
+        cleanInfoHolder(if (activeStakeholder==null) getString(R.string.stakeholders_create) else getString(R.string.stakeholders_edit))
         when(stakeholdersMode){
             StakeholderMode.VIEW -> {}//NOP
             StakeholderMode.EDIT_CREATE -> {
-                //[Title]: [TitleInput]
-                //[Description]:
-                //[DescriptionInput]
                 holder_text_info_content_wrap.addView(createLine(inputLabelName,false, stakeholder?.name))
-                holder_text_info_content_wrap.addView(createLine(inputLabelIntroduction, true, stakeholder?.introduction))
-            }
-            StakeholderMode.OBJECT -> {
-                holder_text_info_content_wrap.addView(createLine(inputLabelName,false, stakeholder?.name))
-                holder_text_info_content_wrap.addView(createLine(inputLabelIntroduction, true, stakeholder?.introduction))
-            }
-            StakeholderMode.STAKEHOLDER -> {
-                holder_text_info_content_wrap.addView(createLine(inputLabelName,false, stakeholder?.name))
-                holder_text_info_content_wrap.addView(createLine(inputLabelIntroduction, true, stakeholder?.introduction))
+                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, true, stakeholder?.description))
             }
         }
 
@@ -188,7 +170,7 @@ class StakeHolderActivity : AbstractManagementActivity() {
             holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholder),fontAwesome)
             holder_text_info_content.text = ""
             customizeToolbarText(null,null,getLockIcon(),null,null)
-            activeProject = null
+            activeStakeholder = null
             stakeholdersMode = StakeholderMode.VIEW
             activeButton?.collapse()
             activeButton = null
@@ -215,9 +197,9 @@ class StakeHolderActivity : AbstractManagementActivity() {
                 }
             }
             val name = inputMap[inputLabelName]!!.getStringValue()
-            val introduction = inputMap[inputLabelIntroduction]!!.getStringValue()
+            val introduction = inputMap[inputLabelDescription]!!.getStringValue()
             val stakeholderBuilder = Stakeholder.StakeholderBuilder(activeProject!!,name, introduction) //TODO Link to Project
-            if (activeProject != null){
+            if (activeStakeholder != null){
                 removeStakeholder(activeStakeholder!!)
                 stakeholderBuilder.copyId(activeStakeholder!!)
             }

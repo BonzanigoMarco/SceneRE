@@ -10,15 +10,15 @@ import android.view.Gravity
 
 
 class IconTextView(context : Context?, attributeSet: AttributeSet?) : TextView(context, attributeSet){
-    private var m_context : Context? = context
+  private var m_context : Context? = context
 
-    constructor(context: Context?) : this(context,null){
-        this.m_context = context
-        create()
-    }
+  constructor(context: Context?) : this(context,null){
+    this.m_context = context
+    create()
+  }
 
-    private fun create() {
-        gravity = Gravity.CENTER
-        typeface = Typeface.createFromAsset(m_context?.assets,"FontAwesome900.otf")
-    }
+  private fun create() {
+    gravity = Gravity.CENTER
+    typeface = Typeface.createFromAsset(m_context?.assets,"FontAwesome900.otf")
+  }
 }

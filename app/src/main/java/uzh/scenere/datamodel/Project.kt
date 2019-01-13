@@ -40,7 +40,7 @@ class Project private constructor(val id: String, val creator: String, val title
 
     override fun equals(other: Any?): Boolean {
         if (other is Project){
-            return (id == (other as Project).id)
+            return (id == other.id)
         }
         return false
     }

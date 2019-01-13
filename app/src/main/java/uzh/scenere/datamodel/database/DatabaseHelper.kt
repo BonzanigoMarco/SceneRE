@@ -4,8 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.OBJECT_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.PROJECT_UID_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.STAKEHOLDER_UID_IDENTIFIER
+import uzh.scenere.datamodel.Object
 import uzh.scenere.datamodel.Project
+import uzh.scenere.datamodel.Scenario
+import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.helpers.DataHelper
 import uzh.scenere.helpers.PermissionHelper
 import uzh.scenere.helpers.StringHelper
@@ -58,6 +63,8 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Float)  sharedPreferences.edit().putFloat(key,obj).apply()
                 if (obj is Double)  sharedPreferences.edit().putLong(key, java.lang.Double.doubleToLongBits(obj)).apply()
                 if (obj is Project)  write(PROJECT_UID_IDENTIFIER+key,DataHelper.toByteArray(obj))
+                if (obj is Stakeholder)  write(STAKEHOLDER_UID_IDENTIFIER+key,DataHelper.toByteArray(obj))
+                if (obj is Object)  write(OBJECT_UID_IDENTIFIER+key,DataHelper.toByteArray(obj))
             }
             DataMode.DATABASE -> {
                 if (obj is Boolean) database!!.writeBoolean(key,obj)
@@ -69,6 +76,8 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Float)  database!!.writeFloat(key,obj)
                 if (obj is Double)  database!!.writeDouble(key,obj)
                 if (obj is Project) database!!.writeProject(obj)
+                if (obj is Stakeholder) database!!.writeStakeholder(obj)
+                if (obj is Object) database!!.writeObject(obj)
             }
         }
     }
@@ -105,6 +114,22 @@ class DatabaseHelper private constructor(context: Context) {
                     }
                     return valIfNull
                 }
+                if (Stakeholder::class == clz){
+                    val bytes = read(STAKEHOLDER_UID_IDENTIFIER+key, ByteArray::class, ByteArray(0))
+                    if (bytes != null && bytes.isNotEmpty()){
+                        val stakeholder = DataHelper.toObject(bytes, Stakeholder::class)
+                        return stakeholder as T ?: valIfNull
+                    }
+                    return valIfNull
+                }
+                if (Object::class == clz){
+                    val bytes = read(OBJECT_UID_IDENTIFIER+key, ByteArray::class, ByteArray(0))
+                    if (bytes != null && bytes.isNotEmpty()){
+                        val obj = DataHelper.toObject(bytes, Object::class)
+                        return obj as T ?: valIfNull
+                    }
+                    return valIfNull
+                }
             }
             DataMode.DATABASE -> {
                 if (Boolean::class == clz) return database!!.readBoolean(key, valIfNull as Boolean) as T?
@@ -116,6 +141,8 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Float::class == clz) return database!!.readFloat(key,valIfNull as Float) as T?
                 if (Double::class == clz) return database!!.readDouble(key,valIfNull as Double) as T?
                 if (Project::class == clz) return database!!.readProject(key,valIfNull as Project) as T?
+                if (Stakeholder::class == clz) return database!!.readStakeholder(key,valIfNull as Stakeholder) as T?
+                if (Object::class == clz) return database!!.readObject(key,valIfNull as Object) as T?
             }
         }
         return null
@@ -150,7 +177,7 @@ class DatabaseHelper private constructor(context: Context) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T : Any> readBulk(clz: KClass<T>, internalMode: DataMode = mode): List<T> {
+    public fun <T : Any> readBulk(clz: KClass<T>, key: Any? = null, internalMode: DataMode = mode): List<T> {
         when(internalMode){
             DataMode.PREFERENCES -> {
                 if (Project::class == clz){
@@ -166,6 +193,8 @@ class DatabaseHelper private constructor(context: Context) {
             }
             DataMode.DATABASE -> {
                 if (Project::class == clz) return database!!.readProjects() as List<T>
+                if (Stakeholder::class == clz && key is Project) return database!!.readStakeholder(key) as List<T>
+                if (Object::class == clz && key is Scenario) return database!!.readObjects(key) as List<T>
             }
         }
         return emptyList()

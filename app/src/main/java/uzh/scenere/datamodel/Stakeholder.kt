@@ -1,19 +1,26 @@
 package uzh.scenere.datamodel
 
+import java.io.Serializable
 import java.util.*
 
-class Stakeholder private constructor(val id: String,val projectId: String,val name: String, val introduction: String) {
+class Stakeholder private constructor(val id: String,val projectId: String,val name: String, val description: String): Serializable {
 
-    class StakeholderBuilder(private val project: Project,private val name: String, private val introduction: String){
+    class StakeholderBuilder(private val projectId: String, private val name: String, private val description: String){
 
-        constructor(id: String, project: Project, name: String, introduction: String): this(project,name,introduction){
+        constructor(project: Project, name: String, description: String): this(project.id,name,description)
+
+        constructor(id: String, project: Project, name: String, description: String): this(project,name,description){
+            this.id = id
+        }
+
+        constructor(id: String, projectId: String, name: String, description: String): this(projectId,name,description){
             this.id = id
         }
 
         private var id: String? = null
 
         fun build(): Stakeholder{
-            return Stakeholder(id?: UUID.randomUUID().toString(),project.id,name,introduction)
+            return Stakeholder(id?: UUID.randomUUID().toString(),projectId,name,description)
         }
 
         fun copyId(stakeholder: Stakeholder) {
@@ -21,4 +28,14 @@ class Stakeholder private constructor(val id: String,val projectId: String,val n
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other is Stakeholder){
+            return (id == other.id)
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
 }

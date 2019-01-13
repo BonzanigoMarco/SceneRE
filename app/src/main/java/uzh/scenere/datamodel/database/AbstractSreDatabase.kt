@@ -51,11 +51,29 @@ abstract class AbstractSreDatabase {
                 DataTableEntry.COLUMN_NAME_VALUE + DATA_TYPE + COMMA_SEP +
                 DataTableEntry.COLUMN_NAME_TIMESTAMP + NUMBER_TYPE + BRACES_CLOSE,
                 CREATE_TABLE_IF_NOT_EXISTS + ProjectTableEntry.TABLE_NAME + BRACES_OPEN +
-                ProjectTableEntry._ID + NUMBER_TYPE + KEY_TYPE + COMMA_SEP +
-                ProjectTableEntry.ID + TEXT_TYPE + COMMA_SEP +
-                ProjectTableEntry.TITLE + TEXT_TYPE + COMMA_SEP +
-                ProjectTableEntry.DESCRIPTION + TEXT_TYPE + COMMA_SEP +
-                ProjectTableEntry.CREATOR + TEXT_TYPE + BRACES_CLOSE)
+                        ProjectTableEntry._ID + NUMBER_TYPE + KEY_TYPE + COMMA_SEP +
+                        ProjectTableEntry.ID + TEXT_TYPE + COMMA_SEP +
+                        ProjectTableEntry.TITLE + TEXT_TYPE + COMMA_SEP +
+                        ProjectTableEntry.DESCRIPTION + TEXT_TYPE + COMMA_SEP +
+                        ProjectTableEntry.CREATOR + TEXT_TYPE + BRACES_CLOSE,
+                CREATE_TABLE_IF_NOT_EXISTS + StakeholderTableEntry.TABLE_NAME + BRACES_OPEN +
+                        StakeholderTableEntry._ID + NUMBER_TYPE + KEY_TYPE + COMMA_SEP +
+                        StakeholderTableEntry.ID + TEXT_TYPE + COMMA_SEP +
+                        StakeholderTableEntry.PROJECT_ID + TEXT_TYPE + COMMA_SEP +
+                        StakeholderTableEntry.NAME + TEXT_TYPE + COMMA_SEP +
+                        StakeholderTableEntry.DESCRIPTION + TEXT_TYPE + BRACES_CLOSE,
+                CREATE_TABLE_IF_NOT_EXISTS + ObjectTableEntry.TABLE_NAME + BRACES_OPEN +
+                        ObjectTableEntry._ID + NUMBER_TYPE + KEY_TYPE + COMMA_SEP +
+                        ObjectTableEntry.ID + TEXT_TYPE + COMMA_SEP +
+                        ObjectTableEntry.SCENARIO_ID + TEXT_TYPE + COMMA_SEP +
+                        ObjectTableEntry.NAME + TEXT_TYPE + COMMA_SEP +
+                        ObjectTableEntry.DESCRIPTION + TEXT_TYPE + BRACES_CLOSE,
+                CREATE_TABLE_IF_NOT_EXISTS + AttributeTableEntry.TABLE_NAME + BRACES_OPEN +
+                        AttributeTableEntry._ID + NUMBER_TYPE + KEY_TYPE + COMMA_SEP +
+                        AttributeTableEntry.ID + TEXT_TYPE + COMMA_SEP +
+                        AttributeTableEntry.REF_ID + TEXT_TYPE + COMMA_SEP +
+                        AttributeTableEntry.KEY + TEXT_TYPE + COMMA_SEP +
+                        AttributeTableEntry.VALUE + TEXT_TYPE + BRACES_CLOSE)
     }
 
     //Upgrade
@@ -63,14 +81,20 @@ abstract class AbstractSreDatabase {
         return arrayOf(ALTER_TABLE + NumberTableEntry.TABLE_NAME + RENAME_TO_TEMP + NumberTableEntry.TABLE_NAME + "'",
                 ALTER_TABLE + TextTableEntry.TABLE_NAME + RENAME_TO_TEMP + TextTableEntry.TABLE_NAME + "'",
                 ALTER_TABLE + DataTableEntry.TABLE_NAME + RENAME_TO_TEMP + DataTableEntry.TABLE_NAME + "'",
-                ALTER_TABLE + ProjectTableEntry.TABLE_NAME + RENAME_TO_TEMP + ProjectTableEntry.TABLE_NAME + "'")
+                ALTER_TABLE + ProjectTableEntry.TABLE_NAME + RENAME_TO_TEMP + ProjectTableEntry.TABLE_NAME + "'",
+                ALTER_TABLE + StakeholderTableEntry.TABLE_NAME + RENAME_TO_TEMP + StakeholderTableEntry.TABLE_NAME + "'",
+                ALTER_TABLE + ObjectTableEntry.TABLE_NAME + RENAME_TO_TEMP + ObjectTableEntry.TABLE_NAME + "'",
+                ALTER_TABLE + AttributeTableEntry.TABLE_NAME + RENAME_TO_TEMP + AttributeTableEntry.TABLE_NAME + "'")
     }
 
     private fun collectTableDeletion(): Array<String> {
         return arrayOf(DROP_TABLE_IF_EXISTS + NumberTableEntry.TABLE_NAME,
                 DROP_TABLE_IF_EXISTS + TextTableEntry.TABLE_NAME,
                 DROP_TABLE_IF_EXISTS + DataTableEntry.TABLE_NAME,
-                DROP_TABLE_IF_EXISTS + ProjectTableEntry.TABLE_NAME)
+                DROP_TABLE_IF_EXISTS + ProjectTableEntry.TABLE_NAME,
+                DROP_TABLE_IF_EXISTS + StakeholderTableEntry.TABLE_NAME,
+                DROP_TABLE_IF_EXISTS + ObjectTableEntry.TABLE_NAME,
+                DROP_TABLE_IF_EXISTS + AttributeTableEntry.TABLE_NAME)
     }
 
     private fun collectTableRestoration(): Array<String> {
@@ -116,14 +140,53 @@ abstract class AbstractSreDatabase {
                         ProjectTableEntry.ID + COMMA_SEP +
                         ProjectTableEntry.TITLE + COMMA_SEP +
                         ProjectTableEntry.DESCRIPTION + COMMA_SEP +
-                        ProjectTableEntry.CREATOR + FROM_TEMP + ProjectTableEntry.TABLE_NAME)
+                        ProjectTableEntry.CREATOR + FROM_TEMP + ProjectTableEntry.TABLE_NAME,
+                INSERT_INTO + StakeholderTableEntry.TABLE_NAME + BRACES_OPEN +
+                        StakeholderTableEntry._ID + COMMA_SEP +
+                        StakeholderTableEntry.ID + COMMA_SEP +
+                        StakeholderTableEntry.PROJECT_ID + COMMA_SEP +
+                        StakeholderTableEntry.NAME + COMMA_SEP +
+                        StakeholderTableEntry.DESCRIPTION +
+                        BRACES_CLOSE + SUB_SELECT +
+                        StakeholderTableEntry._ID + COMMA_SEP +
+                        StakeholderTableEntry.ID + COMMA_SEP +
+                        StakeholderTableEntry.PROJECT_ID + COMMA_SEP +
+                        StakeholderTableEntry.NAME + COMMA_SEP +
+                        StakeholderTableEntry.DESCRIPTION + FROM_TEMP + StakeholderTableEntry.TABLE_NAME,
+                INSERT_INTO + ObjectTableEntry.TABLE_NAME + BRACES_OPEN +
+                        ObjectTableEntry._ID + COMMA_SEP +
+                        ObjectTableEntry.ID + COMMA_SEP +
+                        ObjectTableEntry.SCENARIO_ID + COMMA_SEP +
+                        ObjectTableEntry.NAME + COMMA_SEP +
+                        ObjectTableEntry.DESCRIPTION +
+                        BRACES_CLOSE + SUB_SELECT +
+                        ObjectTableEntry._ID + COMMA_SEP +
+                        ObjectTableEntry.ID + COMMA_SEP +
+                        ObjectTableEntry.SCENARIO_ID + COMMA_SEP +
+                        ObjectTableEntry.NAME + COMMA_SEP +
+                        ObjectTableEntry.DESCRIPTION + FROM_TEMP + ObjectTableEntry.TABLE_NAME,
+                INSERT_INTO + AttributeTableEntry.TABLE_NAME + BRACES_OPEN +
+                        AttributeTableEntry._ID + COMMA_SEP +
+                        AttributeTableEntry.ID + COMMA_SEP +
+                        AttributeTableEntry.REF_ID + COMMA_SEP +
+                        AttributeTableEntry.KEY + COMMA_SEP +
+                        AttributeTableEntry.VALUE +
+                        BRACES_CLOSE + SUB_SELECT +
+                        AttributeTableEntry._ID + COMMA_SEP +
+                        AttributeTableEntry.ID + COMMA_SEP +
+                        AttributeTableEntry.REF_ID + COMMA_SEP +
+                        AttributeTableEntry.KEY + COMMA_SEP +
+                        AttributeTableEntry.VALUE + FROM_TEMP + AttributeTableEntry.TABLE_NAME)
     }
 
     private fun collectTableCleanup(): Array<String> {
         return arrayOf(DROP_TABLE_IF_EXISTS_TEMP + NumberTableEntry.TABLE_NAME,
                 DROP_TABLE_IF_EXISTS_TEMP + TextTableEntry.TABLE_NAME,
                 DROP_TABLE_IF_EXISTS_TEMP + DataTableEntry.TABLE_NAME,
-                DROP_TABLE_IF_EXISTS_TEMP + ProjectTableEntry.TABLE_NAME)
+                DROP_TABLE_IF_EXISTS_TEMP + ProjectTableEntry.TABLE_NAME,
+                DROP_TABLE_IF_EXISTS_TEMP + StakeholderTableEntry.TABLE_NAME,
+                DROP_TABLE_IF_EXISTS_TEMP + ObjectTableEntry.TABLE_NAME,
+                DROP_TABLE_IF_EXISTS_TEMP + AttributeTableEntry.TABLE_NAME)
     }
 
     protected interface HashMapDatabase{
@@ -178,7 +241,41 @@ abstract class AbstractSreDatabase {
             const val DESCRIPTION = " DESCRIPTION "
         }
     }
+    //Table for Stakeholder
+    protected class StakeholderTableEntry private constructor() : BaseColumns {
+        companion object {
+            const val _ID = BaseColumns._ID
+            const val TABLE_NAME = " STAKEHOLDER_TABLE "
+            const val ID = " ID "
+            const val PROJECT_ID = " PROJECT_ID "
+            const val NAME = " NAME "
+            const val DESCRIPTION = " DESCRIPTION "
+        }
+    }
 
+    //Table for Objects
+    protected class ObjectTableEntry private constructor() : BaseColumns {
+        companion object {
+            const val _ID = BaseColumns._ID
+            const val TABLE_NAME = " OBJECT_TABLE "
+            const val ID = " ID "
+            const val SCENARIO_ID = " SCENARIO_ID "
+            const val NAME = " NAME "
+            const val DESCRIPTION = " DESCRIPTION "
+        }
+    }
+
+    //Table for Attributes
+    protected class AttributeTableEntry private constructor() : BaseColumns {
+        companion object {
+            const val _ID = BaseColumns._ID
+            const val TABLE_NAME = " ATTRIBUTE_TABLE "
+            const val ID = " ID "
+            const val REF_ID = " REF_ID "
+            const val KEY = " KEY "
+            const val VALUE = " VALUE "
+        }
+    }
 
     protected inner class DbHelper(context: Context,
                                    private val DATABASE_VERSION: Int = 1,

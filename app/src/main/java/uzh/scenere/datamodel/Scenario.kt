@@ -1,8 +1,10 @@
 package uzh.scenere.datamodel
 
 import uzh.scenere.datamodel.steps.AbstractStep
+import java.io.Serializable
+import java.util.*
 
-class Scenario private constructor(private val title: String) {
+class Scenario private constructor(val id: String, val title: String): Serializable {
     private var intro: String? = null
     private var outro: String? = null
     private var startingPoint: AbstractStep? = null
@@ -15,6 +17,12 @@ class Scenario private constructor(private val title: String) {
 
 
     class ScenarioBuilder(val title: String){
+
+        constructor(id: String, title: String): this(title){
+            this.id = id
+        }
+
+        private var id: String? = null
         private var intro: String? = null
         private var outro: String? = null
         private val resources: List<Resource> = ArrayList()
@@ -58,7 +66,7 @@ class Scenario private constructor(private val title: String) {
         }
 
         fun build(): Scenario{
-            val scenario  = Scenario(title)
+            val scenario  = Scenario(UUID.randomUUID().toString(),title)
             scenario.intro = this.intro
             scenario.outro = this.outro
             scenario.resources.plus(this.resources)
@@ -79,4 +87,14 @@ class Scenario private constructor(private val title: String) {
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other is Scenario){
+            return (id == other.id)
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
 }

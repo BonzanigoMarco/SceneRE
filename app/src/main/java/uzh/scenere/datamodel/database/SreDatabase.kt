@@ -2,11 +2,13 @@ package uzh.scenere.datamodel.database
 
 import android.content.ContentValues
 import android.content.Context
-import com.google.android.gms.common.util.NumberUtils
+import uzh.scenere.datamodel.Object
 import uzh.scenere.datamodel.Project
+import uzh.scenere.datamodel.Scenario
+import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.ObjectHelper
-import uzh.scenere.helpers.PermissionHelper
+import java.util.*
 
 class SreDatabase private constructor(context: Context) : AbstractSreDatabase() {
     private val dbHelper: DbHelper = DbHelper(context)
@@ -87,6 +89,31 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         values.put(ProjectTableEntry.TITLE, project.title)
         values.put(ProjectTableEntry.DESCRIPTION, project.description)
         return insert(ProjectTableEntry.TABLE_NAME, ProjectTableEntry.ID, project.id, values)
+    }
+    fun writeStakeholder(stakeholder: Stakeholder): Long {
+        val values = ContentValues()
+        values.put(StakeholderTableEntry.ID, stakeholder.id)
+        values.put(StakeholderTableEntry.PROJECT_ID, stakeholder.projectId)
+        values.put(StakeholderTableEntry.NAME, stakeholder.name)
+        values.put(StakeholderTableEntry.DESCRIPTION, stakeholder.description)
+        return insert(StakeholderTableEntry.TABLE_NAME, StakeholderTableEntry.ID, stakeholder.id, values)
+    }
+    fun writeObject(obj: Object): Long {
+        val values = ContentValues()
+        values.put(ObjectTableEntry.ID, obj.id)
+        values.put(ObjectTableEntry.SCENARIO_ID, obj.scenarioId)
+        values.put(ObjectTableEntry.NAME, obj.name)
+        values.put(ObjectTableEntry.DESCRIPTION, obj.description)
+        for (attribute in obj.attributes){
+            val attributeValues = ContentValues()
+            val attributeId = UUID.randomUUID().toString()
+            attributeValues.put(AttributeTableEntry.ID, attributeId)
+            attributeValues.put(AttributeTableEntry.REF_ID, obj.id)
+            attributeValues.put(AttributeTableEntry.KEY, attribute.key)
+            attributeValues.put(AttributeTableEntry.VALUE, attribute.value)
+            insert(AttributeTableEntry.TABLE_NAME, AttributeTableEntry.ID, attributeId, values)
+        }
+        return insert(ObjectTableEntry.TABLE_NAME, ObjectTableEntry.ID, obj.id, values)
     }
 
     /** READ     **
@@ -197,6 +224,62 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val title = cursor.getString(2)
             val description = cursor.getString(3)
             return Project.ProjectBuilder(id, creator, title, description).build()
+        }
+        cursor.close()
+        return valueIfNull
+    }
+    fun readStakeholder(project: Project): List<Stakeholder> {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(StakeholderTableEntry.TABLE_NAME, arrayOf(StakeholderTableEntry.ID,StakeholderTableEntry.NAME,StakeholderTableEntry.DESCRIPTION), StakeholderTableEntry.PROJECT_ID+ LIKE + QUOTES + project.id + QUOTES, null, null, null, null, null)
+        val stakeholders = ArrayList<Stakeholder>()
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getString(0)
+                val name = cursor.getString(1)
+                val description = cursor.getString(2)
+                stakeholders.add(Stakeholder.StakeholderBuilder(id, project, name, description).build())
+            }while(cursor.moveToNext())
+        }
+        cursor.close()
+        return stakeholders
+    }
+    fun readStakeholder(key: String, valueIfNull: Stakeholder): Stakeholder {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(StakeholderTableEntry.TABLE_NAME, arrayOf(StakeholderTableEntry.ID,StakeholderTableEntry.PROJECT_ID,StakeholderTableEntry.NAME,StakeholderTableEntry.DESCRIPTION), StakeholderTableEntry.ID+ LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getString(0)
+            val projectId = cursor.getString(1)
+            val name = cursor.getString(2)
+            val description = cursor.getString(3)
+            return Stakeholder.StakeholderBuilder(id, projectId, name, description).build()
+        }
+        cursor.close()
+        return valueIfNull
+    }
+    fun readObjects(scenario: Scenario): List<Object> {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID,ObjectTableEntry.NAME,ObjectTableEntry.DESCRIPTION), ObjectTableEntry.SCENARIO_ID+ LIKE + QUOTES + scenario.id + QUOTES, null, null, null, null, null)
+        val objects = ArrayList<Object>()
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getString(0)
+                val name = cursor.getString(1)
+                val description = cursor.getString(2)
+                objects.add(Object.ObjectBuilder(id, scenario, name, description).build())
+            }while(cursor.moveToNext())
+        }
+        cursor.close()
+        return objects
+    }
+    fun readObject(key: String, valueIfNull: Object): Object {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID,ObjectTableEntry.SCENARIO_ID,ObjectTableEntry.NAME,ObjectTableEntry.DESCRIPTION), ObjectTableEntry.ID+ LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getString(0)
+            val scenarioId = cursor.getString(1)
+            val name = cursor.getString(2)
+            val description = cursor.getString(3)
+            return Object.ObjectBuilder(id, scenarioId, name, description).build()
         }
         cursor.close()
         return valueIfNull

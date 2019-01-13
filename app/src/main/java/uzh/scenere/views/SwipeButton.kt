@@ -39,7 +39,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     public var outputObject: TextView? = null
     //Function
     private var exec: SwipeButtonExecution = object : SwipeButtonExecution {}
-    private var state: SwipeButtonState = SwipeButtonState.MIDDLE
+    var state: SwipeButtonState = SwipeButtonState.MIDDLE
     private var mode: SwipeButtonMode = SwipeButtonMode.QUADRUPLE
     //Grid
     private var topLayout: LinearLayout? = null
@@ -359,7 +359,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
                             sliderX < w * 0.15 && react[lIdx] -> expand(icons[lIdx], SwipeButtonState.LEFT)
                             sliderY + sliderHeight > h * 0.975 && react[bIdx] -> expand(icons[bIdx], SwipeButtonState.DOWN)
                             sliderY < h * 0.025 && react[tIdx] -> expand(icons[tIdx], SwipeButtonState.UP)
-                            Math.abs(sliderX-initialX)<(sliderSpanX/10) && Math.abs(sliderY-initialY)<(sliderSpanY/10) &&event.eventTime-event.downTime>500 -> {
+                            react[cIdx]&&Math.abs(sliderX-initialX)<(sliderSpanX/10) && Math.abs(sliderY-initialY)<(sliderSpanY/10) &&event.eventTime-event.downTime>500 -> {
                                 state = SwipeButtonState.LONG_CLICK
                                 execute()
                             }

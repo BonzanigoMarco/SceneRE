@@ -16,5 +16,7 @@ class Constants {
         const val BUNDLE_PROJECT: String = "sreBundleProject"
         //UID-IDENTIFIERS
         const val PROJECT_UID_IDENTIFIER: String = "project_"
+        const val OBJECT_UID_IDENTIFIER: String = "object_"
+        const val STAKEHOLDER_UID_IDENTIFIER: String = "stakeholder_"
     }
 }

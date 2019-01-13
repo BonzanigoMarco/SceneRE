@@ -62,10 +62,24 @@ class ProjectsActivity : AbstractManagementActivity() {
         customizeToolbarText(null,null,getLockIcon(),null,null)
     }
 
+    override fun onResume() {
+        super.onResume()
+        collapseAllButtons()
+    }
+
+    private fun collapseAllButtons() {
+        for (v in 0 until holder_linear_layout_holder.childCount) {
+            if (holder_linear_layout_holder.getChildAt(v) is SwipeButton &&
+                    (holder_linear_layout_holder.getChildAt(v) as SwipeButton).state != SwipeButton.SwipeButtonState.MIDDLE) {
+                (holder_linear_layout_holder.getChildAt(v) as SwipeButton).collapse()
+            }
+        }
+    }
+
     private fun addProjectToList(project: Project) {
         val swipeButton = SwipeButton(this, project.title)
                 .setColors(Color.WHITE, Color.GRAY)
-                .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_person, R.string.icon_object, R.string.icon_scenario)
+                .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_person, R.string.icon_scenario, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, true, true)
                 .updateViews(true)
         swipeButton.dataObject = project
@@ -100,10 +114,6 @@ class ProjectsActivity : AbstractManagementActivity() {
             override fun execDown() {
                 activeButton = button
                 openInput(ProjectsMode.OBJECT,project)
-            }
-
-            override fun execLongClick() {
-                toast("opening scenarios")
             }
         }
     }
