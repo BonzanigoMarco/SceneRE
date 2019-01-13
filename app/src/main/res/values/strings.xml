@@ -25,6 +25,8 @@
     <string name="projects_title">Projects</string>
     <string name="holder_info_title">Info Text</string>
     <string name="projects_create">Creating a new Project</string>
+    <string name="projects_edit">Edit Project</string>
+    <string name="stakeholders_create">Creating a new Stakeholder</string>
     <string name="label">%1$s:</string>
-
+    <string name="stakeholder_title">Stakeholder</string>
 </resources>

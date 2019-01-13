@@ -2,8 +2,10 @@ package uzh.scenere.activities
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.text.SpannedString
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -17,11 +19,15 @@ import uzh.scenere.R
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.WeightAnimator
+import android.app.Activity
+import android.view.inputmethod.InputMethodManager
 
 
 abstract class AbstractBaseActivity : AppCompatActivity() {
     protected var marginSmall: Int? = null
     protected var textSize: Float? = null
+    protected var fontAwesome: Typeface? = null
+    protected var fontNormal: Typeface = Typeface.DEFAULT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +38,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     private fun readVariables() {
         marginSmall = NumberHelper.nvl(applicationContext.resources.getDimension(R.dimen.dimMarginSmall), 0).toInt()
         textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, applicationContext.resources.displayMetrics)
+        fontAwesome = Typeface.createFromAsset(applicationContext.assets, "FontAwesome900.otf")
     }
 
     abstract fun getConfiguredLayout(): Int
@@ -53,9 +60,9 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     open fun onToolbarClicked(view: View) {
         when (view.id) {
             R.id.toolbar_action_left -> onToolbarLeftClicked()
-            R.id.toolbar_action_center_left -> onToolbarMiddleLeftClicked()
-            R.id.toolbar_action_center -> onToolbarMiddleClicked()
-            R.id.toolbar_action_center_right -> onToolbarMiddleRightClicked()
+            R.id.toolbar_action_center_left -> onToolbarCenterLeftClicked()
+            R.id.toolbar_action_center -> onToolbarCenterClicked()
+            R.id.toolbar_action_center_right -> onToolbarCenterRightClicked()
             R.id.toolbar_action_right -> onToolbarRightClicked()
         }
     }
@@ -68,15 +75,15 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         //NOP
     }
 
-    open fun onToolbarMiddleLeftClicked() {
+    open fun onToolbarCenterLeftClicked() {
         //NOP
     }
 
-    open fun onToolbarMiddleClicked() {
+    open fun onToolbarCenterClicked() {
         //NOP
     }
 
-    open fun onToolbarMiddleRightClicked() {
+    open fun onToolbarCenterRightClicked() {
         //NOP
     }
 
@@ -95,6 +102,57 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         }
     }
 
+    //************
+    //* CREATION *
+    //************
+    private fun createLayoutParams(weight: Float, textView: TextView? = null, crop: Int = 0): LinearLayout.LayoutParams {
+        val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                weight
+        )
+        if (textView != null) {
+            val margin = NumberHelper.nvl(this.resources?.getDimension(R.dimen.dimMarginSmall), 0).toInt()
+            textView.setPadding(0, 0, 0, 0)
+            layoutParams.setMargins(margin, margin, margin, margin)
+            when (crop) {
+                0 -> {
+                    textView.setPadding(0, -margin / 2, 0, 0)
+                }
+                1 -> layoutParams.setMargins(margin, margin, margin, margin / 2)
+                2 -> layoutParams.setMargins(margin, margin / 2, margin, margin)
+            }
+            textView.gravity = (Gravity.CENTER or Gravity.TOP)
+            textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+            textView.layoutParams = layoutParams
+        }
+        return layoutParams
+    }
+
+    protected fun createTitle(title: String, holder: ViewGroup) {
+        val titleText = TextView(this)
+        val titleParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        titleText.layoutParams = titleParams
+        titleText.textAlignment = View.TEXT_ALIGNMENT_CENTER
+        titleText.gravity = Gravity.CENTER
+        titleText.text = title
+        titleText.setTextColor(Color.BLACK)
+        holder.addView(titleText)
+    }
+
+    fun toast(string: String) {
+        Toast.makeText(this, string, Toast.LENGTH_SHORT).show()
+    }
+
+    protected fun execMinimizeKeyboard(){
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        val focusView = currentFocus ?: View(this)
+        inputMethodManager.hideSoftInputFromWindow(focusView.windowToken, 0)
+        focusView.clearFocus()
+    }
+    //*************
+    //* EXECUTION *
+    //************
     enum class InfoState {
         MINIMIZED, NORMAL, MAXIMIZED, INITIALIZE
     }
@@ -102,9 +160,9 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     private var infoState: InfoState? = null
 
     protected fun execMorphInfoBar(state: InfoState? = null): CharSequence {
-        if (state != null){
+        if (state != null) {
             infoState = state
-        }else{
+        } else {
             when (infoState) {
                 InfoState.MINIMIZED -> infoState = InfoState.NORMAL
                 InfoState.NORMAL -> infoState = InfoState.MAXIMIZED
@@ -132,16 +190,16 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
                 return resources.getText(R.string.icon_win_min)
             }
             InfoState.NORMAL -> {
-                WeightAnimator(holder_scroll,3f,250).play()
-                WeightAnimator(holder_layout_info,7f,250).play()
+                WeightAnimator(holder_scroll, 3f, 250).play()
+                WeightAnimator(holder_layout_info, 7f, 250).play()
                 createLayoutParams(2f, holder_text_info_title, 1)
                 holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
                 holder_text_info_content.maxLines = 2
                 return resources.getText(R.string.icon_win_norm)
             }
             InfoState.MAXIMIZED -> {
-                WeightAnimator(holder_scroll,10f,250).play()
-                WeightAnimator(holder_layout_info,0f,250).play()
+                WeightAnimator(holder_scroll, 10f, 250).play()
+                WeightAnimator(holder_layout_info, 0f, 250).play()
                 createLayoutParams(2.7f, holder_text_info_title, 1)
                 holder_text_info_content_wrap.layoutParams = createLayoutParams(0.3f)
                 holder_text_info_content.maxLines = 10
@@ -151,50 +209,42 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         return resources.getText(R.string.icon_null)
     }
 
-    private fun createLayoutParams(weight: Float, textView: TextView? = null, crop: Int = 0): LinearLayout.LayoutParams {
-        val layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                weight
-        )
-        if (textView != null) {
-            val margin = NumberHelper.nvl(this.resources?.getDimension(R.dimen.dimMarginSmall), 0).toInt()
-            textView.setPadding(0, 0, 0, 0)
-            layoutParams.setMargins(margin, margin, margin, margin)
-            when (crop) {
-                0 -> {
-                    textView.setPadding(0, -margin / 2, 0, 0)
-                }
-                1 -> layoutParams.setMargins(margin, margin, margin, margin / 2)
-                2 -> layoutParams.setMargins(margin, margin / 2, margin, margin)
-            }
-            textView.gravity = (Gravity.CENTER or Gravity.TOP)
-            textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
-            textView.layoutParams = layoutParams
-        }
-        return layoutParams
-    }
-
-    fun toast(string: String) {
-        Toast.makeText(this, string, Toast.LENGTH_SHORT).show()
-    }
-
-    protected fun createTitle(title: String, holder: ViewGroup) {
-        val titleText = TextView(this)
-        val titleParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        titleText.layoutParams = titleParams
-        titleText.textAlignment = View.TEXT_ALIGNMENT_CENTER
-        titleText.gravity = Gravity.CENTER
-        titleText.text = title
-        titleText.setTextColor(Color.BLACK)
-        holder.addView(titleText)
-    }
-
-    protected fun customizeToolbar(l: Int?, cl: Int?, c: Int?, cr: Int?, r: Int?) {
+    //*******
+    //* GUI *
+    //*******
+    protected fun customizeToolbarId(l: Int?, cl: Int?, c: Int?, cr: Int?, r: Int?) {
         toolbar_action_left.text = StringHelper.lookupOrEmpty(l, applicationContext)
         toolbar_action_center_left.text = StringHelper.lookupOrEmpty(cl, applicationContext)
         toolbar_action_center.text = StringHelper.lookupOrEmpty(c, applicationContext)
         toolbar_action_center_right.text = StringHelper.lookupOrEmpty(cr, applicationContext)
         toolbar_action_right.text = StringHelper.lookupOrEmpty(r, applicationContext)
+    }
+
+    protected fun adaptToolbarId(l: Int?, cl: Int?, c: Int?, cr: Int?, r: Int?) {
+        toolbar_action_left.text = if (l != null) StringHelper.lookupOrEmpty(l, applicationContext) else toolbar_action_left.text
+        toolbar_action_center_left.text = if (cl != null)  StringHelper.lookupOrEmpty(cl, applicationContext) else toolbar_action_center_left.text
+        toolbar_action_center.text = if (c != null)  StringHelper.lookupOrEmpty(c, applicationContext) else toolbar_action_center.text
+        toolbar_action_center_right.text = if (cr != null)  StringHelper.lookupOrEmpty(cr, applicationContext) else toolbar_action_center_right.text
+        toolbar_action_right.text = if (r != null)  StringHelper.lookupOrEmpty(r, applicationContext) else toolbar_action_right.text
+    }
+
+    protected fun customizeToolbarText(l: String?, cl: String?, c: String?, cr: String?, r: String?) {
+        toolbar_action_left.text = l
+        toolbar_action_center_left.text = cl
+        toolbar_action_center.text = c
+        toolbar_action_center_right.text = cr
+        toolbar_action_right.text = r
+    }
+
+    protected fun adaptToolbarText(l: String?, cl: String?, c: String?, cr: String?, r: String?) {
+        toolbar_action_left.text = l ?: toolbar_action_left.text
+        toolbar_action_center_left.text = cl ?: toolbar_action_center_left.text
+        toolbar_action_center.text = c ?: toolbar_action_center.text
+        toolbar_action_center_right.text = cr ?: toolbar_action_center_right.text
+        toolbar_action_right.text = r ?: toolbar_action_right.text
+    }
+
+    protected fun getSpannedStringFromId(id: Int): SpannedString{
+        return getText(id) as SpannedString
     }
 }

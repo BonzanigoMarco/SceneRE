@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
-import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -25,7 +24,7 @@ import uzh.scenere.helpers.NumberHelper
 
 class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : LinearLayout(context, attributeSet, defStyleAttr, defStyleRes) {
     enum class SwipeButtonState {
-        LEFT, UP, DOWN, RIGHT, MIDDLE
+        LEFT, UP, DOWN, RIGHT, MIDDLE, LONG_CLICK
     }
 
     enum class SwipeButtonMode {
@@ -71,8 +70,8 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     private var bIdx: Int = 3
     private var cIdx: Int = 4
     private var icons: IntArray = intArrayOf(R.string.icon_delete, R.string.icon_edit, R.string.icon_comment, R.string.icon_lock,R.string.icon_null)
-    private var react: BooleanArray = booleanArrayOf(true, true, true, true)
-    private var colors: IntArray = intArrayOf(Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
+    private var react: BooleanArray = booleanArrayOf(true, true, true, true, false)
+    private var colors: IntArray = intArrayOf(Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE)
     //State
     private var initialized: Boolean = false
     private var active: Boolean = false
@@ -121,8 +120,8 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         this.orientation = LinearLayout.VERTICAL
 
         val masterLayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dpiHeight)
-        masterLayoutParams.marginStart = dpiMargin
-        masterLayoutParams.marginEnd = dpiMargin+NumberHelper.nvl(context?.resources?.getDimension(R.dimen.dimScrollbar),0).toInt()
+        masterLayoutParams.marginStart = dpiMargin//TODO Adapt to existing scroll bar or not
+        masterLayoutParams.marginEnd = dpiMargin//+NumberHelper.nvl(context?.resources?.getDimension(R.dimen.dimScrollbar),0).toInt()
         masterLayoutParams.topMargin = dpiMargin / 5
         masterLayoutParams.weight = 12f
         layoutParams = masterLayoutParams
@@ -202,7 +201,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         this.topBg = topBg
         val topBgParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
         topBgParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
-        topBg.setPadding(dpiPadding * 4, 0, dpiPadding * 4, dpiPadding*2)
+        topBg.setPadding(dpiPadding * 4, dpiPadding, dpiPadding * 4, dpiPadding*2)
         topBg.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_top)
         bottomBackgroundLayout.addView(topBg, topBgParams)
         bottomBackgroundLayout.addView(topText, topTextParams)
@@ -255,7 +254,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
             }
         })
         //Update Buttons
-        updateViews(false)
+        updateViews(true)
         //Finish Initialization
         initialized = true
     }
@@ -289,6 +288,9 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
                         interacted = true
                         initialEventY = event.y
                         initialEventX = event.x
+                        if (initialX == sliderX && initialY == sliderY){
+                            initialButtonWidth = sliderWidth.toInt()
+                        }
                         return@OnTouchListener true
                     }
                     return@OnTouchListener false
@@ -302,6 +304,11 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
                         bottomText?.alpha = alpha
                         leftText?.alpha = alpha
                         rightText?.alpha = alpha
+                        if (alpha < 0.9){
+                            sliderButton?.text = null
+                        }else{
+                            sliderButton?.text = context.resources.getText(icons[cIdx])
+                        }
                         //Handle general slide to the left || right
                         if (event.x > sliderWidth / 2 + dpiSliderMargin && event.x + sliderWidth / 2 < w) {
                             sliderButton?.x = (event.x - sliderWidth / 2)
@@ -322,6 +329,11 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
                         bottomText?.alpha = alpha
                         leftText?.alpha = alpha
                         rightText?.alpha = alpha
+                        if (alpha < 0.9){
+                            sliderButton?.text = null
+                        }else{
+                            sliderButton?.text = context.resources.getText(icons[cIdx])
+                        }
                         //Handle general slide to up || down
                         if (event.y > sliderHeight / 2 && event.y + sliderHeight / 2 < h) {
                             sliderButton?.y = (event.y - sliderHeight / 2)
@@ -342,12 +354,15 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
                     if (active) {
                         collapse()
                     } else {
-                        initialButtonWidth = sliderWidth.toInt()
                         when {
                             sliderX + sliderWidth > w * 0.85 && react[rIdx] -> expand(icons[rIdx], SwipeButtonState.RIGHT)
                             sliderX < w * 0.15 && react[lIdx] -> expand(icons[lIdx], SwipeButtonState.LEFT)
                             sliderY + sliderHeight > h * 0.975 && react[bIdx] -> expand(icons[bIdx], SwipeButtonState.DOWN)
                             sliderY < h * 0.025 && react[tIdx] -> expand(icons[tIdx], SwipeButtonState.UP)
+                            Math.abs(sliderX-initialX)<(sliderSpanX/10) && Math.abs(sliderY-initialY)<(sliderSpanY/10) &&event.eventTime-event.downTime>500 -> {
+                                state = SwipeButtonState.LONG_CLICK
+                                execute()
+                            }
                             else -> reset()
                         }
                     }
@@ -375,20 +390,22 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         return this
     }
 
-    fun setButtonStates(lActive: Boolean, rActive: Boolean, tActive: Boolean, bActive: Boolean): SwipeButton {
+    fun setButtonStates(lActive: Boolean, rActive: Boolean, tActive: Boolean, bActive: Boolean, cActive: Boolean = false): SwipeButton {
         react[lIdx] = lActive
         react[rIdx] = rActive
         react[tIdx] = tActive
         react[bIdx] = bActive
+        react[cIdx] = cActive
         return this
     }
 
-    fun setIndividualButtonColors(lColor: Int, rColor: Int, tColor: Int, bColor: Int): SwipeButton {
+    fun setIndividualButtonColors(lColor: Int, rColor: Int, tColor: Int, bColor: Int, cColor: Int = Color.WHITE): SwipeButton {
         individualColor = true
         colors[lIdx] = lColor
         colors[rIdx] = rColor
         colors[tIdx] = tColor
         colors[bIdx] = bColor
+        colors[cIdx] = cColor
         return this
     }
 
@@ -402,8 +419,8 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         return this
     }
 
-    fun updateViews(minimal: Boolean): SwipeButton {
-        if (!minimal) {
+    fun updateViews(init: Boolean): SwipeButton {
+        if (init) {
             var modifier: Float = 1.5f
             if (mode == SwipeButtonMode.DOUBLE) {
                 dpiText *= 1.5f
@@ -551,34 +568,25 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     }
 
     private fun execute() {
-        if (firstAction){ //On First Interaction, the Setup needs a Delay
-            Handler().postDelayed({ execute() }, (animationDuration*1.25).toLong())
-            firstAction = false
-        }else{
-            when (state) {
-                SwipeButtonState.LEFT -> exec.execLeft()
-                SwipeButtonState.RIGHT -> exec.execRight()//Toast.makeText(context,"",Toast.LENGTH_SHORT).show()
-                SwipeButtonState.UP -> exec.execUp()
-                SwipeButtonState.DOWN -> exec.execDown()
-                SwipeButtonState.MIDDLE -> exec.execReset()
+        when (state) {
+            SwipeButtonState.LEFT -> exec.execLeft()
+            SwipeButtonState.RIGHT -> exec.execRight()//Toast.makeText(context,"",Toast.LENGTH_SHORT).show()
+            SwipeButtonState.UP -> exec.execUp()
+            SwipeButtonState.DOWN -> exec.execDown()
+            SwipeButtonState.MIDDLE -> exec.execReset()
+            SwipeButtonState.LONG_CLICK -> {
+                exec.execLongClick()
+                state = SwipeButtonState.MIDDLE
             }
         }
     }
 
     interface SwipeButtonExecution {
-        fun execLeft() {/*NOP*/
-        }
-
-        fun execRight() {/*NOP*/
-        }
-
-        fun execUp() {/*NOP*/
-        }
-
-        fun execDown() {/*NOP*/
-        }
-
-        fun execReset() {/*NOP*/
-        }
+        fun execLeft() {/*NOP*/}
+        fun execRight() {/*NOP*/}
+        fun execUp() {/*NOP*/}
+        fun execDown() {/*NOP*/}
+        fun execReset() {/*NOP*/}
+        fun execLongClick(){/*NOP*/}
     }
 }

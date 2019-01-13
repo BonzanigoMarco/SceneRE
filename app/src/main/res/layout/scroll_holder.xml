@@ -15,7 +15,6 @@
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:scrollbarSize="@dimen/dimScrollbar"
         android:fadeScrollbars="false"
-        android:scrollbarFadeDuration="0"
         android:scrollbarThumbVertical="@drawable/blue_scrollbar"
         android:layout_weight="7">
 
@@ -48,8 +47,7 @@
             android:layout_marginRight="@dimen/dimMarginSmall"
             android:layout_marginBottom="@dimen/dimMarginSmallHalf"
             android:gravity="center"
-            android:textAlignment="gravity"
-            android:text="@string/holder_info_title"/>
+            android:textAlignment="gravity"/>
 
         <LinearLayout
             android:id="@+id/holder_text_info_content_wrap"

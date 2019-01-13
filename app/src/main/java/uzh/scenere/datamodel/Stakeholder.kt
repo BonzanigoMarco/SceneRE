@@ -1,12 +1,23 @@
 package uzh.scenere.datamodel
 
-class Stakeholder private constructor(private val name: String, private val introduction: String) {
+import java.util.*
 
-    class StakeholderBuilder(val name: String, val introduction: String){
+class Stakeholder private constructor(val id: String,val projectId: String,val name: String, val introduction: String) {
+
+    class StakeholderBuilder(private val project: Project,private val name: String, private val introduction: String){
+
+        constructor(id: String, project: Project, name: String, introduction: String): this(project,name,introduction){
+            this.id = id
+        }
+
+        private var id: String? = null
 
         fun build(): Stakeholder{
-            val stakeholder  = Stakeholder(name,introduction)
-            return stakeholder
+            return Stakeholder(id?: UUID.randomUUID().toString(),project.id,name,introduction)
+        }
+
+        fun copyId(stakeholder: Stakeholder) {
+            this.id = stakeholder.id
         }
     }
 

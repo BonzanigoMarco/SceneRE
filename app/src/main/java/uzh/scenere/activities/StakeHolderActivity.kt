@@ -1,9 +1,7 @@
 package uzh.scenere.activities
 
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.text.InputType
 import android.view.View
@@ -25,28 +23,30 @@ import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.SwipeButton.SwipeButtonExecution
 
 
-class ProjectsActivity : AbstractManagementActivity() {
+class StakeHolderActivity : AbstractManagementActivity() {
     override fun getConfiguredLayout(): Int {
-        return R.layout.activity_projects
+        return R.layout.activity_stakeholder
     }
 
-    enum class ProjectsMode{
+    enum class StakeholderMode{
         VIEW, EDIT_CREATE, OBJECT, STAKEHOLDER
     }
 
     private val inputMap: HashMap<String,EditText> = HashMap()
-    private val inputLabelTitle = "Project Title"
-    private val inputLabelDescription = "Project Description"
+    private val inputLabelName = "Stakeholder Name"
+    private val inputLabelIntroduction = "Stakeholder Description"
     private var activeProject: Project? = null
+    private var activeStakeholder: Stakeholder? = null
 
     private var creationButton: SwipeButton? = null
     private var activeButton: SwipeButton? = null
-    private var projectsMode: ProjectsMode = ProjectsMode.VIEW
+    private var stakeholdersMode: StakeholderMode = StakeholderMode.VIEW
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        activeProject = intent.getSerializableExtra(BUNDLE_PROJECT) as Project
         creationButton =
-                SwipeButton(this,"Create New Project")
+                SwipeButton(this,"Create New Stakeholder")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setColors(Color.WHITE,Color.GRAY)
                         .setButtonStates(false,true,false,false)
@@ -55,86 +55,80 @@ class ProjectsActivity : AbstractManagementActivity() {
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
         holder_linear_layout_holder.addView(creationButton)
         createTitle("",holder_linear_layout_holder)
-        for (project in DatabaseHelper.getInstance(applicationContext).readBulk(Project::class)){
-            addProjectToList(project)
-        }
-        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
+//        for (stakeholder in DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class)){
+//            addStakeholderToList(stakeholder)
+//        }
+//        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholders),fontAwesome)
         customizeToolbarText(null,null,getLockIcon(),null,null)
     }
 
-    private fun addProjectToList(project: Project) {
-        val swipeButton = SwipeButton(this, project.title)
+    private fun addStakeholderToList(stakeholder: Stakeholder) {
+        val swipeButton = SwipeButton(this, stakeholder.name)
                 .setColors(Color.WHITE, Color.GRAY)
-                .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_person, R.string.icon_object, R.string.icon_scenario)
+                .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_person, R.string.icon_object, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, true, true)
                 .updateViews(true)
-        swipeButton.dataObject = project
-        swipeButton.setExecutable(generateProjectExecutable(swipeButton, project))
+        swipeButton.dataObject = stakeholder
+        swipeButton.setExecutable(generateStakeholderExecutable(swipeButton, stakeholder))
         holder_linear_layout_holder.addView(swipeButton)
     }
 
-    private fun generateCreationExecutable(button: SwipeButton, project: Project? = null): SwipeButtonExecution {
+    private fun generateCreationExecutable(button: SwipeButton, stakeholder: Stakeholder? = null): SwipeButtonExecution {
         return object: SwipeButtonExecution{
             override fun execRight() {
                 activeButton = button
-                openInput(ProjectsMode.EDIT_CREATE)
+                openInput(StakeholderMode.EDIT_CREATE)
             }
         }
     }
 
-    private fun generateProjectExecutable(button: SwipeButton, project: Project? = null): SwipeButtonExecution {
+    private fun generateStakeholderExecutable(button: SwipeButton, stakeholder: Stakeholder? = null): SwipeButtonExecution {
         return object: SwipeButtonExecution{
             override fun execLeft() {
-                if (project!=null){
-                    removeProject(project)
+                if (stakeholder!=null){
+                    removeStakeholder(stakeholder)
                 }
             }
             override fun execRight() {
                 activeButton = button
-                openInput(ProjectsMode.EDIT_CREATE,project)
+                openInput(StakeholderMode.EDIT_CREATE,stakeholder)
             }
             override fun execUp() {
                 activeButton = button
-                openInput(ProjectsMode.STAKEHOLDER,project)
+                openInput(StakeholderMode.STAKEHOLDER,stakeholder)
             }
             override fun execDown() {
                 activeButton = button
-                openInput(ProjectsMode.OBJECT,project)
-            }
-
-            override fun execLongClick() {
-                toast("opening scenarios")
+                openInput(StakeholderMode.OBJECT,stakeholder)
             }
         }
     }
 
-    private fun openInput(projectsMode: ProjectsMode, project: Project? = null) {
-        activeProject = project
-        this.projectsMode = projectsMode
-        when(projectsMode){
-            ProjectsMode.VIEW -> {}//NOP
-            ProjectsMode.EDIT_CREATE -> {
+    private fun openInput(stakeholdersMode: StakeholderMode, stakeholder: Stakeholder? = null) {
+        activeStakeholder = stakeholder
+        this.stakeholdersMode = stakeholdersMode
+        cleanInfoHolder(getString(R.string.stakeholders_create))
+        when(stakeholdersMode){
+            StakeholderMode.VIEW -> {}//NOP
+            StakeholderMode.EDIT_CREATE -> {
                 //[Title]: [TitleInput]
                 //[Description]:
                 //[DescriptionInput]
-                cleanInfoHolder(if (activeProject==null) getString(R.string.projects_create) else getString(R.string.projects_edit))
-                holder_text_info_content_wrap.addView(createLine(inputLabelTitle,false, project?.title))
-                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, true, project?.description))
+                holder_text_info_content_wrap.addView(createLine(inputLabelName,false, stakeholder?.name))
+                holder_text_info_content_wrap.addView(createLine(inputLabelIntroduction, true, stakeholder?.introduction))
             }
-            ProjectsMode.OBJECT -> {
-                holder_text_info_content_wrap.addView(createLine(inputLabelTitle,false, project?.title))
-                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, true, project?.description))
+            StakeholderMode.OBJECT -> {
+                holder_text_info_content_wrap.addView(createLine(inputLabelName,false, stakeholder?.name))
+                holder_text_info_content_wrap.addView(createLine(inputLabelIntroduction, true, stakeholder?.introduction))
             }
-            ProjectsMode.STAKEHOLDER -> {
-                val intent = Intent(this,StakeHolderActivity::class.java)
-                intent.putExtra(BUNDLE_PROJECT,project)
-                startActivity(intent)
-                return
+            StakeholderMode.STAKEHOLDER -> {
+                holder_text_info_content_wrap.addView(createLine(inputLabelName,false, stakeholder?.name))
+                holder_text_info_content_wrap.addView(createLine(inputLabelIntroduction, true, stakeholder?.introduction))
             }
         }
 
         execMorphInfoBar(InfoState.MAXIMIZED)
-        customizeToolbarText(resources.getString(R.string.icon_check), null, getLockIcon(), null, resources.getString(R.string.icon_cross))
+        customizeToolbarText(resources.getString(R.string.icon_check), null, null, null, resources.getString(R.string.icon_cross))
     }
 
     private fun cleanInfoHolder(titleText: String) {
@@ -189,58 +183,59 @@ class ProjectsActivity : AbstractManagementActivity() {
     }
 
     override fun onToolbarRightClicked() { //CLOSE
-        if (projectsMode == ProjectsMode.EDIT_CREATE){
+        if (stakeholdersMode == StakeholderMode.EDIT_CREATE){
             execMorphInfoBar(InfoState.MINIMIZED)
-            holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
+            holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholder),fontAwesome)
             holder_text_info_content.text = ""
             customizeToolbarText(null,null,getLockIcon(),null,null)
             activeProject = null
-            projectsMode = ProjectsMode.VIEW
+            stakeholdersMode = StakeholderMode.VIEW
             activeButton?.collapse()
             activeButton = null
-            execMinimizeKeyboard()
         }
     }
 
-    override fun onToolbarCenterClicked() {
-        adaptToolbarText(null,null,changeLockState(),null,null)
-        for (v in 0 until holder_linear_layout_holder.childCount){
-            if (holder_linear_layout_holder.getChildAt(v) is SwipeButton){
-                (holder_linear_layout_holder.getChildAt(v) as SwipeButton).setButtonStates(lockState==LockState.UNLOCKED,true,true,true).updateViews(false)
+    override fun onToolbarCenterClicked() { //LOCK & UNLOCK
+        if (stakeholdersMode == StakeholderMode.VIEW) {
+            adaptToolbarText(null, null, changeLockState(), null, null)
+            for (v in 0 until holder_linear_layout_holder.childCount) {
+                if (holder_linear_layout_holder.getChildAt(v) is SwipeButton) {
+                    (holder_linear_layout_holder.getChildAt(v) as SwipeButton).setButtonStates(lockState == LockState.UNLOCKED, true, true, true).updateViews(false)
+                }
             }
         }
     }
 
     override fun onToolbarLeftClicked() { //SAVE
-        if (projectsMode == ProjectsMode.EDIT_CREATE){
+        if (stakeholdersMode == StakeholderMode.EDIT_CREATE){
             for (entry in inputMap){
                 if (!StringHelper.hasText(entry.value.text)){
                     toast("Not all required information entered!")
                     return
                 }
             }
-            val title = inputMap[inputLabelTitle]!!.getStringValue()
-            val description = inputMap[inputLabelDescription]!!.getStringValue()
-            val projectBuilder = Project.ProjectBuilder("Jon Doe", title, description) //TODO Read from db
+            val name = inputMap[inputLabelName]!!.getStringValue()
+            val introduction = inputMap[inputLabelIntroduction]!!.getStringValue()
+            val stakeholderBuilder = Stakeholder.StakeholderBuilder(activeProject!!,name, introduction) //TODO Link to Project
             if (activeProject != null){
-                removeProject(activeProject!!)
-                projectBuilder.copyId(activeProject!!)
+                removeStakeholder(activeStakeholder!!)
+                stakeholderBuilder.copyId(activeStakeholder!!)
             }
-            val project = projectBuilder.build()
-            DatabaseHelper.getInstance(applicationContext).write(project.id,project)
-            addProjectToList(project)
+            val stakeholder = stakeholderBuilder.build()
+            DatabaseHelper.getInstance(applicationContext).write(stakeholder.id,stakeholder)
+            addStakeholderToList(stakeholder)
             createTitle("",holder_linear_layout_holder)
             holder_scroll.fullScroll(View.FOCUS_DOWN)
             onToolbarRightClicked()
         }
     }
 
-    private fun removeProject(project: Project) {
+    private fun removeStakeholder(stakeholder: Stakeholder) {
         for (viewPointer in 0 until holder_linear_layout_holder.childCount){
             if (holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == project){
+                    (holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == stakeholder){
                 holder_linear_layout_holder.removeViewAt(viewPointer)
-                DatabaseHelper.getInstance(applicationContext).delete(project.id)
+                DatabaseHelper.getInstance(applicationContext).delete(stakeholder.id)
                 return
             }
         }

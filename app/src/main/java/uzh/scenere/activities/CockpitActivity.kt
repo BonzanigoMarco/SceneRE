@@ -73,7 +73,7 @@ class CockpitActivity : AbstractBaseActivity() {
                             .setIndividualButtonColors(if (granted) Color.GREEN else Color.RED, Color.WHITE, Color.GRAY, Color.GRAY)
                             .setButtonIcons(if (granted) R.string.icon_check else R.string.icon_cross, R.string.icon_sign, null, null, null)
                             .setButtonStates(true, true, false, false)
-                            .updateViews(false)
+                            .updateViews(true)
                     swipeButton.dataObject = permission
                     swipeButton.outputObject = holder_text_info_content
                     swipeButton.setExecutable(generatePermissionExecutable(permission, swipeButton))
@@ -89,7 +89,7 @@ class CockpitActivity : AbstractBaseActivity() {
                             .setIndividualButtonColors(if (granted) Color.WHITE else Color.RED, if (granted) Color.GREEN else Color.WHITE, Color.GRAY, Color.GRAY)
                             .setButtonIcons(R.string.icon_cross, R.string.icon_check, null, null, null)
                             .setButtonStates(true, true, false, false)
-                            .updateViews(false)
+                            .updateViews(true)
                     swipeButton.dataObject = communication
                     swipeButton.outputObject = holder_text_info_content
                     swipeButton.setExecutable(generateCommunicationExecutable(communication, swipeButton))
@@ -104,7 +104,7 @@ class CockpitActivity : AbstractBaseActivity() {
                             .setIndividualButtonColors(Color.WHITE, Color.WHITE, Color.GRAY, Color.GRAY)
                             .setButtonIcons(R.string.icon_eye_closed, R.string.icon_eye, null, null, null)
                             .setButtonStates(true, true, false, false)
-                            .updateViews(false)
+                            .updateViews(true)
                     swipeButton.dataObject = sensor
                     swipeButton.outputObject = holder_text_info_content
                     swipeButton.setExecutable(generateSensorExecutable(sensor, swipeButton))
@@ -141,7 +141,7 @@ class CockpitActivity : AbstractBaseActivity() {
             override fun execRight() {
                 if (!CommunicationHelper.check(this@CockpitActivity, communication)) {
                     val active = CommunicationHelper.toggle(this@CockpitActivity, communication)
-                    button.setIndividualButtonColors(if (active) Color.WHITE else Color.RED, if (active) Color.GREEN else Color.WHITE, Color.GRAY, Color.GRAY).updateViews(true)
+                    button.setIndividualButtonColors(if (active) Color.WHITE else Color.RED, if (active) Color.GREEN else Color.WHITE, Color.GRAY, Color.GRAY).updateViews(false)
                     Handler().postDelayed({ button.collapse() }, 500)
                 } else {
                     Handler().postDelayed({ button.collapse() }, 500)
@@ -151,7 +151,7 @@ class CockpitActivity : AbstractBaseActivity() {
             override fun execLeft() {
                 if (CommunicationHelper.check(this@CockpitActivity, communication)) {
                     val active = CommunicationHelper.toggle(this@CockpitActivity, communication)
-                    button.setIndividualButtonColors(if (active) Color.WHITE else Color.RED, if (active) Color.GREEN else Color.WHITE, Color.GRAY, Color.GRAY).updateViews(true)
+                    button.setIndividualButtonColors(if (active) Color.WHITE else Color.RED, if (active) Color.GREEN else Color.WHITE, Color.GRAY, Color.GRAY).updateViews(false)
                     Handler().postDelayed({ button.collapse() }, 500)
                 } else {
                     Handler().postDelayed({ button.collapse() }, 500)
@@ -188,11 +188,11 @@ class CockpitActivity : AbstractBaseActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 activeButton?.setIndividualButtonColors(Color.GREEN, Color.WHITE, Color.GRAY, Color.GRAY)
                         ?.setButtonIcons(R.string.icon_check, R.string.icon_sign, null, null, null)
-                        ?.updateViews(true)
+                        ?.updateViews(false)
             } else {
                 activeButton?.setIndividualButtonColors(Color.RED, Color.WHITE, Color.GRAY, Color.GRAY)
                         ?.setButtonIcons(R.string.icon_cross, R.string.icon_sign, null, null, null)
-                        ?.updateViews(true)
+                        ?.updateViews(false)
             }
             activeButton?.collapse()
         }
@@ -226,7 +226,7 @@ class CockpitActivity : AbstractBaseActivity() {
         recreateViews()
     }
 
-    override fun onToolbarMiddleClicked() {
+    override fun onToolbarCenterClicked() {
         val mapIntent = CommunicationHelper.getMapIntent()
         if (mapIntent == null){
             toast("GPS not ready")
@@ -235,7 +235,7 @@ class CockpitActivity : AbstractBaseActivity() {
         startActivity(mapIntent)
     }
 
-    override fun onToolbarMiddleRightClicked() {
+    override fun onToolbarCenterRightClicked() {
         toolbar_action_center_right.text = execMorphInfoBar(null)
     }
 }

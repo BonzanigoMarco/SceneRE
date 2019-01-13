@@ -3,9 +3,9 @@
     <color name="srePrimaryLight">#7986cb</color>
     <color name="srePrimary">#3F51B5</color>
     <color name="srePrimaryDark">#303F9F</color>
-    <!--<color name="srePrimaryLight">#ff80ab</color>-->
-    <!--<color name="srePrimary">#FF4081</color>-->
-    <!--<color name="srePrimaryDark">#f50057</color>-->
+    <!--<color title="srePrimaryLight">#ff80ab</color>-->
+    <!--<color title="srePrimary">#FF4081</color>-->
+    <!--<color title="srePrimaryDark">#f50057</color>-->
     <color name="sreAccentLight">#ff80ab</color>
     <color name="sreAccent">#FF4081</color>
     <color name="sreAccentDark">#f50057</color>

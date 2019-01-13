@@ -43,6 +43,12 @@
         <activity android:name=".activities.ScenariosActivity"></activity>
         <activity android:name=".activities.ShareActivity"></activity>
         <activity android:name=".activities.WalkthroughActivity"></activity>
+        <activity android:name=".activities.TutorialActivity"></activity>
+
+        <activity android:name=".activities.StakeHolderActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/SceneReToolbarTheme">
+        </activity>
 
     </application>
 

@@ -5,6 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.scroll_holder.*
+import android.animation.Animator
+import android.R.attr.level
+import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
+
+
 
 class WeightAnimator private constructor() {
 
@@ -17,6 +23,25 @@ class WeightAnimator private constructor() {
                 animationWrapper.getWeight(),
                 weight)
         animator?.duration = duration
+        animator?.addListener(object: Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+                //NOP
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                val params = view.layoutParams as LinearLayout.LayoutParams
+                params.weight = weight
+                view.parent.requestLayout()
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+                //NOP
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+                //NOP
+            }
+        })
     }
 
     fun play(){
