@@ -3,7 +3,6 @@ package uzh.scenere.activities
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.text.InputType
 import android.view.View
@@ -17,7 +16,6 @@ import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.BUNDLE_PROJECT
 import uzh.scenere.datamodel.Project
-import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.datamodel.database.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.helpers.getStringValue
@@ -136,7 +134,7 @@ class ProjectsActivity : AbstractManagementActivity() {
                 holder_text_info_content_wrap.addView(createLine(inputLabelDescription, true, project?.description))
             }
             ProjectsMode.STAKEHOLDER -> {
-                val intent = Intent(this,StakeHolderActivity::class.java)
+                val intent = Intent(this,StakeholdersActivity::class.java)
                 intent.putExtra(BUNDLE_PROJECT,project)
                 startActivity(intent)
                 return

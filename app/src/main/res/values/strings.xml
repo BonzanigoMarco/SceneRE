@@ -21,13 +21,17 @@
     <string name="permission_description_nfc">NFC-Permissions\n\nUsed to interact with other Stakeholders.</string>
     <string name="permission_description_sms">SMS-Permissions\n\nUsed for special Triggers.</string>
     <string name="permission_description_gps">GPS-Permissions\n\nUsed for special Triggers.</string>
-    <string name="cockpit_title">Cockpit</string>
-    <string name="projects_title">Projects</string>
-    <string name="holder_info_title">Info Text</string>
+    <string name="label">%1$s:</string>
+    <!--Info-->
     <string name="projects_create">Creating a new Project</string>
     <string name="projects_edit">Edit Project</string>
     <string name="stakeholders_create">Creating a new Stakeholder</string>
     <string name="stakeholders_edit">Edit Stakeholder</string>
-    <string name="label">%1$s:</string>
-    <string name="stakeholder_title">Stakeholder</string>
+    <string name="objects_create">Creating a new Object</string>
+    <string name="objects_edit">Edit Object</string>
+    <!--Titles-->
+    <string name="cockpit_title">Cockpit</string>
+    <string name="projects_title">Projects</string>
+    <string name="stakeholders_title">Stakeholders</string>
+    <string name="objects_title">Objects</string>
 </resources>

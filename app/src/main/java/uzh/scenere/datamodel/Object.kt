@@ -26,10 +26,16 @@ class Object private constructor(val id: String, val scenarioId: String, val nam
             return this
         }
 
+        fun copyId(obj: Object): ObjectBuilder {
+            this.id = obj.id
+            return this
+        }
+
         fun build(): Object {
             return Object(id
                     ?: UUID.randomUUID().toString(), scenarioId, name, description, attributes)
         }
+
     }
 
     override fun equals(other: Any?): Boolean {

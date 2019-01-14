@@ -38,7 +38,11 @@
         <annotation font="font_awesome">&#xf008;</annotation> Scenarios,
         <annotation font="font_awesome">&#xf044;</annotation> Create/Change Project,
         <annotation font="font_awesome">&#xf023;/&#xf3c1;</annotation> Lock/Unlock Deletion</string>
-    <string name="icon_explain_stakeholder">
+    <string name="icon_explain_stakeholders">
+        <annotation font="font_awesome">&#xf2ed;</annotation> Delete,
+        <annotation font="font_awesome">&#xf044;</annotation> Create/Edit,
+        <annotation font="font_awesome">&#xf023;/&#xf3c1;</annotation> Lock/Unlock Deletion</string>
+    <string name="icon_explain_objects">
         <annotation font="font_awesome">&#xf2ed;</annotation> Delete,
         <annotation font="font_awesome">&#xf044;</annotation> Create/Edit,
         <annotation font="font_awesome">&#xf023;/&#xf3c1;</annotation> Lock/Unlock Deletion</string>

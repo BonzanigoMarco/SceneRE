@@ -4,29 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activities.StakeHolderActivity">
+    tools:context=".activities.StakeholdersActivity">
 
     <include layout="@layout/sre_toolbar"
-        android:id="@+id/projects_toolbar" />
+        android:id="@+id/stakeholders_toolbar" />
 
     <TextView
-        android:id="@+id/projects_text_label"
+        android:id="@+id/stakeholders_text_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="gravity"
         android:textColor="@color/sreWhite"
         android:background="@color/srePrimary"
-        android:text="@string/stakeholder_title"
-        android:layout_below="@id/projects_toolbar"/>
+        android:text="@string/stakeholders_title"
+        android:layout_below="@id/stakeholders_toolbar"/>
 
     <include layout="@layout/scroll_holder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/projects_text_label"/>
+        android:layout_below="@+id/stakeholders_text_label"/>
 
     <Button
-        android:id="@+id/projects_button_scenario_management"
+        android:id="@+id/stakeholders_button_scenario_management"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onButtonClicked"

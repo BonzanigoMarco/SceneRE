@@ -14,6 +14,7 @@ class Constants {
         const val GENERAL_TAG: String = "SRE-TAG"
         //BUNDLE
         const val BUNDLE_PROJECT: String = "sreBundleProject"
+        const val BUNDLE_SCENARIO: String = "sreBundleScenario"
         //UID-IDENTIFIERS
         const val PROJECT_UID_IDENTIFIER: String = "project_"
         const val OBJECT_UID_IDENTIFIER: String = "object_"

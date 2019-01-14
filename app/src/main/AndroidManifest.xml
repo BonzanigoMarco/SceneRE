@@ -34,7 +34,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.StartupActivity"></activity>
+
+        <activity android:name=".activities.StartupActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/SceneReToolbarTheme">
+        </activity>
         <activity android:name=".activities.MainMenuActivity"></activity>
         <activity android:name=".activities.AnalyticsActivity"></activity>
         <activity android:name=".activities.CockpitActivity"></activity>
@@ -44,8 +48,11 @@
         <activity android:name=".activities.ShareActivity"></activity>
         <activity android:name=".activities.WalkthroughActivity"></activity>
         <activity android:name=".activities.TutorialActivity"></activity>
-
-        <activity android:name=".activities.StakeHolderActivity"
+        <activity android:name=".activities.StakeholdersActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/SceneReToolbarTheme">
+        </activity>
+        <activity android:name=".activities.ObjectsActivity"
             android:screenOrientation="landscape"
             android:theme="@style/SceneReToolbarTheme">
         </activity>

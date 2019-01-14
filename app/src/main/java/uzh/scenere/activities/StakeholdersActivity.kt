@@ -23,9 +23,9 @@ import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.SwipeButton.SwipeButtonExecution
 
 
-class StakeHolderActivity : AbstractManagementActivity() {
+class StakeholdersActivity : AbstractManagementActivity() {
     override fun getConfiguredLayout(): Int {
-        return R.layout.activity_stakeholder
+        return R.layout.activity_stakeholders
     }
 
     enum class StakeholderMode{
@@ -58,7 +58,7 @@ class StakeHolderActivity : AbstractManagementActivity() {
         for (stakeholder in DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class,activeProject)){
             addStakeholderToList(stakeholder)
         }
-        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholder),fontAwesome)
+        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholders),fontAwesome)
         customizeToolbarText(null,null,getLockIcon(),null,null)
     }
 
@@ -102,7 +102,6 @@ class StakeHolderActivity : AbstractManagementActivity() {
         this.stakeholdersMode = stakeholdersMode
         cleanInfoHolder(if (activeStakeholder==null) getString(R.string.stakeholders_create) else getString(R.string.stakeholders_edit))
         when(stakeholdersMode){
-            StakeholderMode.VIEW -> {}//NOP
             StakeholderMode.EDIT_CREATE -> {
                 holder_text_info_content_wrap.addView(createLine(inputLabelName,false, stakeholder?.name))
                 holder_text_info_content_wrap.addView(createLine(inputLabelDescription, true, stakeholder?.description))
@@ -167,7 +166,7 @@ class StakeHolderActivity : AbstractManagementActivity() {
     override fun onToolbarRightClicked() { //CLOSE
         if (stakeholdersMode == StakeholderMode.EDIT_CREATE){
             execMorphInfoBar(InfoState.MINIMIZED)
-            holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholder),fontAwesome)
+            holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholders),fontAwesome)
             holder_text_info_content.text = ""
             customizeToolbarText(null,null,getLockIcon(),null,null)
             activeStakeholder = null
