@@ -52,8 +52,6 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             R.id.main_menu_button_share -> startActivity(Intent(this, ShareActivity::class.java))
             R.id.main_menu_button_cockpit -> startActivity(Intent(this, CockpitActivity::class.java))
             R.id.projects_button_scenario_management -> startActivity(Intent(this, ScenariosActivity::class.java))
-            R.id.scenario_management_button_resource_management -> startActivity(Intent(this, ResourcesActivity::class.java))
-            R.id.scenario_management_button_scenario_editors -> startActivity(Intent(this, EditorActivity::class.java))
         }
     }
 

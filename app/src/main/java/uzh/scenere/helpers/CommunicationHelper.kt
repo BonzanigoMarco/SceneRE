@@ -26,7 +26,7 @@ import android.support.v4.content.ContextCompat.startActivity
 
 
 
-class CommunicationHelper {
+class CommunicationHelper private constructor () {
 
     companion object {
         enum class Communications(val label: String) {

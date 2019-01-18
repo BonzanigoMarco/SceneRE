@@ -2,10 +2,7 @@ package uzh.scenere.datamodel.database
 
 import android.content.ContentValues
 import android.content.Context
-import uzh.scenere.datamodel.Object
-import uzh.scenere.datamodel.Project
-import uzh.scenere.datamodel.Scenario
-import uzh.scenere.datamodel.Stakeholder
+import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.ObjectHelper
 import java.util.*
@@ -36,51 +33,51 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
      ** DATABASE **/
     fun writeByteArray(key: String, value: ByteArray): Long {
         val values = ContentValues()
-        values.put(DataTableEntry.COLUMN_NAME_KEY, key)
-        values.put(DataTableEntry.COLUMN_NAME_VALUE, value)
-        return insert(DataTableEntry.TABLE_NAME, DataTableEntry.COLUMN_NAME_KEY, key, values)
+        values.put(DataTableEntry.KEY, key)
+        values.put(DataTableEntry.VALUE, value)
+        return insert(DataTableEntry.TABLE_NAME, DataTableEntry.KEY, key, values)
     }
     fun writeString(key: String, value: String): Long {
         val values = ContentValues()
-        values.put(TextTableEntry.COLUMN_NAME_KEY, key)
-        values.put(TextTableEntry.COLUMN_NAME_VALUE, value)
-        return insert(TextTableEntry.TABLE_NAME, TextTableEntry.COLUMN_NAME_KEY, key, values)
+        values.put(TextTableEntry.KEY, key)
+        values.put(TextTableEntry.VALUE, value)
+        return insert(TextTableEntry.TABLE_NAME, TextTableEntry.KEY, key, values)
     }
     fun writeBoolean(key: String, value: Boolean): Long {
         val values = ContentValues()
-        values.put(DataTableEntry.COLUMN_NAME_KEY, key)
-        values.put(DataTableEntry.COLUMN_NAME_VALUE, value)
-        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.COLUMN_NAME_KEY, key, values)
+        values.put(DataTableEntry.KEY, key)
+        values.put(DataTableEntry.VALUE, value)
+        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.KEY, key, values)
     }
     fun writeShort(key: String, value: Short): Long {
         val values = ContentValues()
-        values.put(NumberTableEntry.COLUMN_NAME_KEY, key)
-        values.put(NumberTableEntry.COLUMN_NAME_VALUE, value)
-        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.COLUMN_NAME_KEY, key, values)
+        values.put(NumberTableEntry.KEY, key)
+        values.put(NumberTableEntry.VALUE, value)
+        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.KEY, key, values)
     }
     fun writeInt(key: String, value: Int): Long {
         val values = ContentValues()
-        values.put(NumberTableEntry.COLUMN_NAME_KEY, key)
-        values.put(NumberTableEntry.COLUMN_NAME_VALUE, value)
-        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.COLUMN_NAME_KEY, key, values)
+        values.put(NumberTableEntry.KEY, key)
+        values.put(NumberTableEntry.VALUE, value)
+        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.KEY, key, values)
     }
     fun writeLong(key: String, value: Long): Long {
         val values = ContentValues()
-        values.put(NumberTableEntry.COLUMN_NAME_KEY, key)
-        values.put(NumberTableEntry.COLUMN_NAME_VALUE, value)
-        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.COLUMN_NAME_KEY, key, values)
+        values.put(NumberTableEntry.KEY, key)
+        values.put(NumberTableEntry.VALUE, value)
+        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.KEY, key, values)
     }
     fun writeFloat(key: String, value: Float): Long {
         val values = ContentValues()
-        values.put(NumberTableEntry.COLUMN_NAME_KEY, key)
-        values.put(NumberTableEntry.COLUMN_NAME_VALUE, value)
-        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.COLUMN_NAME_KEY, key, values)
+        values.put(NumberTableEntry.KEY, key)
+        values.put(NumberTableEntry.VALUE, value)
+        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.KEY, key, values)
     }
     fun writeDouble(key: String, value: Double): Long {
         val values = ContentValues()
-        values.put(NumberTableEntry.COLUMN_NAME_KEY, key)
-        values.put(NumberTableEntry.COLUMN_NAME_VALUE, value)
-        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.COLUMN_NAME_KEY, key, values)
+        values.put(NumberTableEntry.KEY, key)
+        values.put(NumberTableEntry.VALUE, value)
+        return insert(NumberTableEntry.TABLE_NAME, NumberTableEntry.KEY, key, values)
     }
     fun writeProject(project: Project): Long {
         val values = ContentValues()
@@ -105,15 +102,26 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         values.put(ObjectTableEntry.NAME, obj.name)
         values.put(ObjectTableEntry.DESCRIPTION, obj.description)
         for (attribute in obj.attributes){
-            val attributeValues = ContentValues()
-            val attributeId = UUID.randomUUID().toString()
-            attributeValues.put(AttributeTableEntry.ID, attributeId)
-            attributeValues.put(AttributeTableEntry.REF_ID, obj.id)
-            attributeValues.put(AttributeTableEntry.KEY, attribute.key)
-            attributeValues.put(AttributeTableEntry.VALUE, attribute.value)
-            insert(AttributeTableEntry.TABLE_NAME, AttributeTableEntry.ID, attributeId, values)
+            writeAttribute(attribute)
         }
         return insert(ObjectTableEntry.TABLE_NAME, ObjectTableEntry.ID, obj.id, values)
+    }
+    fun writeAttribute(attribute: Attribute): Long {
+        val values = ContentValues()
+        values.put(AttributeTableEntry.ID, attribute.id)
+        values.put(AttributeTableEntry.REF_ID, attribute.refId)
+        values.put(AttributeTableEntry.KEY, attribute.key)
+        values.put(AttributeTableEntry.VALUE, attribute.value)
+        return insert(AttributeTableEntry.TABLE_NAME, AttributeTableEntry.ID, attribute.id, values)
+    }
+    fun writeScenario(scenario: Scenario): Long {
+        val values = ContentValues()
+        values.put(ScenarioTableEntry.ID, scenario.id)
+        values.put(ScenarioTableEntry.PROJECT_ID, scenario.projectId)
+        values.put(ScenarioTableEntry.TITLE, scenario.title)
+        values.put(ScenarioTableEntry.INTRO, scenario.intro)
+        values.put(ScenarioTableEntry.OUTRO, scenario.outro)
+        return insert(ScenarioTableEntry.TABLE_NAME, ScenarioTableEntry.ID, scenario.id, values)
     }
 
     /** READ     **
@@ -121,7 +129,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
      ** DATABASE **/
     fun readByteArray(key: String, valueIfNull: ByteArray): ByteArray {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(DataTableEntry.TABLE_NAME, arrayOf(DataTableEntry.COLUMN_NAME_VALUE), DataTableEntry.COLUMN_NAME_KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(DataTableEntry.TABLE_NAME, arrayOf(DataTableEntry.VALUE), DataTableEntry.KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         var bytes: ByteArray? = null
         if (cursor.moveToFirst()) {
             bytes = cursor.getBlob(0)
@@ -131,7 +139,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
     fun readString(key: String, valueIfNull: String): String {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(TextTableEntry.TABLE_NAME, arrayOf(TextTableEntry.COLUMN_NAME_VALUE), TextTableEntry.COLUMN_NAME_KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(TextTableEntry.TABLE_NAME, arrayOf(TextTableEntry.VALUE), TextTableEntry.KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         var d: String? = null
         if (cursor.moveToFirst()) {
             d = cursor.getString(0)
@@ -141,7 +149,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
     fun readBoolean(key: String, valueIfNull: Boolean): Boolean {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.COLUMN_NAME_VALUE), NumberTableEntry.COLUMN_NAME_KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.VALUE), NumberTableEntry.KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         var b: Int? = null
         if (cursor.moveToFirst()) {
             b = cursor.getInt(0)
@@ -151,7 +159,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
     fun readShort(key: String, valueIfNull: Short): Short {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.COLUMN_NAME_VALUE), NumberTableEntry.COLUMN_NAME_KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.VALUE), NumberTableEntry.KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         var s: Short? = null
         if (cursor.moveToFirst()) {
             s = cursor.getShort(0)
@@ -161,7 +169,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
     fun readInt(key: String, valueIfNull: Int): Int {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.COLUMN_NAME_VALUE), NumberTableEntry.COLUMN_NAME_KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.VALUE), NumberTableEntry.KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         var i: Int? = null
         if (cursor.moveToFirst()) {
             i = cursor.getInt(0)
@@ -171,7 +179,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
     fun readLong(key: String, valueIfNull: Long): Long {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.COLUMN_NAME_VALUE), NumberTableEntry.COLUMN_NAME_KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.VALUE), NumberTableEntry.KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         var l: Long? = null
         if (cursor.moveToFirst()) {
             l = cursor.getLong(0)
@@ -181,7 +189,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
     fun readFloat(key: String, valueIfNull: Float): Float {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.COLUMN_NAME_VALUE), NumberTableEntry.COLUMN_NAME_KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.VALUE), NumberTableEntry.KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         var f: Float? = null
         if (cursor.moveToFirst()) {
             f = cursor.getFloat(0)
@@ -191,7 +199,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
     fun readDouble(key: String, valueIfNull: Double): Double {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.COLUMN_NAME_VALUE), NumberTableEntry.COLUMN_NAME_KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(NumberTableEntry.TABLE_NAME, arrayOf(NumberTableEntry.VALUE), NumberTableEntry.KEY + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         var d: Double? = null
         if (cursor.moveToFirst()) {
             d = cursor.getDouble(0)
@@ -256,6 +264,19 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         cursor.close()
         return valueIfNull
     }
+    fun readObject(key: String, valueIfNull: Object): Object {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID,ObjectTableEntry.SCENARIO_ID,ObjectTableEntry.NAME,ObjectTableEntry.DESCRIPTION), ObjectTableEntry.ID+ LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getString(0)
+            val scenarioId = cursor.getString(1)
+            val name = cursor.getString(2)
+            val description = cursor.getString(3)
+            return Object.ObjectBuilder(id, scenarioId, name, description).build()
+        }
+        cursor.close()
+        return valueIfNull
+    }
     fun readObjects(scenario: Scenario): List<Object> {
         val db = dbHelper.readableDatabase
         val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID,ObjectTableEntry.NAME,ObjectTableEntry.DESCRIPTION), ObjectTableEntry.SCENARIO_ID+ LIKE + QUOTES + scenario.id + QUOTES, null, null, null, null, null)
@@ -271,49 +292,117 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         cursor.close()
         return objects
     }
-    fun readObject(key: String, valueIfNull: Object): Object {
+    fun readAttribute(key: String, valueIfNull: Attribute): Attribute {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID,ObjectTableEntry.SCENARIO_ID,ObjectTableEntry.NAME,ObjectTableEntry.DESCRIPTION), ObjectTableEntry.ID+ LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(AttributeTableEntry.TABLE_NAME, arrayOf(AttributeTableEntry.ID,AttributeTableEntry.KEY,AttributeTableEntry.VALUE), AttributeTableEntry.ID+ LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         if (cursor.moveToFirst()) {
             val id = cursor.getString(0)
             val scenarioId = cursor.getString(1)
             val name = cursor.getString(2)
             val description = cursor.getString(3)
-            return Object.ObjectBuilder(id, scenarioId, name, description).build()
+            return Attribute.AttributeBuilder(id, scenarioId, name, description).build()
         }
         cursor.close()
         return valueIfNull
+    }
+    fun readAttributes(refId: String): List<Attribute> {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(AttributeTableEntry.TABLE_NAME, arrayOf(AttributeTableEntry.ID,AttributeTableEntry.KEY,AttributeTableEntry.VALUE), AttributeTableEntry.REF_ID+ LIKE + QUOTES + refId + QUOTES, null, null, null, null, null)
+        val attributes = ArrayList<Attribute>()
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getString(0)
+                val key = cursor.getString(1)
+                val value = cursor.getString(2)
+                attributes.add(Attribute.AttributeBuilder(id, refId, key, value).build())
+            }while(cursor.moveToNext())
+        }
+        cursor.close()
+        return attributes
+    }
+    fun readScenario(key: String, valueIfNull: Scenario): Scenario {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(ScenarioTableEntry.TABLE_NAME, arrayOf(ScenarioTableEntry.ID,ScenarioTableEntry.PROJECT_ID,ScenarioTableEntry.TITLE,ScenarioTableEntry.INTRO,ScenarioTableEntry.OUTRO), ScenarioTableEntry.ID+ LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getString(0)
+            val projectId = cursor.getString(1)
+            val title = cursor.getString(2)
+            val intro = cursor.getString(3)
+            val outro = cursor.getString(4)
+            return Scenario.ScenarioBuilder(id, projectId, title, intro, outro).build()
+        }
+        cursor.close()
+        return valueIfNull
+    }
+    fun readScenarios(project: Project):  List<Scenario> {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(ScenarioTableEntry.TABLE_NAME, arrayOf(ScenarioTableEntry.ID,ScenarioTableEntry.PROJECT_ID,ScenarioTableEntry.TITLE,ScenarioTableEntry.INTRO,ScenarioTableEntry.OUTRO), ScenarioTableEntry.PROJECT_ID+ LIKE + QUOTES + project.id + QUOTES, null, null, null, null, null)
+        val scenarios = ArrayList<Scenario>()
+        if (cursor.moveToFirst()) {
+            do {
+            val id = cursor.getString(0)
+            val projectId = cursor.getString(1)
+            val title = cursor.getString(2)
+            val intro = cursor.getString(3)
+            val outro = cursor.getString(4)
+            scenarios.add(Scenario.ScenarioBuilder(id, projectId, title, intro, outro).build())
+            }while(cursor.moveToNext())
+        }
+        cursor.close()
+        return scenarios
     }
 
     /** DELETE     **
      ** FROM     **
      ** DATABASE **/
     fun deleteNumber(key: String) {
-        delete(NumberTableEntry.TABLE_NAME, NumberTableEntry.COLUMN_NAME_KEY, key)
+        delete(NumberTableEntry.TABLE_NAME, NumberTableEntry.KEY, key)
     }
     fun truncateNumbers(){
         truncate(NumberTableEntry.TABLE_NAME)
     }
 
     fun deleteString(key: String) {
-        delete(TextTableEntry.TABLE_NAME, TextTableEntry.COLUMN_NAME_KEY, key)
+        delete(TextTableEntry.TABLE_NAME, TextTableEntry.KEY, key)
     }
     fun truncateStrings(){
         truncate(TextTableEntry.TABLE_NAME)
     }
-
     fun deleteData(key: String) {
-        delete(DataTableEntry.TABLE_NAME, DataTableEntry.COLUMN_NAME_KEY, key)
+        delete(DataTableEntry.TABLE_NAME, DataTableEntry.KEY, key)
+    }
+    fun deleteProject(key: String) {
+        delete(ProjectTableEntry.TABLE_NAME, ProjectTableEntry.ID, key)
+    }
+    fun deleteStakeholder(key: String) {
+        delete(StakeholderTableEntry.TABLE_NAME, StakeholderTableEntry.ID, key)
+    }
+    fun deleteObject(key: String) {
+        delete(ObjectTableEntry.TABLE_NAME, ObjectTableEntry.ID, key)
+    }
+    fun deleteAttribute(key: String) {
+        delete(AttributeTableEntry.TABLE_NAME, AttributeTableEntry.ID, key)
+    }
+    fun deleteScenario(key: String) {
+        delete(ScenarioTableEntry.TABLE_NAME, ScenarioTableEntry.ID, key)
     }
     fun truncateData(){
         truncate(DataTableEntry.TABLE_NAME)
     }
-
-    fun deleteProject(key: String) {
-        delete(ProjectTableEntry.TABLE_NAME, ProjectTableEntry.ID, key)
-    }
     fun truncateProjects(){
         truncate(ProjectTableEntry.TABLE_NAME)
+    }
+    fun truncateStakeholders(){
+        truncate(StakeholderTableEntry.TABLE_NAME)
+    }
+    fun truncateObjects(){
+        truncate(ObjectTableEntry.TABLE_NAME)
+    }
+    fun truncateAttributes(){
+        truncate(AttributeTableEntry.TABLE_NAME)
+    }
+    fun truncateScenarios(){
+        truncate(ScenarioTableEntry.TABLE_NAME)
     }
 
     /** INTERNAL **/

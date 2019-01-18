@@ -15,9 +15,14 @@ class Constants {
         //BUNDLE
         const val BUNDLE_PROJECT: String = "sreBundleProject"
         const val BUNDLE_SCENARIO: String = "sreBundleScenario"
+        const val BUNDLE_OBJECT: String = "sreBundleObject"
         //UID-IDENTIFIERS
         const val PROJECT_UID_IDENTIFIER: String = "project_"
-        const val OBJECT_UID_IDENTIFIER: String = "object_"
         const val STAKEHOLDER_UID_IDENTIFIER: String = "stakeholder_"
+        const val OBJECT_UID_IDENTIFIER: String = "object_"
+        const val SCENARIO_UID_IDENTIFIER: String = "scenario_"
+        const val ATTRIBUTE_UID_IDENTIFIER: String = "attribute_"
+        //GENERAL
+        const val DOLLAR_STRING: String = "$"
     }
 }

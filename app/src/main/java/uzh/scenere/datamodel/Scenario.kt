@@ -4,9 +4,7 @@ import uzh.scenere.datamodel.steps.AbstractStep
 import java.io.Serializable
 import java.util.*
 
-class Scenario private constructor(val id: String, val title: String): Serializable {
-    private var intro: String? = null
-    private var outro: String? = null
+class Scenario private constructor(val id: String, val projectId: String, val title: String, val intro: String, val outro: String): Serializable {
     private var startingPoint: AbstractStep? = null
     private val resources: List<Resource> = ArrayList()
     private val objects: List<Object> = ArrayList()
@@ -15,16 +13,19 @@ class Scenario private constructor(val id: String, val title: String): Serializa
     private val walkthroughs: List<Walkthrough> = ArrayList()
     private val whatIfs: List<WhatIf> = ArrayList()
 
+    class ScenarioBuilder(private val projectId: String, private val title: String, private val intro: String, private val outro: String){
 
-    class ScenarioBuilder(val title: String){
+        constructor(project: Project, title: String, intro: String, outro: String): this(project.id,title,intro,outro)
 
-        constructor(id: String, title: String): this(title){
+        constructor(id: String, project: Project, title: String, intro: String, outro: String): this(project,title,intro,outro){
+            this.id = id
+        }
+
+        constructor(id: String, projectId: String, title: String, intro: String, outro: String): this(projectId,title,intro,outro){
             this.id = id
         }
 
         private var id: String? = null
-        private var intro: String? = null
-        private var outro: String? = null
         private val resources: List<Resource> = ArrayList()
         private val objects: List<Object> = ArrayList()
         private val paths: List<Path> = ArrayList()
@@ -32,14 +33,6 @@ class Scenario private constructor(val id: String, val title: String): Serializa
         private val walkthroughs: List<Walkthrough> = ArrayList()
         private val whatIfs: List<WhatIf> = ArrayList()
 
-        fun withIntro(intro: String): ScenarioBuilder{
-            this.intro = intro
-            return this
-        }
-        fun withOutro(outro: String): ScenarioBuilder{
-            this.outro = outro
-            return this
-        }
         fun addResource(resource: Resource): ScenarioBuilder{
             this.resources.plus(resource)
             return this
@@ -64,11 +57,12 @@ class Scenario private constructor(val id: String, val title: String): Serializa
             this.whatIfs.plus(whatIf)
             return this
         }
+        fun copyId(scenario: Scenario) {
+            this.id = scenario.id
+        }
 
         fun build(): Scenario{
-            val scenario  = Scenario(UUID.randomUUID().toString(),title)
-            scenario.intro = this.intro
-            scenario.outro = this.outro
+            val scenario  = Scenario(id?: UUID.randomUUID().toString(),projectId, title, intro, outro)
             scenario.resources.plus(this.resources)
             scenario.objects.plus(this.objects)
             scenario.paths.plus(this.paths)

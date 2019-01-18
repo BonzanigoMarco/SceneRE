@@ -2,9 +2,8 @@ package uzh.scenere.datamodel
 
 import java.io.Serializable
 import java.util.*
-import kotlin.collections.HashMap
 
-class Object private constructor(val id: String, val scenarioId: String, val name: String, val description: String, val attributes: Map<String, String>) : Serializable {
+class Object private constructor(val id: String, val scenarioId: String, val name: String, val description: String, val attributes: List<Attribute>) : Serializable {
 
     class ObjectBuilder(private val scenarioId: String, private val name: String, private val description: String) {
 
@@ -19,10 +18,10 @@ class Object private constructor(val id: String, val scenarioId: String, val nam
         }
 
         private var id: String? = null
-        private val attributes = HashMap<String, String>()
+        private val attributes = ArrayList<Attribute>()
 
-        fun addAttribute(key: String, value: String): ObjectBuilder {
-            attributes[key] = value
+        fun addAttribute(attribute: Attribute): ObjectBuilder {
+            attributes.add(attribute)
             return this
         }
 
@@ -35,7 +34,6 @@ class Object private constructor(val id: String, val scenarioId: String, val nam
             return Object(id
                     ?: UUID.randomUUID().toString(), scenarioId, name, description, attributes)
         }
-
     }
 
     override fun equals(other: Any?): Boolean {

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -28,7 +29,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     }
 
     enum class SwipeButtonMode {
-        DOUBLE, QUADRUPLE
+        DOUBLE, TRIPLE, QUADRUPLE
     }
 
     enum class Direction {
@@ -57,12 +58,14 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     private val animationDuration: Long = 200L
     //Layout
     private var labelText: TextView? = null
-    private var topText: TextView? = null
+    private var topIconText: TextView? = null
+    private var topLabelText: TextView? = null
     private var topBg: TextView? = null
-    private var bottomText: TextView? = null
+    private var bottomIconText: TextView? = null
+    private var bottomLabelText: TextView? = null
     private var bottomBg: TextView? = null
-    private var leftText: TextView? = null
-    private var rightText: TextView? = null
+    private var leftIconText: TextView? = null
+    private var rightIconText: TextView? = null
     //Configuration
     private var lIdx: Int = 0
     private var rIdx: Int = 1
@@ -82,6 +85,8 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     //Measurement
     private var dpiText = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics)
     private var dpiPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+    private var dpiPaddingIconLabelTop = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 9f, resources.displayMetrics).toInt()
+    private var dpiPaddingIconLabelLeft = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30f, resources.displayMetrics).toInt()
     private var dpiPaddingSmall = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
     private val dpiSliderMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt()
     private val dpiHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150f, resources.displayMetrics).toInt()
@@ -190,11 +195,19 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         middleLayout.addView(sliderButton, sliderButtonParams)
 
         //Top Icon
-        val topText = IconTextView(context)
-        this.topText = topText
-        val topTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
-        topTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
-        topText.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_top)
+        val topIconText = IconTextView(context)
+        this.topIconText = topIconText
+        val topIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
+        topIconTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
+        topIconText.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_top)
+
+        //Top Label
+        val topLabelText = IconTextView(context)
+        this.topLabelText = topLabelText
+        val topLabelTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
+        topLabelTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
+        topLabelText.setPadding(dpiPaddingIconLabelLeft,dpiPaddingIconLabelTop,0,0)
+        topLabelText.setTypeface(null,Typeface.BOLD)
 
         //Top Background
         val topBg = IconTextView(context)
@@ -204,14 +217,23 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         topBg.setPadding(dpiPadding * 4, dpiPadding, dpiPadding * 4, dpiPadding*2)
         topBg.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_top)
         bottomBackgroundLayout.addView(topBg, topBgParams)
-        bottomBackgroundLayout.addView(topText, topTextParams)
+        bottomBackgroundLayout.addView(topIconText, topIconTextParams)
+        bottomBackgroundLayout.addView(topLabelText, topLabelTextParams)
 
         //Bottom Icon
-        val bottomText = IconTextView(context)
-        this.bottomText = bottomText
-        val bottomTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
-        bottomTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
-        bottomText.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_bottom)
+        val bottomIconText = IconTextView(context)
+        this.bottomIconText = bottomIconText
+        val bottomIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
+        bottomIconTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
+        bottomIconText.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_bottom)
+
+        //Top Label
+        val bottomLabelText = IconTextView(context)
+        this.bottomLabelText = bottomLabelText
+        val bottomLabelTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
+        bottomLabelTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
+        bottomLabelText.setPadding(dpiPaddingIconLabelLeft,dpiPaddingIconLabelTop,0,0)
+        bottomLabelText.setTypeface(null,Typeface.BOLD)
 
         //Bottom Background
         val bottomBg = IconTextView(context)
@@ -221,21 +243,22 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         bottomBg.setPadding(dpiPadding * 4, dpiPadding*2, dpiPadding * 4, dpiPadding)
         bottomBg.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_bottom)
         bottomBackgroundLayout.addView(bottomBg, bottomBgParams)
-        bottomBackgroundLayout.addView(bottomText, bottomTextParams)
+        bottomBackgroundLayout.addView(bottomIconText, bottomIconTextParams)
+        bottomBackgroundLayout.addView(bottomLabelText, bottomLabelTextParams)
 
         //Left Icon
-        val leftText = IconTextView(context)
-        this.leftText = leftText
-        val leftTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_LEFT)
-        this.leftText = leftText
-        sliderLane.addView(leftText, leftTextParams)
+        val leftIconText = IconTextView(context)
+        this.leftIconText = leftIconText
+        val leftIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_LEFT)
+        leftIconText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
+        sliderLane.addView(leftIconText, leftIconTextParams)
 
         //Right Icon
-        val rightText = IconTextView(context)
-        this.rightText = rightText
-        val rightTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_RIGHT)
-        rightText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
-        sliderLane.addView(rightText, rightTextParams)
+        val rightIconText = IconTextView(context)
+        this.rightIconText = rightIconText
+        val rightIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_RIGHT)
+        rightIconText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
+        sliderLane.addView(rightIconText, rightIconTextParams)
 
         //Touch Listener
         middleLayout.setOnTouchListener(getButtonTouchListener())
@@ -300,10 +323,10 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
                         /*HORIZONTAL*/
                         //Handle text transparency
                         val alpha = 1 - 1.3f * Math.abs(sliderSpanX - sliderX) / sliderSpanX
-                        topText?.alpha = alpha
-                        bottomText?.alpha = alpha
-                        leftText?.alpha = alpha
-                        rightText?.alpha = alpha
+                        topIconText?.alpha = alpha
+                        bottomIconText?.alpha = alpha
+                        leftIconText?.alpha = alpha
+                        rightIconText?.alpha = alpha
                         if (alpha < 0.9){
                             sliderButton?.text = null
                         }else{
@@ -325,10 +348,10 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
                         /*VERTICAL*/
                         //Handle text transparency
                         val alpha = 1 - 1.3f * Math.abs((sliderSpanY / 2) - sliderY) / (sliderSpanY / 2)
-                        topText?.alpha = alpha
-                        bottomText?.alpha = alpha
-                        leftText?.alpha = alpha
-                        rightText?.alpha = alpha
+                        topIconText?.alpha = alpha
+                        bottomIconText?.alpha = alpha
+                        leftIconText?.alpha = alpha
+                        rightIconText?.alpha = alpha
                         if (alpha < 0.9){
                             sliderButton?.text = null
                         }else{
@@ -419,43 +442,53 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         return this
     }
 
+    fun setCounter(topCounter: Int?, bottomCounter: Int?, color: Int = Color.RED): SwipeButton {
+        topLabelText?.text = topCounter?.toString()
+        bottomLabelText?.text = bottomCounter?.toString()
+        topLabelText?.setTextColor(color)
+        bottomLabelText?.setTextColor(color)
+        return this
+    }
+
     fun updateViews(init: Boolean): SwipeButton {
         if (init) {
             var modifier: Float = 1.5f
             if (mode == SwipeButtonMode.DOUBLE) {
                 dpiText *= 1.5f
                 dpiPadding *= 2
-                topText?.visibility = View.GONE
+                topIconText?.visibility = View.GONE
+                topLabelText?.visibility = View.GONE
                 topBg?.visibility = View.GONE
-                bottomText?.visibility = View.GONE
+                bottomIconText?.visibility = View.GONE
+                bottomLabelText?.visibility = View.GONE
                 bottomBg?.visibility = View.GONE
                 modifier = 2f
             }
-            leftText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
-            rightText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
+            leftIconText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
+            rightIconText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
 
-            topText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
-            bottomText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
+            topIconText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
+            bottomIconText?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
             sliderButton?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText * modifier)
         }
         //Color & States
         sliderButton?.setTextColor(activeColor)
         labelText?.setTextColor(activeColor)
-        leftText?.setTextColor(if (individualColor) colors[lIdx] else (if (react[lIdx]) activeColor else inactiveColor))
-        rightText?.setTextColor(if (individualColor) colors[rIdx] else (if (react[rIdx]) activeColor else inactiveColor))
-        topText?.setTextColor(if (individualColor) colors[tIdx] else (if (react[tIdx]) activeColor else inactiveColor))
-        bottomText?.setTextColor(if (individualColor) colors[bIdx] else (if (react[bIdx]) activeColor else inactiveColor))
+        leftIconText?.setTextColor(if (individualColor) colors[lIdx] else (if (react[lIdx]) activeColor else inactiveColor))
+        rightIconText?.setTextColor(if (individualColor) colors[rIdx] else (if (react[rIdx]) activeColor else inactiveColor))
+        topIconText?.setTextColor(if (individualColor) colors[tIdx] else (if (react[tIdx]) activeColor else inactiveColor))
+        bottomIconText?.setTextColor(if (individualColor) colors[bIdx] else (if (react[bIdx]) activeColor else inactiveColor))
         //Text
-        leftText?.text = resources.getText(icons[lIdx])
-        rightText?.text = resources.getText(icons[rIdx])
-        topText?.text = resources.getText(icons[tIdx])
-        bottomText?.text = resources.getText(icons[bIdx])
+        leftIconText?.text = resources.getText(icons[lIdx])
+        rightIconText?.text = resources.getText(icons[rIdx])
+        topIconText?.text = resources.getText(icons[tIdx])
+        bottomIconText?.text = resources.getText(icons[bIdx])
         sliderButton?.text = resources.getText(icons[cIdx])
         //Icons
-        rightText?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
-        leftText?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
-        topText?.setPadding(dpiPadding, dpiPaddingSmall, dpiPadding, dpiPadding)
-        bottomText?.setPadding(dpiPadding, dpiPadding, dpiPadding,dpiPaddingSmall)
+        rightIconText?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
+        leftIconText?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
+        topIconText?.setPadding(dpiPadding, dpiPaddingSmall, dpiPadding, dpiPadding)
+        bottomIconText?.setPadding(dpiPadding, dpiPadding, dpiPadding,dpiPaddingSmall)
         return this
     }
 
@@ -513,10 +546,10 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
             }
         })
 
-        val leftTextAnimator = ObjectAnimator.ofFloat(leftText as TextView, "alpha", 1f)
-        val rightTextAnimator = ObjectAnimator.ofFloat(rightText as TextView, "alpha", 1f)
-        val topTextAnimator = ObjectAnimator.ofFloat(topText as TextView, "alpha", 1f)
-        val bottomTextAnimator = ObjectAnimator.ofFloat(bottomText as TextView, "alpha", 1f)
+        val leftTextAnimator = ObjectAnimator.ofFloat(leftIconText as TextView, "alpha", 1f)
+        val rightTextAnimator = ObjectAnimator.ofFloat(rightIconText as TextView, "alpha", 1f)
+        val topTextAnimator = ObjectAnimator.ofFloat(topIconText as TextView, "alpha", 1f)
+        val bottomTextAnimator = ObjectAnimator.ofFloat(bottomIconText as TextView, "alpha", 1f)
 
         playAnimations(null, positionAnimator, widthAnimator, leftTextAnimator, rightTextAnimator, topTextAnimator, bottomTextAnimator)
         execute()
@@ -526,10 +559,10 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val positionXAnimator = createAnimator(Direction.X, animationDuration)
         val positionYAnimator = createAnimator(Direction.Y, animationDuration)
 
-        val rightTextAnimator = ObjectAnimator.ofFloat(rightText as TextView, "alpha", 1f)
-        val leftTextAnimator = ObjectAnimator.ofFloat(leftText as TextView, "alpha", 1f)
-        val topTextAnimator = ObjectAnimator.ofFloat(topText as TextView, "alpha", 1f)
-        val bottomTextAnimator = ObjectAnimator.ofFloat(bottomText as TextView, "alpha", 1f)
+        val rightTextAnimator = ObjectAnimator.ofFloat(rightIconText as TextView, "alpha", 1f)
+        val leftTextAnimator = ObjectAnimator.ofFloat(leftIconText as TextView, "alpha", 1f)
+        val topTextAnimator = ObjectAnimator.ofFloat(topIconText as TextView, "alpha", 1f)
+        val bottomTextAnimator = ObjectAnimator.ofFloat(bottomIconText as TextView, "alpha", 1f)
 
         playAnimations(null, positionXAnimator, positionYAnimator, leftTextAnimator, rightTextAnimator, topTextAnimator, bottomTextAnimator)
     }

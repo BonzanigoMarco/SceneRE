@@ -26,6 +26,10 @@ class StringHelper{
             return (text != null && text.isNotEmpty())
         }
 
+        fun extractNameFromClassString(className: String): String{
+            val split = className.split(".")
+            return split[split.size-1]
+        }
 
         fun styleString(spannedString: SpannedString, typeface: Typeface?): SpannableString {
             val annotations = spannedString.getSpans(0, spannedString.length, android.text.Annotation::class.java)

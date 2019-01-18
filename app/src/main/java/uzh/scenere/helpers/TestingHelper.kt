@@ -3,9 +3,8 @@ package uzh.scenere.helpers
 import android.content.Context
 import android.util.Log
 import uzh.scenere.datamodel.Project
-import uzh.scenere.datamodel.database.DatabaseHelper
 
-class TestingHelper {
+class TestingHelper private constructor () {
     companion object {
         fun testDataStorage(context: Context){
             DatabaseHelper.getInstance(context).clear()

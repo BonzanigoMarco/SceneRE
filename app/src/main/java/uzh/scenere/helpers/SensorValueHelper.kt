@@ -6,7 +6,7 @@ import uzh.scenere.const.Constants.Companion.MILLION
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-class SensorValueHelper {
+class SensorValueHelper private constructor () {
     companion object {
         private var sensorType: String? = null
         private const val gridSize = 150 //TODO> Configurable

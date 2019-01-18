@@ -125,11 +125,9 @@ class CockpitActivity : AbstractBaseActivity() {
                     Handler().postDelayed({ button.collapse() }, 500)
                 }
             }
-
             override fun execLeft() {
                 holder_text_info_content.text = permission.getDescription(applicationContext)
             }
-
             override fun execReset() {
                 holder_text_info_content.text = mode.getDescription(applicationContext)
             }

@@ -3,7 +3,8 @@ package uzh.scenere.activities
 import android.os.Bundle
 import uzh.scenere.R
 
-class EditorActivity : AbstractManagementActivity() {
+class EditorActivity : AbstractBaseActivity() {
+
   override fun getConfiguredLayout(): Int {
     return R.layout.activity_editor
   }

@@ -3,7 +3,7 @@ package uzh.scenere.activities
 import android.os.Bundle
 import uzh.scenere.R
 
-class ResourcesActivity : AbstractManagementActivity() {
+class ResourcesActivity : AbstractBaseActivity() {
   override fun getConfiguredLayout(): Int {
     return R.layout.activity_resources
   }
