@@ -20,6 +20,7 @@ import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.WeightAnimator
 import android.app.Activity
+import android.content.res.Configuration
 import android.view.inputmethod.InputMethodManager
 
 
@@ -94,16 +95,19 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         onLayoutRendered()
     }
 
-    open fun onLayoutRendered() {
-        if (infoState == null) {
-            execMorphInfoBar(InfoState.INITIALIZE)
-        }
+    open fun onLayoutRendered(){
+        //NOP
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        execAdaptToOrientationChange()
     }
 
     //************
     //* CREATION *
     //************
-    private fun createLayoutParams(weight: Float, textView: TextView? = null, crop: Int = 0): LinearLayout.LayoutParams {
+    protected fun createLayoutParams(weight: Float, textView: TextView? = null, crop: Int = 0): LinearLayout.LayoutParams {
         val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -148,63 +152,9 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         inputMethodManager.hideSoftInputFromWindow(focusView.windowToken, 0)
         focusView.clearFocus()
     }
-    //*************
-    //* EXECUTION *
-    //************
-    enum class InfoState {
-        MINIMIZED, NORMAL, MAXIMIZED, INITIALIZE
-    }
 
-    private var infoState: InfoState? = null
-
-    protected fun execMorphInfoBar(state: InfoState? = null): CharSequence {
-        if (state != null) {
-            infoState = state
-        } else {
-            when (infoState) {
-                InfoState.MINIMIZED -> infoState = InfoState.NORMAL
-                InfoState.NORMAL -> infoState = InfoState.MAXIMIZED
-                InfoState.MAXIMIZED -> infoState = InfoState.MINIMIZED
-            }
-        }
-        return execMorphInfoBarInternal()
-    }
-
-    private fun execMorphInfoBarInternal(): CharSequence {
-        when (infoState) {
-            InfoState.INITIALIZE -> {
-                holder_scroll.layoutParams = createLayoutParams(1f)
-                holder_layout_info.layoutParams = createLayoutParams(9f)
-                createLayoutParams(0f, holder_text_info_title)
-                holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
-                infoState = InfoState.MINIMIZED
-                return resources.getText(R.string.icon_win_min)
-            }
-            InfoState.MINIMIZED -> {
-                WeightAnimator(holder_layout_info, 9f, 250).play()
-                WeightAnimator(holder_scroll, 1f, 250).play()
-                createLayoutParams(0f, holder_text_info_title)
-                holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
-                return resources.getText(R.string.icon_win_min)
-            }
-            InfoState.NORMAL -> {
-                WeightAnimator(holder_scroll, 3f, 250).play()
-                WeightAnimator(holder_layout_info, 7f, 250).play()
-                createLayoutParams(2f, holder_text_info_title, 1)
-                holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
-                holder_text_info_content.maxLines = 2
-                return resources.getText(R.string.icon_win_norm)
-            }
-            InfoState.MAXIMIZED -> {
-                WeightAnimator(holder_scroll, 10f, 250).play()
-                WeightAnimator(holder_layout_info, 0f, 250).play()
-                createLayoutParams(2.7f, holder_text_info_title, 1)
-                holder_text_info_content_wrap.layoutParams = createLayoutParams(0.3f)
-                holder_text_info_content.maxLines = 10
-                return resources.getText(R.string.icon_win_max)
-            }
-        }
-        return resources.getText(R.string.icon_null)
+    open fun execAdaptToOrientationChange() {
+        //NOP
     }
 
     //*******

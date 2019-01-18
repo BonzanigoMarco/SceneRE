@@ -1,7 +1,6 @@
 package uzh.scenere.activities
 
 import android.graphics.Color
-import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.text.InputType
@@ -12,14 +11,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
-import uzh.scenere.datamodel.Attribute
-import uzh.scenere.datamodel.Object
-import uzh.scenere.datamodel.Project
-import uzh.scenere.datamodel.Scenario
-import uzh.scenere.datamodel.Stakeholder
+import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.SwipeButton
+import uzh.scenere.views.WeightAnimator
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
@@ -35,10 +31,94 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     protected var creationButton: SwipeButton? = null
     protected var activeButton: SwipeButton? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    //*********
+    //* REACT *
+    //*********
+    override fun onResume() {
+        super.onResume()
+        collapseAndRefreshAllButtons()
     }
 
+    override fun onToolbarRightClicked() { //CLOSE
+        if (isInEditMode()) {
+            execMorphInfoBar(InfoState.MINIMIZED)
+            holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+            holder_text_info_content.text = ""
+            customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
+            resetEditMode()
+            activeButton?.collapse()
+            activeButton = null
+        }
+    }
+
+    override fun onToolbarCenterClicked() { //LOCK & UNLOCK
+        if (isInViewMode()) {
+            adaptToolbarText(null, null, changeLockState(), null, null)
+            for (v in 0 until holder_linear_layout_holder.childCount) {
+                if (holder_linear_layout_holder.getChildAt(v) is SwipeButton) {
+                    (holder_linear_layout_holder.getChildAt(v) as SwipeButton).setButtonStates(lockState == LockState.UNLOCKED, true, true, true).updateViews(false)
+                }
+            }
+        }
+    }
+
+    override fun onToolbarLeftClicked() { //SAVE
+        if (isInEditMode()) {
+            for (entry in inputMap) {
+                if (!StringHelper.hasText(entry.value.text)) {
+                    toast("Not all required information entered!")
+                    return
+                }
+            }
+            createEntity()
+            createTitle("", holder_linear_layout_holder)
+            holder_scroll.fullScroll(View.FOCUS_DOWN)
+            onToolbarRightClicked()
+        }else{
+            onBackPressed()
+        }
+    }
+
+    override fun onLayoutRendered() {
+        if (infoState == null) {
+            execMorphInfoBar(InfoState.INITIALIZE)
+        }
+    }
+
+    //************
+    //* CREATION *
+    //************
+    protected fun createLine(labelText: String, linebreak: Boolean = false, presetValue: String? = null): View? {
+        val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+        val wrapper = LinearLayout(this)
+        wrapper.layoutParams = layoutParams
+        wrapper.weightSum = 2f
+        wrapper.orientation = if (linebreak) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+        val label = TextView(this)
+        label.text = getString(R.string.label, labelText)
+        label.textSize = textSize!!
+        label.layoutParams = childParams
+        val input = EditText(this)
+        input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
+        input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+        input.textAlignment = if (linebreak) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
+        input.layoutParams = childParams
+        input.textSize = textSize!!
+        input.hint = labelText
+        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        input.setText(presetValue)
+        input.setSingleLine(!linebreak)
+        wrapper.addView(label)
+        wrapper.addView(input)
+        inputMap[labelText] = input
+        return wrapper
+    }
+
+    //*******
+    //* GUI *
+    //*******
     protected fun changeLockState(): String{
         lockState = if (lockState==LockState.LOCKED) LockState.UNLOCKED else LockState.LOCKED
         return getLockIcon()
@@ -49,11 +129,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             LockState.LOCKED -> resources.getString(R.string.icon_lock)
             LockState.UNLOCKED -> resources.getString(R.string.icon_lock_open)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        collapseAndRefreshAllButtons()
     }
 
     private fun collapseAndRefreshAllButtons() {
@@ -110,75 +185,71 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         removeExcept(holder, exception)
     }
 
-    protected fun createLine(labelText: String, linebreak: Boolean = false, presetValue: String? = null): View? {
-        val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-        val wrapper = LinearLayout(this)
-        wrapper.layoutParams = layoutParams
-        wrapper.weightSum = 2f
-        wrapper.orientation = if (linebreak) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-        val label = TextView(this)
-        label.text = getString(R.string.label, labelText)
-        label.textSize = textSize!!
-        label.layoutParams = childParams
-        val input = EditText(this)
-        input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
-        input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-        input.textAlignment = if (linebreak) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
-        input.layoutParams = childParams
-        input.textSize = textSize!!
-        input.hint = labelText
-        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-        input.setText(presetValue)
-        input.setSingleLine(!linebreak)
-        wrapper.addView(label)
-        wrapper.addView(input)
-        inputMap[labelText] = input
-        return wrapper
-    }
-
     abstract fun isInEditMode(): Boolean
     abstract fun isInViewMode(): Boolean
     abstract fun resetEditMode()
     abstract fun createEntity()
     abstract fun getConfiguredInfoString(): Int
 
-    override fun onToolbarRightClicked() { //CLOSE
-        if (isInEditMode()) {
-            execMorphInfoBar(InfoState.MINIMIZED)
-            holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
-            holder_text_info_content.text = ""
-            customizeToolbarText(null, null, getLockIcon(), null, null)
-            resetEditMode()
-            activeButton?.collapse()
-            activeButton = null
-        }
+    //*************
+    //* EXECUTION *
+    //************
+    enum class InfoState {
+        MINIMIZED, NORMAL, MAXIMIZED, INITIALIZE
     }
 
-    override fun onToolbarCenterClicked() { //LOCK & UNLOCK
-        if (isInViewMode()) {
-            adaptToolbarText(null, null, changeLockState(), null, null)
-            for (v in 0 until holder_linear_layout_holder.childCount) {
-                if (holder_linear_layout_holder.getChildAt(v) is SwipeButton) {
-                    (holder_linear_layout_holder.getChildAt(v) as SwipeButton).setButtonStates(lockState == LockState.UNLOCKED, true, true, true).updateViews(false)
-                }
+    private var infoState: InfoState? = null
+
+    protected fun execMorphInfoBar(state: InfoState? = null): CharSequence {
+        if (state != null) {
+            infoState = state
+        } else {
+            when (infoState) {
+                InfoState.MINIMIZED -> infoState = InfoState.NORMAL
+                InfoState.NORMAL -> infoState = InfoState.MAXIMIZED
+                InfoState.MAXIMIZED -> infoState = InfoState.MINIMIZED
+                else -> {} //NOP
             }
         }
+        return execMorphInfoBarInternal()
     }
 
-    override fun onToolbarLeftClicked() { //SAVE
-        if (isInEditMode()) {
-            for (entry in inputMap) {
-                if (!StringHelper.hasText(entry.value.text)) {
-                    toast("Not all required information entered!")
-                    return
-                }
+    protected var contentDefaultMaxLines = 2
+    private fun execMorphInfoBarInternal(): CharSequence {
+        when (infoState) {
+            InfoState.INITIALIZE -> {
+                holder_scroll.layoutParams = createLayoutParams(1f)
+                holder_layout_info.layoutParams = createLayoutParams(9f)
+                createLayoutParams(0f, holder_text_info_title)
+                holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
+                infoState = InfoState.MINIMIZED
+                return resources.getText(R.string.icon_win_min)
             }
-            createEntity()
-            createTitle("", holder_linear_layout_holder)
-            holder_scroll.fullScroll(View.FOCUS_DOWN)
-            onToolbarRightClicked()
+            InfoState.MINIMIZED -> {
+                WeightAnimator(holder_layout_info, 9f, 250).play()
+                WeightAnimator(holder_scroll, 1f, 250).play()
+                createLayoutParams(0f, holder_text_info_title)
+                holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
+                execMinimizeKeyboard()
+                return resources.getText(R.string.icon_win_min)
+            }
+            InfoState.NORMAL -> {
+                WeightAnimator(holder_scroll, 3f, 250).play()
+                WeightAnimator(holder_layout_info, 7f, 250).play()
+                createLayoutParams(2f, holder_text_info_title, 1)
+                holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
+                holder_text_info_content.maxLines = contentDefaultMaxLines
+                return resources.getText(R.string.icon_win_norm)
+            }
+            InfoState.MAXIMIZED -> {
+                WeightAnimator(holder_scroll, 10f, 250).play()
+                WeightAnimator(holder_layout_info, 0f, 250).play()
+                createLayoutParams(2.7f, holder_text_info_title, 1)
+                holder_text_info_content_wrap.layoutParams = createLayoutParams(0.3f)
+                holder_text_info_content.maxLines = 10
+                return resources.getText(R.string.icon_win_max)
+            }
         }
+        return resources.getText(R.string.icon_null)
     }
 }

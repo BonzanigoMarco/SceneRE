@@ -16,11 +16,32 @@ import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_ALL
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_GPS
 import uzh.scenere.helpers.CommunicationHelper
 import uzh.scenere.helpers.PermissionHelper
+import uzh.scenere.helpers.StringHelper
 import uzh.scenere.sensors.SensorHelper
 import uzh.scenere.views.SwipeButton
 
 
-class CockpitActivity : AbstractBaseActivity() {
+class CockpitActivity : AbstractManagementActivity() {
+    override fun isInEditMode(): Boolean {
+        return false
+    }
+
+    override fun isInViewMode(): Boolean {
+        return true
+    }
+
+    override fun resetEditMode() {
+        //NOP
+    }
+
+    override fun createEntity() {
+        //NOP
+    }
+
+    override fun getConfiguredInfoString(): Int {
+        return R.string.icon_explain_cockpit
+    }
+
     enum class CockpitMode(var id: Int, var label: String, var description: Int) {
         PERMISSIONS(0, "Missing Permissions", R.string.cockpit_info_permissions),
         COMMUNICATIONS(1, "Communication Systems", R.string.cockpit_info_communications),
@@ -48,7 +69,6 @@ class CockpitActivity : AbstractBaseActivity() {
     }
 
     private var mode: CockpitMode = CockpitMode.PERMISSIONS
-    private var activeButton: SwipeButton? = null
 
     override fun getConfiguredLayout(): Int {
         return R.layout.activity_cockpit
@@ -56,8 +76,57 @@ class CockpitActivity : AbstractBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setSupportActionBar(findViewById(R.id.cockpit_toolbar))
+        customizeToolbarId(R.string.icon_backward,null,R.string.icon_win_min,null,R.string.icon_forward)
+        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         recreateViews()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_ALL && permissions.isNotEmpty()) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                activeButton?.setIndividualButtonColors(Color.GREEN, Color.WHITE, Color.GRAY, Color.GRAY)
+                        ?.setButtonIcons(R.string.icon_check, R.string.icon_sign, null, null, null)
+                        ?.updateViews(false)
+            } else {
+                activeButton?.setIndividualButtonColors(Color.RED, Color.WHITE, Color.GRAY, Color.GRAY)
+                        ?.setButtonIcons(R.string.icon_cross, R.string.icon_sign, null, null, null)
+                        ?.updateViews(false)
+            }
+            activeButton?.collapse()
+        }
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PERMISSION_REQUEST_GPS && resultCode == Activity.RESULT_OK){
+            CommunicationHelper.registerGpsListener(this@CockpitActivity)
+        }
+        recreateViews()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        recreateViews()
+    }
+
+    override fun onToolbarRightClicked() {
+        SensorHelper.getInstance(this).unregisterTextGraphListener()
+        mode = mode.next()
+        holder_text_info_content.text = mode.getDescription(applicationContext)
+        recreateViews()
+    }
+
+    override fun onToolbarLeftClicked() {
+        SensorHelper.getInstance(this).unregisterTextGraphListener()
+        mode = mode.previous()
+        holder_text_info_content.text = mode.getDescription(applicationContext)
+        recreateViews()
+    }
+
+    override fun onToolbarCenterClicked() {
+        toolbar_action_center.text = execMorphInfoBar(null)
     }
 
     private fun recreateViews() {
@@ -167,11 +236,13 @@ class CockpitActivity : AbstractBaseActivity() {
             override fun execRight() {
                 SensorHelper.getInstance(applicationContext).registerTextGraphListener(sensor, holder_text_info_content)
                 Handler().postDelayed({ button.collapse() }, 500)
+                holder_text_info_title.text = resources.getString(R.string.observing,SensorHelper.getInstance(applicationContext).getTypeName(sensor.name))
             }
 
             override fun execLeft() {
                 SensorHelper.getInstance(applicationContext).unregisterTextGraphListener()
                 Handler().postDelayed({ button.collapse() }, 500)
+                holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
             }
 
             override fun execReset() {
@@ -180,60 +251,4 @@ class CockpitActivity : AbstractBaseActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_ALL && permissions.isNotEmpty()) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                activeButton?.setIndividualButtonColors(Color.GREEN, Color.WHITE, Color.GRAY, Color.GRAY)
-                        ?.setButtonIcons(R.string.icon_check, R.string.icon_sign, null, null, null)
-                        ?.updateViews(false)
-            } else {
-                activeButton?.setIndividualButtonColors(Color.RED, Color.WHITE, Color.GRAY, Color.GRAY)
-                        ?.setButtonIcons(R.string.icon_cross, R.string.icon_sign, null, null, null)
-                        ?.updateViews(false)
-            }
-            activeButton?.collapse()
-        }
-
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PERMISSION_REQUEST_GPS && resultCode == Activity.RESULT_OK){
-            CommunicationHelper.registerGpsListener(this@CockpitActivity)
-        }
-        recreateViews()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        recreateViews()
-    }
-
-    override fun onToolbarRightClicked() {
-        SensorHelper.getInstance(this).unregisterTextGraphListener()
-        mode = mode.next()
-        holder_text_info_content.text = mode.getDescription(applicationContext)
-        recreateViews()
-    }
-
-    override fun onToolbarLeftClicked() {
-        SensorHelper.getInstance(this).unregisterTextGraphListener()
-        mode = mode.previous()
-        holder_text_info_content.text = mode.getDescription(applicationContext)
-        recreateViews()
-    }
-
-    override fun onToolbarCenterClicked() {
-        val mapIntent = CommunicationHelper.getMapIntent()
-        if (mapIntent == null){
-            toast("GPS not ready")
-            return
-        }
-        startActivity(mapIntent)
-    }
-
-    override fun onToolbarCenterRightClicked() {
-        toolbar_action_center_right.text = execMorphInfoBar(null)
-    }
 }

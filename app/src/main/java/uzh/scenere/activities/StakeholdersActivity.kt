@@ -62,7 +62,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
             addStakeholderToList(stakeholder)
         }
         holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholders),fontAwesome)
-        customizeToolbarText(null,null,getLockIcon(),null,null)
+        customizeToolbarText(resources.getText(R.string.icon_back).toString(),null,getLockIcon(),null,null)
     }
 
     private fun addStakeholderToList(stakeholder: Stakeholder) {

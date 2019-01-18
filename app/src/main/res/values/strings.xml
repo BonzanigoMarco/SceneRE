@@ -1,10 +1,53 @@
 <resources>
     <string name="app_name">SceneRE</string>
+    <!--Spinner-->
+    <string-array name="spinner_empty">
+        <item>[Select a Type first]</item>
+    </string-array>
+    <string-array name="spinner_steps">
+        <item>[Select a Step]</item>
+        <item>Standard Step</item>
+        <item>Alternative Step</item>
+        <item>Input Step</item>
+        <item>Loopback Step</item>
+        <item>Merge Step</item>
+        <item>Resource Step</item>
+    </string-array>
+    <string-array name="spinner_triggers_communication">
+        <item>[Select a Trigger]</item>
+        <item>Bluetooth</item>
+        <item>GPS</item>
+        <item>Mobile Network</item>
+        <item>NFC</item>
+        <item>Wi-Fi</item>
+    </string-array>
+    <string-array name="spinner_triggers_direct">
+        <item>[Select a Trigger]</item>
+        <item>Button</item>
+        <item>Timer</item>
+    </string-array>
+    <string-array name="spinner_triggers_indirect">
+        <item>[Select a Trigger]</item>
+        <item>Call</item>
+        <item>SMS</item>
+        <item>Sound</item>
+    </string-array>
+    <string-array name="spinner_triggers_sensor">
+        <item>[Select a Trigger]</item>
+        <item>Acceleration</item>
+        <item>Gyroscope</item>
+        <item>Humidity</item>
+        <item>Light</item>
+        <item>Magnetic</item>
+        <item>Pressure</item>
+        <item>Proximity</item>
+        <item>Temperature</item>
+    </string-array>
+    <!--Cockpit-->
     <string name="cockpit_info_title">Info Text</string>
     <string name="cockpit_info_permissions">This view shows you all missing Permissions\nSwipe left to see further Details\nSwipe right to grant the Permission\nNote:\nMost of these Permissions are needed for the App to function</string>
     <string name="cockpit_info_communications">This view shows the available Communication Technologies\nSwipe right to enable, or left to disable each Technology</string>
     <string name="cockpit_info_sensors">This view shows all Sensors used in this App\nSwipe right to start a Diagnosis\nSwipe left to disable the Diagnosis again</string>
-
     <string name="permission_description_network_title">Network-Permissions</string>
     <string name="permission_description_storage_title">Storage-Permissions</string>
     <string name="permission_description_audio_title">Audio-Permissions (Optional)</string>
@@ -21,8 +64,10 @@
     <string name="permission_description_nfc">NFC-Permissions\n\nUsed to interact with other Stakeholders.</string>
     <string name="permission_description_sms">SMS-Permissions\n\nUsed for special Triggers.</string>
     <string name="permission_description_gps">GPS-Permissions\n\nUsed for special Triggers.</string>
+    <!--General-->
     <string name="label">%1$s:</string>
     <string name="deleted">%1$s Deleted!</string>
+    <string name="observing">Observing %1$s</string>
     <!--Info-->
     <string name="projects_create">Creating a new Project</string>
     <string name="projects_edit">Edit Project</string>
@@ -35,11 +80,23 @@
     <string name="attributes_create">Creating a new Attribute</string>
     <string name="attributes_edit">Edit Attribute</string>
     <!--Titles-->
-    <!--TODO: ADD NAVIGATION HINT TO TITLE-->
-    <string name="cockpit_title">Cockpit</string>
-    <string name="projects_title">Projects</string>
-    <string name="stakeholders_title">Stakeholders</string>
-    <string name="objects_title">Objects</string>
-    <string name="scenarios_title">Scenarios</string>
-    <string name="attributes_title">Attributes</string>
+    <string name="cockpit_title"><b>Cockpit</b></string>
+    <string name="projects_title"><b>Projects</b></string>
+    <string name="stakeholders_title">Projects/<b>Scenarios</b></string>
+    <string name="objects_title">Projects/Scenarios/<b>Objects</b></string>
+    <string name="scenarios_title">Projects/<b>Scenarios</b></string>
+    <string name="attributes_title">Projects/Scenarios/Objects/<b>Attributes</b></string>
+    <string name="editor_title"><b>Editor</b></string>
+    <!--Explanations-->
+    <string name="explanation_steps_title">Steps</string>
+    <string name="explanation_steps_content">Steps are single Actions in a Scenario.</string>
+    <string name="explanation_communication_triggers_title">Communication Triggers</string>
+    <string name="explanation_communication_triggers_content">Triggers are Events that let a Scenario transition from one to the another Step\nCommunication Triggers are based on Bluetooth, GPS, Mobile Networks, NFC and Wi-Fi.</string>
+    <string name="explanation_direct_triggers_title">Direct Triggers</string>
+    <string name="explanation_direct_triggers_content">Triggers are Events that let a Scenario transition from one to the another Step\nDirect Triggers are based on Buttons and Timers.</string>
+    <string name="explanation_indirect_triggers_title">Indirect Triggers</string>
+    <string name="explanation_indirect_triggers_content">Triggers are Events that let a Scenario transition from one to the another Step\nIndirect Triggers are based on Calls, SMS and Sound.</string>
+    <string name="explanation_sensor_triggers_title">Sensor Triggers</string>
+    <string name="explanation_sensor_triggers_content">Triggers are Events that let a Scenario transition from one to the another Step\nSensor Triggers are based on Acceleration, Gyroscope, Humidity, Light, Magnetism, Pressure, Proximity and Temperature.</string>
+
 </resources>

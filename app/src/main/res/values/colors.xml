@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="srePrimaryPastel">#b5b6d2</color>
     <color name="srePrimaryLight">#7986cb</color>
     <color name="srePrimary">#3F51B5</color>
     <color name="srePrimaryDark">#303F9F</color>
@@ -10,7 +11,6 @@
     <color name="sreAccent">#FF4081</color>
     <color name="sreAccentDark">#f50057</color>
     <!-- SceneRE-->
-    <color name="sreSteelGray">#b5b6d2</color>
     <color name="sreWhite">#FFFFFF</color>
     <color name="sreLightGray">#dddddd</color>
     <color name="sreTintGray">#bbbbbb</color>

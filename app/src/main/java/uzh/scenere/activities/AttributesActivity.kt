@@ -58,7 +58,7 @@ class AttributesActivity : AbstractManagementActivity() {
             addAttributeToList(attribute)
         }
         holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_attributes), fontAwesome)
-        customizeToolbarText(null, null, getLockIcon(), null, null)
+        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
     }
 
     private fun addAttributeToList(attribute: Attribute) {

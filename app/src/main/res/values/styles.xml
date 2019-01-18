@@ -18,6 +18,12 @@
 
 
     <style name="HeaderBar">
-        <item name="android:background">#303F9F</item>
+        <item name="android:background">@color/srePrimaryDark</item>
+    </style>
+
+    <style name="SpinnerStyle">
+        <!--<item name="android:fontFamily">@font/font_awesome_900</item>-->
+        <item name="android:textColor">@color/srePrimaryDark</item>
+        <item name="android:colorBackground">@color/srePrimaryLight</item>
     </style>
 </resources>

@@ -11,7 +11,7 @@
         android:id="@+id/holder_scroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/sreSteelGray"
+        android:background="@color/srePrimaryPastel"
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:scrollbarSize="@dimen/dimScrollbar"
         android:fadeScrollbars="false"

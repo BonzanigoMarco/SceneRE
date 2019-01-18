@@ -2,10 +2,10 @@
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
     android:insetTop="-2dp">
 <shape android:shape="rectangle">
-    <stroke android:width="1dp" android:color="@color/sreSteelGray"/>
+    <stroke android:width="1dp" android:color="@color/srePrimaryPastel"/>
     <gradient
         android:angle="90"
-        android:startColor="@color/sreSteelGray"
+        android:startColor="@color/srePrimaryPastel"
         android:centerColor="@color/sreWhite"
         android:endColor="@color/sreWhite"
         android:type="linear"

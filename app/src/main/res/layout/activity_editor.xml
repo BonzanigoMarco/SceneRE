@@ -1,17 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".activities.EditorActivity">
+
+    <include layout="@layout/sre_toolbar"
+        android:id="@+id/editor_toolbar" />
+    
     <TextView
-        android:id="@+id/scenario_editor_text_label"
+        android:id="@+id/editor_text_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:gravity="center"
+        android:textAlignment="gravity"
         android:textColor="@color/sreWhite"
         android:background="@color/srePrimary"
-        android:text="Editor"/>
+        android:text="@string/editor_title"
+        android:layout_below="@id/editor_toolbar"/>
 
-</android.support.constraint.ConstraintLayout>
+
+    <HorizontalScrollView
+        android:id="@+id/editor_scroll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/srePrimaryPastel"
+        android:scrollbarAlwaysDrawHorizontalTrack="true"
+        android:scrollbarSize="@dimen/dimScrollbar"
+        android:fadeScrollbars="false"
+        android:scrollbarThumbVertical="@drawable/blue_scrollbar"
+        android:layout_below="@id/editor_text_label">
+
+        <LinearLayout
+            android:id="@+id/editor_linear_layout_tool_selection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/editor_button_steps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onToolSelectionClicked"
+                android:text="Steps"/>
+            <Button
+                android:id="@+id/editor_button_triggers_communication"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onToolSelectionClicked"
+                android:text="Communication Triggers"/>
+            <Button
+                android:id="@+id/editor_button_triggers_direct"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onToolSelectionClicked"
+                android:text="Direct Triggers"/>
+            <Button
+                android:id="@+id/editor_button_triggers_indirect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onToolSelectionClicked"
+                android:text="Indirect Triggers"/>
+            <Button
+                android:id="@+id/editor_button_triggers_sensor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onToolSelectionClicked"
+                android:text="Sensor Triggers"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <RelativeLayout
+        android:id="@+id/editor_linear_layout_tool_holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/srePrimaryPastel"
+        android:orientation="horizontal"
+        android:layout_below="@id/editor_scroll">
+
+        <Spinner
+            android:id="@+id/editor_spinner_selection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/dimMarginLarge"
+            android:theme="@style/SpinnerStyle"
+            android:entries="@array/spinner_empty">
+        </Spinner>
+        <Button
+            android:id="@+id/editor_button_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/dimMarginLarge"
+            android:enabled="false"
+            android:text="Add"
+            android:onClick="onAddButtonClicked"/>
+    </RelativeLayout>
+
+
+    <include layout="@layout/scroll_holder"
+        android:id="@+id/editor_body"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/editor_linear_layout_tool_holder"/>
+
+
+</RelativeLayout>
