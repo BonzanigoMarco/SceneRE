@@ -29,7 +29,7 @@
         android:fullBackupContent="true"
         android:theme="@style/SceneReTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.ProjectsActivity"
+        <activity android:name=".activities.EditorActivity"
             android:theme="@style/SceneReToolbarTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,7 +46,7 @@
             android:theme="@style/SceneReToolbarTheme"/>
         <activity android:name=".activities.ResourcesActivity"
             android:theme="@style/SceneReToolbarTheme"/>
-        <activity android:name=".activities.EditorActivity"
+        <activity android:name=".activities.ProjectsActivity"
             android:theme="@style/SceneReToolbarTheme"/>
         <activity android:name=".activities.ScenariosActivity"
             android:theme="@style/SceneReToolbarTheme"/>

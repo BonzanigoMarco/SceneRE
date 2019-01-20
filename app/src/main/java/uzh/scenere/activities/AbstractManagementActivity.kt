@@ -39,15 +39,22 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         collapseAndRefreshAllButtons()
     }
 
-    override fun onToolbarRightClicked() { //CLOSE
+    override fun onToolbarLeftClicked() { //SAVE
         if (isInEditMode()) {
-            execMorphInfoBar(InfoState.MINIMIZED)
-            holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
-            holder_text_info_content.text = ""
-            customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
-            resetEditMode()
-            activeButton?.collapse()
-            activeButton = null
+            for (entry in inputMap) {
+                if (!StringHelper.hasText(entry.value.text)) {
+                    toast("Not all required information entered!")
+                    return
+                }
+            }
+            createEntity()
+            if (isSpacingEnabled()){
+                createTitle("", holder_linear_layout_holder)
+            }
+            holder_scroll.fullScroll(View.FOCUS_DOWN)
+            onToolbarRightClicked()
+        }else{
+            onBackPressed()
         }
     }
 
@@ -62,20 +69,15 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         }
     }
 
-    override fun onToolbarLeftClicked() { //SAVE
+    override fun onToolbarRightClicked() { //CLOSE
         if (isInEditMode()) {
-            for (entry in inputMap) {
-                if (!StringHelper.hasText(entry.value.text)) {
-                    toast("Not all required information entered!")
-                    return
-                }
-            }
-            createEntity()
-            createTitle("", holder_linear_layout_holder)
-            holder_scroll.fullScroll(View.FOCUS_DOWN)
-            onToolbarRightClicked()
-        }else{
-            onBackPressed()
+            execMorphInfoBar(InfoState.MINIMIZED)
+            holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+            holder_text_info_content.text = ""
+            customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
+            resetEditMode()
+            activeButton?.collapse()
+            activeButton = null
         }
     }
 
@@ -190,6 +192,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     abstract fun resetEditMode()
     abstract fun createEntity()
     abstract fun getConfiguredInfoString(): Int
+    open fun isSpacingEnabled(): Boolean{
+        return true
+    }
 
     //*************
     //* EXECUTION *

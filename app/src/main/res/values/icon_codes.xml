@@ -71,11 +71,9 @@
         <annotation font="font_awesome">&#xf044;</annotation> Create/Edit,
         <annotation font="font_awesome">&#xf023;/&#xf3c1;</annotation> Lock/Unlock Deletion</string>
     <string name="icon_explain_editor">
-        <annotation font="font_awesome">&#xf04a;</annotation> Backward,
-        <annotation font="font_awesome">&#xf04e;</annotation> Forward\n
-        <annotation font="font_awesome">&#xf068;</annotation>/
-        <annotation font="font_awesome">&#xf52c;</annotation>/
-        <annotation font="font_awesome">&#xf0c9;</annotation> Hide, Minimize, Maximize Info-Bar</string>
+        <annotation font="font_awesome">&#xf04a;</annotation> Previous Stakeholder,
+        <annotation font="font_awesome">&#xf04e;</annotation> Next Stakeholder,
+        <annotation font="font_awesome">&#xf067;</annotation> Add Step/Trigger</string>
 
     <string name="icon_dice_one">&#xf525;</string>
     <string name="icon_dice_two">&#xf528;</string>
@@ -86,6 +84,8 @@
 
 
     <string name="icon_null"> </string>
+    <string name="icon_plus">&#xf067;</string>
+    <string name="icon_minus">&#xf068;</string>
 
     <!--<string title="icon_storage">&#xf;</string>-->
     <string name="icon_wifi">&#xf1eb;</string>

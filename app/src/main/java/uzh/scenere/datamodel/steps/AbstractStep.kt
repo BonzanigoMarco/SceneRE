@@ -1,5 +1,7 @@
 package uzh.scenere.datamodel.steps
 
-abstract class AbstractStep(val id: String, var originTriggerId: String?) {
+import uzh.scenere.datamodel.IElement
+
+abstract class AbstractStep(val id: String, var originTriggerId: String?): IElement {
     var triggerId: String? = null
 }

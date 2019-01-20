@@ -123,13 +123,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
 
         //Master Layout Params
         this.orientation = LinearLayout.VERTICAL
-
-        val masterLayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dpiHeight)
-        masterLayoutParams.marginStart = dpiMargin//TODO Adapt to existing scroll bar or not
-        masterLayoutParams.marginEnd = dpiMargin//+NumberHelper.nvl(context?.resources?.getDimension(R.dimen.dimScrollbar),0).toInt()
-        masterLayoutParams.topMargin = dpiMargin / 5
-        masterLayoutParams.weight = 12f
-        layoutParams = masterLayoutParams
+        adaptMasterLayoutParams()
 
         //Grid, Top Box (30%)
         val topLayout = LinearLayout(context)
@@ -448,6 +442,18 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         topLabelText?.setTextColor(color)
         bottomLabelText?.setTextColor(color)
         return this
+    }
+
+    fun adaptMasterLayoutParams(borderless: Boolean = false): SwipeButton {
+        val masterLayoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dpiHeight)
+        if (!borderless) {
+            masterLayoutParams.marginStart = dpiMargin//TODO Adapt to existing scroll bar or not
+            masterLayoutParams.marginEnd = dpiMargin//+NumberHelper.nvl(context?.resources?.getDimension(R.dimen.dimScrollbar),0).toInt()
+            masterLayoutParams.topMargin = dpiMargin / 5
+        }
+        masterLayoutParams.weight = 12f
+        layoutParams = masterLayoutParams
+        return this;
     }
 
     fun updateViews(init: Boolean): SwipeButton {

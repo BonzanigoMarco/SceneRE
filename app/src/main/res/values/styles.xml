@@ -23,7 +23,7 @@
 
     <style name="SpinnerStyle">
         <!--<item name="android:fontFamily">@font/font_awesome_900</item>-->
-        <item name="android:textColor">@color/srePrimaryDark</item>
-        <item name="android:colorBackground">@color/srePrimaryLight</item>
+        <item name="android:textColor">@color/sreWhite</item>
+        <item name="android:colorBackground">@color/srePrimaryDark</item>
     </style>
 </resources>

@@ -20,92 +20,39 @@
         android:text="@string/editor_title"
         android:layout_below="@id/editor_toolbar"/>
 
-
-    <HorizontalScrollView
-        android:id="@+id/editor_scroll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/srePrimaryPastel"
-        android:scrollbarAlwaysDrawHorizontalTrack="true"
-        android:scrollbarSize="@dimen/dimScrollbar"
-        android:fadeScrollbars="false"
-        android:scrollbarThumbVertical="@drawable/blue_scrollbar"
-        android:layout_below="@id/editor_text_label">
-
-        <LinearLayout
-            android:id="@+id/editor_linear_layout_tool_selection"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/editor_button_steps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onToolSelectionClicked"
-                android:text="Steps"/>
-            <Button
-                android:id="@+id/editor_button_triggers_communication"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onToolSelectionClicked"
-                android:text="Communication Triggers"/>
-            <Button
-                android:id="@+id/editor_button_triggers_direct"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onToolSelectionClicked"
-                android:text="Direct Triggers"/>
-            <Button
-                android:id="@+id/editor_button_triggers_indirect"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onToolSelectionClicked"
-                android:text="Indirect Triggers"/>
-            <Button
-                android:id="@+id/editor_button_triggers_sensor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onToolSelectionClicked"
-                android:text="Sensor Triggers"/>
-        </LinearLayout>
-    </HorizontalScrollView>
-
     <RelativeLayout
         android:id="@+id/editor_linear_layout_tool_holder"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/srePrimaryPastel"
-        android:orientation="horizontal"
-        android:layout_below="@id/editor_scroll">
+        android:background="@color/srePrimary"
+        android:layout_below="@id/editor_text_label">
 
         <Spinner
             android:id="@+id/editor_spinner_selection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/dimMarginLarge"
+            android:layout_centerInParent="true"
+            android:padding="@dimen/dimPaddingLarge"
             android:theme="@style/SpinnerStyle"
+            android:textAlignment="center"
+            android:gravity="center"
             android:entries="@array/spinner_empty">
         </Spinner>
-        <Button
-            android:id="@+id/editor_button_add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="@dimen/dimMarginLarge"
-            android:enabled="false"
-            android:text="Add"
-            android:onClick="onAddButtonClicked"/>
     </RelativeLayout>
 
+    <LinearLayout
+        android:id="@+id/editor_linear_layout_control"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/editor_linear_layout_tool_holder">
+    </LinearLayout>
 
     <include layout="@layout/scroll_holder"
         android:id="@+id/editor_body"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/editor_linear_layout_tool_holder"/>
+        android:layout_below="@id/editor_linear_layout_control"/>
 
 
 </RelativeLayout>
