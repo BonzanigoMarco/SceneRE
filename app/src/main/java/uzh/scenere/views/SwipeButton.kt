@@ -110,7 +110,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     }
 
     //Inline Constructors
-    constructor(context: Context?, label: String) : this(context, null, -1, -1) {
+    constructor(context: Context?, label: String?) : this(context, null, -1, -1) {
         init(context)
         labelText?.text = label
     }
@@ -442,6 +442,14 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         topLabelText?.setTextColor(color)
         bottomLabelText?.setTextColor(color)
         return this
+    }
+
+    fun setText(text: String){
+        labelText?.text = text
+    }
+
+    fun getText(): String?{
+        return labelText?.text.toString()
     }
 
     fun adaptMasterLayoutParams(borderless: Boolean = false): SwipeButton {

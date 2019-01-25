@@ -133,9 +133,9 @@ class ScenariosActivity : AbstractManagementActivity() {
             ScenarioMode.VIEW -> {}//NOP
             ScenarioMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeScenario == null) getString(R.string.scenarios_create) else getString(R.string.scenarios_edit))
-                holder_text_info_content_wrap.addView(createLine(inputLabelTitle, false, scenario?.title))
-                holder_text_info_content_wrap.addView(createLine(inputLabelIntro, true, scenario?.intro))
-                holder_text_info_content_wrap.addView(createLine(inputLabelOutro, true, scenario?.outro))
+                holder_text_info_content_wrap.addView(createLine(inputLabelTitle, LineInputType.SINGLE_LINE_TEXT, scenario?.title))
+                holder_text_info_content_wrap.addView(createLine(inputLabelIntro, LineInputType.MULTI_LINE_TEXT, scenario?.intro))
+                holder_text_info_content_wrap.addView(createLine(inputLabelOutro, LineInputType.MULTI_LINE_TEXT, scenario?.outro))
             }
             ScenarioMode.OBJECTS -> {
                 val intent = Intent(this, ObjectsActivity::class.java)

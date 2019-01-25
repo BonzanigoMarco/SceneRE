@@ -124,7 +124,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
                 1 -> layoutParams.setMargins(margin, margin, margin, margin / 2)
                 2 -> layoutParams.setMargins(margin, margin / 2, margin, margin)
             }
-            textView.gravity = (Gravity.CENTER or Gravity.TOP)
+            textView.gravity = Gravity.CENTER//TODO: Remove if not necesssary anymore (Gravity.CENTER or Gravity.TOP)
             textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
             textView.layoutParams = layoutParams
         }

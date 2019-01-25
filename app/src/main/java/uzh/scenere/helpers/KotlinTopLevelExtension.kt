@@ -1,6 +1,7 @@
 package uzh.scenere.helpers
 
 import android.widget.EditText
+import android.widget.TextView
 
 public inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int)->INNER): Array<Array<INNER>> = Array(sizeOuter) { Array<INNER>(sizeInner, innerInit) }
 public fun array2dOfInt(sizeOuter: Int, sizeInner: Int): Array<IntArray> = Array(sizeOuter) { IntArray(sizeInner) }
@@ -12,3 +13,4 @@ public fun array2dOfChar(sizeOuter: Int, sizeInner: Int): Array<CharArray> = Arr
 public fun array2dOfBoolean(sizeOuter: Int, sizeInner: Int): Array<BooleanArray> = Array(sizeOuter) { BooleanArray(sizeInner) }
 public fun floor(value: Double, precision: Int):Double = Math.floor(precision*value)/precision.toDouble()
 public fun EditText.getStringValue(): String = text.toString()
+public fun TextView.getStringValue(): String = text.toString()

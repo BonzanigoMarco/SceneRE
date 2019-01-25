@@ -2,9 +2,49 @@ package uzh.scenere.datamodel
 
 import java.io.Serializable
 import java.util.*
+import kotlin.collections.ArrayList
 
-class Project private constructor(val id: String, val creator: String, val title: String, val description: String): Serializable {
+open class Project private constructor(val id: String, val creator: String, val title: String, val description: String): Serializable {
     var scenarios: List<Scenario> = ArrayList()
+    var stakeholders: List<Stakeholder> = ArrayList()
+
+    fun getNextStakeholder(stakeholder: Stakeholder? = null): Stakeholder?{
+        if (stakeholders.isEmpty()){
+            return null
+        }
+        if (stakeholder == null){
+            return stakeholders[0]
+        }
+        for (s in 0 until stakeholders.size){
+            if (stakeholders[s] == stakeholder){
+                return if ((s+1) == stakeholders.size){
+                    getNextStakeholder()
+                }else{
+                    stakeholders[s+1]
+                }
+            }
+        }
+        return null
+    }
+
+    fun getPreviousStakeholder(stakeholder: Stakeholder? = null): Stakeholder?{
+        if (stakeholders.isEmpty()){
+            return null
+        }
+        if (stakeholder == null){
+            return stakeholders[0]
+        }
+        for (s in 0 until stakeholders.size){
+            if (stakeholders[s] == stakeholder){
+                return if (s == 0){
+                    stakeholders[stakeholders.size-1]
+                }else{
+                    stakeholders[s-1]
+                }
+            }
+        }
+        return null
+    }
 
     class ProjectBuilder(private val creator: String, private val  title: String, private val  description: String){
 
@@ -13,18 +53,15 @@ class Project private constructor(val id: String, val creator: String, val title
         }
 
         private var scenarios: List<Scenario> = ArrayList()
+        private var stakeholders: List<Stakeholder> = ArrayList()
         private var id: String? = null
 
-        fun withScenarios(scenarios: List<Scenario>): ProjectBuilder{
-            if (this.scenarios.isEmpty()){
-                this.scenarios = scenarios
-            }else{
-                this.scenarios.plus(scenarios)
-            }
+        fun addScenarios(vararg scenario: Scenario): ProjectBuilder{
+            this.scenarios = scenarios.plus(scenario)
             return this
         }
-        fun addScenario(scenario: Scenario): ProjectBuilder{
-            this.scenarios.plus(scenario)
+        fun addStakeholders(vararg stakeholder: Stakeholder): ProjectBuilder{
+            this.stakeholders = stakeholders.plus(stakeholder)
             return this
         }
         fun copyId(project: Project): ProjectBuilder{
@@ -34,6 +71,7 @@ class Project private constructor(val id: String, val creator: String, val title
         fun build(): Project{
             val project = Project(id?: UUID.randomUUID().toString(),creator,title,description)
             project.scenarios = this.scenarios
+            project.stakeholders = this.stakeholders
             return project
         }
     }
@@ -48,4 +86,18 @@ class Project private constructor(val id: String, val creator: String, val title
     override fun hashCode(): Int {
         return super.hashCode()
     }
+
+    fun getObjectsWithNames(objectNames: ArrayList<String>): ArrayList<Object>{
+        val objects = ArrayList<Object>()
+        for (name in objectNames){
+            for (obj in objects){
+                if (obj.name == name){
+                    objects.add(obj)
+                }
+            }
+        }
+        return objects
+    }
+
+    class NullProject(): Project("","","","") {}
 }

@@ -56,7 +56,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
         holder_linear_layout_holder.addView(creationButton)
         createTitle("",holder_linear_layout_holder)
-        for (project in DatabaseHelper.getInstance(applicationContext).readBulk(Project::class)){
+        for (project in DatabaseHelper.getInstance(applicationContext).readBulk(Project::class,null)){
             addProjectToList(project)
         }
         holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
@@ -134,8 +134,8 @@ class ProjectsActivity : AbstractManagementActivity() {
                 //[Description]:
                 //[DescriptionInput]
                 cleanInfoHolder(if (activeProject==null) getString(R.string.projects_create) else getString(R.string.projects_edit))
-                holder_text_info_content_wrap.addView(createLine(inputLabelTitle,false, project?.title))
-                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, true, project?.description))
+                holder_text_info_content_wrap.addView(createLine(inputLabelTitle,LineInputType.SINGLE_LINE_TEXT, project?.title))
+                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, project?.description))
             }
             ProjectsMode.SCENARIO -> {
                 val intent = Intent(this,ScenariosActivity::class.java)

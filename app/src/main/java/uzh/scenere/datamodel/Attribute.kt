@@ -3,23 +3,32 @@ package uzh.scenere.datamodel
 import java.io.Serializable
 import java.util.*
 
-class Attribute private constructor(val id: String, val refId: String, val key: String, val value: String) : Serializable {
+open class Attribute private constructor(val id: String, val refId: String, val key: String?, val value: String?) : Serializable {
+    var type: String? = null
 
-    class AttributeBuilder(private val refId: String, private val key: String, private val value: String) {
 
-        constructor(id: String, refId: String, key: String, value: String) : this(refId, key, value) {
+    class AttributeBuilder(private val refId: String, private val key: String?, private val value: String?) {
+
+        constructor(id: String, refId: String, key: String?, value: String?) : this(refId, key, value) {
             this.id = id
         }
 
         private var id: String? = null
+        private var type: String? = null
 
+        fun withAttributeType(type: String): AttributeBuilder{
+            this.type = type
+            return this
+        }
         fun copyId(attribute: Attribute): AttributeBuilder {
             this.id = attribute.id
             return this
         }
 
         fun build(): Attribute {
-            return Attribute(id ?: UUID.randomUUID().toString(), refId, key, value)
+            val attribute = Attribute(id ?: UUID.randomUUID().toString(), refId, key, value)
+            attribute.type = this.type
+            return attribute
         }
 
     }
@@ -34,4 +43,6 @@ class Attribute private constructor(val id: String, val refId: String, val key: 
     override fun hashCode(): Int {
         return super.hashCode()
     }
+
+    class NullAttribute(): Attribute("","","","") {}
 }

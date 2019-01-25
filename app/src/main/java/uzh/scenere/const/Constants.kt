@@ -24,5 +24,12 @@ class Constants {
         const val ATTRIBUTE_UID_IDENTIFIER: String = "attribute_"
         //GENERAL
         const val DOLLAR_STRING: String = "$"
+        //ELEMENTS
+        const val STARTING_POINT: String = "starting_point"
+        //ATTRIBUTE TYPES
+        const val TYPE_OBJECT: String = "Object"
+        const val TYPE_STANDARD_STEP: String = "StandardStep"
+        const val TYPE_BUTTON_TRIGGER: String = "ButtonTrigger"
+
     }
 }

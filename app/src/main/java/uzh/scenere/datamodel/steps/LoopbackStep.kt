@@ -1,4 +1,4 @@
 package uzh.scenere.datamodel.steps
 
-class LoopbackStep(id: String, originTriggerId: String?): AbstractStep(id, originTriggerId) {
+class LoopbackStep(id: String, previousId: String?, pathId: String): AbstractStep(id, previousId, pathId) {
 }

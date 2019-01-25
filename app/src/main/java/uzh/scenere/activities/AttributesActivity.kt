@@ -120,8 +120,8 @@ class AttributesActivity : AbstractManagementActivity() {
             AttributeMode.VIEW -> {}//NOP
             AttributeMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeAttribute == null) getString(R.string.attributes_create) else getString(R.string.attributes_edit))
-                holder_text_info_content_wrap.addView(createLine(inputLabelKey, false, attribute?.key))
-                holder_text_info_content_wrap.addView(createLine(inputLabelValue, true, attribute?.value))
+                holder_text_info_content_wrap.addView(createLine(inputLabelKey, LineInputType.SINGLE_LINE_TEXT, attribute?.key))
+                holder_text_info_content_wrap.addView(createLine(inputLabelValue, LineInputType.MULTI_LINE_TEXT, attribute?.value))
             }
         }
         execMorphInfoBar(InfoState.MAXIMIZED)

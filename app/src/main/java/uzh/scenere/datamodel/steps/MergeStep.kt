@@ -1,4 +1,4 @@
 package uzh.scenere.datamodel.steps
 
-class MergeStep(id: String, originTriggerId: String?): AbstractStep(id, originTriggerId) {
+class MergeStep(id: String, previousId: String?, pathId: String): AbstractStep(id, previousId, pathId) {
 }

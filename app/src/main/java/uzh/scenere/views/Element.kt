@@ -8,14 +8,15 @@ import android.view.View
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.helpers.NumberHelper
+import java.io.Serializable
 
 
 @SuppressLint("ViewConstructor")
-class Element private constructor(private val elementMode: ElementMode, private val top: Boolean,private  val left: Boolean,private  val right: Boolean,private  val bottom: Boolean, context: Context) : RelativeLayout(context) {
+class Element private constructor(private val elementMode: ElementMode, private val top: Boolean,private  val left: Boolean,private  val right: Boolean,private  val bottom: Boolean, context: Context) : RelativeLayout(context), Serializable {
 
     enum class ElementMode {
         STEP, TRIGGER;
-        fun create(label: String, top: Boolean,  left: Boolean,  right: Boolean,  bottom: Boolean, context: Context):Element{
+        fun create(label: String?, top: Boolean,  left: Boolean,  right: Boolean,  bottom: Boolean, context: Context):Element{
             val element = Element(this,top,left,right,bottom,context)
             element.centerElement?.text = label
             return element
@@ -104,7 +105,7 @@ class Element private constructor(private val elementMode: ElementMode, private 
         // CENTER
         centerElement?.id = View.generateViewId()
         centerElement?.setBackgroundColor(if (elementMode == ElementMode.STEP) Color.BLUE else Color.YELLOW)
-        centerElement?.setTextColor(Color.WHITE)
+        centerElement?.setTextColor(if (elementMode == ElementMode.STEP) Color.WHITE else Color.BLACK)
         centerElement?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
         val centerParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         centerParams.addRule(CENTER_IN_PARENT, TRUE)

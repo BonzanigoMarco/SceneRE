@@ -1,32 +1,36 @@
 package uzh.scenere.activities
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.text.InputType
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.datamodel.*
+import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.WeightAnimator
+import java.util.RandomAccess
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
-    enum class LockState{
+    enum class LockState {
         LOCKED, UNLOCKED
     }
+
     enum class ManagementMode {
         VIEW, EDIT_CREATE, OBJECTS, EDITOR
     }
 
-    protected val inputMap: HashMap<String, EditText> = HashMap()
+    protected val inputMap: HashMap<String, TextView> = HashMap()
+    protected val multiInputMap: HashMap<String, ArrayList<TextView>> = HashMap()
     protected var lockState: LockState = LockState.LOCKED
     protected var creationButton: SwipeButton? = null
     protected var activeButton: SwipeButton? = null
@@ -41,6 +45,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
     override fun onToolbarLeftClicked() { //SAVE
         if (isInEditMode()) {
+            if (!execDoAdditionalCheck()){
+                return
+            }
             for (entry in inputMap) {
                 if (!StringHelper.hasText(entry.value.text)) {
                     toast("Not all required information entered!")
@@ -48,14 +55,21 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 }
             }
             createEntity()
-            if (isSpacingEnabled()){
+            if (isSpacingEnabled()) {
                 createTitle("", holder_linear_layout_holder)
             }
             holder_scroll.fullScroll(View.FOCUS_DOWN)
             onToolbarRightClicked()
-        }else{
+        } else {
             onBackPressed()
         }
+    }
+
+    /**
+     * @return true if all checks succeed
+     */
+    open fun execDoAdditionalCheck(): Boolean {
+        return true
     }
 
     override fun onToolbarCenterClicked() { //LOCK & UNLOCK
@@ -90,44 +104,129 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     //************
     //* CREATION *
     //************
-    protected fun createLine(labelText: String, linebreak: Boolean = false, presetValue: String? = null): View? {
-        val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-        val wrapper = LinearLayout(this)
-        wrapper.layoutParams = layoutParams
-        wrapper.weightSum = 2f
-        wrapper.orientation = if (linebreak) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-        val label = TextView(this)
-        label.text = getString(R.string.label, labelText)
-        label.textSize = textSize!!
-        label.layoutParams = childParams
-        val input = EditText(this)
-        input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
-        input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-        input.textAlignment = if (linebreak) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
-        input.layoutParams = childParams
-        input.textSize = textSize!!
-        input.hint = labelText
-        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-        input.setText(presetValue)
-        input.setSingleLine(!linebreak)
-        wrapper.addView(label)
-        wrapper.addView(input)
-        inputMap[labelText] = input
-        return wrapper
+    enum class LineInputType {
+        SINGLE_LINE_TEXT, MULTI_LINE_TEXT, LOOKUP
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, data: Any? = null): View? {
+        if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_TEXT, LineInputType.MULTI_LINE_TEXT)) {
+            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val wrapper = LinearLayout(this)
+            wrapper.layoutParams = layoutParams
+            wrapper.weightSum = 2f
+            wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_TEXT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+            val label = TextView(this)
+            label.text = getString(R.string.label, labelText)
+            label.textSize = textSize!!
+            label.layoutParams = childParams
+            val input = EditText(this)
+            input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
+            input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            input.textAlignment = if (inputType == LineInputType.MULTI_LINE_TEXT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
+            input.layoutParams = childParams
+            input.textSize = textSize!!
+            input.hint = labelText
+            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            input.setText(presetValue)
+            input.setSingleLine((inputType != LineInputType.MULTI_LINE_TEXT))
+            wrapper.addView(label)
+            wrapper.addView(input)
+            inputMap[labelText] = input
+            return wrapper
+        } else if (inputType == LineInputType.LOOKUP && data != null) {
+            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val wrapper = LinearLayout(this)
+            val selectionCarrier = LinearLayout(this)
+            val outerWrapper = LinearLayout(this)
+            wrapper.layoutParams = layoutParams
+            outerWrapper.layoutParams = layoutParams
+            selectionCarrier.layoutParams = layoutParams
+            wrapper.weightSum = 2f
+            outerWrapper.weightSum = 2f
+            wrapper.orientation = LinearLayout.HORIZONTAL
+            outerWrapper.orientation = LinearLayout.VERTICAL
+            selectionCarrier.orientation = LinearLayout.VERTICAL
+            selectionCarrier.gravity = Gravity.CENTER
+            val label = TextView(this)
+            label.text = getString(R.string.label, labelText)
+            label.textSize = textSize!!
+            label.layoutParams = childParams
+            val spinner = Spinner(applicationContext)
+            val spinnerArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data as Array<String>)
+            spinnerArrayAdapter.setDropDownViewResource(R.layout.sre_spinner_item)
+            spinner.adapter = spinnerArrayAdapter
+            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                @SuppressLint("ClickableViewAccessibility")
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    val spinnerText = spinner.selectedItem as String
+                    if (StringHelper.hasText(spinnerText)) {
+                        for (t in 0 until selectionCarrier.childCount) {
+                            if ((selectionCarrier.getChildAt(t) as TextView).text == spinnerText) {
+                                spinner.setSelection(0)
+                                return // Item already selected
+                            }
+                        }
+                        val textView = TextView(applicationContext)
+                        val textParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                        textParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+                        textView.layoutParams = textParams
+                        textView.text = spinnerText
+                        textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+                        textView.setBackgroundColor(Color.WHITE)
+                        textView.setTextColor(Color.BLACK)
+                        textView.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+                        textView.setOnTouchListener { _, _ ->
+                            selectionCarrier.removeView(textView)
+                            multiInputMap[labelText]?.remove(textView)
+                            false
+                        }
+                        selectionCarrier.addView(textView)
+                        if (multiInputMap[labelText] == null){
+                            val list = ArrayList<TextView>()
+                            list.add(textView)
+                            multiInputMap[labelText] = list
+                        }else{
+                            multiInputMap[labelText]?.add(textView)
+                        }
+                        spinner.setSelection(0)
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    //NOP
+                }
+            };
+
+
+
+            spinner.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
+            spinner.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            spinner.textAlignment = if (inputType == LineInputType.MULTI_LINE_TEXT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
+            spinner.layoutParams = childParams
+            wrapper.addView(label)
+            wrapper.addView(spinner)
+            outerWrapper.addView(wrapper)
+            outerWrapper.addView(selectionCarrier)
+            return outerWrapper
+        }
+        return null
     }
 
     //*******
     //* GUI *
     //*******
-    protected fun changeLockState(): String{
-        lockState = if (lockState==LockState.LOCKED) LockState.UNLOCKED else LockState.LOCKED
+    protected fun changeLockState(): String {
+        lockState = if (lockState == LockState.LOCKED) LockState.UNLOCKED else LockState.LOCKED
         return getLockIcon()
     }
 
-    protected fun getLockIcon(): String{
-        return when(lockState){
+    protected fun getLockIcon(): String {
+        return when (lockState) {
             LockState.LOCKED -> resources.getString(R.string.icon_lock)
             LockState.UNLOCKED -> resources.getString(R.string.icon_lock_open)
         }
@@ -135,18 +234,18 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
     private fun collapseAndRefreshAllButtons() {
         for (v in 0 until holder_linear_layout_holder.childCount) {
-            if (holder_linear_layout_holder.getChildAt(v) is SwipeButton){
+            if (holder_linear_layout_holder.getChildAt(v) is SwipeButton) {
                 val swipeButton = holder_linear_layout_holder.getChildAt(v) as SwipeButton
                 if (swipeButton.state != SwipeButton.SwipeButtonState.MIDDLE) {
                     swipeButton.collapse()
                 }
-                if (swipeButton.dataObject is Project){
-                    swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class,swipeButton.dataObject).size,
-                            DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class,swipeButton.dataObject).size)
-                }else if (swipeButton.dataObject is Scenario){
-                    swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Object::class,swipeButton.dataObject).size,null)
-                }else if (swipeButton.dataObject is Object){
-                    swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Attribute::class,(swipeButton.dataObject as Object).id).size,null)
+                if (swipeButton.dataObject is Project) {
+                    swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class, swipeButton.dataObject).size,
+                            DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class, swipeButton.dataObject).size)
+                } else if (swipeButton.dataObject is Scenario) {
+                    swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Object::class, swipeButton.dataObject).size, null)
+                } else if (swipeButton.dataObject is Object) {
+                    swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Attribute::class, (swipeButton.dataObject as Object).id).size, null)
                 }
             }
         }
@@ -163,10 +262,13 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         holder_text_info_content_wrap.layoutParams = layoutParams
     }
 
-    protected fun showDeletionConfirmation(objectName: String){
+    protected fun showDeletionConfirmation(objectName: String?) {
+        if (objectName == null){
+            return
+        }
         val textPrior = holder_text_info_title.text
         val textColorPrior = holder_text_info_title.currentTextColor
-        holder_text_info_title.text = resources.getString(R.string.deleted,objectName)
+        holder_text_info_title.text = resources.getString(R.string.deleted, objectName)
         holder_text_info_title.setTextColor(Color.RED)
         Handler().postDelayed({
             holder_text_info_title.text = textPrior
@@ -192,7 +294,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     abstract fun resetEditMode()
     abstract fun createEntity()
     abstract fun getConfiguredInfoString(): Int
-    open fun isSpacingEnabled(): Boolean{
+    open fun isSpacingEnabled(): Boolean {
         return true
     }
 
@@ -213,7 +315,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 InfoState.MINIMIZED -> infoState = InfoState.NORMAL
                 InfoState.NORMAL -> infoState = InfoState.MAXIMIZED
                 InfoState.MAXIMIZED -> infoState = InfoState.MINIMIZED
-                else -> {} //NOP
+                else -> {
+                } //NOP
             }
         }
         return execMorphInfoBarInternal()
@@ -257,4 +360,20 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         }
         return resources.getText(R.string.icon_null)
     }
+
+    fun getTextsFromLookupChoice(id: String): ArrayList<String>{
+        val list = ArrayList<String>()
+        if (!StringHelper.hasText(id)){
+            return list
+        }
+        val multi = multiInputMap[id]
+        if (multi == null || multi.isEmpty()){
+            return list
+        }
+        for (text in multi){
+            list.add(text.text.toString())
+        }
+        return list
+    }
+
 }

@@ -24,6 +24,7 @@ abstract class AbstractSreDatabase {
         const val MIN_ONE = " -1 "
         const val ZERO = " 0 "
         const val QUOTES = "'"
+        const val AND = " AND "
         const val LIKE_WILDCARD = " LIKE ? "
         //Private
         const val TEXT_TYPE = " TEXT "
@@ -54,7 +55,7 @@ abstract class AbstractSreDatabase {
     }
 
     //Creation
-    private fun collectTables() {
+    protected fun collectTables(specificTable: String? = null): ArrayList<String> {
         tableCreations.clear()
         for (declaredClass in AbstractSreDatabase::class.java.declaredClasses) {
             var create = false
@@ -78,12 +79,26 @@ abstract class AbstractSreDatabase {
                     field.name == ID_COLUMN -> columns[" " + StringHelper.extractNameFromClassString(field.name).toLowerCase().plus(" ")] = NUMBER_TYPE + KEY_TYPE
                 }
             }
-            tableCreations.add(composeCreationStatement(tableName, columns, idColumnExists))
-            tableBackups.add(ALTER_TABLE + tableName + RENAME_TO_TEMP + tableName + QUOTES)
-            tableDeletions.add(DROP_TABLE_IF_EXISTS + tableName)
-            tableRestorations.add(composeRestorationStatement(tableName, columns, idColumnExists))
-            tableCleanup.add(DROP_TABLE_IF_EXISTS_TEMP + tableName)
+            val creation = composeCreationStatement(tableName, columns, idColumnExists)
+            val backup = ALTER_TABLE + tableName + RENAME_TO_TEMP + tableName + QUOTES
+            val drop = DROP_TABLE_IF_EXISTS + tableName
+            val restoration = composeRestorationStatement(tableName, columns, idColumnExists)
+            val cleanup = DROP_TABLE_IF_EXISTS_TEMP + tableName
+            if (specificTable != null && tableName != specificTable){
+                continue;
+            }else if (specificTable != null && tableName == specificTable) {
+                val listOfStatements = ArrayList<String>()
+                listOfStatements.add(drop)
+                listOfStatements.add(creation)
+                return listOfStatements
+            }
+            tableCreations.add(creation)
+            tableBackups.add(backup)
+            tableDeletions.add(drop)
+            tableRestorations.add(restoration)
+            tableCleanup.add(cleanup)
         }
+        return ArrayList<String>()
     }
 
     private fun composeCreationStatement(tableName: String?, columns: HashMap<String, String>, idColumnExists: Boolean): String {
@@ -227,10 +242,47 @@ abstract class AbstractSreDatabase {
             const val COLUMN_TYPE_REF_ID = TEXT_TYPE
             const val COLUMN_TYPE_KEY = TEXT_TYPE
             const val COLUMN_TYPE_VALUE = TEXT_TYPE
+            const val COLUMN_TYPE_TYPE = TEXT_TYPE
             const val ID = " ID "
             const val REF_ID = " REF_ID "
             const val KEY = " KEY "
             const val VALUE = " VALUE "
+            const val TYPE = " TYPE "
+        }
+    }
+
+
+    //Table for Paths
+    protected class PathTableEntry private constructor() : BaseColumns {
+        companion object {
+            const val TABLE_NAME = " PATH_TABLE "
+            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_SCENARIO_ID = TEXT_TYPE
+            const val COLUMN_TYPE_STAKEHOLDER_ID = TEXT_TYPE
+            const val COLUMN_TYPE_LAYER = NUMBER_TYPE
+            const val ID = " ID "
+            const val SCENARIO_ID = " SCENARIO_ID "
+            const val STAKEHOLDER_ID = " STAKEHOLDER_ID "
+            const val LAYER = " LAYER "
+        }
+    }
+
+    //Table for Elements
+    protected class ElementTableEntry private constructor() : BaseColumns {
+        companion object {
+            const val TABLE_NAME = " ELEMENT_TABLE "
+            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_PREV_ID = TEXT_TYPE
+            const val COLUMN_TYPE_PATH_ID = TEXT_TYPE
+            const val COLUMN_TYPE_TYPE = TEXT_TYPE
+            const val COLUMN_TYPE_TITLE = TEXT_TYPE
+            const val COLUMN_TYPE_TEXT = TEXT_TYPE
+            const val ID = " ID "
+            const val PREV_ID = " PREV_ID "
+            const val PATH_ID = " PATH_ID "
+            const val TYPE = " TYPE "
+            const val TITLE = " TITLE "
+            const val TEXT = " TEXT "
         }
     }
 

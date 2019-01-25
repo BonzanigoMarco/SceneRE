@@ -26,6 +26,10 @@ class StringHelper{
             return (text != null && text.isNotEmpty())
         }
 
+        fun hasText(text: CharSequence?): Boolean {
+            return (text != null && text.isNotEmpty())
+        }
+
         fun extractNameFromClassString(className: String): String{
             val split = className.split(".")
             return split[split.size-1]

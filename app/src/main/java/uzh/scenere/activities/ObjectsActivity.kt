@@ -131,8 +131,8 @@ class ObjectsActivity : AbstractManagementActivity() {
             ObjectMode.VIEW -> {}//NOP
             ObjectMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeObject==null) getString(R.string.objects_create) else getString(R.string.objects_edit))
-                holder_text_info_content_wrap.addView(createLine(inputLabelName,false, obj?.name))
-                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, true, obj?.description))
+                holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_TEXT, obj?.name))
+                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, obj?.description))
             }
             ObjectMode.ATTRIBUTES -> {
                 val intent = Intent(this, AttributesActivity::class.java)
@@ -153,5 +153,18 @@ class ObjectsActivity : AbstractManagementActivity() {
                 return
             }
         }
+    }
+
+    override fun execDoAdditionalCheck(): Boolean {
+        val nameField = inputMap[inputLabelName] ?: return true
+        if (StringHelper.hasText(nameField.getStringValue())) {
+            for (v in 0 until holder_linear_layout_holder.childCount) {
+                if ((holder_linear_layout_holder.getChildAt(v) is SwipeButton) && (((holder_linear_layout_holder.getChildAt(v)) as SwipeButton).getText() == nameField.getStringValue())) {
+                    toast("An Object with similar Name already exists.")
+                    return false
+                }
+            }
+        }
+        return true
     }
 }

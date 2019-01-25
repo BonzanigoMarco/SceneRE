@@ -1,4 +1,7 @@
 package uzh.scenere.datamodel.steps
 
-class StandardStep(id: String, originTriggerId: String?): AbstractStep(id, originTriggerId) {
+import java.util.*
+
+class StandardStep(id: String?, previousId: String?, pathId: String): AbstractStep(id ?: UUID.randomUUID().toString(), previousId, pathId) {
+
 }

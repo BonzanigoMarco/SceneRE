@@ -11,9 +11,13 @@ import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
-import uzh.scenere.datamodel.IElement
+import uzh.scenere.const.Constants
+import uzh.scenere.datamodel.*
+import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.StandardStep
+import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
+import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.helpers.getStringValue
 import uzh.scenere.views.Element
@@ -54,16 +58,41 @@ class EditorActivity : AbstractManagementActivity() {
     private val elementAttributes: Array<String> = arrayOf("","","","","","","","","","")
     private var creationUnitClass: KClass<out IElement>? = null
     private var creationUnit: IElement? = null
+    //Context
+    private var activeScenario: Scenario? = null
+    private var projectContext: Project? = null
+    private var activePath: Path? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
+        activeScenario = intent.getSerializableExtra(Constants.BUNDLE_SCENARIO) as Scenario?
+        if (activeScenario != null){
+            projectContext = DatabaseHelper.getInstance(applicationContext).readFull(activeScenario!!.projectId,Project::class)
+            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull(activeScenario!!.id,Scenario::class)
+        }else{
+            //DEV
+            projectContext = DatabaseHelper.getInstance(applicationContext).readFull("ce482ccd-ece3-4184-9a3a-c47470f5ed35",Project::class  )
+            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("bdeb277a-7a63-4390-8bac-7df589dc1e53",Scenario::class)
+        }
+        //TODO> FOR NOW, LOAD ALL STAKEHOLDERS OF THE PROJECT, LATER, LET SELECT
+        var stakeholder: Stakeholder? = null
+        if (projectContext != null && !projectContext!!.stakeholders.isNullOrEmpty()){
+            stakeholder = projectContext?.getNextStakeholder()
+            activePath = activeScenario?.getPath(stakeholder!!, applicationContext)
+        }else{
+            //TODO Warn that there
+        }
+
         holder_scroll.setBackgroundColor(Color.WHITE)
         populateExplanationMap()
         execAdaptToOrientationChange()
 
         refreshState()
 
-        creationButton = SwipeButton(this, "Manager")
+        creationButton = SwipeButton(this, stakeholder?.name ?: "Warning: No Stakeholders in this Project. Path cannot be built.")
                 .setColors(Color.WHITE, Color.GRAY)
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
@@ -72,8 +101,43 @@ class EditorActivity : AbstractManagementActivity() {
                 .updateViews(true)
         creationButton?.setExecutable(createControlExecutable())
         editor_linear_layout_control.addView(creationButton)
+
         holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_editor), fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
+        visualizeActivePath()
+        refreshState()
+    }
+
+    private fun visualizeActivePath() {
+        if (activePath != null){
+            holder_linear_layout_holder.removeAllViews()
+            var element = activePath?.getStartingPoint()
+            while (element!= null){
+                renderElement(element)
+                element = activePath?.getNextElement(element.getElementId())
+            }
+        }
+    }
+
+    private fun addAndRenderElement(element: IElement){
+        activePath?.add(element)
+        DatabaseHelper.getInstance(applicationContext).write(element.getElementId(),element)
+        renderElement(element)
+    }
+
+    private fun renderElement(iElement: IElement){
+        var title: String? = null
+        if (iElement is StandardStep) title = iElement.title
+        if (iElement is ButtonTrigger) title = "Button-Trigger"
+        val previousAvailable = holder_linear_layout_holder.childCount != 0
+        if (previousAvailable) {
+            connectPreviousToNext()
+        }
+        if (iElement is AbstractTrigger){
+            holder_linear_layout_holder.addView(TRIGGER.create(title, previousAvailable, false, false, false, applicationContext))
+        }else if (iElement is AbstractStep){
+            holder_linear_layout_holder.addView(STEP.create(title, previousAvailable, false, false, false, applicationContext))
+        }
     }
 
     private fun refreshState() {
@@ -84,7 +148,6 @@ class EditorActivity : AbstractManagementActivity() {
         }
         when (editorState){
             EditorState.INIT -> {
-                //TODO: load project
                 updateSpinner(R.array.spinner_steps)
                 editorState = EditorState.STEP}
             EditorState.STEP -> updateSpinner(R.array.spinner_steps)
@@ -101,12 +164,22 @@ class EditorActivity : AbstractManagementActivity() {
     private fun createControlExecutable(): SwipeButton.SwipeButtonExecution {
         return object: SwipeButton.SwipeButtonExecution{
             override fun execLeft() {
-                super.execLeft()
-                //TODO: prev stakeholder
+                val stakeholder: Stakeholder? = projectContext?.getPreviousStakeholder(activePath?.stakeholder)
+                if (stakeholder != null){
+                    activePath = activeScenario?.getPath(stakeholder, applicationContext)
+                    creationButton?.setText(stakeholder.name)
+                    Handler().postDelayed({ creationButton?.collapse() }, 250)
+                    visualizeActivePath()
+                }
             }
             override fun execRight() {
-                super.execRight()
-                //TODO: next stakeholder
+                val stakeholder: Stakeholder? = projectContext?.getNextStakeholder(activePath?.stakeholder)
+                if (stakeholder != null){
+                    activePath = activeScenario?.getPath(stakeholder, applicationContext)
+                    creationButton?.setText(stakeholder.name)
+                    Handler().postDelayed({ creationButton?.collapse() }, 250)
+                    visualizeActivePath()
+                }
             }
             override fun execDown() {
                 super.execDown()
@@ -117,21 +190,23 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun openInput() {
         editorState = EditorState.ADD
+        editor_spinner_selection?.visibility = View.GONE
         creationButton?.visibility = View.GONE
         when ((editor_spinner_selection.selectedItem as String)) {
             resources.getString(R.string.step_standard) -> {
                 creationUnitClass = StandardStep::class
                 cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
-                adaptAttributes("Title", "Text")
-                holder_text_info_content_wrap.addView(createLine(elementAttributes[0], false, null))
-                holder_text_info_content_wrap.addView(createLine(elementAttributes[1], true, null))
+                adaptAttributes("Title", "Object","Text")
+                holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_TEXT, null))
+                holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.LOOKUP, null, arrayOf("","Object A","Object B","Object C")))
+                holder_text_info_content_wrap.addView(createLine(elementAttributes[2], LineInputType.MULTI_LINE_TEXT, null))
                 execMorphInfoBar(InfoState.MAXIMIZED)
             }
             resources.getString(R.string.trigger_button) -> {
                 creationUnitClass = ButtonTrigger::class
                 cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
                 adaptAttributes("Button-Label")
-                holder_text_info_content_wrap.addView(createLine(elementAttributes[0], false, null))
+                holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_TEXT, null))
                 execMorphInfoBar(InfoState.MAXIMIZED)
             }
         }
@@ -150,25 +225,23 @@ class EditorActivity : AbstractManagementActivity() {
     }
 
     override fun createEntity() {
+        if (activePath == null){
+            return
+        }
         when (creationUnitClass){
             //Steps
             StandardStep::class -> {
                 val title = inputMap[elementAttributes[0]]!!.getStringValue()
-                val text = inputMap[elementAttributes[1]]!!.getStringValue()
-                //TODO: Create Step element and Save
-                if (holder_linear_layout_holder.childCount == 0) {
-                    holder_linear_layout_holder.addView(STEP.create(title,false, false, false, false, applicationContext))
-                } else {
-                    connectPreviousToNext()
-                    holder_linear_layout_holder.addView(STEP.create(title,true, false, false, false, applicationContext))
-                }
+                val objects = projectContext?.getObjectsWithNames(getTextsFromLookupChoice(elementAttributes[1]))
+                val text = inputMap[elementAttributes[2]]!!.getStringValue()
+                val endPoint = activePath?.getEndPoint()
+                addAndRenderElement(StandardStep(null,endPoint?.getElementId(),activePath!!.id).withTitle(title).withText(text).withObjects(objects!!))
             }
             //Triggers
             ButtonTrigger::class -> {
                 val buttonLabel = inputMap[elementAttributes[0]]!!.getStringValue()
-                //TODO: Create Trigger element and Save
-                connectPreviousToNext()
-                holder_linear_layout_holder.addView(TRIGGER.create("Button-Trigger",true, Math.random() > 0.5, Math.random() > 0.5, false, applicationContext))
+                val endPoint = activePath?.getEndPoint()
+                addAndRenderElement(ButtonTrigger(null,endPoint?.getElementId(),activePath!!.id).withButtonLabel(buttonLabel))
             }
         }
         creationUnitClass = null
@@ -183,6 +256,7 @@ class EditorActivity : AbstractManagementActivity() {
     }
 
     override fun resetEditMode() {
+        editor_spinner_selection?.visibility = View.VISIBLE
         creationButton?.visibility = View.VISIBLE
         Handler().postDelayed({ creationButton?.collapse() }, 250)
         refreshState()
@@ -205,7 +279,7 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun updateSpinner(arrayResource: Int) {
 //        showInformation(explanationMap[arrayResource]?.key,explanationMap[arrayResource]?.value)
-        val spinnerArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, resources.getStringArray(arrayResource))
+        val spinnerArrayAdapter = ArrayAdapter<String>(this, R.layout.sre_spinner_item, resources.getStringArray(arrayResource))
         spinnerArrayAdapter.setDropDownViewResource(R.layout.sre_spinner_item)
         editor_spinner_selection.adapter = spinnerArrayAdapter
         editor_spinner_selection.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {

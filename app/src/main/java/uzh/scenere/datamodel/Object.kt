@@ -3,7 +3,8 @@ package uzh.scenere.datamodel
 import java.io.Serializable
 import java.util.*
 
-class Object private constructor(val id: String, val scenarioId: String, val name: String, val description: String, val attributes: List<Attribute>) : Serializable {
+open class Object private constructor(val id: String, val scenarioId: String, val name: String, val description: String) : Serializable {
+    var attributes: List<Attribute> = ArrayList()
 
     class ObjectBuilder(private val scenarioId: String, private val name: String, private val description: String) {
 
@@ -18,10 +19,10 @@ class Object private constructor(val id: String, val scenarioId: String, val nam
         }
 
         private var id: String? = null
-        private val attributes = ArrayList<Attribute>()
+        private var attributes: List<Attribute> = ArrayList()
 
-        fun addAttribute(attribute: Attribute): ObjectBuilder {
-            attributes.add(attribute)
+        fun addAttributes(vararg attributes: Attribute): ObjectBuilder {
+            this.attributes = this.attributes.plus(attributes)
             return this
         }
 
@@ -31,8 +32,9 @@ class Object private constructor(val id: String, val scenarioId: String, val nam
         }
 
         fun build(): Object {
-            return Object(id
-                    ?: UUID.randomUUID().toString(), scenarioId, name, description, attributes)
+            val obj = Object(id ?: UUID.randomUUID().toString(), scenarioId, name, description)
+            obj.attributes = this.attributes
+            return obj
         }
     }
 
@@ -46,4 +48,6 @@ class Object private constructor(val id: String, val scenarioId: String, val nam
     override fun hashCode(): Int {
         return super.hashCode()
     }
+
+    class NullObject(): Object("","","","") {}
 }

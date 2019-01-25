@@ -4,5 +4,5 @@ import android.content.Context
 import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.ICommunicationTrigger
 
-class GpsTrigger(id: String, ownerId: String): AbstractTrigger(id, ownerId), ICommunicationTrigger {
+class GpsTrigger(id: String, previousId: String, pathId: String): AbstractTrigger(id, previousId, pathId), ICommunicationTrigger {
 }
