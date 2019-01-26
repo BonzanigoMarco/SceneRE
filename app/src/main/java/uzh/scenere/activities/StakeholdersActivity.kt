@@ -56,12 +56,12 @@ class StakeholdersActivity : AbstractManagementActivity() {
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_stakeholder)
                         .updateViews(true )
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
-        holder_linear_layout_holder.addView(creationButton)
-        createTitle("",holder_linear_layout_holder)
+        scroll_holder_linear_layout_holder.addView(creationButton)
+        createTitle("",scroll_holder_linear_layout_holder)
         for (stakeholder in DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class,activeProject)){
             addStakeholderToList(stakeholder)
         }
-        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholders),fontAwesome)
+        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholders),fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(),null,getLockIcon(),null,null)
     }
 
@@ -74,7 +74,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
                 .updateViews(true)
         swipeButton.dataObject = stakeholder
         swipeButton.setExecutable(generateStakeholderExecutable(swipeButton, stakeholder))
-        holder_linear_layout_holder.addView(swipeButton)
+        scroll_holder_linear_layout_holder.addView(swipeButton)
     }
 
     private fun generateCreationExecutable(button: SwipeButton, stakeholder: Stakeholder? = null): SwipeButtonExecution {
@@ -123,8 +123,8 @@ class StakeholdersActivity : AbstractManagementActivity() {
         cleanInfoHolder(if (activeStakeholder==null) getString(R.string.stakeholders_create) else getString(R.string.stakeholders_edit))
         when(stakeholdersMode){
             StakeholderMode.EDIT_CREATE -> {
-                holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_TEXT, stakeholder?.name))
-                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, stakeholder?.description))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_TEXT, stakeholder?.name))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, stakeholder?.description))
             }
         }
 
@@ -145,10 +145,10 @@ class StakeholdersActivity : AbstractManagementActivity() {
     }
 
     private fun removeStakeholder(stakeholder: Stakeholder) {
-        for (viewPointer in 0 until holder_linear_layout_holder.childCount){
-            if (holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == stakeholder){
-                holder_linear_layout_holder.removeViewAt(viewPointer)
+        for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount){
+            if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
+                    (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == stakeholder){
+                scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
                 DatabaseHelper.getInstance(applicationContext).delete(stakeholder.id)
                 return
             }

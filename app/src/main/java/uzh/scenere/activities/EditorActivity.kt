@@ -65,9 +65,6 @@ class EditorActivity : AbstractManagementActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
         activeScenario = intent.getSerializableExtra(Constants.BUNDLE_SCENARIO) as Scenario?
         if (activeScenario != null){
             projectContext = DatabaseHelper.getInstance(applicationContext).readFull(activeScenario!!.projectId,Project::class)
@@ -86,7 +83,7 @@ class EditorActivity : AbstractManagementActivity() {
             //TODO Warn that there
         }
 
-        holder_scroll.setBackgroundColor(Color.WHITE)
+        scroll_holder_scroll.setBackgroundColor(Color.WHITE)
         populateExplanationMap()
         execAdaptToOrientationChange()
 
@@ -102,7 +99,7 @@ class EditorActivity : AbstractManagementActivity() {
         creationButton?.setExecutable(createControlExecutable())
         editor_linear_layout_control.addView(creationButton)
 
-        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_editor), fontAwesome)
+        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_editor), fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
         visualizeActivePath()
         refreshState()
@@ -110,7 +107,7 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun visualizeActivePath() {
         if (activePath != null){
-            holder_linear_layout_holder.removeAllViews()
+            scroll_holder_linear_layout_holder.removeAllViews()
             var element = activePath?.getStartingPoint()
             while (element!= null){
                 renderElement(element)
@@ -129,21 +126,21 @@ class EditorActivity : AbstractManagementActivity() {
         var title: String? = null
         if (iElement is StandardStep) title = iElement.title
         if (iElement is ButtonTrigger) title = "Button-Trigger"
-        val previousAvailable = holder_linear_layout_holder.childCount != 0
+        val previousAvailable = scroll_holder_linear_layout_holder.childCount != 0
         if (previousAvailable) {
             connectPreviousToNext()
         }
         if (iElement is AbstractTrigger){
-            holder_linear_layout_holder.addView(TRIGGER.create(title, previousAvailable, false, false, false, applicationContext))
+            scroll_holder_linear_layout_holder.addView(TRIGGER.create(title, previousAvailable, false, false, false, applicationContext))
         }else if (iElement is AbstractStep){
-            holder_linear_layout_holder.addView(STEP.create(title, previousAvailable, false, false, false, applicationContext))
+            scroll_holder_linear_layout_holder.addView(STEP.create(title, previousAvailable, false, false, false, applicationContext))
         }
     }
 
     private fun refreshState() {
-        for (v in 0 until holder_linear_layout_holder.childCount){
-            if (holder_linear_layout_holder.getChildAt(v) is Element){
-                editorState = if ((holder_linear_layout_holder.getChildAt(v) as Element).getElementMode() == STEP) EditorState.TRIGGER else EditorState.STEP
+        for (v in 0 until scroll_holder_linear_layout_holder.childCount){
+            if (scroll_holder_linear_layout_holder.getChildAt(v) is Element){
+                editorState = if ((scroll_holder_linear_layout_holder.getChildAt(v) as Element).getElementMode() == STEP) EditorState.TRIGGER else EditorState.STEP
             }
         }
         when (editorState){
@@ -197,16 +194,16 @@ class EditorActivity : AbstractManagementActivity() {
                 creationUnitClass = StandardStep::class
                 cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
                 adaptAttributes("Title", "Object","Text")
-                holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_TEXT, null))
-                holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.LOOKUP, null, arrayOf("","Object A","Object B","Object C")))
-                holder_text_info_content_wrap.addView(createLine(elementAttributes[2], LineInputType.MULTI_LINE_TEXT, null))
+                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_TEXT, null))
+                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.LOOKUP, null, activeScenario?.getObjectNames("")/*arrayOf("","Object A","Object B","Object C")*/))
+                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[2], LineInputType.MULTI_LINE_TEXT, null))
                 execMorphInfoBar(InfoState.MAXIMIZED)
             }
             resources.getString(R.string.trigger_button) -> {
                 creationUnitClass = ButtonTrigger::class
                 cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
                 adaptAttributes("Button-Label")
-                holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_TEXT, null))
+                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_TEXT, null))
                 execMorphInfoBar(InfoState.MAXIMIZED)
             }
         }
@@ -248,9 +245,9 @@ class EditorActivity : AbstractManagementActivity() {
     }
 
     private fun connectPreviousToNext() {
-        for (v in 0 until holder_linear_layout_holder.childCount) {
-            if (holder_linear_layout_holder.getChildAt(v) is Element) {
-                (holder_linear_layout_holder.getChildAt(v) as Element).connectToNext()
+        for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
+            if (scroll_holder_linear_layout_holder.getChildAt(v) is Element) {
+                (scroll_holder_linear_layout_holder.getChildAt(v) as Element).connectToNext()
             }
         }
     }
@@ -299,14 +296,14 @@ class EditorActivity : AbstractManagementActivity() {
             return
         }
         execMorphInfoBar(InfoState.NORMAL)
-        holder_text_info_title.text = resources.getString(titleId)
-        holder_text_info_content.text = resources.getString(contentId)
+        scroll_holder_text_info_title.text = resources.getString(titleId)
+        scroll_holder_text_info_content.text = resources.getString(contentId)
         val localHandlerId = Random().nextLong()
         handlerId = localHandlerId
         Handler().postDelayed({
             if (localHandlerId == handlerId){
-                holder_text_info_title.text = null
-                holder_text_info_content.text = null
+                scroll_holder_text_info_title.text = null
+                scroll_holder_text_info_content.text = null
                 execMorphInfoBar(InfoState.MINIMIZED)
             }
         }, 5000)

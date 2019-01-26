@@ -444,8 +444,9 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         return this
     }
 
-    fun setText(text: String){
+    fun setText(text: String): SwipeButton{
         labelText?.text = text
+        return this
     }
 
     fun getText(): String?{

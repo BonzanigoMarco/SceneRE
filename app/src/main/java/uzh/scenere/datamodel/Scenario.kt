@@ -5,6 +5,7 @@ import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.helpers.DatabaseHelper
 import java.io.Serializable
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 open class Scenario private constructor(val id: String, val projectId: String, val title: String, val intro: String, val outro: String): Serializable {
@@ -33,6 +34,10 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         }
     }
 
+    fun getAllPaths(stakeholder: Stakeholder): HashMap<Int, Path>? {
+        return paths[stakeholder.id]
+    }
+
     fun updatePath(stakeholder: Stakeholder, path: Path ){
         if (paths[stakeholder.id] != null){
             paths[stakeholder.id]!![path.layer] = path
@@ -45,6 +50,20 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         if (paths[stakeholder.id] != null){
             paths[stakeholder.id]!![path.layer] = Path.PathBuilder(id, stakeholder, path.layer).build()
         }
+    }
+
+    fun getObjectNames(vararg additionalName: String): Array<String>{
+        val list = ArrayList<String>()
+        list.addAll(additionalName)
+        for (obj in objects){
+            list.add(obj.name)
+        }
+        return list.toTypedArray()
+    }
+
+    fun hasStakeholderPath(stakeholder: Stakeholder): Boolean{
+        val pathMap = paths[stakeholder.id]
+        return !pathMap.isNullOrEmpty()
     }
 
     class ScenarioBuilder(private val projectId: String, private val title: String, private val intro: String, private val outro: String){

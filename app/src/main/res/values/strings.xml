@@ -93,6 +93,7 @@
     <string name="scenarios_title">Projects/<b>Scenarios</b></string>
     <string name="attributes_title">Projects/Scenarios/Objects/<b>Attributes</b></string>
     <string name="editor_title"><b>Editor</b></string>
+    <string name="walkthrough_title">Walkthrough</string>
     <!--Explanations-->
     <string name="explanation_steps_title">Steps</string>
     <string name="explanation_steps_content">Steps are single Actions in a Scenario.</string>
@@ -105,5 +106,7 @@
     <string name="explanation_sensor_triggers_title">Sensor Triggers</string>
     <string name="explanation_sensor_triggers_content">Triggers are Events that let a Scenario transition from one to the another Step\nSensor Triggers are based on Acceleration, Gyroscope, Humidity, Light, Magnetism, Pressure, Proximity and Temperature.</string>
     <string name="explanation_step_standard">A standard Step with a simple Text.</string>
-
+    <!--Walkthrough-->
+    <string name="walkthrough_button_label">Select one of %1$d %2$s</string>
+    <string name="walkthrough_button_label_failure">No %1$s created yet</string>
 </resources>

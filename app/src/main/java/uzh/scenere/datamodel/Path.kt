@@ -27,6 +27,13 @@ class Path private constructor(val id: String, val scenarioId: String, val stake
         return previousElements[currentElementId]
     }
 
+    fun getNextElement(currentElement: IElement?): IElement?{
+        if (currentElement == null){
+            return null
+        }
+        return previousElements[currentElement.getElementId()]
+    }
+
     fun add(element: IElement) {
         elements[element.getElementId()] = element
         if (element.getPreviousElementId() == null){

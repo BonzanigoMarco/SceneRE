@@ -20,7 +20,9 @@ import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.WeightAnimator
 import android.app.Activity
+import android.content.Context
 import android.content.res.Configuration
+import android.os.AsyncTask
 import android.view.inputmethod.InputMethodManager
 
 
@@ -142,8 +144,8 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         holder.addView(titleText)
     }
 
-    fun toast(string: String) {
-        Toast.makeText(this, string, Toast.LENGTH_SHORT).show()
+    fun toast(toast: String) {
+        Toast.makeText(this, toast, Toast.LENGTH_SHORT).show()
     }
 
     protected fun execMinimizeKeyboard(){
@@ -194,5 +196,20 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
 
     protected fun getSpannedStringFromId(id: Int): SpannedString{
         return getText(id) as SpannedString
+    }
+
+    class SreAsyncTask() : AsyncTask<Void, Void, String?>() {
+        override fun doInBackground(vararg params: Void?): String? {
+            //NOP
+            return null
+        }
+
+        override fun onPreExecute() {
+            //NOP
+        }
+
+        override fun onPostExecute(result: String?) {
+            //NOP
+        }
     }
 }

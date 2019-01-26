@@ -2,6 +2,7 @@ package uzh.scenere.activities
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.text.InputType
@@ -15,9 +16,10 @@ import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.views.Element
 import uzh.scenere.views.SwipeButton
+import uzh.scenere.views.SwipeButtonScrollView
 import uzh.scenere.views.WeightAnimator
-import java.util.RandomAccess
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
@@ -38,6 +40,13 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     //*********
     //* REACT *
     //*********
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
+    }
+
     override fun onResume() {
         super.onResume()
         collapseAndRefreshAllButtons()
@@ -56,9 +65,11 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             }
             createEntity()
             if (isSpacingEnabled()) {
-                createTitle("", holder_linear_layout_holder)
+                createTitle("", getContentHolderLayout())
             }
-            holder_scroll.fullScroll(View.FOCUS_DOWN)
+            if (getContentWrapperLayout() is SwipeButtonScrollView){
+                (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)
+            }
             onToolbarRightClicked()
         } else {
             onBackPressed()
@@ -75,9 +86,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     override fun onToolbarCenterClicked() { //LOCK & UNLOCK
         if (isInViewMode()) {
             adaptToolbarText(null, null, changeLockState(), null, null)
-            for (v in 0 until holder_linear_layout_holder.childCount) {
-                if (holder_linear_layout_holder.getChildAt(v) is SwipeButton) {
-                    (holder_linear_layout_holder.getChildAt(v) as SwipeButton).setButtonStates(lockState == LockState.UNLOCKED, true, true, true).updateViews(false)
+            for (v in 0 until getContentHolderLayout().childCount) {
+                if (getContentHolderLayout().getChildAt(v) is SwipeButton) {
+                    (getContentHolderLayout().getChildAt(v) as SwipeButton).setButtonStates(lockState == LockState.UNLOCKED, true, true, true).updateViews(false)
                 }
             }
         }
@@ -86,8 +97,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     override fun onToolbarRightClicked() { //CLOSE
         if (isInEditMode()) {
             execMorphInfoBar(InfoState.MINIMIZED)
-            holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
-            holder_text_info_content.text = ""
+            getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+            getInfoContent().text = ""
             customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
             resetEditMode()
             activeButton?.collapse()
@@ -202,8 +213,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 }
             };
 
-
-
             spinner.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
             spinner.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             spinner.textAlignment = if (inputType == LineInputType.MULTI_LINE_TEXT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
@@ -233,19 +242,17 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     private fun collapseAndRefreshAllButtons() {
-        for (v in 0 until holder_linear_layout_holder.childCount) {
-            if (holder_linear_layout_holder.getChildAt(v) is SwipeButton) {
-                val swipeButton = holder_linear_layout_holder.getChildAt(v) as SwipeButton
+        for (v in 0 until getContentHolderLayout().childCount) {
+            if (getContentHolderLayout().getChildAt(v) is SwipeButton) {
+                val swipeButton = getContentHolderLayout().getChildAt(v) as SwipeButton
                 if (swipeButton.state != SwipeButton.SwipeButtonState.MIDDLE) {
                     swipeButton.collapse()
                 }
-                if (swipeButton.dataObject is Project) {
-                    swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class, swipeButton.dataObject).size,
+                when {
+                    swipeButton.dataObject is Project -> swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class, swipeButton.dataObject).size,
                             DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class, swipeButton.dataObject).size)
-                } else if (swipeButton.dataObject is Scenario) {
-                    swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Object::class, swipeButton.dataObject).size, null)
-                } else if (swipeButton.dataObject is Object) {
-                    swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Attribute::class, (swipeButton.dataObject as Object).id).size, null)
+                    swipeButton.dataObject is Scenario -> swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Object::class, swipeButton.dataObject).size, null)
+                    swipeButton.dataObject is Object -> swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Attribute::class, (swipeButton.dataObject as Object).id).size, null)
                 }
             }
         }
@@ -253,26 +260,26 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
     protected fun cleanInfoHolder(titleText: String) {
         customizeToolbarText(resources.getString(R.string.icon_check), null, null, null, resources.getString(R.string.icon_cross))
-        holder_text_info_title.text = titleText
-        holder_text_info_content.visibility = View.GONE
-        removeExcept(holder_text_info_content_wrap, holder_text_info_content)
+        getInfoTitle().text = titleText
+        getInfoContent().visibility = View.GONE
+        removeExcept(getInfoContentWrap(), getInfoContent())
         inputMap.clear()
-        holder_text_info_content_wrap.orientation = LinearLayout.VERTICAL
+        getInfoContentWrap().orientation = LinearLayout.VERTICAL
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        holder_text_info_content_wrap.layoutParams = layoutParams
+        getInfoContentWrap().layoutParams = layoutParams
     }
 
     protected fun showDeletionConfirmation(objectName: String?) {
         if (objectName == null){
             return
         }
-        val textPrior = holder_text_info_title.text
-        val textColorPrior = holder_text_info_title.currentTextColor
-        holder_text_info_title.text = resources.getString(R.string.deleted, objectName)
-        holder_text_info_title.setTextColor(Color.RED)
+        val textPrior = getInfoTitle().text
+        val textColorPrior = getInfoTitle().currentTextColor
+        getInfoTitle().text = resources.getString(R.string.deleted, objectName)
+        getInfoTitle().setTextColor(Color.RED)
         Handler().postDelayed({
-            holder_text_info_title.text = textPrior
-            holder_text_info_title.setTextColor(textColorPrior)
+            getInfoTitle().text = textPrior
+            getInfoTitle().setTextColor(textColorPrior)
         }, 1000)
     }
 
@@ -296,6 +303,24 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     abstract fun getConfiguredInfoString(): Int
     open fun isSpacingEnabled(): Boolean {
         return true
+    }
+    open fun getContentWrapperLayout(): ViewGroup{
+        return scroll_holder_scroll
+    }
+    open fun getContentHolderLayout(): ViewGroup{
+        return scroll_holder_linear_layout_holder
+    }
+    open fun getInfoWrapper(): LinearLayout{
+        return scroll_holder_layout_info
+    }
+    open fun getInfoTitle(): TextView{
+        return scroll_holder_text_info_title
+    }
+    open fun getInfoContentWrap(): LinearLayout{
+        return scroll_holder_text_info_content_wrap
+    }
+    open fun getInfoContent(): TextView{
+        return scroll_holder_text_info_content
     }
 
     //*************
@@ -326,35 +351,35 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     private fun execMorphInfoBarInternal(): CharSequence {
         when (infoState) {
             InfoState.INITIALIZE -> {
-                holder_scroll.layoutParams = createLayoutParams(1f)
-                holder_layout_info.layoutParams = createLayoutParams(9f)
-                createLayoutParams(0f, holder_text_info_title)
-                holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
+                getContentWrapperLayout().layoutParams = createLayoutParams(1f)
+                getInfoWrapper().layoutParams = createLayoutParams(9f)
+                createLayoutParams(0f, getInfoTitle())
+                getInfoContentWrap().layoutParams = createLayoutParams(1f)
                 infoState = InfoState.MINIMIZED
                 return resources.getText(R.string.icon_win_min)
             }
             InfoState.MINIMIZED -> {
-                WeightAnimator(holder_layout_info, 9f, 250).play()
-                WeightAnimator(holder_scroll, 1f, 250).play()
-                createLayoutParams(0f, holder_text_info_title)
-                holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
+                WeightAnimator(getInfoWrapper(), 9f, 250).play()
+                WeightAnimator(getContentWrapperLayout(), 1f, 250).play()
+                createLayoutParams(0f, getInfoTitle())
+                getInfoContentWrap().layoutParams = createLayoutParams(1f)
                 execMinimizeKeyboard()
                 return resources.getText(R.string.icon_win_min)
             }
             InfoState.NORMAL -> {
-                WeightAnimator(holder_scroll, 3f, 250).play()
-                WeightAnimator(holder_layout_info, 7f, 250).play()
-                createLayoutParams(2f, holder_text_info_title, 1)
-                holder_text_info_content_wrap.layoutParams = createLayoutParams(1f)
-                holder_text_info_content.maxLines = contentDefaultMaxLines
+                WeightAnimator(getContentWrapperLayout(), 3f, 250).play()
+                WeightAnimator(getInfoWrapper(), 7f, 250).play()
+                createLayoutParams(2f, getInfoTitle(), 1)
+                getInfoContentWrap().layoutParams = createLayoutParams(1f)
+                getInfoContent().maxLines = contentDefaultMaxLines
                 return resources.getText(R.string.icon_win_norm)
             }
             InfoState.MAXIMIZED -> {
-                WeightAnimator(holder_scroll, 10f, 250).play()
-                WeightAnimator(holder_layout_info, 0f, 250).play()
-                createLayoutParams(2.7f, holder_text_info_title, 1)
-                holder_text_info_content_wrap.layoutParams = createLayoutParams(0.3f)
-                holder_text_info_content.maxLines = 10
+                WeightAnimator(getContentWrapperLayout(), 10f, 250).play()
+                WeightAnimator(getInfoWrapper(), 0f, 250).play()
+                createLayoutParams(2.7f, getInfoTitle(), 1)
+                getInfoContentWrap().layoutParams = createLayoutParams(0.3f)
+                getInfoContent().maxLines = 10
                 return resources.getText(R.string.icon_win_max)
             }
         }

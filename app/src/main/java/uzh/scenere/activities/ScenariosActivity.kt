@@ -55,12 +55,12 @@ class ScenariosActivity : AbstractManagementActivity() {
                         .setButtonIcons(R.string.icon_null, R.string.icon_edit, null, null, R.string.icon_scenario)
                         .updateViews(true)
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
-        holder_linear_layout_holder.addView(creationButton)
-        createTitle("", holder_linear_layout_holder)
+        scroll_holder_linear_layout_holder.addView(creationButton)
+        createTitle("", scroll_holder_linear_layout_holder)
         for (scenario in DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class, activeProject)) {
             addScenarioToList(scenario)
         }
-        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_scenarios), fontAwesome)
+        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_scenarios), fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
     }
 
@@ -74,7 +74,7 @@ class ScenariosActivity : AbstractManagementActivity() {
         swipeButton.dataObject = scenario
         swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Object::class,scenario).size,null)
         swipeButton.setExecutable(generateScenarioExecutable(swipeButton, scenario))
-        holder_linear_layout_holder.addView(swipeButton)
+        scroll_holder_linear_layout_holder.addView(swipeButton)
     }
 
     private fun generateCreationExecutable(button: SwipeButton, scenario: Scenario? = null): SwipeButton.SwipeButtonExecution {
@@ -133,9 +133,9 @@ class ScenariosActivity : AbstractManagementActivity() {
             ScenarioMode.VIEW -> {}//NOP
             ScenarioMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeScenario == null) getString(R.string.scenarios_create) else getString(R.string.scenarios_edit))
-                holder_text_info_content_wrap.addView(createLine(inputLabelTitle, LineInputType.SINGLE_LINE_TEXT, scenario?.title))
-                holder_text_info_content_wrap.addView(createLine(inputLabelIntro, LineInputType.MULTI_LINE_TEXT, scenario?.intro))
-                holder_text_info_content_wrap.addView(createLine(inputLabelOutro, LineInputType.MULTI_LINE_TEXT, scenario?.outro))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelTitle, LineInputType.SINGLE_LINE_TEXT, scenario?.title))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelIntro, LineInputType.MULTI_LINE_TEXT, scenario?.intro))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelOutro, LineInputType.MULTI_LINE_TEXT, scenario?.outro))
             }
             ScenarioMode.OBJECTS -> {
                 val intent = Intent(this, ObjectsActivity::class.java)
@@ -155,10 +155,10 @@ class ScenariosActivity : AbstractManagementActivity() {
     }
 
     private fun removeScenario(scenario: Scenario) {
-        for (viewPointer in 0 until holder_linear_layout_holder.childCount) {
-            if (holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == scenario) {
-                holder_linear_layout_holder.removeViewAt(viewPointer)
+        for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount) {
+            if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
+                    (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == scenario) {
+                scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
                 DatabaseHelper.getInstance(applicationContext).delete(scenario.id)
                 return
             }

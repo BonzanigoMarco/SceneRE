@@ -52,12 +52,12 @@ class AttributesActivity : AbstractManagementActivity() {
                         .setButtonIcons(R.string.icon_null, R.string.icon_edit, null, null, R.string.icon_info)
                         .updateViews(true)
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
-        holder_linear_layout_holder.addView(creationButton)
-        createTitle("", holder_linear_layout_holder)
+        scroll_holder_linear_layout_holder.addView(creationButton)
+        createTitle("", scroll_holder_linear_layout_holder)
         for (attribute in DatabaseHelper.getInstance(applicationContext).readBulk(Attribute::class, activeObject!!.id)) {
             addAttributeToList(attribute)
         }
-        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_attributes), fontAwesome)
+        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_attributes), fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
     }
 
@@ -70,7 +70,7 @@ class AttributesActivity : AbstractManagementActivity() {
                 .updateViews(true)
         swipeButton.dataObject = attribute
         swipeButton.setExecutable(generateAttributeExecutable(swipeButton, attribute))
-        holder_linear_layout_holder.addView(swipeButton)
+        scroll_holder_linear_layout_holder.addView(swipeButton)
     }
 
     private fun generateCreationExecutable(button: SwipeButton, attribute: Attribute? = null): SwipeButton.SwipeButtonExecution {
@@ -120,18 +120,18 @@ class AttributesActivity : AbstractManagementActivity() {
             AttributeMode.VIEW -> {}//NOP
             AttributeMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeAttribute == null) getString(R.string.attributes_create) else getString(R.string.attributes_edit))
-                holder_text_info_content_wrap.addView(createLine(inputLabelKey, LineInputType.SINGLE_LINE_TEXT, attribute?.key))
-                holder_text_info_content_wrap.addView(createLine(inputLabelValue, LineInputType.MULTI_LINE_TEXT, attribute?.value))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelKey, LineInputType.SINGLE_LINE_TEXT, attribute?.key))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelValue, LineInputType.MULTI_LINE_TEXT, attribute?.value))
             }
         }
         execMorphInfoBar(InfoState.MAXIMIZED)
     }
 
     private fun removeAttribute(attribute: Attribute) {
-        for (viewPointer in 0 until holder_linear_layout_holder.childCount) {
-            if (holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == attribute) {
-                holder_linear_layout_holder.removeViewAt(viewPointer)
+        for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount) {
+            if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
+                    (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == attribute) {
+                scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
                 DatabaseHelper.getInstance(applicationContext).delete(attribute.id)
                 return
             }

@@ -58,12 +58,12 @@ class ObjectsActivity : AbstractManagementActivity() {
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_object)
                         .updateViews(true )
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
-        holder_linear_layout_holder.addView(creationButton)
-        createTitle("",holder_linear_layout_holder)
+        scroll_holder_linear_layout_holder.addView(creationButton)
+        createTitle("",scroll_holder_linear_layout_holder)
         for (obj in DatabaseHelper.getInstance(applicationContext).readBulk(Object::class, activeScenario)){
             addObjectToList(obj)
         }
-        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_objects),fontAwesome)
+        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_objects),fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(),null,getLockIcon(),null,null)
     }
 
@@ -77,7 +77,7 @@ class ObjectsActivity : AbstractManagementActivity() {
         swipeButton.dataObject = obj
         swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Attribute::class,obj).size,null)
         swipeButton.setExecutable(generateObjectExecutable(swipeButton, obj))
-        holder_linear_layout_holder.addView(swipeButton)
+        scroll_holder_linear_layout_holder.addView(swipeButton)
     }
 
     private fun generateCreationExecutable(button: SwipeButton, obj: Object? = null): SwipeButtonExecution {
@@ -131,8 +131,8 @@ class ObjectsActivity : AbstractManagementActivity() {
             ObjectMode.VIEW -> {}//NOP
             ObjectMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeObject==null) getString(R.string.objects_create) else getString(R.string.objects_edit))
-                holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_TEXT, obj?.name))
-                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, obj?.description))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_TEXT, obj?.name))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, obj?.description))
             }
             ObjectMode.ATTRIBUTES -> {
                 val intent = Intent(this, AttributesActivity::class.java)
@@ -145,10 +145,10 @@ class ObjectsActivity : AbstractManagementActivity() {
     }
 
     private fun removeObject(obj: Object) {
-        for (viewPointer in 0 until holder_linear_layout_holder.childCount){
-            if (holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == obj){
-                holder_linear_layout_holder.removeViewAt(viewPointer)
+        for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount){
+            if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
+                    (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == obj){
+                scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
                 DatabaseHelper.getInstance(applicationContext).delete(obj.id)
                 return
             }
@@ -158,8 +158,8 @@ class ObjectsActivity : AbstractManagementActivity() {
     override fun execDoAdditionalCheck(): Boolean {
         val nameField = inputMap[inputLabelName] ?: return true
         if (StringHelper.hasText(nameField.getStringValue())) {
-            for (v in 0 until holder_linear_layout_holder.childCount) {
-                if ((holder_linear_layout_holder.getChildAt(v) is SwipeButton) && (((holder_linear_layout_holder.getChildAt(v)) as SwipeButton).getText() == nameField.getStringValue())) {
+            for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
+                if ((scroll_holder_linear_layout_holder.getChildAt(v) is SwipeButton) && (((scroll_holder_linear_layout_holder.getChildAt(v)) as SwipeButton).getText() == nameField.getStringValue())) {
                     toast("An Object with similar Name already exists.")
                     return false
                 }

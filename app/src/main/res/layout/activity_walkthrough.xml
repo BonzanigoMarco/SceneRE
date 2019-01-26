@@ -1,17 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.WalkthroughActivity">
+
+    <include
+        android:id="@+id/walkthrough_toolbar"
+        layout="@layout/sre_toolbar" />
+
     <TextView
         android:id="@+id/walkthrough_text_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:textColor="@color/sreWhite"
+        android:layout_below="@id/walkthrough_toolbar"
         android:background="@color/srePrimary"
-        android:text="Walkthrough"/>
+        android:gravity="center_horizontal"
+        android:text="@string/walkthrough_title"
+        android:textColor="@color/sreWhite" />
 
-</android.support.constraint.ConstraintLayout>
+    <include
+        android:id="@+id/walkthrough_holder"
+        layout="@layout/holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/walkthrough_text_label"
+        android:visibility="gone" />
+
+
+    <LinearLayout
+        android:id="@+id/walkthrough_layout_selection"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/walkthrough_text_label"
+        android:orientation="vertical"
+        android:weightSum="10">
+
+
+        <LinearLayout
+            android:id="@+id/walkthrough_layout_selection_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            android:orientation="horizontal" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:weightSum="2"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sreBlack"
+                android:layout_marginStart="@dimen/dimMarginLarge"
+                android:textAlignment="textStart"
+                android:layout_weight="1"
+                android:text="Selected Project: "/>
+            <TextView
+                android:id="@+id/walkthrough_text_selected_project"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dimMarginLarge"
+                android:textAlignment="textEnd"
+                android:textColor="@color/sreBlack"
+                android:layout_weight="1"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:weightSum="2"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sreBlack"
+                android:layout_marginStart="@dimen/dimMarginLarge"
+                android:textAlignment="textStart"
+                android:layout_weight="1"
+                android:text="Selected Scenario: "/>
+            <TextView
+                android:id="@+id/walkthrough_text_selected_scenario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dimMarginLarge"
+                android:textAlignment="textEnd"
+                android:textColor="@color/sreBlack"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/walkthrough_layout_selection_info"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/srePrimary"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/walkthrough_text_selection_info"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dimMarginSmall"
+                android:layout_marginTop="@dimen/dimMarginSmallHalf"
+                android:layout_marginRight="@dimen/dimMarginSmall"
+                android:layout_marginBottom="@dimen/dimMarginSmall"
+                android:background="@color/srePrimary"
+                android:textAlignment="center"
+                android:textColor="@color/sreWhite" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

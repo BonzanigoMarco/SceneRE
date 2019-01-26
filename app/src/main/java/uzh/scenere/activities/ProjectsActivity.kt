@@ -54,12 +54,12 @@ class ProjectsActivity : AbstractManagementActivity() {
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_project)
                         .updateViews(true )
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
-        holder_linear_layout_holder.addView(creationButton)
-        createTitle("",holder_linear_layout_holder)
+        scroll_holder_linear_layout_holder.addView(creationButton)
+        createTitle("",scroll_holder_linear_layout_holder)
         for (project in DatabaseHelper.getInstance(applicationContext).readBulk(Project::class,null)){
             addProjectToList(project)
         }
-        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
+        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(),null,getLockIcon(),null,null)
     }
 
@@ -73,7 +73,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class,project).size,
                 DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class,project).size)
         swipeButton.setExecutable(generateProjectExecutable(swipeButton, project))
-        holder_linear_layout_holder.addView(swipeButton)
+        scroll_holder_linear_layout_holder.addView(swipeButton)
     }
 
     private fun generateCreationExecutable(button: SwipeButton, project: Project? = null): SwipeButtonExecution {
@@ -134,8 +134,8 @@ class ProjectsActivity : AbstractManagementActivity() {
                 //[Description]:
                 //[DescriptionInput]
                 cleanInfoHolder(if (activeProject==null) getString(R.string.projects_create) else getString(R.string.projects_edit))
-                holder_text_info_content_wrap.addView(createLine(inputLabelTitle,LineInputType.SINGLE_LINE_TEXT, project?.title))
-                holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, project?.description))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelTitle,LineInputType.SINGLE_LINE_TEXT, project?.title))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, project?.description))
             }
             ProjectsMode.SCENARIO -> {
                 val intent = Intent(this,ScenariosActivity::class.java)
@@ -155,10 +155,10 @@ class ProjectsActivity : AbstractManagementActivity() {
     }
 
     private fun removeProject(project: Project) {
-        for (viewPointer in 0 until holder_linear_layout_holder.childCount){
-            if (holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == project){
-                holder_linear_layout_holder.removeViewAt(viewPointer)
+        for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount){
+            if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
+                    (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == project){
+                scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
                 DatabaseHelper.getInstance(applicationContext).delete(project.id)
                 return
             }

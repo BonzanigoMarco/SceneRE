@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.hardware.Sensor
 import android.os.Bundle
 import android.os.Handler
-import android.widget.Toast
 import kotlinx.android.synthetic.main.scroll_holder.*
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
@@ -77,7 +76,7 @@ class CockpitActivity : AbstractManagementActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         customizeToolbarId(R.string.icon_backward,null,R.string.icon_win_min,null,R.string.icon_forward)
-        holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         recreateViews()
     }
 
@@ -114,14 +113,14 @@ class CockpitActivity : AbstractManagementActivity() {
     override fun onToolbarRightClicked() {
         SensorHelper.getInstance(this).unregisterTextGraphListener()
         mode = mode.next()
-        holder_text_info_content.text = mode.getDescription(applicationContext)
+        scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
         recreateViews()
     }
 
     override fun onToolbarLeftClicked() {
         SensorHelper.getInstance(this).unregisterTextGraphListener()
         mode = mode.previous()
-        holder_text_info_content.text = mode.getDescription(applicationContext)
+        scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
         recreateViews()
     }
 
@@ -130,9 +129,9 @@ class CockpitActivity : AbstractManagementActivity() {
     }
 
     private fun recreateViews() {
-        holder_text_info_content.text = mode.getDescription(applicationContext)
-        holder_linear_layout_holder.removeAllViews()
-        createTitle(mode.label,holder_linear_layout_holder)
+        scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
+        scroll_holder_linear_layout_holder.removeAllViews()
+        createTitle(mode.label,scroll_holder_linear_layout_holder)
         when (this.mode) {
             CockpitMode.PERMISSIONS -> {
                 for (permission in PermissionHelper.getRequiredPermissions(this)) {
@@ -144,10 +143,10 @@ class CockpitActivity : AbstractManagementActivity() {
                             .setButtonStates(true, true, false, false)
                             .updateViews(true)
                     swipeButton.dataObject = permission
-                    swipeButton.outputObject = holder_text_info_content
+                    swipeButton.outputObject = scroll_holder_text_info_content
                     swipeButton.setExecutable(generatePermissionExecutable(permission, swipeButton))
-                    holder_linear_layout_holder.addView(swipeButton)
-                    createTitle("",holder_linear_layout_holder) //Spacer
+                    scroll_holder_linear_layout_holder.addView(swipeButton)
+                    createTitle("",scroll_holder_linear_layout_holder) //Spacer
                 }
             }
             CockpitMode.COMMUNICATIONS -> {
@@ -160,10 +159,10 @@ class CockpitActivity : AbstractManagementActivity() {
                             .setButtonStates(true, true, false, false)
                             .updateViews(true)
                     swipeButton.dataObject = communication
-                    swipeButton.outputObject = holder_text_info_content
+                    swipeButton.outputObject = scroll_holder_text_info_content
                     swipeButton.setExecutable(generateCommunicationExecutable(communication, swipeButton))
-                    holder_linear_layout_holder.addView(swipeButton)
-                    createTitle("",holder_linear_layout_holder) //Spacer
+                    scroll_holder_linear_layout_holder.addView(swipeButton)
+                    createTitle("",scroll_holder_linear_layout_holder) //Spacer
                 }
             }
             CockpitMode.SENSORS -> {
@@ -175,10 +174,10 @@ class CockpitActivity : AbstractManagementActivity() {
                             .setButtonStates(true, true, false, false)
                             .updateViews(true)
                     swipeButton.dataObject = sensor
-                    swipeButton.outputObject = holder_text_info_content
+                    swipeButton.outputObject = scroll_holder_text_info_content
                     swipeButton.setExecutable(generateSensorExecutable(sensor, swipeButton))
-                    holder_linear_layout_holder.addView(swipeButton)
-                    createTitle("",holder_linear_layout_holder) //Spacer
+                    scroll_holder_linear_layout_holder.addView(swipeButton)
+                    createTitle("",scroll_holder_linear_layout_holder) //Spacer
                 }
             }
         }
@@ -195,10 +194,10 @@ class CockpitActivity : AbstractManagementActivity() {
                 }
             }
             override fun execLeft() {
-                holder_text_info_content.text = permission.getDescription(applicationContext)
+                scroll_holder_text_info_content.text = permission.getDescription(applicationContext)
             }
             override fun execReset() {
-                holder_text_info_content.text = mode.getDescription(applicationContext)
+                scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
             }
         }
     }
@@ -226,7 +225,7 @@ class CockpitActivity : AbstractManagementActivity() {
             }
 
             override fun execReset() {
-                holder_text_info_content.text = mode.getDescription(applicationContext)
+                scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
             }
         }
     }
@@ -234,19 +233,19 @@ class CockpitActivity : AbstractManagementActivity() {
     private fun generateSensorExecutable(sensor: Sensor, button: SwipeButton): SwipeButton.SwipeButtonExecution {
         return object : SwipeButton.SwipeButtonExecution {
             override fun execRight() {
-                SensorHelper.getInstance(applicationContext).registerTextGraphListener(sensor, holder_text_info_content)
+                SensorHelper.getInstance(applicationContext).registerTextGraphListener(sensor, scroll_holder_text_info_content)
                 Handler().postDelayed({ button.collapse() }, 500)
-                holder_text_info_title.text = resources.getString(R.string.observing,SensorHelper.getInstance(applicationContext).getTypeName(sensor.name))
+                scroll_holder_text_info_title.text = resources.getString(R.string.observing,SensorHelper.getInstance(applicationContext).getTypeName(sensor.name))
             }
 
             override fun execLeft() {
                 SensorHelper.getInstance(applicationContext).unregisterTextGraphListener()
                 Handler().postDelayed({ button.collapse() }, 500)
-                holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+                scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
             }
 
             override fun execReset() {
-                holder_text_info_content.text = mode.getDescription(applicationContext)
+                scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
             }
         }
     }

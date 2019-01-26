@@ -16,7 +16,7 @@ open class Attribute private constructor(val id: String, val refId: String, val 
         private var id: String? = null
         private var type: String? = null
 
-        fun withAttributeType(type: String): AttributeBuilder{
+        fun withAttributeType(type: String?): AttributeBuilder{
             this.type = type
             return this
         }
