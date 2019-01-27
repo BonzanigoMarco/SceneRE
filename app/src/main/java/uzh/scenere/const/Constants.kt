@@ -1,8 +1,12 @@
 package uzh.scenere.const
 
+import android.util.TypedValue
+
 class Constants {
     companion object {
         const val SHARED_PREFERENCES: String = "scenereSharedPreferences"
+        const val USER_NAME: String = "scenereUserName"
+        const val ANONYMOUS: String = "John Doe"
         //NUMBERS
         const val MILLION: Double = 1000000.0
         const val THOUSAND: Double = 1000.0
@@ -30,6 +34,5 @@ class Constants {
         const val TYPE_OBJECT: String = "Object"
         const val TYPE_STANDARD_STEP: String = "StandardStep"
         const val TYPE_BUTTON_TRIGGER: String = "ButtonTrigger"
-
     }
 }

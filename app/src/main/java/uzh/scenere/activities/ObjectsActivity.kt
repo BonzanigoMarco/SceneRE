@@ -132,7 +132,7 @@ class ObjectsActivity : AbstractManagementActivity() {
             ObjectMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeObject==null) getString(R.string.objects_create) else getString(R.string.objects_edit))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_TEXT, obj?.name))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, obj?.description))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, obj?.description))
             }
             ObjectMode.ATTRIBUTES -> {
                 val intent = Intent(this, AttributesActivity::class.java)

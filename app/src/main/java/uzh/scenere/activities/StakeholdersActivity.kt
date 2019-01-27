@@ -124,7 +124,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
         when(stakeholdersMode){
             StakeholderMode.EDIT_CREATE -> {
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_TEXT, stakeholder?.name))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, stakeholder?.description))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, stakeholder?.description))
             }
         }
 

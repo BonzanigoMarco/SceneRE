@@ -86,6 +86,7 @@ class EditorActivity : AbstractManagementActivity() {
         scroll_holder_scroll.setBackgroundColor(Color.WHITE)
         populateExplanationMap()
         execAdaptToOrientationChange()
+        //TODO Toolbar
 
         refreshState()
 
@@ -196,7 +197,7 @@ class EditorActivity : AbstractManagementActivity() {
                 adaptAttributes("Title", "Object","Text")
                 scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_TEXT, null))
                 scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.LOOKUP, null, activeScenario?.getObjectNames("")/*arrayOf("","Object A","Object B","Object C")*/))
-                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[2], LineInputType.MULTI_LINE_TEXT, null))
+                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[2], LineInputType.MULTI_LINE_EDIT, null))
                 execMorphInfoBar(InfoState.MAXIMIZED)
             }
             resources.getString(R.string.trigger_button) -> {

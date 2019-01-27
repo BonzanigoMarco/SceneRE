@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.BUNDLE_PROJECT
 import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
@@ -114,7 +115,7 @@ class ProjectsActivity : AbstractManagementActivity() {
     override fun createEntity() {
         val title = inputMap[inputLabelTitle]!!.getStringValue()
         val description = inputMap[inputLabelDescription]!!.getStringValue()
-        val projectBuilder = Project.ProjectBuilder("Jon Doe", title, description) //TODO Read from db
+        val projectBuilder = Project.ProjectBuilder(DatabaseHelper.getInstance(applicationContext).read(Constants.USER_NAME,String::class, Constants.ANONYMOUS), title, description)
         if (activeProject != null){
             removeProject(activeProject!!)
             projectBuilder.copyId(activeProject!!)
@@ -135,7 +136,7 @@ class ProjectsActivity : AbstractManagementActivity() {
                 //[DescriptionInput]
                 cleanInfoHolder(if (activeProject==null) getString(R.string.projects_create) else getString(R.string.projects_edit))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelTitle,LineInputType.SINGLE_LINE_TEXT, project?.title))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_TEXT, project?.description))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, project?.description))
             }
             ProjectsMode.SCENARIO -> {
                 val intent = Intent(this,ScenariosActivity::class.java)

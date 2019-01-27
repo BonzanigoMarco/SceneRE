@@ -6,9 +6,9 @@ import kotlin.collections.ArrayList
 
 abstract class AbstractStep(val id: String, var previousId: String?, val pathId: String): IElement {
     var objects: ArrayList<Object> =  ArrayList<Object>()
-
     var title: String? = null
     var text: String? = null
+    var time: Long = 0
 
     fun withTitle(title: String): AbstractStep {
         this.title = title
@@ -16,6 +16,10 @@ abstract class AbstractStep(val id: String, var previousId: String?, val pathId:
     }
     fun withText(text: String): AbstractStep {
         this.text = text
+        return this
+    }
+    fun withTime(time: Long): AbstractStep {
+        this.time = time
         return this
     }
 

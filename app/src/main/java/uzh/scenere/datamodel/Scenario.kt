@@ -9,7 +9,6 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 open class Scenario private constructor(val id: String, val projectId: String, val title: String, val intro: String, val outro: String): Serializable {
-//    private var startingPoint: AbstractStep? = null
     private val resources: List<Resource> = ArrayList()
     private val objects: ArrayList<Object> = ArrayList()
     private var paths: HashMap<String,HashMap<Int,Path>> = HashMap()
@@ -59,6 +58,15 @@ open class Scenario private constructor(val id: String, val projectId: String, v
             list.add(obj.name)
         }
         return list.toTypedArray()
+    }
+
+    fun getObjectByName(name: String?): Object?{
+        for (obj in objects){
+            if (obj.name == name){
+                return obj
+            }
+        }
+        return null
     }
 
     fun hasStakeholderPath(stakeholder: Stakeholder): Boolean{

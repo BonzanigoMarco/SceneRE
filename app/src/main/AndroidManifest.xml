@@ -28,6 +28,7 @@
         android:supportsRtl="true"
         android:fullBackupContent="true"
         android:theme="@style/SceneReTheme"
+        android:configChanges="keyboardHidden|orientation|screenSize"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".activities.WalkthroughActivity"
             android:theme="@style/SceneReToolbarTheme">

@@ -1,10 +1,31 @@
 package uzh.scenere.datamodel
 
+import uzh.scenere.helpers.StringHelper
 import java.io.Serializable
 import java.util.*
 
 open class Object private constructor(val id: String, val scenarioId: String, val name: String, val description: String) : Serializable {
     var attributes: List<Attribute> = ArrayList()
+
+    fun getAttributeNames(vararg additionalName: String): Array<String>{
+        val list = ArrayList<String>()
+        list.addAll(additionalName)
+        for (attribute in attributes){
+            if (StringHelper.hasText(attribute.key)){
+                list.add(attribute.key!!)
+            }
+        }
+        return list.toTypedArray()
+    }
+
+    fun getAttributeByName(name: String?): Attribute?{
+        for (attribute in attributes){
+            if (attribute.key == name){
+                return attribute
+            }
+        }
+        return null
+    }
 
     class ObjectBuilder(private val scenarioId: String, private val name: String, private val description: String) {
 

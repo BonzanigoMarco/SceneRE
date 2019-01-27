@@ -16,7 +16,6 @@ import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
-import uzh.scenere.views.Element
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.SwipeButtonScrollView
 import uzh.scenere.views.WeightAnimator
@@ -116,12 +115,38 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     //* CREATION *
     //************
     enum class LineInputType {
-        SINGLE_LINE_TEXT, MULTI_LINE_TEXT, LOOKUP
+        SINGLE_LINE_EDIT, MULTI_LINE_EDIT, LOOKUP, SINGLE_LINE_TEXT, MULTI_LINE_TEXT
     }
 
     @Suppress("UNCHECKED_CAST")
-    protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, data: Any? = null): View? {
-        if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_TEXT, LineInputType.MULTI_LINE_TEXT)) {
+    protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {
+        if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT)) {
+            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val wrapper = LinearLayout(this)
+            wrapper.layoutParams = layoutParams
+            wrapper.weightSum = 2f
+            wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_EDIT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+            val label = TextView(this)
+            label.text = getString(R.string.label, labelText)
+            label.textSize = textSize!!
+            label.layoutParams = childParams
+            val input = EditText(this)
+            input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
+            input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            input.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
+            input.layoutParams = childParams
+            input.textSize = textSize!!
+            input.hint = labelText
+            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            input.setText(presetValue)
+            input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
+            wrapper.addView(label)
+            wrapper.addView(input)
+            inputMap[labelText] = input
+            return wrapper
+        } else if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_TEXT, LineInputType.MULTI_LINE_TEXT)){
             val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
@@ -133,19 +158,41 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.text = getString(R.string.label, labelText)
             label.textSize = textSize!!
             label.layoutParams = childParams
-            val input = EditText(this)
-            input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
-            input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-            input.textAlignment = if (inputType == LineInputType.MULTI_LINE_TEXT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
-            input.layoutParams = childParams
-            input.textSize = textSize!!
-            input.hint = labelText
-            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-            input.setText(presetValue)
-            input.setSingleLine((inputType != LineInputType.MULTI_LINE_TEXT))
+            val text = TextView(this)
+            text.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
+            text.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            text.textAlignment = if (inputType == LineInputType.MULTI_LINE_TEXT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
+            text.layoutParams = childParams
+            text.textSize = textSize!!
+            text.text = presetValue
+            text.setSingleLine((inputType != LineInputType.MULTI_LINE_TEXT))
             wrapper.addView(label)
-            wrapper.addView(input)
-            inputMap[labelText] = input
+            wrapper.addView(text)
+            inputMap[labelText] = text
+            return wrapper
+        }else if (false){
+            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val wrapper = LinearLayout(this)
+            wrapper.layoutParams = layoutParams
+            wrapper.weightSum = 2f
+            wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_EDIT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+            val label = TextView(this)
+            label.text = getString(R.string.label, labelText)
+            label.textSize = textSize!!
+            label.layoutParams = childParams
+            val text = TextView(this)
+            text.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
+            text.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            text.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
+            text.layoutParams = childParams
+            text.textSize = textSize!!
+            text.text = presetValue
+            text.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
+            wrapper.addView(label)
+            wrapper.addView(text)
+            inputMap[labelText] = text
             return wrapper
         } else if (inputType == LineInputType.LOOKUP && data != null) {
             val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -175,6 +222,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 @SuppressLint("ClickableViewAccessibility")
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     val spinnerText = spinner.selectedItem as String
+                    if (executable != null){
+                        return executable()
+                    }
                     if (StringHelper.hasText(spinnerText)) {
                         for (t in 0 until selectionCarrier.childCount) {
                             if ((selectionCarrier.getChildAt(t) as TextView).text == spinnerText) {
@@ -215,7 +265,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
             spinner.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
             spinner.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-            spinner.textAlignment = if (inputType == LineInputType.MULTI_LINE_TEXT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
+            spinner.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             spinner.layoutParams = childParams
             wrapper.addView(label)
             wrapper.addView(spinner)

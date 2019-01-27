@@ -121,7 +121,7 @@ class AttributesActivity : AbstractManagementActivity() {
             AttributeMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeAttribute == null) getString(R.string.attributes_create) else getString(R.string.attributes_edit))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelKey, LineInputType.SINGLE_LINE_TEXT, attribute?.key))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelValue, LineInputType.MULTI_LINE_TEXT, attribute?.value))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelValue, LineInputType.MULTI_LINE_EDIT, attribute?.value))
             }
         }
         execMorphInfoBar(InfoState.MAXIMIZED)

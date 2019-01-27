@@ -47,13 +47,13 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:weightSum="3"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/holder_text_info_content"
                 android:layout_weight="3"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:textColor="@color/sreWhite"
                 android:background="@color/srePrimary"
                 android:layout_marginTop="@dimen/dimMarginSmallHalf"

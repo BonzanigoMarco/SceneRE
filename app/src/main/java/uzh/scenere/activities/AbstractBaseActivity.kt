@@ -1,5 +1,6 @@
 package uzh.scenere.activities
 
+import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -24,6 +25,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.AsyncTask
 import android.view.inputmethod.InputMethodManager
+import kotlin.reflect.KClass
 
 
 abstract class AbstractBaseActivity : AppCompatActivity() {
@@ -211,5 +213,21 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         override fun onPostExecute(result: String?) {
             //NOP
         }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    protected fun <T: View> searchForLayout(view: View, clazz: KClass<T>): T? {
+        if (view is ViewGroup){
+            for (v in 0 until view.childCount){
+                if (view.getChildAt(v)::class == clazz){
+                    return view.getChildAt(v) as T
+                }
+                val v0 = searchForLayout(view.getChildAt(v),clazz)
+                if (v0 != null){
+                    return v0 as T
+                }
+            }
+        }
+        return null
     }
 }

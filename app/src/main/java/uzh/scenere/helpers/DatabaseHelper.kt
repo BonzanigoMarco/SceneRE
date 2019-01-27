@@ -15,6 +15,7 @@ import uzh.scenere.datamodel.database.AbstractSreDatabase
 import uzh.scenere.datamodel.database.SreDatabase
 import uzh.scenere.views.Element
 import java.io.Serializable
+import java.lang.Exception
 import kotlin.reflect.KClass
 
 class DatabaseHelper private constructor(context: Context) {
@@ -94,58 +95,60 @@ class DatabaseHelper private constructor(context: Context) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T : Serializable> read(key: String, clz: KClass<T>, valIfNull: T, internalMode: DataMode = mode): T? {
-        when (internalMode) {
-            DataMode.PREFERENCES -> {
-                if (String::class == clz) return sharedPreferences.getString(key, valIfNull as String) as T?
-                if (ByteArray::class == clz) {
-                    val byteArrayString: String = sharedPreferences.getString(key, "")
-                    if (StringHelper.hasText(byteArrayString)) {
-                        return Base64.decode(byteArrayString, Base64.DEFAULT) as T?
+    public fun <T : Serializable> read(key: String, clz: KClass<T>, valIfNull: T, internalMode: DataMode = mode): T {
+        try {
+            when (internalMode) {
+                DataMode.PREFERENCES -> {
+                    if (String::class == clz) return sharedPreferences.getString(key, valIfNull as String) as T
+                    if (ByteArray::class == clz) {
+                        val byteArrayString: String = sharedPreferences.getString(key, "")
+                        if (StringHelper.hasText(byteArrayString)) {
+                            return Base64.decode(byteArrayString, Base64.DEFAULT) as T
+                        }
+                        return valIfNull
                     }
-                    return valIfNull
+                    if (Boolean::class == clz) return sharedPreferences.getBoolean(key, valIfNull as Boolean) as T
+                    if (Short::class == clz) {
+                        val intValue = sharedPreferences.getInt(key, 0)
+                        return if (intValue == 0) valIfNull else intValue.toShort() as T
+                    }
+                    if (Int::class == clz) return sharedPreferences.getInt(key, valIfNull as Int) as T
+                    if (Long::class == clz) return sharedPreferences.getLong(key, valIfNull as Long) as T
+                    if (Float::class == clz) return sharedPreferences.getFloat(key, valIfNull as Float) as T
+                    if (Double::class == clz) {
+                        val rawLongBits: Long = sharedPreferences.getLong(key, 0L)
+                        return if (rawLongBits == 0L) valIfNull else java.lang.Double.longBitsToDouble(rawLongBits) as T
+                    }
+                    if (Project::class == clz) return readBinary(key, clz, PROJECT_UID_IDENTIFIER, valIfNull)
+                    if (Stakeholder::class == clz) return readBinary(key, clz, STAKEHOLDER_UID_IDENTIFIER, valIfNull)
+                    if (Object::class == clz) return readBinary(key, clz, OBJECT_UID_IDENTIFIER, valIfNull)
+                    if (Attribute::class == clz) return readBinary(key, clz, ATTRIBUTE_UID_IDENTIFIER, valIfNull)
+                    if (Scenario::class == clz) return readBinary(key, clz, SCENARIO_UID_IDENTIFIER, valIfNull)
+                    if (Path::class == clz) return valIfNull
+                    if (IElement::class == clz) return valIfNull
                 }
-                if (Boolean::class == clz) return sharedPreferences.getBoolean(key, valIfNull as Boolean) as T?
-                if (Short::class == clz) {
-                    val intValue = sharedPreferences.getInt(key, 0)
-                    return if (intValue == 0) valIfNull else intValue.toShort() as T?
-                }
-                if (Int::class == clz) return sharedPreferences.getInt(key, valIfNull as Int) as T?
-                if (Long::class == clz) return sharedPreferences.getLong(key, valIfNull as Long) as T?
-                if (Float::class == clz) return sharedPreferences.getFloat(key, valIfNull as Float) as T?
-                if (Double::class == clz) {
-                    val rawLongBits: Long = sharedPreferences.getLong(key, 0L)
-                    return if (rawLongBits == 0L) valIfNull else java.lang.Double.longBitsToDouble(rawLongBits) as T?
-                }
-                if (Project::class == clz) return readBinary(key, clz, PROJECT_UID_IDENTIFIER, valIfNull)
-                if (Stakeholder::class == clz) return readBinary(key, clz, STAKEHOLDER_UID_IDENTIFIER, valIfNull)
-                if (Object::class == clz) return readBinary(key, clz, OBJECT_UID_IDENTIFIER, valIfNull)
-                if (Attribute::class == clz) return readBinary(key, clz, ATTRIBUTE_UID_IDENTIFIER, valIfNull)
-                if (Scenario::class == clz) return readBinary(key, clz, SCENARIO_UID_IDENTIFIER, valIfNull)
-                if (Path::class == clz) return null
-                if (IElement::class == clz) return null
-            }
-            DataMode.DATABASE -> {
-                if (Boolean::class == clz) return database!!.readBoolean(key, valIfNull as Boolean) as T?
-                if (String::class == clz) return database!!.readString(key, valIfNull as String) as T?
-                if (ByteArray::class == clz) return database!!.readByteArray(key, valIfNull as ByteArray) as T?
-                if (Short::class == clz) return database!!.readShort(key, valIfNull as Short) as T?
-                if (Int::class == clz) return database!!.readInt(key, valIfNull as Int) as T?
-                if (Long::class == clz) return database!!.readLong(key, valIfNull as Long) as T?
-                if (Float::class == clz) return database!!.readFloat(key, valIfNull as Float) as T?
-                if (Double::class == clz) return database!!.readDouble(key, valIfNull as Double) as T?
-                if (Project::class == clz) return database!!.readProject(key, valIfNull as Project) as T?
-                if (Stakeholder::class == clz) return database!!.readStakeholders(key, valIfNull as Stakeholder) as T?
-                if (Object::class == clz) return database!!.readObject(key, valIfNull as Object) as T?
-                if (Attribute::class == clz) return database!!.readAttribute(key, valIfNull as Attribute) as T?
-                if (Scenario::class == clz) return database!!.readScenario(key, valIfNull as Scenario) as T?
-                if (Path::class == clz) return null
-                if (IElement::class == clz) return null
+                DataMode.DATABASE -> {
+                    if (Boolean::class == clz) return database!!.readBoolean(key, valIfNull as Boolean) as T
+                    if (String::class == clz) return database!!.readString(key, valIfNull as String) as T
+                    if (ByteArray::class == clz) return database!!.readByteArray(key, valIfNull as ByteArray) as T
+                    if (Short::class == clz) return database!!.readShort(key, valIfNull as Short) as T
+                    if (Int::class == clz) return database!!.readInt(key, valIfNull as Int) as T
+                    if (Long::class == clz) return database!!.readLong(key, valIfNull as Long) as T
+                    if (Float::class == clz) return database!!.readFloat(key, valIfNull as Float) as T
+                    if (Double::class == clz) return database!!.readDouble(key, valIfNull as Double) as T
+                    if (Project::class == clz) return database!!.readProject(key, valIfNull as Project) as T
+                    if (Stakeholder::class == clz) return database!!.readStakeholders(key, valIfNull as Stakeholder) as T
+                    if (Object::class == clz) return database!!.readObject(key, valIfNull as Object) as T
+                    if (Attribute::class == clz) return database!!.readAttribute(key, valIfNull as Attribute) as T
+                    if (Scenario::class == clz) return database!!.readScenario(key, valIfNull as Scenario) as T
+                    if (Path::class == clz) return valIfNull
+                    if (IElement::class == clz) return valIfNull
 //                if (IElement::class == clz) return database!!.readElement(key, valIfNull as IElement) as T?
 //                if (Path::class == clz) return database!!.readPath(key, valIfNull as Path) as T?
+                }
             }
-        }
-        return null
+        }catch (e: Exception){}
+        return valIfNull
     }
 
     private fun <T : Serializable> readBinary(key: String, clz: KClass<T>, identifier: String, valIfNull: T): T {
