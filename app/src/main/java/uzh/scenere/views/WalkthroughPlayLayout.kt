@@ -89,7 +89,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         val text = generateText("Intro:\n"+scenario.intro)
         val button = generateButton("Start Scenario")
         button.setOnClickListener {
-            walkthrough.setIntroTime(getTime())
+            Walkthrough.WalkthroughProperty.INTRO_TIME.set(getTime())
             loadNextStep()
         }
         stepLayout.addView(text)
@@ -175,7 +175,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
             backupState = state
             state = WalkthroughState.INFO
         }else{
-            walkthrough.setInfoTime(System.currentTimeMillis()-infoTime)
+            Walkthrough.WalkthroughProperty.INFO_TIME.set(Walkthrough.WalkthroughProperty.INFO_TIME.get(Long::class)+System.currentTimeMillis()-infoTime)
             infoTime = 0
             state = backupState
 

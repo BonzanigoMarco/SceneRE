@@ -131,7 +131,7 @@ class ObjectsActivity : AbstractManagementActivity() {
             ObjectMode.VIEW -> {}//NOP
             ObjectMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeObject==null) getString(R.string.objects_create) else getString(R.string.objects_edit))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_TEXT, obj?.name))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, obj?.name))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, obj?.description))
             }
             ObjectMode.ATTRIBUTES -> {
@@ -149,7 +149,7 @@ class ObjectsActivity : AbstractManagementActivity() {
             if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
                     (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == obj){
                 scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
-                DatabaseHelper.getInstance(applicationContext).delete(obj.id)
+                DatabaseHelper.getInstance(applicationContext).delete(obj.id, Object::class)
                 return
             }
         }

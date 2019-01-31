@@ -1,46 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".activities.StartupActivity">
+
     <TextView
         android:id="@+id/startup_text_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:textColor="@color/sreWhite"
         android:background="@color/srePrimary"
-        android:text="Startup"/>
+        android:gravity="center_horizontal"
+        android:text="Startup"
+        android:textColor="@color/sreWhite"
+        android:visibility="gone" />
+
+
+    <LinearLayout
+        android:id="@+id/startup_layout_logo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/startup_text_label"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/dimMarginHuge"
+        android:orientation="horizontal"
+        android:weightSum="8">
+
+        <include
+            android:id="@+id/startup_text_1"
+            layout="@layout/logo_tile" />
+
+        <include
+            android:id="@+id/startup_text_2"
+            layout="@layout/logo_tile" />
+
+        <include
+            android:id="@+id/startup_text_3"
+            layout="@layout/logo_tile" />
+
+        <include
+            android:id="@+id/startup_text_4"
+            layout="@layout/logo_tile" />
+
+        <include
+            android:id="@+id/startup_text_5"
+            layout="@layout/logo_tile" />
+
+        <include
+            android:id="@+id/startup_text_6"
+            layout="@layout/logo_tile" />
+
+        <include
+            android:id="@+id/startup_text_7"
+            layout="@layout/logo_tile" />
+
+        <include
+            android:id="@+id/startup_text_8"
+            layout="@layout/logo_tile" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/startup_layout_progress"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:layout_alignTop="@+id/startup_layout_logo"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/dimMarginHuge"
+        android:background="@drawable/blue_border_rounded_square"
+        android:orientation="horizontal"
+        android:weightSum="8">
+
+        <LinearLayout
+            android:id="@+id/startup_layout_progress_bar"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:background="@drawable/blue_border_rounded_square_filled"
+            android:orientation="vertical" />
+    </LinearLayout>
 
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/startup_text_name"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_margin="@dimen/dimMarginNormal"
-        android:text="S C E N E - R E"/>
+        android:layout_alignBottom="@+id/startup_edit_name"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/dimMarginHuge"
+        android:text="Enter your Name"
+        android:textColor="@color/srePrimary"
+        android:onClick="onStartupInterrupt"
+        android:visibility="invisible" />
 
     <EditText
+        android:id="@+id/startup_edit_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dimMarginNormal"
-        android:text="Enter your Name..."/>
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/dimMarginHuge"
+        android:hint="Enter your Name..."
+        android:inputType="textCapWords|textNoSuggestions"
+        android:lines="1"
+        android:maxLines="1"
+        android:textAlignment="center"
+        android:textColor="@color/srePrimary"
+        android:visibility="invisible" />
 
     <Button
         android:id="@+id/startup_button_continue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_margin="@dimen/dimMarginNormal"
+        android:layout_marginBottom="@dimen/dimMarginHuge"
         android:onClick="onNavigationButtonClicked"
-        android:text="Continue"
+        android:text="Confirm"
+        android:visibility="invisible"
+        android:background="@drawable/blue_border_rounded_button"
         tools:ignore="OnClick" />
 
-    <ProgressBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dimMarginNormal"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:progress="75"/>
-</LinearLayout>
+</RelativeLayout>

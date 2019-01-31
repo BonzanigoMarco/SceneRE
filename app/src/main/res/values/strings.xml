@@ -94,6 +94,7 @@
     <string name="attributes_title">Projects/Scenarios/Objects/<b>Attributes</b></string>
     <string name="editor_title"><b>Editor</b></string>
     <string name="walkthrough_title">Walkthrough</string>
+    <string name="analytics_title">Analytics</string>
     <!--Explanations-->
     <string name="explanation_steps_title">Steps</string>
     <string name="explanation_steps_content">Steps are single Actions in a Scenario.</string>
@@ -110,10 +111,20 @@
     <string name="walkthrough_button_label">Select one of %1$d %2$s</string>
     <string name="walkthrough_button_label_failure">No %1$s created yet</string>
     <string name="walkthrough_selection_info">Select an Object you want Information about</string>
+    <!--Literal-->
     <string name="literal_object">Object</string>
     <string name="literal_attribute">Attribute</string>
     <string name="literal_scenarios">Scenarios</string>
     <string name="literal_projects">Projects</string>
     <string name="literal_stakeholders">Stakeholders</string>
     <string name="literal_value">Value</string>
+    <!--XML-->
+    <string name="xml_declaration"><![CDATA[<?xml version="1.0" encoding="utf-8"?>]]></string>
+    <string name="xml_begin_tag"><![CDATA[<]]>%1$s type="%2$s"<![CDATA[>]]></string>
+    <string name="xml_end_tag"><![CDATA[</]]>%1$s<![CDATA[>]]></string>
+    <string name="xml_empty"><![CDATA[<]]>%1$s<![CDATA[/>]]></string>
+    <string name="xml_enclosing"><![CDATA[<]]>%1$s<![CDATA[ type="]]>%2$s<![CDATA[">]]>%3$s<![CDATA[<]]>%1$s<![CDATA[/>]]></string>
+    <string name="walkthrough_selected_scenario">Selected Scenario:</string>
+    <string name="walkthrough_selected_project">Selected Project:</string>
+
 </resources>

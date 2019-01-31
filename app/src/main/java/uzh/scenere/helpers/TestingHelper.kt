@@ -62,14 +62,14 @@ class TestingHelper private constructor () {
                 successRead = true
             }
 
-            DatabaseHelper.getInstance(context).delete("Test1")
-            DatabaseHelper.getInstance(context).delete("Test2")
-            DatabaseHelper.getInstance(context).delete("Test3")
-            DatabaseHelper.getInstance(context).delete("Test4")
-            DatabaseHelper.getInstance(context).delete("Test5")
-            DatabaseHelper.getInstance(context).delete("Test6")
-            DatabaseHelper.getInstance(context).delete("Test7")
-            DatabaseHelper.getInstance(context).delete("Test8")
+            DatabaseHelper.getInstance(context).delete("Test1", String::class)
+            DatabaseHelper.getInstance(context).delete("Test2", Boolean::class)
+            DatabaseHelper.getInstance(context).delete("Test3", Short::class)
+            DatabaseHelper.getInstance(context).delete("Test4", Int::class)
+            DatabaseHelper.getInstance(context).delete("Test5", Float::class)
+            DatabaseHelper.getInstance(context).delete("Test6", Double::class)
+            DatabaseHelper.getInstance(context).delete("Test7", Long::class)
+            DatabaseHelper.getInstance(context).delete("Test8", Project::class)
 
 
             val testDelete1 = DatabaseHelper.getInstance(context).read("Test1", String::class, valFalse1)

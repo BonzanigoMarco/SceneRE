@@ -123,7 +123,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
         cleanInfoHolder(if (activeStakeholder==null) getString(R.string.stakeholders_create) else getString(R.string.stakeholders_edit))
         when(stakeholdersMode){
             StakeholderMode.EDIT_CREATE -> {
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_TEXT, stakeholder?.name))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, stakeholder?.name))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, stakeholder?.description))
             }
         }
@@ -149,7 +149,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
             if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
                     (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == stakeholder){
                 scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
-                DatabaseHelper.getInstance(applicationContext).delete(stakeholder.id)
+                DatabaseHelper.getInstance(applicationContext).delete(stakeholder.id, Stakeholder::class)
                 return
             }
         }

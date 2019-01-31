@@ -17,6 +17,7 @@ import uzh.scenere.R
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.XmlHelper
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.WalkthroughPlayLayout
 import java.io.Serializable
@@ -202,6 +203,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
      * next = false --> previous
      */
     private fun <T : Serializable> select(selectedList: ArrayList<T>, next: Boolean) {
+        //TODO When trigger empty, stuck here
         if (selectedList.isEmpty()) {
             return
         }
@@ -230,6 +232,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
     }
 
     private fun execBack() {
+        //TODO Popup asking for cancel
         when (mode) {
             WalkthroughMode.SELECT_SCENARIO -> {
                 mode = WalkthroughMode.SELECT_PROJECT

@@ -1,11 +1,12 @@
 package uzh.scenere.datamodel
 
 import uzh.scenere.const.Constants.Companion.STARTING_POINT
+import uzh.scenere.helpers.NullHelper
 import java.io.Serializable
 import java.util.*
 
-class Path private constructor(val id: String, val scenarioId: String, val stakeholder: Stakeholder, val layer: Int): Serializable {
-    private val elements: HashMap<String,IElement> = HashMap()
+open class Path private constructor(val id: String, val scenarioId: String, val stakeholder: Stakeholder, val layer: Int): Serializable {
+    val elements: HashMap<String,IElement> = HashMap()
     private val previousElements: HashMap<String,IElement> = HashMap()
 
     fun getStartingPoint(): IElement?{
@@ -56,4 +57,13 @@ class Path private constructor(val id: String, val scenarioId: String, val stake
         }
     }
 
+    class NullPath(): Path("","",NullHelper.get(Stakeholder::class),0) {}
+
+    companion object {
+        val name__ = "Path"
+        val id_ = "id"
+        val scenarioId_ = "scenarioId"
+        val stakeholder_ = "stakeholder"
+        val layer_ = "layer"
+    }
 }

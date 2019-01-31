@@ -1,9 +1,11 @@
 package uzh.scenere.activities
 
-import android.accessibilityservice.AccessibilityService
+import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannedString
@@ -11,20 +13,14 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import kotlinx.android.synthetic.main.scroll_holder.*
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
-import uzh.scenere.views.WeightAnimator
-import android.app.Activity
-import android.content.Context
-import android.content.res.Configuration
-import android.os.AsyncTask
-import android.view.inputmethod.InputMethodManager
 import kotlin.reflect.KClass
 
 

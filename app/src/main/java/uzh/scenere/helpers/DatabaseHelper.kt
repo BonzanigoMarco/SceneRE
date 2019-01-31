@@ -3,19 +3,18 @@ package uzh.scenere.helpers
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
-import android.widget.Toast
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.ATTRIBUTE_UID_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.ELEMENT_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.OBJECT_UID_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.PATH_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.PROJECT_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.SCENARIO_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.STAKEHOLDER_UID_IDENTIFIER
 import uzh.scenere.datamodel.*
-import uzh.scenere.datamodel.database.AbstractSreDatabase
 import uzh.scenere.datamodel.database.SreDatabase
 import uzh.scenere.views.Element
 import java.io.Serializable
-import java.lang.Exception
 import kotlin.reflect.KClass
 
 class DatabaseHelper private constructor(context: Context) {
@@ -54,7 +53,7 @@ class DatabaseHelper private constructor(context: Context) {
         }
     }
 
-    public fun write(key: String, obj: Any, internalMode: DataMode = mode): Boolean{
+    public fun write(key: String, obj: Any, internalMode: DataMode = mode): Boolean {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 if (obj is Boolean) sharedPreferences.edit().putBoolean(key, obj).apply()
@@ -70,8 +69,8 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Object) write(OBJECT_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
                 if (obj is Attribute) write(ATTRIBUTE_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
                 if (obj is Scenario) write(SCENARIO_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
-                if (obj is IElement) return false
-                if (obj is Path) return false
+                if (obj is Path) write(PATH_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
+                if (obj is IElement) write(ELEMENT_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
             }
             DataMode.DATABASE -> {
                 if (obj is Boolean) database!!.writeBoolean(key, obj)
@@ -124,8 +123,8 @@ class DatabaseHelper private constructor(context: Context) {
                     if (Object::class == clz) return readBinary(key, clz, OBJECT_UID_IDENTIFIER, valIfNull)
                     if (Attribute::class == clz) return readBinary(key, clz, ATTRIBUTE_UID_IDENTIFIER, valIfNull)
                     if (Scenario::class == clz) return readBinary(key, clz, SCENARIO_UID_IDENTIFIER, valIfNull)
-                    if (Path::class == clz) return valIfNull
-                    if (IElement::class == clz) return valIfNull
+                    if (Path::class == clz) return readBinary(key, clz, PATH_UID_IDENTIFIER, NullHelper.get(clz))
+                    if (IElement::class == clz) return readBinary(key, clz, ELEMENT_UID_IDENTIFIER, NullHelper.get(clz))
                 }
                 DataMode.DATABASE -> {
                     if (Boolean::class == clz) return database!!.readBoolean(key, valIfNull as Boolean) as T
@@ -141,19 +140,18 @@ class DatabaseHelper private constructor(context: Context) {
                     if (Object::class == clz) return database!!.readObject(key, valIfNull as Object) as T
                     if (Attribute::class == clz) return database!!.readAttribute(key, valIfNull as Attribute) as T
                     if (Scenario::class == clz) return database!!.readScenario(key, valIfNull as Scenario) as T
-                    if (Path::class == clz) return valIfNull
+                    if (Path::class == clz) return database!!.readPath(key, valIfNull as Path) as T
                     if (IElement::class == clz) return valIfNull
-//                if (IElement::class == clz) return database!!.readElement(key, valIfNull as IElement) as T?
-//                if (Path::class == clz) return database!!.readPath(key, valIfNull as Path) as T?
                 }
             }
-        }catch (e: Exception){}
+        } catch (e: Exception) {
+        }
         return valIfNull
     }
 
     private fun <T : Serializable> readBinary(key: String, clz: KClass<T>, identifier: String, valIfNull: T): T {
         val bytes = read(identifier + key, ByteArray::class, ByteArray(0))
-        if (bytes != null && bytes.isNotEmpty()) {
+        if (bytes.isNotEmpty()) {
             val project = DataHelper.toObject(bytes, clz)
             return project ?: valIfNull
         }
@@ -167,14 +165,14 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Project::class == clz) return readBinary(key, clz, PROJECT_UID_IDENTIFIER, NullHelper.get(clz))
                 if (Object::class == clz) return readBinary(key, clz, OBJECT_UID_IDENTIFIER, NullHelper.get(clz))
                 if (Scenario::class == clz) return readBinary(key, clz, SCENARIO_UID_IDENTIFIER, NullHelper.get(clz))
-                if (Path::class == clz) return null
-                if (IElement::class == clz) return null
+                if (Path::class == clz) return readBinary(key, clz, PATH_UID_IDENTIFIER, NullHelper.get(clz))
+                if (IElement::class == clz) return readBinary(key, clz, ELEMENT_UID_IDENTIFIER, NullHelper.get(clz))
             }
             DataMode.DATABASE -> {
                 if (Project::class == clz) return database!!.readProject(key, NullHelper.get(Project::class), true) as T?
                 if (Object::class == clz) return database!!.readObject(key, NullHelper.get(Object::class), true) as T?
                 if (Scenario::class == clz) return database!!.readScenario(key, NullHelper.get(Scenario::class), true) as T?
-                if (Path::class == clz) return null
+                if (Path::class == clz) return database!!.readPath(key, NullHelper.get(Path::class),true) as T?
                 if (IElement::class == clz) return null
             }
         }
@@ -189,16 +187,16 @@ class DatabaseHelper private constructor(context: Context) {
             DataMode.DATABASE -> {
                 val readPref = read(key, clz, valIfNull, DataMode.PREFERENCES)
                 val readDb = read(key, clz, valIfNull, DataMode.DATABASE)
-                if (readPref == null || readPref == valIfNull) {
+                if (readPref == valIfNull) {
                     //Val was not saved, return DB value
                     return readDb
                 }
                 //Delete from Prefs if not specified otherwise
                 if (deleteInPrefs) {
-                    delete(key, DataMode.PREFERENCES)
+                    delete(key, clz, DataMode.PREFERENCES)
                 }
                 //Value was saved, check DB value
-                if (readDb == null || readDb == valIfNull) {
+                if (readDb == valIfNull) {
                     //DB value does'nt exist, write to DB, return
                     write(key, readPref)
                     return readPref
@@ -217,8 +215,8 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Stakeholder::class == clz) {
                     val stakeholders = readBulkInternal(clz, STAKEHOLDER_UID_IDENTIFIER)
                     val list = ArrayList<Serializable>()
-                    for (stakeholder in stakeholders){
-                        if ((stakeholder as Stakeholder).projectId == ((key as Project).id)){
+                    for (stakeholder in stakeholders) {
+                        if ((stakeholder as Stakeholder).projectId == ((key as Project).id)) {
                             list.add(stakeholder)
                         }
                     }
@@ -227,8 +225,8 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Object::class == clz) {
                     val objects = readBulkInternal(clz, OBJECT_UID_IDENTIFIER)
                     val list = ArrayList<Serializable>()
-                    for (obj in objects){
-                        if ((obj as Object).scenarioId == ((key as Scenario).id)){
+                    for (obj in objects) {
+                        if ((obj as Object).scenarioId == ((key as Scenario).id)) {
                             list.add(obj)
                         }
                     }
@@ -237,8 +235,8 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Attribute::class == clz) {
                     val attributes = readBulkInternal(clz, ATTRIBUTE_UID_IDENTIFIER)
                     val list = ArrayList<Serializable>()
-                    for (attribute in attributes){
-                        if ((attribute as Attribute).refId == (key as String)){
+                    for (attribute in attributes) {
+                        if ((attribute as Attribute).refId == (key as String)) {
                             list.add(attribute)
                         }
                     }
@@ -247,8 +245,8 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Scenario::class == clz) {
                     val scenarios = readBulkInternal(clz, SCENARIO_UID_IDENTIFIER)
                     val list = ArrayList<Serializable>()
-                    for (scenario in scenarios){
-                        if ((scenario as Scenario).projectId == ((key as Project).id)){
+                    for (scenario in scenarios) {
+                        if ((scenario as Scenario).projectId == ((key as Project).id)) {
                             list.add(scenario)
                         }
                     }
@@ -264,7 +262,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Attribute::class == clz && key is String) return database!!.readAttributes(key) as List<T>
                 if (Scenario::class == clz && key is Project) return database!!.readScenarios(key, fullLoad) as List<T>
                 if (Path::class == clz && key is Scenario) return database!!.readPaths(key, fullLoad) as List<T>
-                if (IElement::class == clz && key is Path)  return database!!.readElements(key, fullLoad) as List<T>
+                if (IElement::class == clz && key is Path) return database!!.readElements(key, fullLoad) as List<T>
             }
         }
         return emptyList()
@@ -277,7 +275,7 @@ class DatabaseHelper private constructor(context: Context) {
             if (entry.key.contains(identifier)) {
                 val bytes = Base64.decode((entry.value as String), Base64.DEFAULT)
                 val element = DataHelper.toObject(bytes, clz)
-                if (element != null){
+                if (element != null) {
                     list.add(element)
                 }
             }
@@ -285,21 +283,73 @@ class DatabaseHelper private constructor(context: Context) {
         return list as List<T>
     }
 
-    public fun delete(key: String, internalMode: DataMode = mode) {
+    public fun <T : Serializable> delete(key: String, clz: KClass<T>, internalMode: DataMode = mode) {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 sharedPreferences.edit().remove(key).apply()
                 sharedPreferences.edit().remove(PROJECT_UID_IDENTIFIER + key).apply()
             }
             DataMode.DATABASE -> {
-                database!!.deleteData(key)
-                database!!.deleteNumber(key)
-                database!!.deleteString(key)
-                database!!.deleteProject(key)
-                database!!.deleteStakeholder(key)
-                database!!.deleteObject(key)
-                database!!.deleteAttribute(key)
-                database!!.deleteScenario(key)
+                if (Project::class == clz) {
+                    val project = readFull(key, Project::class)
+                    database!!.deleteProject(key)
+                    if (project != null) {
+                        for (stakeholder in project.stakeholders) {
+                            delete(stakeholder.id, Stakeholder::class)
+                        }
+                        for (scenario in project.scenarios) {
+                            delete(scenario.id, Scenario::class)
+                        }
+                    }
+                }
+                if (Stakeholder::class == clz) {
+                    database!!.deleteStakeholder(key)
+                }
+                if (Object::class == clz) {
+                    val obj = readFull(key, Object::class)
+                    database!!.deleteObject(key)
+                    if (obj != null) {
+                        for (attribute in obj.attributes) {
+                            delete(attribute.id, Attribute::class)
+                        }
+                    }
+                }
+                if (Attribute::class == clz) {
+                    database!!.deleteAttribute(key)
+                }
+                if (Scenario::class == clz) {
+                    val scenario = readFull(key, Scenario::class)
+                    database!!.deleteScenario(key)
+                    if (scenario != null) {
+                        for (obj in scenario.objects) {
+                            delete(obj.id, Object::class)
+                        }
+                        for (path in scenario.getAllPaths()) {
+                            delete(path.id, Path::class)
+                        }
+                    }
+                }
+                if (Path::class == clz) {
+                    val path = readFull(key, Path::class)
+                    database!!.deletePath(key)
+                    if (path != null) {
+                        for (element in path.elements) {
+                            delete(element.value.getElementId(), IElement::class)
+                        }
+                    }
+                }
+                if (IElement::class == clz) {
+                    database!!.deleteElement(key)
+                }
+                if (CollectionsHelper.oneOf(clz, Boolean::class, Short::class, Int::class, Long::class, Float::class, Double::class)) {
+                    database!!.deleteNumber(key)
+                }
+                if (String::class == clz) {
+                    database!!.deleteString(key)
+                }
+                if (ByteArray::class == clz) {
+                    database!!.deleteData(key)
+                }
             }
         }
     }
@@ -322,14 +372,14 @@ class DatabaseHelper private constructor(context: Context) {
         }
     }
 
-    fun <T: Serializable> dropAndRecreate(kClass: KClass<T>) {
-        if (kClass == Attribute::class){
+    fun <T : Serializable> dropAndRecreate(kClass: KClass<T>) {
+        if (kClass == Attribute::class) {
             database!!.dropAndRecreateTable("ATTRIBUTE_TABLE")
         }
-        if (kClass == Path::class){
+        if (kClass == Path::class) {
             database!!.dropAndRecreateTable("PATH_TABLE")
         }
-        if (kClass == Element::class){
+        if (kClass == Element::class) {
             database!!.dropAndRecreateTable("ELEMENT_TABLE")
         }
     }

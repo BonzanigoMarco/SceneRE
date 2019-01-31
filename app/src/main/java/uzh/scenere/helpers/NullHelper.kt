@@ -1,6 +1,7 @@
 package uzh.scenere.helpers
 
 import uzh.scenere.datamodel.*
+import uzh.scenere.datamodel.steps.AbstractStep
 import java.io.Serializable
 import kotlin.reflect.KClass
 
@@ -14,6 +15,8 @@ class NullHelper private constructor(){
                 Scenario::class -> Scenario.NullScenario() as T
                 Attribute::class -> Attribute.NullAttribute() as T
                 Object::class -> Object.NullObject() as T
+                Path::class -> Path.NullPath() as T
+                AbstractStep::class -> AbstractStep.NullStep() as T
                 else -> throw ClassNotFoundException()
             }
         }

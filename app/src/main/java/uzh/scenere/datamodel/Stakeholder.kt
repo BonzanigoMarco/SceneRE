@@ -40,4 +40,12 @@ open class Stakeholder private constructor(val id: String,val projectId: String,
     }
 
     class NullStakeholder(): Stakeholder("","","","") {}
+//    val id: String,val projectId: String,val name: String, val description: String
+    companion object {
+        val name__ = "Stakeholder"
+        val id_ = "id"
+        val projectId_ = "projectId"
+        val name_ = "name"
+        val description_ = "description"
+    }
 }

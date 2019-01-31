@@ -6,14 +6,14 @@
     tools:context=".activities.WalkthroughActivity">
 
     <include
-        android:id="@+id/walkthrough_toolbar"
+        android:id="@+id/analytics_toolbar"
         layout="@layout/sre_toolbar" />
 
     <TextView
         android:id="@+id/walkthrough_text_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/walkthrough_toolbar"
+        android:layout_below="@id/analytics_toolbar"
         android:background="@color/srePrimary"
         android:gravity="center_horizontal"
         android:text="@string/walkthrough_title"
@@ -56,7 +56,7 @@
                 android:layout_marginStart="@dimen/dimMarginLarge"
                 android:textAlignment="textStart"
                 android:layout_weight="1"
-                android:text="Selected Project: "/>
+                android:text="@string/walkthrough_selected_project"/>
             <TextView
                 android:id="@+id/walkthrough_text_selected_project"
                 android:layout_width="wrap_content"
@@ -79,7 +79,7 @@
                 android:layout_marginStart="@dimen/dimMarginLarge"
                 android:textAlignment="textStart"
                 android:layout_weight="1"
-                android:text="Selected Scenario: "/>
+                android:text="@string/walkthrough_selected_scenario"/>
             <TextView
                 android:id="@+id/walkthrough_text_selected_scenario"
                 android:layout_width="wrap_content"

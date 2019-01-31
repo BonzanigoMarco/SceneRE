@@ -133,7 +133,7 @@ class ScenariosActivity : AbstractManagementActivity() {
             ScenarioMode.VIEW -> {}//NOP
             ScenarioMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeScenario == null) getString(R.string.scenarios_create) else getString(R.string.scenarios_edit))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelTitle, LineInputType.SINGLE_LINE_TEXT, scenario?.title))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelTitle, LineInputType.SINGLE_LINE_EDIT, scenario?.title))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelIntro, LineInputType.MULTI_LINE_EDIT, scenario?.intro))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelOutro, LineInputType.MULTI_LINE_EDIT, scenario?.outro))
             }
@@ -159,7 +159,7 @@ class ScenariosActivity : AbstractManagementActivity() {
             if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
                     (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == scenario) {
                 scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
-                DatabaseHelper.getInstance(applicationContext).delete(scenario.id)
+                DatabaseHelper.getInstance(applicationContext).delete(scenario.id, Scenario::class)
                 return
             }
         }

@@ -81,6 +81,11 @@
         <annotation font="font_awesome">&#xf00c;</annotation> Select,
         <annotation font="font_awesome">&#xf2ea;</annotation> Back,
         <annotation font="font_awesome">&#xf04b;</annotation> Play</string>
+    <string name="icon_explain_analytics">
+        <annotation font="font_awesome">&#xf04a;</annotation>/
+        <annotation font="font_awesome">&#xf04e;</annotation> Previous / Next,
+        <annotation font="font_awesome">&#xf00c;</annotation> Select,
+        <annotation font="font_awesome">&#xf2ea;</annotation> Back</string>
 
     <string name="icon_dice_one">&#xf525;</string>
     <string name="icon_dice_two">&#xf528;</string>

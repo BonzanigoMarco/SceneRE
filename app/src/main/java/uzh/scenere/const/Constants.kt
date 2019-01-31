@@ -4,6 +4,10 @@ import android.util.TypedValue
 
 class Constants {
     companion object {
+        //Kotlin
+        const val REFLECTION: String = " (Kotlin reflection is not available)"
+        const val NOTHING: String = ""
+        //Storage
         const val SHARED_PREFERENCES: String = "scenereSharedPreferences"
         const val USER_NAME: String = "scenereUserName"
         const val ANONYMOUS: String = "John Doe"
@@ -26,8 +30,19 @@ class Constants {
         const val OBJECT_UID_IDENTIFIER: String = "object_"
         const val SCENARIO_UID_IDENTIFIER: String = "scenario_"
         const val ATTRIBUTE_UID_IDENTIFIER: String = "attribute_"
+        const val PATH_UID_IDENTIFIER: String = "path_"
+        const val ELEMENT_UID_IDENTIFIER: String = "element_"
         //GENERAL
+        const val NEW_LINE: String = "\n"
         const val DOLLAR_STRING: String = "$"
+        //XML
+        const val EMPTY_LIST: String = "EmptyList"
+        const val NULL: String = "NULL"
+        const val STRING: String = "String"
+        const val INT: String = "Int"
+        const val LONG: String = "Long"
+        const val DOUBLE: String = "Double"
+        const val BOOLEAN: String = "Boolean"
         //ELEMENTS
         const val STARTING_POINT: String = "starting_point"
         //ATTRIBUTE TYPES

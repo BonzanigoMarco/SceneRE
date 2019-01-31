@@ -131,11 +131,8 @@ class ProjectsActivity : AbstractManagementActivity() {
         when(projectsMode){
             ProjectsMode.VIEW -> {}//NOP
             ProjectsMode.EDIT_CREATE -> {
-                //[Title]: [TitleInput]
-                //[Description]:
-                //[DescriptionInput]
                 cleanInfoHolder(if (activeProject==null) getString(R.string.projects_create) else getString(R.string.projects_edit))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelTitle,LineInputType.SINGLE_LINE_TEXT, project?.title))
+                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelTitle,LineInputType.SINGLE_LINE_EDIT, project?.title))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, project?.description))
             }
             ProjectsMode.SCENARIO -> {
@@ -160,7 +157,7 @@ class ProjectsActivity : AbstractManagementActivity() {
             if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
                     (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == project){
                 scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
-                DatabaseHelper.getInstance(applicationContext).delete(project.id)
+                DatabaseHelper.getInstance(applicationContext).delete(project.id, Project::class)
                 return
             }
         }

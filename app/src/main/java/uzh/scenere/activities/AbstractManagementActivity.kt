@@ -41,9 +41,10 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     //*********
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
+        //Debug
+        //DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
+        //DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
+        //DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
     }
 
     override fun onResume() {
@@ -166,30 +167,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             text.textSize = textSize!!
             text.text = presetValue
             text.setSingleLine((inputType != LineInputType.MULTI_LINE_TEXT))
-            wrapper.addView(label)
-            wrapper.addView(text)
-            inputMap[labelText] = text
-            return wrapper
-        }else if (false){
-            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-            val wrapper = LinearLayout(this)
-            wrapper.layoutParams = layoutParams
-            wrapper.weightSum = 2f
-            wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_EDIT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-            val label = TextView(this)
-            label.text = getString(R.string.label, labelText)
-            label.textSize = textSize!!
-            label.layoutParams = childParams
-            val text = TextView(this)
-            text.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
-            text.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-            text.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
-            text.layoutParams = childParams
-            text.textSize = textSize!!
-            text.text = presetValue
-            text.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
             wrapper.addView(label)
             wrapper.addView(text)
             inputMap[labelText] = text

@@ -10,8 +10,8 @@ import kotlin.collections.HashMap
 
 open class Scenario private constructor(val id: String, val projectId: String, val title: String, val intro: String, val outro: String): Serializable {
     private val resources: List<Resource> = ArrayList()
-    private val objects: ArrayList<Object> = ArrayList()
-    private var paths: HashMap<String,HashMap<Int,Path>> = HashMap()
+    val objects: ArrayList<Object> = ArrayList()
+    var paths: HashMap<String,HashMap<Int,Path>> = HashMap()
     private val stakeholders: List<Stakeholder> = ArrayList()
     private val walkthroughs: List<Walkthrough> = ArrayList()
     private val whatIfs: List<WhatIf> = ArrayList()
@@ -35,6 +35,16 @@ open class Scenario private constructor(val id: String, val projectId: String, v
 
     fun getAllPaths(stakeholder: Stakeholder): HashMap<Int, Path>? {
         return paths[stakeholder.id]
+    }
+
+    fun getAllPaths(): List<Path> {
+        val pathList = ArrayList<Path>()
+        for (entry in paths.entries){
+            for (pathEntry in entry.value.entries){
+                pathList.add(pathEntry.value)
+            }
+        }
+        return pathList
     }
 
     fun updatePath(stakeholder: Stakeholder, path: Path ){

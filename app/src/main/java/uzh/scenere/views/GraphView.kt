@@ -70,7 +70,7 @@ class GraphView (context: Context,
             canvas.drawText(title, graphWidth / 2 + horizontalStart, border - 4, paint)
 
             if (max != min) {
-                val negativeColor = ContextCompat.getColor(context, R.color.sreAccentLight)
+                val negativeColor = ContextCompat.getColor(context, R.color.sreSecondaryLight)
                 val positiveColor = ContextCompat.getColor(context, R.color.srePrimaryLight)
                 if (type == GraphType.BAR) {
                     val dataLength = values.size.toFloat()

@@ -30,18 +30,18 @@
         android:theme="@style/SceneReTheme"
         android:configChanges="keyboardHidden|orientation|screenSize"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.WalkthroughActivity"
+        <activity android:name=".activities.StartupActivity"
             android:theme="@style/SceneReToolbarTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.StartupActivity"
+        <activity android:name=".activities.AnalyticsActivity"
             android:theme="@style/SceneReToolbarTheme"/>
         <activity android:name=".activities.MainMenuActivity"
             android:theme="@style/SceneReToolbarTheme"/>
-        <activity android:name=".activities.AnalyticsActivity"
+        <activity android:name=".activities.WalkthroughActivity"
             android:theme="@style/SceneReToolbarTheme"/>
         <activity android:name=".activities.CockpitActivity"
             android:theme="@style/SceneReToolbarTheme"/>

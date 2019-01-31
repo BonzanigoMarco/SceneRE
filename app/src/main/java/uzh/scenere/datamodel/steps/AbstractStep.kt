@@ -2,6 +2,9 @@ package uzh.scenere.datamodel.steps
 
 import uzh.scenere.datamodel.IElement
 import uzh.scenere.datamodel.Object
+import uzh.scenere.datamodel.Path
+import uzh.scenere.datamodel.Stakeholder
+import uzh.scenere.helpers.NullHelper
 import kotlin.collections.ArrayList
 
 abstract class AbstractStep(val id: String, var previousId: String?, val pathId: String): IElement {
@@ -50,4 +53,6 @@ abstract class AbstractStep(val id: String, var previousId: String?, val pathId:
         previousId = id
         return this
     }
+
+    class NullStep(): AbstractStep("","","") {}
 }

@@ -7,13 +7,13 @@
         <item name="android:colorBackground">@color/sreWhite</item>
         <item name="colorPrimary">@color/srePrimary</item>
         <item name="colorPrimaryDark">@color/srePrimaryDark</item>
-        <item name="colorAccent">@color/sreAccent</item>
+        <item name="colorAccent">@color/srePrimaryAccent</item>
     </style>
 
     <style name="SceneReTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/srePrimary</item>
         <item name="colorPrimaryDark">@color/srePrimaryDark</item>
-        <item name="colorAccent">@color/sreAccent</item>
+        <item name="colorAccent">@color/srePrimaryAccent</item>
     </style>
 
 

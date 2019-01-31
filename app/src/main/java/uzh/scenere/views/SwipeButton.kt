@@ -321,11 +321,6 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
                         bottomIconText?.alpha = alpha
                         leftIconText?.alpha = alpha
                         rightIconText?.alpha = alpha
-                        if (alpha < 0.9){
-                            sliderButton?.text = null
-                        }else{
-                            sliderButton?.text = context.resources.getText(icons[cIdx])
-                        }
                         //Handle general slide to the left || right
                         if (event.x > sliderWidth / 2 + dpiSliderMargin && event.x + sliderWidth / 2 < w) {
                             sliderButton?.x = (event.x - sliderWidth / 2)
@@ -346,11 +341,6 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
                         bottomIconText?.alpha = alpha
                         leftIconText?.alpha = alpha
                         rightIconText?.alpha = alpha
-                        if (alpha < 0.9){
-                            sliderButton?.text = null
-                        }else{
-                            sliderButton?.text = context.resources.getText(icons[cIdx])
-                        }
                         //Handle general slide to up || down
                         if (event.y > sliderHeight / 2 && event.y + sliderHeight / 2 < h) {
                             sliderButton?.y = (event.y - sliderHeight / 2)

@@ -75,7 +75,7 @@ class CockpitActivity : AbstractManagementActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        customizeToolbarId(R.string.icon_backward,null,R.string.icon_win_min,null,R.string.icon_forward)
+        customizeToolbarId(R.string.icon_back, R.string.icon_backward, R.string.icon_win_min, R.string.icon_forward, null)
         scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         recreateViews()
     }
@@ -110,14 +110,14 @@ class CockpitActivity : AbstractManagementActivity() {
         recreateViews()
     }
 
-    override fun onToolbarRightClicked() {
+    override fun onToolbarCenterRightClicked() {
         SensorHelper.getInstance(this).unregisterTextGraphListener()
         mode = mode.next()
         scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
         recreateViews()
     }
 
-    override fun onToolbarLeftClicked() {
+    override fun onToolbarCenterLeftClicked() {
         SensorHelper.getInstance(this).unregisterTextGraphListener()
         mode = mode.previous()
         scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
@@ -131,6 +131,7 @@ class CockpitActivity : AbstractManagementActivity() {
     private fun recreateViews() {
         scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
         scroll_holder_linear_layout_holder.removeAllViews()
+        scroll_holder_scroll.scrollTo(0,0)
         createTitle(mode.label,scroll_holder_linear_layout_holder)
         when (this.mode) {
             CockpitMode.PERMISSIONS -> {

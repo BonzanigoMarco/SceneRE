@@ -100,8 +100,8 @@ class EditorActivity : AbstractManagementActivity() {
         creationButton?.setExecutable(createControlExecutable())
         editor_linear_layout_control.addView(creationButton)
 
-        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_editor), fontAwesome)
-        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
+        getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, null, null, null)
         visualizeActivePath()
         refreshState()
     }
@@ -195,7 +195,7 @@ class EditorActivity : AbstractManagementActivity() {
                 creationUnitClass = StandardStep::class
                 cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
                 adaptAttributes("Title", "Object","Text")
-                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_TEXT, null))
+                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, null))
                 scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.LOOKUP, null, activeScenario?.getObjectNames("")/*arrayOf("","Object A","Object B","Object C")*/))
                 scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[2], LineInputType.MULTI_LINE_EDIT, null))
                 execMorphInfoBar(InfoState.MAXIMIZED)
@@ -204,7 +204,7 @@ class EditorActivity : AbstractManagementActivity() {
                 creationUnitClass = ButtonTrigger::class
                 cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
                 adaptAttributes("Button-Label")
-                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_TEXT, null))
+                scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, null))
                 execMorphInfoBar(InfoState.MAXIMIZED)
             }
         }

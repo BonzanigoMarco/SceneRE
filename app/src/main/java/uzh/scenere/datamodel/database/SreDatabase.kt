@@ -149,16 +149,16 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         values.put(ElementTableEntry.ID, element.getElementId())
         values.put(ElementTableEntry.PREV_ID, element.getPreviousElementId())
         values.put(ElementTableEntry.PATH_ID, element.getElementPathId())
-        if (element is AbstractStep){
+        if (element is AbstractStep) {
             values.put(ElementTableEntry.TITLE, element.title)
             values.put(ElementTableEntry.TEXT, element.text)
         }
-        if (element is StandardStep){
-            for (obj in element.objects){
-                writeAttribute(Attribute.AttributeBuilder(obj.id,element.id,null,null).withAttributeType(TYPE_OBJECT).build())
+        if (element is StandardStep) {
+            for (obj in element.objects) {
+                writeAttribute(Attribute.AttributeBuilder(obj.id, element.id, null, null).withAttributeType(TYPE_OBJECT).build())
             }
             values.put(ElementTableEntry.TYPE, TYPE_STANDARD_STEP)
-        }else if (element is ButtonTrigger){
+        } else if (element is ButtonTrigger) {
             values.put(ElementTableEntry.TITLE, element.buttonLabel)
             values.put(ElementTableEntry.TYPE, TYPE_BUTTON_TRIGGER)
         }
@@ -294,7 +294,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val projectBuilder = Project.ProjectBuilder(id, creator, title, description)
             if (fullLoad) {
                 projectBuilder.addStakeholders(stakeholder = *readStakeholders(projectBuilder.build()).toTypedArray())
-                projectBuilder.addScenarios(scenario = *readScenarios(projectBuilder.build(),true).toTypedArray())
+                projectBuilder.addScenarios(scenario = *readScenarios(projectBuilder.build(), true).toTypedArray())
             }
             return projectBuilder.build()
         }
@@ -341,7 +341,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val name = cursor.getString(2)
             val description = cursor.getString(3)
             val objectBuilder = Object.ObjectBuilder(id, scenarioId, name, description)
-            if (fullLoad){
+            if (fullLoad) {
                 objectBuilder.addAttributes(attributes = *readAttributes(id).toTypedArray())
             }
             return objectBuilder.build()
@@ -350,7 +350,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return valueIfNull
     }
 
-    fun readObjects(scenario: Scenario, fullLoad: Boolean= false): List<Object> {
+    fun readObjects(scenario: Scenario, fullLoad: Boolean = false): List<Object> {
         val db = dbHelper.readableDatabase
         val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID, ObjectTableEntry.NAME, ObjectTableEntry.DESCRIPTION), ObjectTableEntry.SCENARIO_ID + LIKE + QUOTES + scenario.id + QUOTES, null, null, null, null, null)
         val objects = ArrayList<Object>()
@@ -360,7 +360,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                 val name = cursor.getString(1)
                 val description = cursor.getString(2)
                 val objectBuilder = Object.ObjectBuilder(id, scenario, name, description)
-                if (fullLoad){
+                if (fullLoad) {
                     objectBuilder.addAttributes(attributes = *readAttributes(id).toTypedArray())
                 }
                 objects.add(objectBuilder.build())
@@ -386,14 +386,13 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
 
     fun readAttributes(refId: String, type: String? = null): List<Attribute> {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(AttributeTableEntry.TABLE_NAME, arrayOf(AttributeTableEntry.ID, AttributeTableEntry.KEY, AttributeTableEntry.VALUE, AttributeTableEntry.TYPE), (AttributeTableEntry.REF_ID + LIKE + QUOTES + refId + QUOTES)+ if (type==null) "" else (AND + AttributeTableEntry.TYPE + LIKE + QUOTES + refId + QUOTES), null, null, null, null, null)
+        val cursor = db.query(AttributeTableEntry.TABLE_NAME, arrayOf(AttributeTableEntry.ID, AttributeTableEntry.KEY, AttributeTableEntry.VALUE, AttributeTableEntry.TYPE), (AttributeTableEntry.REF_ID + LIKE + QUOTES + refId + QUOTES) + if (type == null) "" else (AND + AttributeTableEntry.TYPE + LIKE + QUOTES + refId + QUOTES), null, null, null, null, null)
         val attributes = ArrayList<Attribute>()
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getString(0)
                 val key = cursor.getString(1)
                 val value = cursor.getString(2)
-                val type = cursor.getString(3)
                 attributes.add(Attribute.AttributeBuilder(id, refId, key, value).withAttributeType(type).build())
             } while (cursor.moveToNext())
         }
@@ -411,9 +410,9 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val intro = cursor.getString(3)
             val outro = cursor.getString(4)
             val scenarioBuilder = Scenario.ScenarioBuilder(id, projectId, title, intro, outro)
-            if (fullLoad){
-                scenarioBuilder.addObjects(obj = *readObjects(scenarioBuilder.build(),true).toTypedArray())
-                scenarioBuilder.addPaths(path = *readPaths(scenarioBuilder.build(),true).toTypedArray())
+            if (fullLoad) {
+                scenarioBuilder.addObjects(obj = *readObjects(scenarioBuilder.build(), true).toTypedArray())
+                scenarioBuilder.addPaths(path = *readPaths(scenarioBuilder.build(), true).toTypedArray())
             }
             return scenarioBuilder.build()
         }
@@ -433,8 +432,8 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                 val intro = cursor.getString(3)
                 val outro = cursor.getString(4)
                 val scenarioBuilder = Scenario.ScenarioBuilder(id, projectId, title, intro, outro)
-                if (fullLoad){
-                    scenarioBuilder.addObjects(obj = *readObjects(scenarioBuilder.build(),true).toTypedArray())
+                if (fullLoad) {
+                    scenarioBuilder.addObjects(obj = *readObjects(scenarioBuilder.build(), true).toTypedArray())
                 }
                 scenarios.add(scenarioBuilder.build())
             } while (cursor.moveToNext())
@@ -445,17 +444,16 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
 
     fun readPaths(scenario: Scenario, fullLoad: Boolean = false): List<Path> {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(PathTableEntry.TABLE_NAME, arrayOf(PathTableEntry.ID, PathTableEntry.SCENARIO_ID, PathTableEntry.STAKEHOLDER_ID, PathTableEntry.LAYER), PathTableEntry.SCENARIO_ID + LIKE + QUOTES + scenario.id + QUOTES, null, null, null, null, null)
+        val cursor = db.query(PathTableEntry.TABLE_NAME, arrayOf(PathTableEntry.ID, PathTableEntry.STAKEHOLDER_ID, PathTableEntry.LAYER), PathTableEntry.SCENARIO_ID + LIKE + QUOTES + scenario.id + QUOTES, null, null, null, null, null)
         val paths = ArrayList<Path>()
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getString(0)
-                val scenarioId = cursor.getString(1)
-                val stakeholderId = cursor.getString(2)
-                val layer = cursor.getInt(3)
-                val path = Path.PathBuilder(id, scenarioId, readStakeholders(stakeholderId,NullHelper.get(Stakeholder::class)), layer).build()
-                if (fullLoad){
-                    for (element in readElements(path, true)){
+                val stakeholderId = cursor.getString(1)
+                val layer = cursor.getInt(2)
+                val path = Path.PathBuilder(id, scenario.id, readStakeholders(stakeholderId, NullHelper.get(Stakeholder::class)), layer).build()
+                if (fullLoad) {
+                    for (element in readElements(path, true)) {
                         path.add(element)
                     }
                 }
@@ -466,22 +464,40 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return paths
     }
 
+    fun readPath(pathId: String, valueIfNull: Path, fullLoad: Boolean = false): Path {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(PathTableEntry.TABLE_NAME, arrayOf(PathTableEntry.SCENARIO_ID, PathTableEntry.STAKEHOLDER_ID, PathTableEntry.LAYER), PathTableEntry.ID + LIKE + QUOTES + pathId + QUOTES, null, null, null, null, null)
+        if (cursor.moveToFirst()) {
+            val scenarioId = cursor.getString(0)
+            val stakeholderId = cursor.getString(1)
+            val layer = cursor.getInt(2)
+            val path = Path.PathBuilder(pathId, scenarioId, readStakeholders(stakeholderId, NullHelper.get(Stakeholder::class)), layer).build()
+            if (fullLoad) {
+                for (element in readElements(path, true)) {
+                    path.add(element)
+                }
+            }
+            return path
+        }
+        cursor.close()
+        return valueIfNull
+    }
+
     fun readElements(path: Path, fullLoad: Boolean = false): List<IElement> {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(ElementTableEntry.TABLE_NAME, arrayOf(ElementTableEntry.ID, ElementTableEntry.PREV_ID, ElementTableEntry.PATH_ID, ElementTableEntry.TYPE, ElementTableEntry.TITLE, ElementTableEntry.TEXT), ElementTableEntry.PATH_ID + LIKE + QUOTES + path.id + QUOTES, null, null, null, null, null)
+        val cursor = db.query(ElementTableEntry.TABLE_NAME, arrayOf(ElementTableEntry.ID, ElementTableEntry.PREV_ID, ElementTableEntry.TYPE, ElementTableEntry.TITLE, ElementTableEntry.TEXT), ElementTableEntry.PATH_ID + LIKE + QUOTES + path.id + QUOTES, null, null, null, null, null)
         val elements = ArrayList<IElement>()
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getString(0)
                 val prevId = cursor.getString(1)
-                val pathId = cursor.getString(2)
-                val type = cursor.getString(3)
-                val title = cursor.getString(4)
-                val text = cursor.getString(5)
-                when (type){
+                val type = cursor.getString(2)
+                val title = cursor.getString(3)
+                val text = cursor.getString(4)
+                when (type) {
                     TYPE_STANDARD_STEP -> {
-                        val step = StandardStep(id,prevId,pathId).withText(text).withTitle(title)
-                        if (fullLoad){
+                        val step = StandardStep(id, prevId, path.id).withText(text).withTitle(title)
+                        if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
                                 step.withObject(readObject(linkAttribute.id, NullHelper.get(Object::class)))
                             }
@@ -489,7 +505,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         elements.add(step)
                     }
                     TYPE_BUTTON_TRIGGER -> {
-                        val trigger = ButtonTrigger(id,prevId,pathId).withButtonLabel(title)
+                        val trigger = ButtonTrigger(id, prevId, path.id).withButtonLabel(title)
                         elements.add(trigger)
                     }
                     else -> {
@@ -600,10 +616,10 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         db.close()
     }
 
-    public fun dropAndRecreateTable(table: String){
+    public fun dropAndRecreateTable(table: String) {
         val collectTables = collectTables(table)
-        if (!collectTables.isEmpty()){
-            for (statement in collectTables){
+        if (!collectTables.isEmpty()) {
+            for (statement in collectTables) {
                 val db = dbHelper.writableDatabase
                 db.execSQL(statement)
                 db.close()
