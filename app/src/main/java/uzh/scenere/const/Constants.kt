@@ -32,6 +32,7 @@ class Constants {
         const val ATTRIBUTE_UID_IDENTIFIER: String = "attribute_"
         const val PATH_UID_IDENTIFIER: String = "path_"
         const val ELEMENT_UID_IDENTIFIER: String = "element_"
+        const val WALKTHROUGH_UID_IDENTIFIER: String = "walkthrough_"
         //GENERAL
         const val NEW_LINE: String = "\n"
         const val DOLLAR_STRING: String = "$"
@@ -40,6 +41,7 @@ class Constants {
         const val NULL: String = "NULL"
         const val STRING: String = "String"
         const val INT: String = "Int"
+        const val FLOAT: String = "Float"
         const val LONG: String = "Long"
         const val DOUBLE: String = "Double"
         const val BOOLEAN: String = "Boolean"

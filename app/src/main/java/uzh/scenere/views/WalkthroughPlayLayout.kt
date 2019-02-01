@@ -13,12 +13,15 @@ import uzh.scenere.const.Constants.Companion.USER_NAME
 import uzh.scenere.datamodel.Path
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.datamodel.Stakeholder
+import uzh.scenere.datamodel.Walkthrough.WalkthroughStepProperty.*
+import uzh.scenere.datamodel.Walkthrough.WalkthroughProperty.*
 import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.StandardStep
 import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.DipHelper
+import uzh.scenere.helpers.NullHelper
 
 @SuppressLint("ViewConstructor")
 class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, private val stakeholder: Stakeholder, private val stopFunction: () -> Unit) : LinearLayout(context) {
@@ -35,7 +38,10 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     //Statistics
-    val walkthrough: Walkthrough = Walkthrough.WalkthroughBuilder(DatabaseHelper.getInstance(context).read(USER_NAME,String::class, ANONYMOUS), scenario.id, stakeholder.id).build()
+    private val walkthrough: Walkthrough = Walkthrough.WalkthroughBuilder(DatabaseHelper.getInstance(context).read(USER_NAME,String::class, ANONYMOUS), scenario.id, stakeholder.id).build()
+    fun getWalkthrough(): Walkthrough{
+        return walkthrough
+    }
     private var startingTime: Long = System.currentTimeMillis()
     private fun getTime(): Long{
         val time = System.currentTimeMillis() - startingTime
@@ -98,6 +104,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
 
 
     private fun resolveStepAndTrigger() {
+        //TODO When trigger empty, stuck here
         when (mode) {
             WalkthroughPlayMode.STEP_INDUCED -> {
                 when (first) {
@@ -165,7 +172,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     private fun saveAndLoadNew() {
-        //TODO: Save
+        walkthrough.toXml(context)
         stopFunction()
     }
 

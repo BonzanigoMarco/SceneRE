@@ -25,6 +25,7 @@ abstract class AbstractSreDatabase {
         const val ZERO = " 0 "
         const val QUOTES = "'"
         const val AND = " AND "
+        const val ANY = "%"
         const val LIKE_WILDCARD = " LIKE ? "
         //Private
         const val TEXT_TYPE = " TEXT "
@@ -283,6 +284,23 @@ abstract class AbstractSreDatabase {
             const val TYPE = " TYPE "
             const val TITLE = " TITLE "
             const val TEXT = " TEXT "
+        }
+    }
+
+    //Table for Walkthroughs
+    protected class WalkthroughTableEntry private constructor() : BaseColumns {
+        companion object {
+            const val TABLE_NAME = " WALKTHROUGH_TABLE "
+            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_OWNER = TEXT_TYPE
+            const val COLUMN_TYPE_SCENARIO_ID = TEXT_TYPE
+            const val COLUMN_TYPE_STAKEHOLDER_ID = TEXT_TYPE
+            const val COLUMN_TYPE_XML_DATA = TEXT_TYPE
+            const val ID = " ID "
+            const val OWNER = " OWNER "
+            const val SCENARIO_ID = " SCENARIO_ID "
+            const val STAKEHOLDER_ID = " STAKEHOLDER_ID "
+            const val XML_DATA = " XML_DATA "
         }
     }
 

@@ -120,10 +120,13 @@
     <string name="literal_value">Value</string>
     <!--XML-->
     <string name="xml_declaration"><![CDATA[<?xml version="1.0" encoding="utf-8"?>]]></string>
-    <string name="xml_begin_tag"><![CDATA[<]]>%1$s type="%2$s"<![CDATA[>]]></string>
+    <string name="xml_begin_tag"><![CDATA[<]]>%1$s type=<![CDATA["]]>%2$s<![CDATA[">]]></string>
+    <string name="xml_begin_tag_id"><![CDATA[<]]>%1$s id=<![CDATA["]]>%2$s<![CDATA[">]]></string>
     <string name="xml_end_tag"><![CDATA[</]]>%1$s<![CDATA[>]]></string>
     <string name="xml_empty"><![CDATA[<]]>%1$s<![CDATA[/>]]></string>
-    <string name="xml_enclosing"><![CDATA[<]]>%1$s<![CDATA[ type="]]>%2$s<![CDATA[">]]>%3$s<![CDATA[<]]>%1$s<![CDATA[/>]]></string>
+    <string name="xml_enclosing"><![CDATA[<]]>%1$s<![CDATA[ type="]]>%2$s<![CDATA[">]]>%3$s<![CDATA[</]]>%1$s<![CDATA[>]]></string>
+
+
     <string name="walkthrough_selected_scenario">Selected Scenario:</string>
     <string name="walkthrough_selected_project">Selected Project:</string>
 

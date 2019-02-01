@@ -16,7 +16,15 @@ class NullHelper private constructor(){
                 Attribute::class -> Attribute.NullAttribute() as T
                 Object::class -> Object.NullObject() as T
                 Path::class -> Path.NullPath() as T
+                Walkthrough::class -> Walkthrough.NullWalkthrough() as T
                 AbstractStep::class -> AbstractStep.NullStep() as T
+                String::class -> "" as T
+                Long::class -> 0 as T
+                Float::class -> 0 as T
+                Double::class -> 0 as T
+                Integer::class -> 0 as T
+                Short::class -> 0 as T
+                Boolean::class -> false as T
                 else -> throw ClassNotFoundException()
             }
         }

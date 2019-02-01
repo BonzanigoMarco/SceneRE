@@ -3,6 +3,8 @@ package uzh.scenere.activities
 import android.os.Bundle
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
+import uzh.scenere.datamodel.Walkthrough
+import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
 
 class AnalyticsActivity : AbstractManagementActivity() {
@@ -32,5 +34,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
       getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+      val size = DatabaseHelper.getInstance(applicationContext).readBulk(Walkthrough::class, null).size
+      toast("$size Walkthroughs loaded!")
   }
 }

@@ -11,6 +11,7 @@ import uzh.scenere.const.Constants.Companion.PATH_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.PROJECT_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.SCENARIO_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.STAKEHOLDER_UID_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.WALKTHROUGH_UID_IDENTIFIER
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.database.SreDatabase
 import uzh.scenere.views.Element
@@ -71,6 +72,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Scenario) write(SCENARIO_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
                 if (obj is Path) write(PATH_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
                 if (obj is IElement) write(ELEMENT_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
+                if (obj is Walkthrough) write(WALKTHROUGH_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
             }
             DataMode.DATABASE -> {
                 if (obj is Boolean) database!!.writeBoolean(key, obj)
@@ -86,8 +88,9 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Object) database!!.writeObject(obj)
                 if (obj is Attribute) database!!.writeAttribute(obj)
                 if (obj is Scenario) database!!.writeScenario(obj)
-                if (obj is IElement) database!!.writeElement(obj)
                 if (obj is Path) database!!.writePath(obj)
+                if (obj is IElement) database!!.writeElement(obj)
+                if (obj is Walkthrough) database!!.writeWalkthrough(obj)
             }
         }
         return true
@@ -125,6 +128,7 @@ class DatabaseHelper private constructor(context: Context) {
                     if (Scenario::class == clz) return readBinary(key, clz, SCENARIO_UID_IDENTIFIER, valIfNull)
                     if (Path::class == clz) return readBinary(key, clz, PATH_UID_IDENTIFIER, NullHelper.get(clz))
                     if (IElement::class == clz) return readBinary(key, clz, ELEMENT_UID_IDENTIFIER, NullHelper.get(clz))
+                    if (Walkthrough::class == clz) return readBinary(key, clz, WALKTHROUGH_UID_IDENTIFIER, NullHelper.get(clz))
                 }
                 DataMode.DATABASE -> {
                     if (Boolean::class == clz) return database!!.readBoolean(key, valIfNull as Boolean) as T
@@ -142,6 +146,7 @@ class DatabaseHelper private constructor(context: Context) {
                     if (Scenario::class == clz) return database!!.readScenario(key, valIfNull as Scenario) as T
                     if (Path::class == clz) return database!!.readPath(key, valIfNull as Path) as T
                     if (IElement::class == clz) return valIfNull
+                    if (Walkthrough::class == clz) return database!!.readWalkthrough(key, valIfNull as Walkthrough) as T
                 }
             }
         } catch (e: Exception) {
@@ -167,6 +172,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Scenario::class == clz) return readBinary(key, clz, SCENARIO_UID_IDENTIFIER, NullHelper.get(clz))
                 if (Path::class == clz) return readBinary(key, clz, PATH_UID_IDENTIFIER, NullHelper.get(clz))
                 if (IElement::class == clz) return readBinary(key, clz, ELEMENT_UID_IDENTIFIER, NullHelper.get(clz))
+                if (Walkthrough::class == clz) return readBinary(key, clz, WALKTHROUGH_UID_IDENTIFIER, NullHelper.get(clz))
             }
             DataMode.DATABASE -> {
                 if (Project::class == clz) return database!!.readProject(key, NullHelper.get(Project::class), true) as T?
@@ -174,6 +180,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Scenario::class == clz) return database!!.readScenario(key, NullHelper.get(Scenario::class), true) as T?
                 if (Path::class == clz) return database!!.readPath(key, NullHelper.get(Path::class),true) as T?
                 if (IElement::class == clz) return null
+                if (Walkthrough::class == clz) return read(key,clz,NullHelper.get(clz))
             }
         }
         return null
@@ -254,6 +261,16 @@ class DatabaseHelper private constructor(context: Context) {
                 }
                 if (Path::class == clz) return emptyList()
                 if (IElement::class == clz) return emptyList()
+                if (Walkthrough::class == clz) {
+                        val walkthroughs = readBulkInternal(clz, WALKTHROUGH_UID_IDENTIFIER)
+                        val list = ArrayList<Serializable>()
+                        for (walkthrough in walkthroughs) {
+                            if ((walkthrough as Walkthrough).scenarioId == ((key as Scenario).id)) {
+                                list.add(walkthrough)
+                            }
+                        }
+                        return list as List<T>
+                }
             }
             DataMode.DATABASE -> {
                 if (Project::class == clz) return database!!.readProjects() as List<T>
@@ -263,6 +280,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Scenario::class == clz && key is Project) return database!!.readScenarios(key, fullLoad) as List<T>
                 if (Path::class == clz && key is Scenario) return database!!.readPaths(key, fullLoad) as List<T>
                 if (IElement::class == clz && key is Path) return database!!.readElements(key, fullLoad) as List<T>
+                if (Walkthrough::class == clz && (key == null || key is Scenario)) return database!!.readWalkthroughs(key as String?) as List<T>
             }
         }
         return emptyList()

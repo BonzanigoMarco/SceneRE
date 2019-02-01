@@ -10,7 +10,7 @@ import uzh.scenere.datamodel.Path
 import uzh.scenere.datamodel.Stakeholder
 import java.io.Serializable
 
-class XmlHelper(private var context: Context) {
+class XmlHelper(private var context: Context) {/**
     private var xml = context.resources.getString(R.string.xml_declaration).plus(NEW_LINE)
     private val nodes = ArrayList<String>()
 
@@ -44,7 +44,6 @@ class XmlHelper(private var context: Context) {
      *     </paths>
      *
      */
-
     fun <T : Serializable> createComplex(value: T, key: String): String {
         var node = context.getString(R.string.xml_begin_tag, key, value.className()).plus(NEW_LINE)
         when (value) {
@@ -60,7 +59,20 @@ class XmlHelper(private var context: Context) {
                 node += context.getString(R.string.xml_enclosing, Stakeholder.name_, STRING, value.name).plus(NEW_LINE)
                 node += context.getString(R.string.xml_enclosing, Stakeholder.description_, STRING, value.description).plus(NEW_LINE)
             }
+            is HashMap<*,*> -> {
+                for (entry in value.entries){
+                    node += if (entry.value is HashMap<*,*>){
+                        createComplex(entry.value as HashMap<*,*>, entry.key.toString())
+                    }else{
+                        context.getString(R.string.xml_enclosing, entry.key, entry.value.className(), entry.value).plus(NEW_LINE)
+                    }
+                }
+            }
+            else ->{
+
+            }
         }
+        node += context.getString(R.string.xml_end_tag, key).plus(NEW_LINE)
         return node
     }
 
@@ -105,4 +117,5 @@ class XmlHelper(private var context: Context) {
             return propertiesMap[key];
         }
     }
+    */
 }

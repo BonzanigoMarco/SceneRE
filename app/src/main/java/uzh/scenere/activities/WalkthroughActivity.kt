@@ -11,13 +11,14 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
+import uzh.scenere.datamodel.Walkthrough.WalkthroughStepProperty.*
+import uzh.scenere.datamodel.Walkthrough.WalkthroughProperty.*
 import kotlinx.android.synthetic.main.activity_walkthrough.*
 import kotlinx.android.synthetic.main.holder.*
 import uzh.scenere.R
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
-import uzh.scenere.helpers.XmlHelper
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.WalkthroughPlayLayout
 import java.io.Serializable
@@ -203,7 +204,6 @@ class WalkthroughActivity : AbstractManagementActivity() {
      * next = false --> previous
      */
     private fun <T : Serializable> select(selectedList: ArrayList<T>, next: Boolean) {
-        //TODO When trigger empty, stuck here
         if (selectedList.isEmpty()) {
             return
         }
@@ -232,7 +232,6 @@ class WalkthroughActivity : AbstractManagementActivity() {
     }
 
     private fun execBack() {
-        //TODO Popup asking for cancel
         when (mode) {
             WalkthroughMode.SELECT_SCENARIO -> {
                 mode = WalkthroughMode.SELECT_PROJECT
@@ -270,11 +269,15 @@ class WalkthroughActivity : AbstractManagementActivity() {
     }
 
     private fun stop(){
+        val walkthroughStatistics = activeWalkthrough?.getWalkthrough()
+        if (walkthroughStatistics != null){
+            walkthroughStatistics.toXml(applicationContext)
+            DatabaseHelper.getInstance(applicationContext).write(walkthroughStatistics.id, walkthroughStatistics)
+        }
         objectInfoSpinnerLayout = null
         mode = WalkthroughMode.SELECT_STAKEHOLDER
         walkthrough_layout_selection.visibility = VISIBLE
         walkthrough_holder.visibility = GONE
-        //TODO> Save to db
         activeWalkthrough = null
         getContentHolderLayout().removeAllViews()
         customizeToolbarId(R.string.icon_back,null,null,null,null)
@@ -296,8 +299,10 @@ class WalkthroughActivity : AbstractManagementActivity() {
     private fun objectInfoSelected(){
         if (objectInfoSpinnerLayout != null){
             val spinner = searchForLayout(objectInfoSpinnerLayout!!, Spinner::class)
-            val obj = scenarioContext?.getObjectByName(spinner?.selectedItem.toString())
+            val objectName = spinner?.selectedItem.toString()
+            val obj = scenarioContext?.getObjectByName(objectName)
             if (obj != null && obj != selectedObject ){
+                Walkthrough.WalkthroughProperty.INFO_OBJECT.set(objectName,String::class)
                 selectedObject = obj
                 attributeInfoSpinnerLayout = createLine(getString(R.string.literal_attribute), LineInputType.LOOKUP, null, obj.getAttributeNames("")) { attributeInfoSelected() }
                 getInfoContentWrap().addView(attributeInfoSpinnerLayout,1)
@@ -313,8 +318,10 @@ class WalkthroughActivity : AbstractManagementActivity() {
     private fun attributeInfoSelected(){
         if (attributeInfoSpinnerLayout != null){
             val spinner = searchForLayout(attributeInfoSpinnerLayout!!, Spinner::class)
-            val attr = selectedObject?.getAttributeByName(spinner?.selectedItem.toString())
+            val attributeName = spinner?.selectedItem.toString()
+            val attr = selectedObject?.getAttributeByName(attributeName)
             if (attr != null && attr != selectedAttribute){
+                Walkthrough.WalkthroughProperty.INFO_ATTRIBUTE.set(attributeName,String::class)
                 selectedAttribute = attr
                 selectedAttributeInfoLayout = createLine(getString(R.string.literal_value), LineInputType.MULTI_LINE_TEXT, attr.value)
                 getInfoContentWrap().addView(selectedAttributeInfoLayout,2)

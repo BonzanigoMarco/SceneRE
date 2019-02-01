@@ -174,6 +174,16 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return insert(PathTableEntry.TABLE_NAME, PathTableEntry.ID, path.id, values)
     }
 
+    fun writeWalkthrough(walkthrough: Walkthrough): Long {
+        val values = ContentValues()
+        values.put(WalkthroughTableEntry.ID, walkthrough.id)
+        values.put(WalkthroughTableEntry.SCENARIO_ID, walkthrough.scenarioId)
+        values.put(WalkthroughTableEntry.STAKEHOLDER_ID, walkthrough.stakeholderId)
+        values.put(WalkthroughTableEntry.OWNER, walkthrough.owner)
+        values.put(WalkthroughTableEntry.XML_DATA, walkthrough.getXml())
+        return insert(WalkthroughTableEntry.TABLE_NAME, WalkthroughTableEntry.ID, walkthrough.id, values)
+    }
+
 
     /** READ     **
      ** FROM     **
@@ -516,6 +526,39 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         }
         cursor.close()
         return elements
+    }
+
+    fun readWalkthrough(key: String, valueIfNull: Walkthrough): Walkthrough {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(WalkthroughTableEntry.TABLE_NAME, arrayOf(WalkthroughTableEntry.ID, WalkthroughTableEntry.ID, WalkthroughTableEntry.OWNER, WalkthroughTableEntry.SCENARIO_ID, WalkthroughTableEntry.STAKEHOLDER_ID, WalkthroughTableEntry.XML_DATA), WalkthroughTableEntry.ID + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getString(0)
+            val owner = cursor.getString(1)
+            val scenarioId = cursor.getString(2)
+            val stakeholderId = cursor.getString(3)
+            val xml = cursor.getString(4)
+            return Walkthrough.WalkthroughBuilder(id,owner, scenarioId, stakeholderId).withXml(xml).build()
+        }
+        cursor.close()
+        return valueIfNull
+    }
+
+    fun readWalkthroughs(key: String?): List<Walkthrough> {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(WalkthroughTableEntry.TABLE_NAME, arrayOf(WalkthroughTableEntry.ID, WalkthroughTableEntry.ID, WalkthroughTableEntry.OWNER, WalkthroughTableEntry.SCENARIO_ID, WalkthroughTableEntry.STAKEHOLDER_ID, WalkthroughTableEntry.XML_DATA),  WalkthroughTableEntry.SCENARIO_ID + LIKE + QUOTES + (key ?: ANY)  + QUOTES, null, null, null, null, null)
+        val walkthroughs = ArrayList<Walkthrough>()
+        if (cursor.moveToFirst()) {
+            do {
+            val id = cursor.getString(0)
+            val owner = cursor.getString(1)
+            val scenarioId = cursor.getString(2)
+            val stakeholderId = cursor.getString(3)
+            val xml = cursor.getString(4)
+            walkthroughs.add(Walkthrough.WalkthroughBuilder(id,owner, scenarioId, stakeholderId).withXml(xml).build())
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return walkthroughs
     }
 
     /** DELETE     **
