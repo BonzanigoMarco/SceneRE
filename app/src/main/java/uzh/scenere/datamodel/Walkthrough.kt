@@ -51,16 +51,16 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
 
     //Data can be collected globally due to a single entry point
     @Suppress("UNCHECKED_CAST")
-    enum class WalkthroughProperty(val type: KClass<out Serializable>, private val valueIfNull: Any, val multivalued: Boolean = false) {
-        WT_ID(String::class, ""),
-        WT_OWNER(String::class, ""),
-        SCENARIO_ID(String::class, ""),
-        STAKEHOLDER_ID(String::class, ""),
-        INTRO_TIME(Long::class, 0),
-        INFO_TIME(Long::class, 0),
-        INFO_OBJECT(String::class, 0, true),
-        INFO_ATTRIBUTE(String::class, 0, true),
-        STEP_ID_LIST(String::class, "", true);
+    enum class WalkthroughProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val multivalued: Boolean = false) {
+        WT_ID("Walkthrough-ID",String::class, ""),
+        WT_OWNER("Owner", String::class, ""),
+        SCENARIO_ID("Scenario-ID", String::class, ""),
+        STAKEHOLDER_ID("Stakeholder-ID",String::class, ""),
+        INTRO_TIME("Intro Time",Long::class, 0),
+        INFO_TIME("Info Time",Long::class, 0),
+        INFO_OBJECT("Info Object(s)",String::class, 0, true),
+        INFO_ATTRIBUTE("Info Attribute(s)",String::class, 0, true),
+        STEP_ID_LIST("Step ID(s)",String::class, "", true);
 
         fun getPropertiesMap(map: HashMap<WalkthroughProperty, Any>?): HashMap<WalkthroughProperty, Any> {
             return map ?: propertiesMap
@@ -132,12 +132,12 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
     }
 
     @Suppress("UNCHECKED_CAST")
-    enum class WalkthroughStepProperty(val type: KClass<out Serializable>, private val valueIfNull: Any, val multivalued: Boolean = false) {
-        STEP_ID(String::class, ""),
-        STEP_TIME(Long::class, 0),
-        STEP_NUMBER(Int::class, 0),
-        STEP_TITLE(String::class, ""),
-        STEP_TYPE(String::class, "");
+    enum class WalkthroughStepProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val multivalued: Boolean = false) {
+        STEP_ID("Step-ID",String::class, ""),
+        STEP_TIME("Step Time", Long::class, 0),
+        STEP_NUMBER("Step Number", Int::class, 0),
+        STEP_TITLE("Step Title", String::class, ""),
+        STEP_TYPE("Step Type", String::class, "");
 
         fun getStepPropertiesMap(map: HashMap<String, HashMap<WalkthroughStepProperty, Any>>?): HashMap<String, HashMap<WalkthroughStepProperty, Any>> {
             return map ?: stepPropertiesMap

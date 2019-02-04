@@ -16,9 +16,8 @@ import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
-import uzh.scenere.views.SwipeButton
-import uzh.scenere.views.SwipeButtonScrollView
-import uzh.scenere.views.WeightAnimator
+import uzh.scenere.views.*
+
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
@@ -133,7 +132,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.text = getString(R.string.label, labelText)
             label.textSize = textSize!!
             label.layoutParams = childParams
-            val input = EditText(this)
+            //TEST
+            val input = SreMultiAutoCompleteTextView(this, arrayListOf("Tirfing", "Mysteltainn", "Ogretooth", "Executioner"))
+            //END TEST
             input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
             input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
