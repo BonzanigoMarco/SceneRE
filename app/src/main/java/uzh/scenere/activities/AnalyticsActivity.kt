@@ -10,6 +10,7 @@ import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.helpers.DatabaseHelper
+import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.WalkthroughAnalyticLayout
@@ -41,7 +42,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
     }
 
     enum class AnalyticsMode {
-        SELECT_PROJECT, SELECT_SCENARIO, SELECT_WALKTHROUGH
+        SELECT_PROJECT, SELECT_SCENARIO, SELECT_WALKTHROUGH, SELECT_STEP
     }
 
     private var mode: AnalyticsMode = AnalyticsMode.SELECT_PROJECT
@@ -51,13 +52,15 @@ class AnalyticsActivity : AbstractManagementActivity() {
 
     private val loadedProjects = ArrayList<Project>()
     private val loadedScenarios = ArrayList<Scenario>()
+    private val activeScenarios = ArrayList<Scenario>()
     private val loadedWalkthroughs = ArrayList<Walkthrough>()
+    private val activeWalkthroughs = ArrayList<Walkthrough>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         loadData()
-        creationButton = SwipeButton(this, if (loadedProjects.isEmpty() || loadedProjects[0] is Project.NullProject) "No Walkthroughs found" else createButtonLabel(loadedProjects, "Projects"))
+        creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) "No Walkthroughs found" else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.projects)))
                 .setColors(Color.WHITE, Color.GRAY)
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
@@ -79,7 +82,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
         }
         for (entry in map.entries) {
             val scenario = DatabaseHelper.getInstance(applicationContext).readFull(entry.key, Scenario::class)
-            if (scenario != null && scenario !is Scenario.NullScenario) {
+            if (scenario != null) {
                 loadedScenarios.add(scenario)
             }
         }
@@ -89,7 +92,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
         }
         for (entry in map.entries) {
             val project = DatabaseHelper.getInstance(applicationContext).readFull(entry.key, Project::class)
-            if (project != null && project !is Project.NullProject) {
+            if (project != null) {
                 loadedProjects.add(project)
             }
         }
@@ -118,8 +121,8 @@ class AnalyticsActivity : AbstractManagementActivity() {
     private fun execNext() {
         when (mode) {
             AnalyticsMode.SELECT_PROJECT -> select(loadedProjects, true)
-            AnalyticsMode.SELECT_SCENARIO -> select(loadedScenarios, true)
-            AnalyticsMode.SELECT_WALKTHROUGH -> select(loadedWalkthroughs, true)
+            AnalyticsMode.SELECT_SCENARIO -> select(activeScenarios, true)
+            AnalyticsMode.SELECT_WALKTHROUGH -> select(activeWalkthroughs, true)
             else -> return
         }
     }
@@ -127,8 +130,8 @@ class AnalyticsActivity : AbstractManagementActivity() {
     private fun execPrev() {
         when (mode) {
             AnalyticsMode.SELECT_PROJECT -> select(loadedProjects, false)
-            AnalyticsMode.SELECT_SCENARIO -> select(loadedScenarios, false)
-            AnalyticsMode.SELECT_WALKTHROUGH -> select(loadedWalkthroughs, false)
+            AnalyticsMode.SELECT_SCENARIO -> select(activeScenarios, false)
+            AnalyticsMode.SELECT_WALKTHROUGH -> select(activeWalkthroughs, false)
             else -> return
         }
     }
@@ -140,16 +143,49 @@ class AnalyticsActivity : AbstractManagementActivity() {
                 mode = AnalyticsMode.SELECT_SCENARIO
                 projectPointer = pointer
                 pointer = null
-                creationButton?.setButtonStates(true, true, true, false)?.setText(createButtonLabel(loadedScenarios, "Scenarios"))?.updateViews(false)
+                activeScenarios.clear()
+                val activeProject = loadedProjects[projectPointer!!]
+                var label = getString(R.string.scenario_anonymous)
+                if (activeProject is Project.NullProject) {
+                    pointer = 0
+                    activeScenarios.add(NullHelper.get(Scenario::class))
+                } else {
+                    for (scenario in loadedScenarios) {
+                        if (scenario.projectId == activeProject.id) {
+                            activeScenarios.add(scenario)
+                        }
+                    }
+                    label = createButtonLabel(activeScenarios, getString(R.string.scenarios))
+                }
+                creationButton?.setButtonStates(true, true, true, pointer==0)?.setText(label)?.updateViews(false)
+
             }
-            AnalyticsMode.SELECT_SCENARIO ->  {
+            AnalyticsMode.SELECT_SCENARIO -> {
                 mode = AnalyticsMode.SELECT_WALKTHROUGH
                 scenarioPointer = pointer
                 pointer = null
-                creationButton?.setButtonStates(true, true, true, false)
-                        ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_search, null)
-                        ?.setText(createButtonLabel(loadedWalkthroughs, "Walkthroughs"))
-                        ?.updateViews(false)
+                activeWalkthroughs.clear()
+                val activeScenario = activeScenarios[scenarioPointer!!]
+                if (activeScenario is Scenario.NullScenario) {
+                    for (walkthrough in loadedWalkthroughs) {
+                        var found = false
+                        for (scenario in loadedScenarios) {
+                            if (walkthrough.scenarioId == scenario.id) {
+                                found = true
+                            }
+                        }
+                        if (!found){
+                            activeWalkthroughs.add(walkthrough)
+                        }
+                    }
+                } else {
+                    for (walkthrough in loadedWalkthroughs) {
+                        if (walkthrough.scenarioId == activeScenario.id) {
+                            activeWalkthroughs.add(walkthrough)
+                        }
+                    }
+                }
+                creationButton?.setButtonStates(true, true, true, false)?.setText(createButtonLabel(activeWalkthroughs, getString(R.string.walkthroughs)))?.updateViews(false)
             }
             AnalyticsMode.SELECT_WALKTHROUGH -> showStatistics()
             else -> return
@@ -170,7 +206,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                 scenarioPointer = null
                 creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
-                        ?.setText(createButtonLabel(loadedScenarios, getString(R.string.literal_scenarios)))
+                        ?.setText(createButtonLabel(activeScenarios, getString(R.string.literal_scenarios)))
                         ?.updateViews(false)
                 scroll_holder_linear_layout_holder.removeAllViews()
             }
@@ -179,6 +215,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
     }
 
     private fun showStatistics() {
+        //TODO
     }
 
     private fun <T : Serializable> createButtonLabel(selectedList: ArrayList<T>, label: String): String {
@@ -210,17 +247,21 @@ class AnalyticsActivity : AbstractManagementActivity() {
         }
 
         when (selectedList[pointer!!]) {
-            is Project -> creationButton?.setButtonStates(true, true, false, true)?.setText((selectedList[pointer!!] as Project).title)?.updateViews(false)
-            is Scenario -> creationButton?.setButtonStates(true, true, true, true)?.setText((selectedList[pointer!!] as Scenario).title)?.updateViews(false)
+            is Project -> {
+                val text = StringHelper.nvl((selectedList[pointer!!] as Project).title,getString(R.string.project_anonymous))
+                creationButton?.setButtonStates(true, true, false, true)?.setText(text)?.updateViews(false)
+            }
+            is Scenario -> {
+                val text = StringHelper.nvl((selectedList[pointer!!] as Scenario).title,getString(R.string.scenario_anonymous))
+                creationButton?.setButtonStates(true, true, true, true)?.setText(text)?.updateViews(false)
+            }
             is Walkthrough -> {
-                creationButton?.setButtonStates(true, true, true, true)?.setText((selectedList[pointer!!] as Walkthrough).owner)?.updateViews(false)
+                creationButton?.setButtonStates(true, true, true, true)?.setText("Walkthrough number "+(pointer!!+1))?.updateViews(false)
                 Handler().postDelayed({
                     scroll_holder_linear_layout_holder.removeAllViews()
-                    scroll_holder_linear_layout_holder.addView(WalkthroughAnalyticLayout(this, selectedList[pointer!!] as Walkthrough))
-                },500)
+                    scroll_holder_linear_layout_holder.addView(WalkthroughAnalyticLayout(this, selectedList[pointer!!] as Walkthrough, true))
+                }, 500)
             }
         }
     }
-
-
 }

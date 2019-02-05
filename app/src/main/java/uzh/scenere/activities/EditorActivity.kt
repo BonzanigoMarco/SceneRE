@@ -317,4 +317,8 @@ class EditorActivity : AbstractManagementActivity() {
             contentDefaultMaxLines = 4
         }
     }
+
+    override fun resetToolbar() {
+        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, null, null, null)
+    }
 }

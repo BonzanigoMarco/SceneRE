@@ -129,5 +129,10 @@
 
     <string name="walkthrough_selected_scenario">Selected Scenario:</string>
     <string name="walkthrough_selected_project">Selected Project:</string>
+    <string name="scenario_anonymous">Anonymous Scenario</string>
+    <string name="project_anonymous">Anonymous Project</string>
+    <string name="walkthroughs">Walkthroughs</string>
+    <string name="scenarios">Scenarios</string>
+    <string name="projects">Projects</string>
 
 </resources>

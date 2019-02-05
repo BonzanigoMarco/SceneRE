@@ -17,7 +17,7 @@ import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.className
 
-class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough) : LinearLayout(context) {
+class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, val topLayer: Boolean) : LinearLayout(context) {
 
     private val textSize = 4f
     private val margin = 5f
@@ -34,16 +34,34 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough) 
         val stakeholder = DatabaseHelper.getInstance(context).read(walkthrough.stakeholderId, Stakeholder::class, NullHelper.get(Stakeholder::class))
         val scenario = DatabaseHelper.getInstance(context).read(walkthrough.scenarioId, Scenario::class, NullHelper.get(Scenario::class))
         val project = DatabaseHelper.getInstance(context).read(scenario.projectId, Project::class, NullHelper.get(Project::class))
-        addView(createLine(stakeholder.className(),false,stakeholder.name))
-        addView(createLine(scenario.className(),false,scenario.title))
-        addView(createLine(project.className(),false,project.title))
+        if (stakeholder is Stakeholder.NullStakeholder){
+            addView(createLine(stakeholder.className(),false,"Unknown"))
+            addView(createLine(scenario.className(),false,"Unknown"))
+            addView(createLine(project.className(),false,"Unknown"))
+        }else{
+            addView(createLine(stakeholder.className(),false,stakeholder.name))
+            addView(createLine(scenario.className(),false,scenario.title))
+            addView(createLine(project.className(),false,project.title))
+        }
         walkthrough.load()
-        for (property in Walkthrough.WalkthroughProperty.values()) {
-            if (property.isStatisticalValue){
-                addView(createLine(property.label,false,property.getDisplayText()))
+        if (topLayer){
+            for (property in Walkthrough.WalkthroughProperty.values()) {
+                if (property.isStatisticalValue){
+                    addView(createLine(property.label,false,property.getDisplayText()))
+                }
+            }
+        }else{
+            for (stepId in Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(Walkthrough.WalkthroughProperty.STEP_ID_LIST.type)){
+                for (property in (Walkthrough.WalkthroughStepProperty.values())) {
+                    if (property.isStatisticalValue){
+                        addView(createLine(property.label,false,property.getDisplayText(stepId as String)))
+                    }
+                }
             }
         }
         //TODO, Step Details
+        //TODO Delete
+        //TODO headless walkthroughs with diff color
     }
 
     private fun createLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {

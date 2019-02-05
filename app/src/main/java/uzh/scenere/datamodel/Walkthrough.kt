@@ -62,6 +62,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         SCENARIO_ID("Scenario-ID", String::class, "", false),
         STAKEHOLDER_ID("Stakeholder-ID", String::class, "", false),
         INTRO_TIME("Intro Time", Long::class, 0L, true),
+        COMPLETION_TIME("Completion Time", Long::class, 0L, true),
         TIMESTAMP("Timestamp", Long::class, 0L, true),
         INFO_TIME("Info Time", Long::class, 0L, true),
         INFO_OBJECT("Info Object(s)", String::class, "", true, true),
@@ -72,9 +73,9 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         fun getDisplayText(): String {
             val value = get(type)
             when (this) {
-                INFO_TIME, INTRO_TIME -> {
+                INFO_TIME, INTRO_TIME, COMPLETION_TIME -> {
                     if (value != valueIfNull) {
-                        return ((value as Long) / 1000).toString() + " Seconds"
+                        return ((value as Long) / 1000).toString() + " Second(s)"
                     }
                 }
                 TIMESTAMP -> {
@@ -167,12 +168,26 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
     }
 
     @Suppress("UNCHECKED_CAST")
-    enum class WalkthroughStepProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val multivalued: Boolean = false) {
-        STEP_ID("Step-ID", String::class, ""),
-        STEP_TIME("Step Time", Long::class, 0L),
-        STEP_NUMBER("Step Number", Int::class, 0),
-        STEP_TITLE("Step Title", String::class, ""),
-        STEP_TYPE("Step Type", String::class, "");
+    enum class WalkthroughStepProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val isStatisticalValue: Boolean, val multivalued: Boolean = false) {
+        STEP_ID("Step-ID", String::class, "" ,false),
+        STEP_TIME("Step Time", Long::class, 0L,true),
+        STEP_NUMBER("Step Number", Int::class, 0,true),
+        STEP_TITLE("Step Title", String::class, "",true),
+        STEP_TYPE("Step Type", String::class, "",true);
+
+        @SuppressLint("SimpleDateFormat")
+        fun getDisplayText(stepId: String): String {
+            val value = get(stepId,type)
+            when (this) {
+                STEP_TIME -> {
+                    if (value != valueIfNull) {
+                        return ((value as Long) / 1000).toString() + " Second(s)"
+                    }
+                }
+                else -> return value.toString()
+            }
+            return NO_DATA
+        }
 
         fun getStepPropertiesMap(map: HashMap<String, HashMap<WalkthroughStepProperty, Any>>?): HashMap<String, HashMap<WalkthroughStepProperty, Any>> {
             return map ?: stepPropertiesMap
@@ -304,8 +319,17 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         }
     }
 
+    private fun calculateCompletionTime(){
+        var total = INTRO_TIME.get(Long::class)
+        for (stepId in STEP_ID_LIST.getAll(String::class)) {
+            total += STEP_TIME.get(stepId, Long::class)
+        }
+        COMPLETION_TIME.set(total)
+    }
+
     @Suppress("UNCHECKED_CAST")
     fun toXml(context: Context) {
+        calculateCompletionTime()
         var xml = context.resources.getString(R.string.xml_declaration).plus(NEW_LINE_C)
         for (property in WalkthroughProperty.values()) {
             if (property.multivalued) {
@@ -376,6 +400,9 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             } else if (line.startsWith("</ ")) { //Step End
                 stepId = ""
             }
+        }
+        if (COMPLETION_TIME.get(Long::class)==0L){
+            calculateCompletionTime()
         }
         copy()
         clearWalkthrough()

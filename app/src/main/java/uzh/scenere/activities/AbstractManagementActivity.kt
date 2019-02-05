@@ -98,7 +98,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             execMorphInfoBar(InfoState.MINIMIZED)
             getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
             getInfoContent().text = ""
-            customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
+            resetToolbar()
             resetEditMode()
             activeButton?.collapse()
             activeButton = null
@@ -334,6 +334,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
     open fun getInfoContent(): TextView{
         return scroll_holder_text_info_content
+    }
+    open fun resetToolbar() {
+        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
     }
 
     //*************

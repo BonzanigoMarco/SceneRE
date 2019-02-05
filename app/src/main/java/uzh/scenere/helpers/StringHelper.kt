@@ -33,7 +33,7 @@ class StringHelper{
             return conc.substring(0,conc.length-delimiter.length)
         }
         fun nvl(value: String?, valueIfNull: String): String {
-            return value ?: valueIfNull; // Elvis Expression of Java number==null?valueIfNull:number
+            return if (hasText(value)) value!! else  valueIfNull
         }
 
         fun lookupOrEmpty(id: Int?, applicationContext: Context?): CharSequence? {

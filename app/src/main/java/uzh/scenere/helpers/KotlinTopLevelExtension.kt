@@ -20,5 +20,9 @@ public fun TextView.getStringValue(): String = text.toString()
 public fun Random.nextSafeInt(range: Int): Int = if (range<=0) 0 else nextInt(range)
 public fun Any.className(): String {
     val splits = this::class.toString().replace(REFLECTION,NOTHING).split(".")
-    return splits[splits.size-1]
+    val s = splits[splits.size - 1]
+    if (s.startsWith("Null") && !this::class.supertypes.isEmpty()){
+        return this::class.supertypes[0].className()
+    }
+    return s
 }
