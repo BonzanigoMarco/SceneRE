@@ -20,7 +20,9 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
+import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.NumberHelper
+import java.util.logging.Handler
 
 
 class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : LinearLayout(context, attributeSet, defStyleAttr, defStyleRes) {
@@ -82,6 +84,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     private var inactiveColor: Int = Color.GRAY
     private var individualColor: Boolean = false
     var interacted: Boolean = false
+    private var autoCollapse: Boolean = false
     //Measurement
     private var dpiText = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics)
     private var dpiPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
@@ -434,6 +437,11 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         return this
     }
 
+    fun setAutoCollapse(isAutoCollapse: Boolean): SwipeButton{
+        autoCollapse = isAutoCollapse
+        return this
+    }
+
     fun setText(text: String): SwipeButton{
         labelText?.text = text
         return this
@@ -606,6 +614,9 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     }
 
     private fun execute() {
+        if (autoCollapse && !CollectionsHelper.oneOf(state,SwipeButtonState.MIDDLE,SwipeButtonState.LONG_CLICK)){
+            android.os.Handler().postDelayed({ collapse() }, 250)
+        }
         when (state) {
             SwipeButtonState.LEFT -> exec.execLeft()
             SwipeButtonState.RIGHT -> exec.execRight()//Toast.makeText(context,"",Toast.LENGTH_SHORT).show()

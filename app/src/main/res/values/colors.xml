@@ -94,4 +94,21 @@
 
     <color name="list_red_d">#5C0000</color>
     <color name="list_red_b">#700000</color>
+
+    <color name="material_100_red">#F8BBD0</color>
+    <color name="material_100_violet">#E1BEE7</color>
+    <color name="material_100_blue">#C5CAE9</color>
+    <color name="material_100_turquoise">#BBDEFB</color>
+    <color name="material_100_green">#C8E6C9</color>
+    <color name="material_100_lime">#F0F4C3</color>
+    <color name="material_100_yellow">#FFF9C4</color>
+    <color name="material_100_orange">#FFCCBC</color>
+
+
+    <color name="material_a700_red">#D50000</color>
+    <color name="material_a700_violet">#AA00FF</color>
+    <color name="material_a700_yellow">#FFD600</color>
+    <color name="material_a700_green">#00C853</color>
+
+
 </resources>

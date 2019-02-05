@@ -88,9 +88,9 @@ class WalkthroughActivity : AbstractManagementActivity() {
     }
 
     private var mode: WalkthroughMode = WalkthroughMode.SELECT_PROJECT
-    private val loadedProjects: ArrayList<Project> = ArrayList<Project>()
-    private val loadedScenarios: ArrayList<Scenario> = ArrayList<Scenario>()
-    private val loadedStakeholders: ArrayList<Stakeholder> = ArrayList<Stakeholder>()
+    private val loadedProjects = ArrayList<Project>()
+    private val loadedScenarios = ArrayList<Scenario>()
+    private val loadedStakeholders = ArrayList<Stakeholder>()
     private var pointer: Int? = null
     private var projectPointer: Int? = null
     private var scenarioPointer: Int? = null
@@ -116,6 +116,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                 .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)
                 .adaptMasterLayoutParams(true)
+                .setAutoCollapse(true)
                 .updateViews(true)
         creationButton?.setExecutable(createControlExecutable())
         walkthrough_layout_selection_content.addView(creationButton)
@@ -133,22 +134,18 @@ class WalkthroughActivity : AbstractManagementActivity() {
         return object : SwipeButton.SwipeButtonExecution {
             override fun execLeft() {
                 execPrev()
-                Handler().postDelayed({ creationButton?.collapse() }, 250)
             }
 
             override fun execRight() {
                 execNext()
-                Handler().postDelayed({ creationButton?.collapse() }, 250)
             }
 
             override fun execDown() {
                 execSelect()
-                Handler().postDelayed({ creationButton?.collapse() }, 250)
             }
 
             override fun execUp() {
                 execBack()
-                Handler().postDelayed({ creationButton?.collapse() }, 250)
             }
         }
     }

@@ -530,14 +530,14 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
 
     fun readWalkthrough(key: String, valueIfNull: Walkthrough): Walkthrough {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(WalkthroughTableEntry.TABLE_NAME, arrayOf(WalkthroughTableEntry.ID, WalkthroughTableEntry.ID, WalkthroughTableEntry.OWNER, WalkthroughTableEntry.SCENARIO_ID, WalkthroughTableEntry.STAKEHOLDER_ID, WalkthroughTableEntry.XML_DATA), WalkthroughTableEntry.ID + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(WalkthroughTableEntry.TABLE_NAME, arrayOf(WalkthroughTableEntry.ID, WalkthroughTableEntry.SCENARIO_ID, WalkthroughTableEntry.OWNER, WalkthroughTableEntry.STAKEHOLDER_ID, WalkthroughTableEntry.XML_DATA), WalkthroughTableEntry.ID + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         if (cursor.moveToFirst()) {
             val id = cursor.getString(0)
             val owner = cursor.getString(1)
             val scenarioId = cursor.getString(2)
             val stakeholderId = cursor.getString(3)
             val xml = cursor.getString(4)
-            return Walkthrough.WalkthroughBuilder(id,owner, scenarioId, stakeholderId).withXml(xml).build()
+            return Walkthrough.WalkthroughBuilder(id, scenarioId, owner, stakeholderId).withXml(xml).build()
         }
         cursor.close()
         return valueIfNull
@@ -545,7 +545,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
 
     fun readWalkthroughs(key: String?): List<Walkthrough> {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(WalkthroughTableEntry.TABLE_NAME, arrayOf(WalkthroughTableEntry.ID, WalkthroughTableEntry.ID, WalkthroughTableEntry.OWNER, WalkthroughTableEntry.SCENARIO_ID, WalkthroughTableEntry.STAKEHOLDER_ID, WalkthroughTableEntry.XML_DATA),  WalkthroughTableEntry.SCENARIO_ID + LIKE + QUOTES + (key ?: ANY)  + QUOTES, null, null, null, null, null)
+        val cursor = db.query(WalkthroughTableEntry.TABLE_NAME, arrayOf(WalkthroughTableEntry.ID, WalkthroughTableEntry.SCENARIO_ID, WalkthroughTableEntry.OWNER, WalkthroughTableEntry.STAKEHOLDER_ID, WalkthroughTableEntry.XML_DATA),  WalkthroughTableEntry.SCENARIO_ID + LIKE + QUOTES + (key ?: ANY)  + QUOTES, null, null, null, null, null)
         val walkthroughs = ArrayList<Walkthrough>()
         if (cursor.moveToFirst()) {
             do {
@@ -554,7 +554,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val scenarioId = cursor.getString(2)
             val stakeholderId = cursor.getString(3)
             val xml = cursor.getString(4)
-            walkthroughs.add(Walkthrough.WalkthroughBuilder(id,owner, scenarioId, stakeholderId).withXml(xml).build())
+            walkthroughs.add(Walkthrough.WalkthroughBuilder(id, scenarioId,owner, stakeholderId).withXml(xml).build())
             } while (cursor.moveToNext())
         }
         cursor.close()

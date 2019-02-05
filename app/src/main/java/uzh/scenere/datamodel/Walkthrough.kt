@@ -1,8 +1,10 @@
 package uzh.scenere.datamodel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import uzh.scenere.R
-import uzh.scenere.const.Constants.Companion.NEW_LINE
+import uzh.scenere.const.Constants.Companion.NEW_LINE_C
+import uzh.scenere.const.Constants.Companion.NO_DATA
 import uzh.scenere.datamodel.Walkthrough.WalkthroughProperty.*
 import uzh.scenere.datamodel.Walkthrough.WalkthroughStepProperty.*
 import uzh.scenere.datamodel.steps.AbstractStep
@@ -11,18 +13,21 @@ import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.helpers.className
 import java.io.Serializable
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 
-open class Walkthrough private constructor(val id: String, val owner: String, val scenarioId: String, val stakeholderId: String): Serializable {
+
+open class Walkthrough private constructor(val id: String, val owner: String, val scenarioId: String, val stakeholderId: String) : Serializable {
     private val localPropertiesMap = HashMap<WalkthroughProperty, Any>()
     private val localStepPropertiesMap = HashMap<String, HashMap<WalkthroughStepProperty, Any>>()
     private var xmlRepresentation: String? = null
 
     init {
         clearWalkthrough()
+        TIMESTAMP.set(System.currentTimeMillis(), Long::class)
         WT_ID.set(id, String::class)
         WT_OWNER.set(owner, String::class)
         SCENARIO_ID.set(scenarioId, String::class)
@@ -51,16 +56,46 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
 
     //Data can be collected globally due to a single entry point
     @Suppress("UNCHECKED_CAST")
-    enum class WalkthroughProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val multivalued: Boolean = false) {
-        WT_ID("Walkthrough-ID",String::class, ""),
-        WT_OWNER("Owner", String::class, ""),
-        SCENARIO_ID("Scenario-ID", String::class, ""),
-        STAKEHOLDER_ID("Stakeholder-ID",String::class, ""),
-        INTRO_TIME("Intro Time",Long::class, 0),
-        INFO_TIME("Info Time",Long::class, 0),
-        INFO_OBJECT("Info Object(s)",String::class, 0, true),
-        INFO_ATTRIBUTE("Info Attribute(s)",String::class, 0, true),
-        STEP_ID_LIST("Step ID(s)",String::class, "", true);
+    enum class WalkthroughProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val isStatisticalValue: Boolean, val multivalued: Boolean = false) {
+        WT_ID("Walkthrough-ID", String::class, "", false),
+        WT_OWNER("User", String::class, "", true),
+        SCENARIO_ID("Scenario-ID", String::class, "", false),
+        STAKEHOLDER_ID("Stakeholder-ID", String::class, "", false),
+        INTRO_TIME("Intro Time", Long::class, 0L, true),
+        TIMESTAMP("Timestamp", Long::class, 0L, true),
+        INFO_TIME("Info Time", Long::class, 0L, true),
+        INFO_OBJECT("Info Object(s)", String::class, "", true, true),
+        INFO_ATTRIBUTE("Info Attribute(s)", String::class, "", true, true),
+        STEP_ID_LIST("Step ID(s)", String::class, "", false, true);
+
+        @SuppressLint("SimpleDateFormat")
+        fun getDisplayText(): String {
+            val value = get(type)
+            when (this) {
+                INFO_TIME, INTRO_TIME -> {
+                    if (value != valueIfNull) {
+                        return ((value as Long) / 1000).toString() + " Seconds"
+                    }
+                }
+                TIMESTAMP -> {
+                    if (value != valueIfNull) {
+                        val currentDate = Date(value as Long)
+                        val date = SimpleDateFormat("dd.MM.yyyy")
+                        val time = SimpleDateFormat("HH:mm:ss")
+                        val d = date.format(currentDate)
+                        val t = time.format(currentDate)
+                        return "Date: $d\nTime: $t"
+                    }
+                }
+                INFO_OBJECT, INFO_ATTRIBUTE -> {
+                    if (value != valueIfNull) {
+                        return StringHelper.concatTokens(", ", getAll(type))
+                    }
+                }
+                else -> return value.toString()
+            }
+            return NO_DATA
+        }
 
         fun getPropertiesMap(map: HashMap<WalkthroughProperty, Any>?): HashMap<WalkthroughProperty, Any> {
             return map ?: propertiesMap
@@ -133,8 +168,8 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
 
     @Suppress("UNCHECKED_CAST")
     enum class WalkthroughStepProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val multivalued: Boolean = false) {
-        STEP_ID("Step-ID",String::class, ""),
-        STEP_TIME("Step Time", Long::class, 0),
+        STEP_ID("Step-ID", String::class, ""),
+        STEP_TIME("Step Time", Long::class, 0L),
         STEP_NUMBER("Step Number", Int::class, 0),
         STEP_TITLE("Step Title", String::class, ""),
         STEP_TYPE("Step Type", String::class, "");
@@ -271,38 +306,38 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
 
     @Suppress("UNCHECKED_CAST")
     fun toXml(context: Context) {
-        var xml = context.resources.getString(R.string.xml_declaration).plus(NEW_LINE)
+        var xml = context.resources.getString(R.string.xml_declaration).plus(NEW_LINE_C)
         for (property in WalkthroughProperty.values()) {
             if (property.multivalued) {
                 var counter = 0
                 for (entry in property.getAllCount(property.type)) {
-                    xml += context.resources.getString(R.string.xml_enclosing, property.toString().plus(counter), entry.key.className(), entry.key).plus(NEW_LINE)
+                    xml += context.resources.getString(R.string.xml_enclosing, property.toString().plus(counter), entry.key.className(), entry.key).plus(NEW_LINE_C)
                     counter++
                 }
             } else {
-                xml += context.resources.getString(R.string.xml_enclosing, property.toString(), property.get(property.type).className(), property.get(property.type)).plus(NEW_LINE)
+                xml += context.resources.getString(R.string.xml_enclosing, property.toString(), property.get(property.type).className(), property.get(property.type)).plus(NEW_LINE_C)
             }
         }
         for (stepId in STEP_ID_LIST.getAll(STEP_ID_LIST.type) as List<String>) {
-            xml += context.resources.getString(R.string.xml_begin_tag_id, STEP_TYPE.get(stepId, String::class), stepId).plus(NEW_LINE)
+            xml += context.resources.getString(R.string.xml_begin_tag_id, STEP_TYPE.get(stepId, String::class), stepId).plus(NEW_LINE_C)
             for (property in WalkthroughStepProperty.values()) {
                 if (property.multivalued) {
                     var counter = 0
                     for (entry in property.getAllCount(stepId, property.type)) {
-                        xml += context.resources.getString(R.string.xml_enclosing, property.toString().plus(counter), entry.className(), entry).plus(NEW_LINE)
+                        xml += context.resources.getString(R.string.xml_enclosing, property.toString().plus(counter), entry.className(), entry).plus(NEW_LINE_C)
                         counter++
                     }
                 } else {
-                    xml += context.resources.getString(R.string.xml_enclosing, property.toString(), property.get(stepId, property.type).className(), property.get(stepId, property.type)).plus(NEW_LINE)
+                    xml += context.resources.getString(R.string.xml_enclosing, property.toString(), property.get(stepId, property.type).className(), property.get(stepId, property.type)).plus(NEW_LINE_C)
                 }
             }
-            xml += context.resources.getString(R.string.xml_end_tag, STEP_TYPE.get(stepId, String::class)).plus(NEW_LINE)
+            xml += context.resources.getString(R.string.xml_end_tag, STEP_TYPE.get(stepId, String::class)).plus(NEW_LINE_C)
         }
         xmlRepresentation = xml
     }
 
     fun fromXml() {
-        val lines = xmlRepresentation?.split(NEW_LINE)
+        val lines = xmlRepresentation?.split(NEW_LINE_C)
         if (xmlRepresentation == null || lines == null) {
             return
         }
@@ -312,7 +347,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             if (line.startsWith("<?")) {
                 continue;
             } else if (line.contains(" type=")) {
-                val enumString = line.substring(1, line.indexOf(" type="))
+                val enumString = line.substring(1, line.indexOf(" type=")).replace("[0-9]+".toRegex(),"")
                 if (StringHelper.hasText(stepId)) {
                     var enum: WalkthroughStepProperty? = null
                     try {

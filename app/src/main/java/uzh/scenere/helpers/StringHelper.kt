@@ -4,12 +4,35 @@ import android.content.Context
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.*
-import android.text.Annotation
 import android.text.style.MetricAffectingSpan
+import java.io.Serializable
 
 class StringHelper{
     companion object { //Static Reference
-        fun <T : String> nvl(value: T?, valueIfNull: T): T {
+        fun concatTokens(delimiter: String, obj: List<Serializable>): String{
+            var conc = ""
+            for (o in obj){
+                conc += if (o is String){
+                    o+delimiter
+                }else{
+                    o.toString()+delimiter
+                }
+            }
+            return conc.substring(0,conc.length-delimiter.length)
+        }
+
+        fun concatTokens(delimiter: String, vararg obj: Serializable): String{
+            var conc = ""
+            for (o in obj){
+                conc += if (o is String){
+                    o+delimiter
+                }else{
+                    o.toString()+delimiter
+                }
+            }
+            return conc.substring(0,conc.length-delimiter.length)
+        }
+        fun nvl(value: String?, valueIfNull: String): String {
             return value ?: valueIfNull; // Elvis Expression of Java number==null?valueIfNull:number
         }
 
@@ -76,6 +99,7 @@ class StringHelper{
 
                 paint.typeface = typeface
             }
+
         }
     }
 

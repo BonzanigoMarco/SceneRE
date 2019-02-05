@@ -1,17 +1,9 @@
 package uzh.scenere.helpers
 
 import android.content.Context
-import uzh.scenere.R
-import uzh.scenere.const.Constants.Companion.EMPTY_LIST
-import uzh.scenere.const.Constants.Companion.INT
-import uzh.scenere.const.Constants.Companion.NEW_LINE
-import uzh.scenere.const.Constants.Companion.STRING
-import uzh.scenere.datamodel.Path
-import uzh.scenere.datamodel.Stakeholder
-import java.io.Serializable
 
 class XmlHelper(private var context: Context) {/**
-    private var xml = context.resources.getString(R.string.xml_declaration).plus(NEW_LINE)
+    private var xml = context.resources.getString(R.string.xml_declaration).plus(NEW_LINE_C)
     private val nodes = ArrayList<String>()
 
     private fun <T : Serializable> withAttribute(value: T, key: String): XmlHelper {
@@ -45,26 +37,26 @@ class XmlHelper(private var context: Context) {/**
      *
      */
     fun <T : Serializable> createComplex(value: T, key: String): String {
-        var node = context.getString(R.string.xml_begin_tag, key, value.className()).plus(NEW_LINE)
+        var node = context.getString(R.string.xml_begin_tag, key, value.className()).plus(NEW_LINE_C)
         when (value) {
             is Path -> {
-                node += context.getString(R.string.xml_enclosing, Path.id_, STRING, value.id).plus(NEW_LINE)
-                node += context.getString(R.string.xml_enclosing, Path.scenarioId_, STRING, value.scenarioId).plus(NEW_LINE)
-                node += context.getString(R.string.xml_enclosing, Path.layer_, INT, value.layer.toString()).plus(NEW_LINE)
+                node += context.getString(R.string.xml_enclosing, Path.id_, STRING, value.id).plus(NEW_LINE_C)
+                node += context.getString(R.string.xml_enclosing, Path.scenarioId_, STRING, value.scenarioId).plus(NEW_LINE_C)
+                node += context.getString(R.string.xml_enclosing, Path.layer_, INT, value.layer.toString()).plus(NEW_LINE_C)
                 node += createComplex(value.stakeholder,Stakeholder.name_)
             }
             is Stakeholder -> {
-                node += context.getString(R.string.xml_enclosing, Stakeholder.id_, STRING, value.id).plus(NEW_LINE)
-                node += context.getString(R.string.xml_enclosing, Stakeholder.projectId_, STRING, value.projectId).plus(NEW_LINE)
-                node += context.getString(R.string.xml_enclosing, Stakeholder.name_, STRING, value.name).plus(NEW_LINE)
-                node += context.getString(R.string.xml_enclosing, Stakeholder.description_, STRING, value.description).plus(NEW_LINE)
+                node += context.getString(R.string.xml_enclosing, Stakeholder.id_, STRING, value.id).plus(NEW_LINE_C)
+                node += context.getString(R.string.xml_enclosing, Stakeholder.projectId_, STRING, value.projectId).plus(NEW_LINE_C)
+                node += context.getString(R.string.xml_enclosing, Stakeholder.name_, STRING, value.name).plus(NEW_LINE_C)
+                node += context.getString(R.string.xml_enclosing, Stakeholder.description_, STRING, value.description).plus(NEW_LINE_C)
             }
             is HashMap<*,*> -> {
                 for (entry in value.entries){
                     node += if (entry.value is HashMap<*,*>){
                         createComplex(entry.value as HashMap<*,*>, entry.key.toString())
                     }else{
-                        context.getString(R.string.xml_enclosing, entry.key, entry.value.className(), entry.value).plus(NEW_LINE)
+                        context.getString(R.string.xml_enclosing, entry.key, entry.value.className(), entry.value).plus(NEW_LINE_C)
                     }
                 }
             }
@@ -72,21 +64,21 @@ class XmlHelper(private var context: Context) {/**
 
             }
         }
-        node += context.getString(R.string.xml_end_tag, key).plus(NEW_LINE)
+        node += context.getString(R.string.xml_end_tag, key).plus(NEW_LINE_C)
         return node
     }
 
     fun <T : Serializable> withList(values: List<T>, key: String): XmlHelper {
         val listClazz = if (values.isEmpty()) EMPTY_LIST else values[0].className()
-        var node = context.getString(R.string.xml_begin_tag, key, listClazz).plus(NEW_LINE)
+        var node = context.getString(R.string.xml_begin_tag, key, listClazz).plus(NEW_LINE_C)
         for (value in values) {
             node += when (value) {
                 is Path -> createComplex(value, Path.name__)
                 is Stakeholder -> createComplex(value, Stakeholder.name__)
-                else -> context.getString(R.string.xml_enclosing, key, value.className(), value.toString()).plus(NEW_LINE)
+                else -> context.getString(R.string.xml_enclosing, key, value.className(), value.toString()).plus(NEW_LINE_C)
             }
         }
-        node += context.getString(R.string.xml_end_tag, key.plus(NEW_LINE))
+        node += context.getString(R.string.xml_end_tag, key.plus(NEW_LINE_C))
         nodes.add(node)
         return this
     }
@@ -105,9 +97,9 @@ class XmlHelper(private var context: Context) {/**
 
     fun build(): String {
         for (node in nodes) {
-            xml += node.plus(NEW_LINE)
+            xml += node.plus(NEW_LINE_C)
         }
-        return xml.substring(0, xml.length - (NEW_LINE.length + 1))
+        return xml.substring(0, xml.length - (NEW_LINE_C.length + 1))
     }
 
     public abstract class AbstractXmlDataSheet {

@@ -132,9 +132,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.text = getString(R.string.label, labelText)
             label.textSize = textSize!!
             label.layoutParams = childParams
-            //TEST
-            val input = SreMultiAutoCompleteTextView(this, arrayListOf("Tirfing", "Mysteltainn", "Ogretooth", "Executioner"))
-            //END TEST
+            val input = EditText(this)
             input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
             input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
@@ -309,19 +307,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             getInfoTitle().text = textPrior
             getInfoTitle().setTextColor(textColorPrior)
         }, 1000)
-    }
-
-    private fun removeExcept(holder: ViewGroup, exception: View) {
-        if (holder.childCount == 0)
-            return
-        if (holder.childCount == 1 && holder.getChildAt(0) == exception)
-            return
-        if (holder.getChildAt(0) != exception) {
-            holder.removeViewAt(0)
-        } else {
-            holder.removeViewAt(holder.childCount - 1)
-        }
-        removeExcept(holder, exception)
     }
 
     abstract fun isInEditMode(): Boolean

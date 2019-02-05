@@ -6,7 +6,6 @@ class Constants {
     companion object {
         //Kotlin
         const val REFLECTION: String = " (Kotlin reflection is not available)"
-        const val NOTHING: String = ""
         //Storage
         const val SHARED_PREFERENCES: String = "scenereSharedPreferences"
         const val USER_NAME: String = "scenereUserName"
@@ -34,8 +33,13 @@ class Constants {
         const val ELEMENT_UID_IDENTIFIER: String = "element_"
         const val WALKTHROUGH_UID_IDENTIFIER: String = "walkthrough_"
         //GENERAL
+        const val NEW_LINE_C: Char = '\n'
+        const val SPACE_C: Char = ' '
         const val NEW_LINE: String = "\n"
-        const val DOLLAR_STRING: String = "$"
+        const val SPACE: String = " "
+        const val DOLLAR_STRING: Char = '$'
+        const val NOTHING: String = ""
+        const val NO_DATA: String = "No Data"
         //XML
         const val EMPTY_LIST: String = "EmptyList"
         const val NULL: String = "NULL"
@@ -51,5 +55,17 @@ class Constants {
         const val TYPE_OBJECT: String = "Object"
         const val TYPE_STANDARD_STEP: String = "StandardStep"
         const val TYPE_BUTTON_TRIGGER: String = "ButtonTrigger"
+        //COLORS
+        const val CRIMSON: String = "#DC143C"
+        const val DARK_RED: String = "#8B0000"
+        const val GOLD: String = "#FED73B"
+        const val MATERIAL_100_RED: String = "#F8BBD0"
+        const val MATERIAL_100_VIOLET: String = "#E1BEE7"
+        const val MATERIAL_100_BLUE: String = "#C5CAE9"
+        const val MATERIAL_100_TURQUOISE: String = "#BBDEFB"
+        const val MATERIAL_100_GREEN: String = "#C8E6C9"
+        const val MATERIAL_100_LIME: String = "#F0F4C3"
+        const val MATERIAL_100_YELLOW: String = "#FFF9C4"
+        const val MATERIAL_100_ORANGE: String = "#FFCCBC"
     }
 }

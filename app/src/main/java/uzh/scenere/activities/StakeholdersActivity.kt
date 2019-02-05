@@ -131,19 +131,6 @@ class StakeholdersActivity : AbstractManagementActivity() {
         execMorphInfoBar(InfoState.MAXIMIZED)
     }
 
-    private fun removeExcept(holder: ViewGroup, exception: View) {
-        if (holder.childCount == 0)
-            return
-        if (holder.childCount == 1 && holder.getChildAt(0) == exception)
-            return
-        if (holder.getChildAt(0) != exception) {
-            holder.removeViewAt(0)
-        }else{
-            holder.removeViewAt(holder.childCount-1)
-        }
-        removeExcept(holder,exception)
-    }
-
     private fun removeStakeholder(stakeholder: Stakeholder) {
         for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount){
             if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&

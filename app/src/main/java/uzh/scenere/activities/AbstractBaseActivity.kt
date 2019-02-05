@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
+import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
 import kotlin.reflect.KClass
@@ -37,8 +38,8 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     }
 
     private fun readVariables() {
-        marginSmall = NumberHelper.nvl(applicationContext.resources.getDimension(R.dimen.dimMarginSmall), 0).toInt()
-        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, applicationContext.resources.displayMetrics)
+        marginSmall = DipHelper.get(resources).dip5
+        textSize = DipHelper.get(resources).dip4.toFloat()
         fontAwesome = Typeface.createFromAsset(applicationContext.assets, "FontAwesome900.otf")
     }
 
@@ -225,5 +226,21 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             }
         }
         return null
+    }
+
+    protected fun <T: View?> removeExcept(holder: ViewGroup, exception: T) {
+        if (exception == null){
+            return
+        }
+        if (holder.childCount == 0)
+            return
+        if (holder.childCount == 1 && holder.getChildAt(0) == exception)
+            return
+        if (holder.getChildAt(0) != exception) {
+            holder.removeViewAt(0)
+        }else{
+            holder.removeViewAt(holder.childCount-1)
+        }
+        removeExcept(holder,exception)
     }
 }
