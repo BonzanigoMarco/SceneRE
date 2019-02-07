@@ -35,6 +35,11 @@ open class Path private constructor(val id: String, val scenarioId: String, val 
         return previousElements[currentElement.getElementId()]
     }
 
+    fun remove(element: IElement){
+        elements.remove(element.getElementId())
+        previousElements.remove(element.getPreviousElementId())
+    }
+
     fun add(element: IElement) {
         elements[element.getElementId()] = element
         if (element.getPreviousElementId() == null){

@@ -43,6 +43,8 @@ class Constants {
         //XML
         const val EMPTY_LIST: String = "EmptyList"
         const val NULL: String = "NULL"
+        const val NULL_CLASS: String = "Null"
+        const val HYPHEN: String = "-"
         const val STRING: String = "String"
         const val INT: String = "Int"
         const val FLOAT: String = "Float"

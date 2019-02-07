@@ -396,7 +396,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
 
     fun readAttributes(refId: String, type: String? = null): List<Attribute> {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(AttributeTableEntry.TABLE_NAME, arrayOf(AttributeTableEntry.ID, AttributeTableEntry.KEY, AttributeTableEntry.VALUE, AttributeTableEntry.TYPE), (AttributeTableEntry.REF_ID + LIKE + QUOTES + refId + QUOTES) + if (type == null) "" else (AND + AttributeTableEntry.TYPE + LIKE + QUOTES + refId + QUOTES), null, null, null, null, null)
+        val cursor = db.query(AttributeTableEntry.TABLE_NAME, arrayOf(AttributeTableEntry.ID, AttributeTableEntry.KEY, AttributeTableEntry.VALUE), (AttributeTableEntry.REF_ID + LIKE + QUOTES + refId + QUOTES) + if (type == null) "" else (AND + AttributeTableEntry.TYPE + LIKE + QUOTES + type + QUOTES), null, null, null, null, null)
         val attributes = ArrayList<Attribute>()
         if (cursor.moveToFirst()) {
             do {
@@ -598,6 +598,10 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
 
     fun deleteAttribute(key: String) {
         delete(AttributeTableEntry.TABLE_NAME, AttributeTableEntry.ID, key)
+    }
+
+    fun deleteAttributeByRef(key: String) {
+        delete(AttributeTableEntry.TABLE_NAME, AttributeTableEntry.REF_ID, key)
     }
 
     fun deleteScenario(key: String) {

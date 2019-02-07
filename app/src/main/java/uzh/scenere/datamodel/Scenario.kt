@@ -1,7 +1,6 @@
 package uzh.scenere.datamodel
 
 import android.content.Context
-import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.helpers.DatabaseHelper
 import java.io.Serializable
 import java.util.*
@@ -167,6 +166,18 @@ open class Scenario private constructor(val id: String, val projectId: String, v
 
     override fun hashCode(): Int {
         return super.hashCode()
+    }
+
+    fun getObjectsWithNames(objectNames: ArrayList<String>): ArrayList<Object>{
+        val objectList = ArrayList<Object>()
+        for (name in objectNames){
+            for (obj in this.objects){
+                if (obj.name == name){
+                    objectList.add(obj)
+                }
+            }
+        }
+        return objectList
     }
 
     class NullScenario(): Scenario("","","","","") {}

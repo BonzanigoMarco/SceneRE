@@ -14,7 +14,7 @@
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:scrollbarSize="@dimen/dimScrollbar"
         android:fadeScrollbars="false"
-        android:scrollbarThumbVertical="@drawable/blue_scrollbar"
+        android:scrollbarThumbVertical="@drawable/scrollbar"
         android:orientation="vertical"
         android:layout_weight="7"/>
 

@@ -22,10 +22,9 @@ import android.widget.TextView
 import uzh.scenere.R
 import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.NumberHelper
-import java.util.logging.Handler
 
 
-class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : LinearLayout(context, attributeSet, defStyleAttr, defStyleRes) {
+class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : LinearLayout(context, attributeSet, defStyleAttr, defStyleRes) {
     enum class SwipeButtonState {
         LEFT, UP, DOWN, RIGHT, MIDDLE, LONG_CLICK
     }
@@ -100,26 +99,26 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
     }
 
     //XML Constructors
-    constructor(context: Context?) : this(context, null, -1, -1) {
+    constructor(context: Context) : this(context, null, -1, -1) {
         init(context)
     }
 
-    constructor(context: Context?, attributeSet: AttributeSet?) : this(context, attributeSet, -1, -1) {
+    constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, -1, -1) {
         init(context)
     }
 
-    constructor(context: Context?, attributeSet: AttributeSet?, defStyleAttr: Int) : this(context, attributeSet, defStyleAttr, -1) {
+    constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) : this(context, attributeSet, defStyleAttr, -1) {
         init(context)
     }
 
     //Inline Constructors
-    constructor(context: Context?, label: String?) : this(context, null, -1, -1) {
+    constructor(context: Context, label: String?) : this(context, null, -1, -1) {
         init(context)
         labelText?.text = label
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun init(context: Context?) {
+    private fun init(context: Context) {
         if (initialized) {
             return
         }
@@ -131,7 +130,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         //Grid, Top Box (30%)
         val topLayout = LinearLayout(context)
         this.topLayout = topLayout
-        topLayout.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_bg_top)
+        topLayout.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_bg_top)
         val topLayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
         topLayoutParams.weight = 2f
         topLayout.layoutParams = topLayoutParams
@@ -147,7 +146,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         //Grid, Bottom Box (10%)
         val bottomLinearLayout = LinearLayout(context)
         val bottomLayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
-        bottomLinearLayout.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_bg_bottom)
+        bottomLinearLayout.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_bg_bottom)
         bottomLayoutParams.weight = 1f
         bottomLinearLayout.layoutParams = bottomLayoutParams
         addView(bottomLinearLayout)
@@ -161,7 +160,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val bottomBackgroundLayout = RelativeLayout(context)
         this.bottomBackgroundLayout = bottomBackgroundLayout
         val backgroundLayoutParams = createParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, RelativeLayout.CENTER_HORIZONTAL)
-        bottomBackgroundLayout.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_bg_mid)
+        bottomBackgroundLayout.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_bg_mid)
         middleLayout.addView(bottomBackgroundLayout, backgroundLayoutParams)
 
         //Label
@@ -179,7 +178,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val sliderLaneParams = createParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.CENTER_IN_PARENT)
         sliderLaneParams.marginStart = dpiSliderMargin
         sliderLaneParams.marginEnd = dpiSliderMargin
-        sliderLane.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_mid)
+        sliderLane.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_slider_mid)
         middleLayout.addView(sliderLane, sliderLaneParams)
 
         //Slider-Button
@@ -188,7 +187,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val sliderButtonParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.CENTER_VERTICAL)
         sliderButton.text = null
         sliderButton.setPadding(dpiPadding * 8, dpiPadding, dpiPadding * 8, dpiPadding)
-        sliderButton.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_button)
+        sliderButton.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_slider_button)
         middleLayout.addView(sliderButton, sliderButtonParams)
 
         //Top Icon
@@ -196,7 +195,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         this.topIconText = topIconText
         val topIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
         topIconTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
-        topIconText.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_top)
+        topIconText.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_slider_top)
 
         //Top Label
         val topLabelText = IconTextView(context)
@@ -212,7 +211,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val topBgParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
         topBgParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
         topBg.setPadding(dpiPadding * 4, dpiPadding, dpiPadding * 4, dpiPadding*2)
-        topBg.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_top)
+        topBg.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_slider_top)
         bottomBackgroundLayout.addView(topBg, topBgParams)
         bottomBackgroundLayout.addView(topIconText, topIconTextParams)
         bottomBackgroundLayout.addView(topLabelText, topLabelTextParams)
@@ -222,7 +221,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         this.bottomIconText = bottomIconText
         val bottomIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
         bottomIconTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
-        bottomIconText.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_bottom)
+        bottomIconText.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_slider_bottom)
 
         //Top Label
         val bottomLabelText = IconTextView(context)
@@ -238,7 +237,7 @@ class SwipeButton(context: Context?, attributeSet: AttributeSet?, defStyleAttr: 
         val bottomBgParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
         bottomBgParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
         bottomBg.setPadding(dpiPadding * 4, dpiPadding*2, dpiPadding * 4, dpiPadding)
-        bottomBg.background = ContextCompat.getDrawable(context, R.drawable.blue_swipe_button_slider_bottom)
+        bottomBg.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_slider_bottom)
         bottomBackgroundLayout.addView(bottomBg, bottomBgParams)
         bottomBackgroundLayout.addView(bottomIconText, bottomIconTextParams)
         bottomBackgroundLayout.addView(bottomLabelText, bottomLabelTextParams)

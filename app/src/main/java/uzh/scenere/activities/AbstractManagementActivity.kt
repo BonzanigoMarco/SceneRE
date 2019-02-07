@@ -41,9 +41,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //Debug
-        //DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
         //DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
-        //DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
     }
 
     override fun onResume() {
@@ -195,7 +195,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             spinnerArrayAdapter.setDropDownViewResource(R.layout.sre_spinner_item)
             spinner.adapter = spinnerArrayAdapter
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                @SuppressLint("ClickableViewAccessibility")
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     val spinnerText = spinner.selectedItem as String
                     if (executable != null){
@@ -208,29 +207,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                                 return // Item already selected
                             }
                         }
-                        val textView = TextView(applicationContext)
-                        val textParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                        textParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-                        textView.layoutParams = textParams
-                        textView.text = spinnerText
-                        textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
-                        textView.setBackgroundColor(Color.WHITE)
-                        textView.setTextColor(Color.BLACK)
-                        textView.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-                        textView.setOnTouchListener { _, _ ->
-                            selectionCarrier.removeView(textView)
-                            multiInputMap[labelText]?.remove(textView)
-                            false
-                        }
-                        selectionCarrier.addView(textView)
-                        if (multiInputMap[labelText] == null){
-                            val list = ArrayList<TextView>()
-                            list.add(textView)
-                            multiInputMap[labelText] = list
-                        }else{
-                            multiInputMap[labelText]?.add(textView)
-                        }
-                        spinner.setSelection(0)
+                        addSpinnerSelection(spinnerText, selectionCarrier, labelText, spinner)
                     }
                 }
 
@@ -238,7 +215,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                     //NOP
                 }
             };
-
             spinner.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
             spinner.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             spinner.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
@@ -247,9 +223,42 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             wrapper.addView(spinner)
             outerWrapper.addView(wrapper)
             outerWrapper.addView(selectionCarrier)
+            if (StringHelper.hasText(presetValue)){
+                val split = presetValue!!.split(";")
+                for (value in split){
+                    addSpinnerSelection(value, selectionCarrier, labelText, spinner)
+                }
+            }
             return outerWrapper
         }
         return null
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun addSpinnerSelection(spinnerText: String, selectionCarrier: LinearLayout, labelText: String, spinner: Spinner) {
+        val textView = TextView(applicationContext)
+        val textParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        textParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+        textView.layoutParams = textParams
+        textView.text = spinnerText
+        textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+        textView.setBackgroundColor(Color.WHITE)
+        textView.setTextColor(Color.BLACK)
+        textView.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+        textView.setOnTouchListener { _, _ ->
+            selectionCarrier.removeView(textView)
+            multiInputMap[labelText]?.remove(textView)
+            false
+        }
+        selectionCarrier.addView(textView)
+        if (multiInputMap[labelText] == null) {
+            val list = ArrayList<TextView>()
+            list.add(textView)
+            multiInputMap[labelText] = list
+        } else {
+            multiInputMap[labelText]?.add(textView)
+        }
+        spinner.setSelection(0)
     }
 
     //*******

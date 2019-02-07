@@ -21,6 +21,7 @@ import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.SPACE_C
 import uzh.scenere.datamodel.Attribute
 import uzh.scenere.datamodel.Object
+import uzh.scenere.helpers.StringHelper
 import java.io.Serializable
 import kotlin.reflect.KClass
 
@@ -194,7 +195,7 @@ class SreMultiAutoCompleteTextView(context: Context, val objects: ArrayList<Seri
             for (entry in textView.objectLabels.entries) {
                 editText = editText.replace(entry.key, entry.value)
             }
-            textView.setText(Html.fromHtml(editText + (if (addSpace) SPACE_C else NOTHING)))
+            textView.setText(StringHelper.fromHtml(editText + (if (addSpace) SPACE_C else NOTHING)))
             textView.setSelection(textView.text.length)
         }
     }

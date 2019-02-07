@@ -70,5 +70,9 @@ open class Object private constructor(val id: String, val scenarioId: String, va
         return super.hashCode()
     }
 
+    override fun toString(): String {
+        return name
+    }
+
     class NullObject(): Object("","","","") {}
 }

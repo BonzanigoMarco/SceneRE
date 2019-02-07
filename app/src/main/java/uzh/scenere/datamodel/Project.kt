@@ -87,17 +87,5 @@ open class Project private constructor(val id: String, val creator: String, val 
         return super.hashCode()
     }
 
-    fun getObjectsWithNames(objectNames: ArrayList<String>): ArrayList<Object>{
-        val objects = ArrayList<Object>()
-        for (name in objectNames){
-            for (obj in objects){
-                if (obj.name == name){
-                    objects.add(obj)
-                }
-            }
-        }
-        return objects
-    }
-
     class NullProject(): Project("","","","") {}
 }

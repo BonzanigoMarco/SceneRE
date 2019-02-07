@@ -6,10 +6,15 @@ import android.graphics.Typeface
 import android.text.*
 import android.text.style.MetricAffectingSpan
 import java.io.Serializable
+import android.text.Html
+import android.os.Build
+import android.text.Spanned
+
+
 
 class StringHelper{
     companion object { //Static Reference
-        fun concatTokens(delimiter: String, obj: List<Serializable>): String{
+        fun <T: Serializable> concatTokens(delimiter: String, obj: List<T>): String{
             var conc = ""
             for (o in obj){
                 conc += if (o is String){
@@ -101,7 +106,13 @@ class StringHelper{
             }
 
         }
+
+        fun fromHtml(html: String?): Spanned {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
+            } else {
+                Html.fromHtml(html)
+            }
+        }
     }
-
-
 }

@@ -3,35 +3,35 @@ package uzh.scenere.views
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.text.Spanned
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
+import uzh.scenere.R
+import uzh.scenere.datamodel.IElement
+import uzh.scenere.datamodel.steps.AbstractStep
+import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.NumberHelper
+import uzh.scenere.views.SreTextView.STYLE.DARK
+import uzh.scenere.views.SreTextView.STYLE.LIGHT
 import java.io.Serializable
 
 
 @SuppressLint("ViewConstructor")
-class Element private constructor(private val elementMode: ElementMode, private val top: Boolean,private  val left: Boolean,private  val right: Boolean,private  val bottom: Boolean, context: Context) : RelativeLayout(context), Serializable {
+class Element (context: Context, private var element: IElement, private val top: Boolean, private  val left: Boolean, private  val right: Boolean, private  val bottom: Boolean) : RelativeLayout(context), Serializable {
 
-    enum class ElementMode {
-        STEP, TRIGGER;
-        fun create(label: String?, top: Boolean,  left: Boolean,  right: Boolean,  bottom: Boolean, context: Context):Element{
-            val element = Element(this,top,left,right,bottom,context)
-            element.centerElement?.text = label
-            return element
-        }
-    }
-    fun getElementMode(): ElementMode? = elementMode
-
-    var connectionTop: TextView? = null
-    var connectionLeft: TextView? = null
-    var connectionRight: TextView? = null
-    var connectionBottom: TextView? = null
-    var centerElement: TextView? = null
-    var topWrapper: RelativeLayout? = null
-    var centerWrapper: RelativeLayout? = null
-    var bottomWrapper: RelativeLayout? = null
+    var editButton: IconButton? = null
+    var deleteButton: IconButton? = null
+    private var connectionTop: TextView? = null
+    private var connectionLeft: TextView? = null
+    private var connectionRight: TextView? = null
+    private var connectionBottom: TextView? = null
+    private var centerElement: SreTextView? = null
+    private var topWrapper: RelativeLayout? = null
+    private var centerWrapper: RelativeLayout? = null
+    private var bottomWrapper: RelativeLayout? = null
 
     private var dpiPaddingSmall = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt()
     private var dpiMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt()
@@ -42,24 +42,24 @@ class Element private constructor(private val elementMode: ElementMode, private 
     init {
         //PARENT
         layoutParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        //CHILDREN
-        connectionTop = TextView(context)
-        connectionLeft = TextView(context)
-        connectionRight = TextView(context)
-        connectionBottom = TextView(context)
-        centerElement = TextView(context)
-        //TEXT
-        connectionTop?.textSize = 0f
-        connectionLeft?.textSize = 0f
-        connectionRight?.textSize = 0f
-        connectionBottom?.textSize = 0f
-
+        //WRAPPER
         topWrapper = RelativeLayout(context)
         topWrapper?.id = View.generateViewId()
         centerWrapper = RelativeLayout(context)
         centerWrapper?.id = View.generateViewId()
         bottomWrapper = RelativeLayout(context)
         bottomWrapper?.id = View.generateViewId()
+        //CHILDREN
+        connectionTop = TextView(context)
+        connectionLeft = TextView(context)
+        connectionRight = TextView(context)
+        connectionBottom = TextView(context)
+        centerElement = SreTextView(context,centerWrapper,null,if (isStep()) DARK else LIGHT)
+        //TEXT
+        connectionTop?.textSize = 0f
+        connectionLeft?.textSize = 0f
+        connectionRight?.textSize = 0f
+        connectionBottom?.textSize = 0f
         //TOP
         createTop()
         val topParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
@@ -87,34 +87,33 @@ class Element private constructor(private val elementMode: ElementMode, private 
 //        startAnimation(s)
     }
 
-
     private fun createTop() {
+        connectionTop?.id = View.generateViewId()
         // LEFT
+        editButton = IconButton(context, R.string.icon_edit,topWrapper,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.LEFT_OF, connectionTop!!.id).addRule(CENTER_VERTICAL, TRUE)
+        topWrapper?.addView(editButton)
         // CENTER
         if (top) {
             connectionTop?.setBackgroundColor(Color.BLACK)
         }
-        connectionTop?.setPadding(dpiPaddingSmall, dpiPaddingSmall, dpiPaddingSmall, dpiPaddingSmall)
-        val centerParams = LayoutParams(dpiConnectorWidth, dpiConnectorHeight)
+        val centerParams = LayoutParams(dpiConnectorWidth, dpiConnectorHeight+NumberHelper.nvl(editButton?.getMargin(),0)*2)
         centerParams.addRule(CENTER_HORIZONTAL, TRUE)
-        topWrapper?.addView(connectionTop, centerParams)
+        connectionTop?.layoutParams = centerParams
+        topWrapper?.addView(connectionTop)
         // RIGHT
+        deleteButton = IconButton(context, R.string.icon_delete,topWrapper,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionTop!!.id).addRule(CENTER_VERTICAL, TRUE)
+        topWrapper?.addView(deleteButton)
     }
 
     private fun createCenter() {
         // CENTER
         centerElement?.id = View.generateViewId()
-        centerElement?.setBackgroundColor(if (elementMode == ElementMode.STEP) Color.BLUE else Color.YELLOW)
-        centerElement?.setTextColor(if (elementMode == ElementMode.STEP) Color.WHITE else Color.BLACK)
-        centerElement?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
-        val centerParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-        centerParams.addRule(CENTER_IN_PARENT, TRUE)
-        centerWrapper?.addView(centerElement, centerParams)
+        centerElement?.addRule(CENTER_IN_PARENT, TRUE)
+        centerWrapper?.addView(centerElement)
         // LEFT
         if (left) {
             connectionLeft?.setBackgroundColor(Color.BLACK)
         }
-        connectionLeft?.setPadding(dpiPaddingSmall, dpiPaddingSmall, dpiPaddingSmall, dpiPaddingSmall)
         val leftParams = LayoutParams(dpiConnectorHeight, dpiConnectorWidth)
         leftParams.addRule(START_OF, NumberHelper.nvl(centerElement?.id, 0))
         leftParams.addRule(ALIGN_PARENT_START, TRUE)
@@ -124,7 +123,6 @@ class Element private constructor(private val elementMode: ElementMode, private 
         if (right) {
             connectionRight?.setBackgroundColor(Color.BLACK)
         }
-        connectionRight?.setPadding(dpiPaddingSmall, dpiPaddingSmall, dpiPaddingSmall, dpiPaddingSmall)
         val rightParams = LayoutParams(dpiConnectorHeight, dpiConnectorWidth)
         rightParams.addRule(END_OF, NumberHelper.nvl(centerElement?.id, 0))
         rightParams.addRule(ALIGN_PARENT_END, TRUE)
@@ -138,37 +136,49 @@ class Element private constructor(private val elementMode: ElementMode, private 
         if (bottom) {
             connectionBottom?.setBackgroundColor(Color.BLACK)
         }
-        connectionBottom?.setPadding(dpiPaddingSmall, dpiPaddingSmall, dpiPaddingSmall, dpiPaddingSmall)
         val centerParams = LayoutParams(dpiConnectorWidth, dpiConnectorHeight)
         centerParams.addRule(CENTER_HORIZONTAL, TRUE)
         bottomWrapper?.addView(connectionBottom, centerParams)
-        // LEFT
-//        val leftButton = IconTextView(context)
-//        leftButton.text = resources.getString(R.string.icon_layer)
-//        leftButton.setBackgroundColor(Color.WHITE)
-//        leftButton.setTextColor(Color.GRAY)
-//        leftButton.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
-//        val leftParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-//        leftParams.setMargins(dpiMargin, dpiMargin, dpiMargin, dpiMargin)
-//        leftParams.addRule(CENTER_VERTICAL, TRUE)
-//        leftParams.addRule(ALIGN_PARENT_START, TRUE)
-//        leftParams.addRule(LEFT_OF, NumberHelper.nvl(connectionBottom?.id, 0))
-//        bottomWrapper?.addView(leftButton,leftParams)
-//        // RIGHT
-//        val rightButton = IconTextView(context)
-//        rightButton.text = resources.getString(R.string.icon_path)
-//        rightButton.setBackgroundColor(Color.BLACK)
-//        rightButton.setTextColor(Color.WHITE)
-//        rightButton.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
-//        val rightParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-//        rightParams.setMargins(dpiMargin, dpiMargin, dpiMargin, dpiMargin)
-//        rightParams.addRule(CENTER_VERTICAL, TRUE)
-//        rightParams.addRule(ALIGN_PARENT_END, TRUE)
-//        rightParams.addRule(RIGHT_OF, NumberHelper.nvl(connectionBottom?.id, 0))
-//        bottomWrapper?.addView(rightButton,rightParams)
     }
 
     fun connectToNext(){
         connectionBottom?.setBackgroundColor(Color.BLACK)
+        deleteButton?.visibility = View.INVISIBLE
+    }
+
+    fun disconnectFromNext(){
+        connectionBottom?.setBackgroundColor(Color.WHITE)
+        deleteButton?.visibility = View.VISIBLE
+    }
+
+    fun withLabel(label: String?): Element{
+        centerElement?.text = label
+        return this
+    }
+
+    fun withLabel(label: Spanned?): Element{
+        centerElement?.text = label
+        return this
+    }
+
+    fun updateElement(element: IElement): Element{
+        this.element = element
+        return this
+    }
+
+    fun isStep(): Boolean {
+        return element is AbstractStep
+    }
+
+    fun setEditExecutable(function: () -> Unit) {
+        editButton?.addExecutable(function)
+    }
+
+    fun setDeleteExecutable(function: () -> Unit) {
+        deleteButton?.addExecutable(function)
+    }
+
+    fun containsElement(element: IElement): Boolean {
+        return this.element.getElementId() == element.getElementId()
     }
 }
