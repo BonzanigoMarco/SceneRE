@@ -118,7 +118,6 @@ class EditorActivity : AbstractManagementActivity() {
             }
 
         })
-        refreshState()
     }
 
     private fun visualizeActivePath() {
@@ -130,6 +129,7 @@ class EditorActivity : AbstractManagementActivity() {
                 element = activePath?.getNextElement(element.getElementId())
             }
         }
+        refreshState()
     }
 
     private fun addAndRenderElement(element: IElement, edit: Boolean = (editorState==EDIT)) {
