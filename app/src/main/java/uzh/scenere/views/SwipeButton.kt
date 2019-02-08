@@ -53,7 +53,8 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
     private var initialEventY = -1f
     private var initialEventX = -1f
     private var initialButtonWidth = 0
-    private var sliderButton: IconTextView? = null
+    private var sliderButton: SwipeButtonIconTextView? = null
+
     private var sliderLane: RelativeLayout? = null
     private var firstAction: Boolean = true
     private val animationDuration: Long = 200L
@@ -182,7 +183,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         middleLayout.addView(sliderLane, sliderLaneParams)
 
         //Slider-Button
-        val sliderButton = IconTextView(context)
+        val sliderButton = SwipeButtonIconTextView(context)
         this.sliderButton = sliderButton
         val sliderButtonParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.CENTER_VERTICAL)
         sliderButton.text = null
@@ -191,14 +192,14 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         middleLayout.addView(sliderButton, sliderButtonParams)
 
         //Top Icon
-        val topIconText = IconTextView(context)
+        val topIconText = SwipeButtonIconTextView(context)
         this.topIconText = topIconText
         val topIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
         topIconTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
         topIconText.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_slider_top)
 
         //Top Label
-        val topLabelText = IconTextView(context)
+        val topLabelText = SwipeButtonIconTextView(context)
         this.topLabelText = topLabelText
         val topLabelTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
         topLabelTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
@@ -206,7 +207,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         topLabelText.setTypeface(null,Typeface.BOLD)
 
         //Top Background
-        val topBg = IconTextView(context)
+        val topBg = SwipeButtonIconTextView(context)
         this.topBg = topBg
         val topBgParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_HORIZONTAL)
         topBgParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
@@ -217,14 +218,14 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         bottomBackgroundLayout.addView(topLabelText, topLabelTextParams)
 
         //Bottom Icon
-        val bottomIconText = IconTextView(context)
+        val bottomIconText = SwipeButtonIconTextView(context)
         this.bottomIconText = bottomIconText
         val bottomIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
         bottomIconTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
         bottomIconText.background = ContextCompat.getDrawable(context, R.drawable.swipe_button_slider_bottom)
 
         //Top Label
-        val bottomLabelText = IconTextView(context)
+        val bottomLabelText = SwipeButtonIconTextView(context)
         this.bottomLabelText = bottomLabelText
         val bottomLabelTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
         bottomLabelTextParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
@@ -232,7 +233,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         bottomLabelText.setTypeface(null,Typeface.BOLD)
 
         //Bottom Background
-        val bottomBg = IconTextView(context)
+        val bottomBg = SwipeButtonIconTextView(context)
         this.bottomBg = bottomBg
         val bottomBgParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_HORIZONTAL)
         bottomBgParams.setMargins(dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall,dpiPaddingSmall)
@@ -243,14 +244,14 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         bottomBackgroundLayout.addView(bottomLabelText, bottomLabelTextParams)
 
         //Left Icon
-        val leftIconText = IconTextView(context)
+        val leftIconText = SwipeButtonIconTextView(context)
         this.leftIconText = leftIconText
         val leftIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_LEFT)
         leftIconText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
         sliderLane.addView(leftIconText, leftIconTextParams)
 
         //Right Icon
-        val rightIconText = IconTextView(context)
+        val rightIconText = SwipeButtonIconTextView(context)
         this.rightIconText = rightIconText
         val rightIconTextParams = createParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.ALIGN_PARENT_RIGHT)
         rightIconText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, dpiText)
@@ -636,5 +637,12 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         fun execDown() {/*NOP*/}
         fun execReset() {/*NOP*/}
         fun execLongClick(){/*NOP*/}
+    }
+
+    class SwipeButtonIconTextView(context: Context): TextView(context){
+        init {
+            typeface = Typeface.createFromAsset(context.assets, "FontAwesome900.otf")
+            gravity = Gravity.CENTER
+        }
     }
 }

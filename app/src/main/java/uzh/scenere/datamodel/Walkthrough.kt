@@ -85,7 +85,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
                         val time = SimpleDateFormat("HH:mm:ss")
                         val d = date.format(currentDate)
                         val t = time.format(currentDate)
-                        return "Date: $d\nTime: $t"
+                        return "Date: $d<br>Time: $t"
                     }
                 }
                 INFO_OBJECT, INFO_ATTRIBUTE -> {
@@ -284,13 +284,13 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             total += STEP_TIME.get(stepId, Long::class)
         }
         total /= 1000
-        var text = "\nStatistics:\nYour last Walkthrough took $total seconds to complete!\n"
+        var text = "<br><b>Statistics</b><br>Your last Walkthrough took <b>$total</b> seconds to complete!<br>You spent "
         for (stepId in STEP_ID_LIST.getAll(String::class)) {
-            text += "You spent " + STEP_TIME.get(stepId, Long::class) / 1000 + " seconds in \"" + STEP_TITLE.get(stepId, String::class) + "\",\n"
+            text += "<b>" + STEP_TIME.get(stepId, Long::class) / 1000 + "</b> seconds in \"" + STEP_TITLE.get(stepId, String::class) + "\", <br>"
         }
-        text = text.substring(0, text.length - 2).plus(".\n")
-        text += "Additionally, you spent " + INTRO_TIME.get(Long::class) / 1000 + " seconds in the Introduction and\n"
-        text += "" + INFO_TIME.get(Long::class) / 1000 + " seconds browsing the Information."
+        text = text.substring(0, text.length - ", <br>".length).plus(".<br>")
+        text += "Additionally, you read the Introduction for <b>" + INTRO_TIME.get(Long::class) / 1000 + "</b> seconds and<br>"
+        text += "browsed the Information for an additional <b>" + INFO_TIME.get(Long::class) / 1000 + "</b> seconds."
         return text
     }
 

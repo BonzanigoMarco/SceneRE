@@ -24,7 +24,9 @@ import uzh.scenere.helpers.StringHelper
 import uzh.scenere.helpers.getStringValue
 import uzh.scenere.helpers.readableClassName
 import uzh.scenere.views.Element
+import uzh.scenere.views.SreMultiAutoCompleteTextView
 import uzh.scenere.views.SwipeButton
+import uzh.scenere.views.SwipeButtonScrollView
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.reflect.KClass
@@ -238,10 +240,10 @@ class EditorActivity : AbstractManagementActivity() {
             when (element) {
                 is StandardStep -> {
                     creationUnitClass = StandardStep::class
-                    adaptAttributes("Title", "Object", "Text")
+                    adaptAttributes("Title", "Text")
                     scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, element.title))
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.LOOKUP, element.getObjectNames(), activeScenario?.getObjectNames("")))
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[2], LineInputType.MULTI_LINE_EDIT, element.text))
+                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text))
+                    (inputMap[elementAttributes[1]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is ButtonTrigger -> {
@@ -256,10 +258,10 @@ class EditorActivity : AbstractManagementActivity() {
                 resources.getString(R.string.step_standard) -> {
                     creationUnitClass = StandardStep::class
                     cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
-                    adaptAttributes("Title", "Object", "Text")
+                    adaptAttributes("Title", "Text")
                     scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, null))
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.LOOKUP, null, activeScenario?.getObjectNames("")))
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[2], LineInputType.MULTI_LINE_EDIT, null))
+                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
+                    (inputMap[elementAttributes[1]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_button) -> {
@@ -298,8 +300,8 @@ class EditorActivity : AbstractManagementActivity() {
             //Steps
             StandardStep::class -> {
                 val title = inputMap[elementAttributes[0]]!!.getStringValue()
-                val objects = activeScenario?.getObjectsWithNames(getTextsFromLookupChoice(elementAttributes[1]))
-                val text = inputMap[elementAttributes[2]]!!.getStringValue()
+                val objects = activeScenario?.getObjectsWithNames((inputMap[elementAttributes[1]]!! as SreMultiAutoCompleteTextView).getUsedObjectLabels())
+                val text = inputMap[elementAttributes[1]]!!.getStringValue()
                 addAndRenderElement(StandardStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTitle(title).withText(text).withObjects(objects!!))
             }
             //Triggers
@@ -387,5 +389,11 @@ class EditorActivity : AbstractManagementActivity() {
 
     override fun resetToolbar() {
         customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, null, null, null)
+    }
+
+    override fun execFullScroll(){
+        if (editorState == ADD){ //Avoid Scrolls on Edit
+            (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)
+        }
     }
 }

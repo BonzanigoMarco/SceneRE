@@ -155,7 +155,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         }
         if (element is StandardStep) {
             for (obj in element.objects) {
-                writeAttribute(Attribute.AttributeBuilder(obj.id, element.id, null, null).withAttributeType(TYPE_OBJECT).build())
+                writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
             }
             values.put(ElementTableEntry.TYPE, TYPE_STANDARD_STEP)
         } else if (element is ButtonTrigger) {
@@ -509,7 +509,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         val step = StandardStep(id, prevId, path.id).withText(text).withTitle(title)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
-                                step.withObject(readObject(linkAttribute.id, NullHelper.get(Object::class)))
+                                step.withObject(readObject(linkAttribute.key as String, NullHelper.get(Object::class)))
                             }
                         }
                         elements.add(step)

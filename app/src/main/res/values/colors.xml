@@ -104,6 +104,14 @@
     <color name="material_100_yellow">#FFF9C4</color>
     <color name="material_100_orange">#FFCCBC</color>
 
+    <color name="material_700_red">#D32F2F</color>
+    <color name="material_700_violet">#7B1FA2</color>
+    <color name="material_700_blue">#303F9F</color>
+    <color name="material_700_turquoise">#0097A7</color>
+    <color name="material_700_green">#388E3C</color>
+    <color name="material_700_lime">#AFB42B</color>
+    <color name="material_700_yellow">#FBC02D</color>
+    <color name="material_700_orange">#E64A19</color>
 
     <color name="material_a700_red">#D50000</color>
     <color name="material_a700_violet">#AA00FF</color>

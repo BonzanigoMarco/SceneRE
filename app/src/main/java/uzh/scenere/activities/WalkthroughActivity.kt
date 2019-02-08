@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
+import com.google.android.gms.common.util.NumberUtils
 import uzh.scenere.datamodel.Walkthrough.WalkthroughStepProperty.*
 import uzh.scenere.datamodel.Walkthrough.WalkthroughProperty.*
 import kotlinx.android.synthetic.main.activity_walkthrough.*
@@ -283,11 +284,15 @@ class WalkthroughActivity : AbstractManagementActivity() {
     override fun onToolbarCenterClicked() {
         if (mode == WalkthroughMode.PLAY){
             getInfoContent().visibility = GONE
-            getInfoTitle().text = getString(R.string.walkthrough_selection_info)
+            val objects = activeWalkthrough!!.getObjectNames("")
+            val contextInfoAvailable = objects.size > 1
+            getInfoTitle().text = getString(if (contextInfoAvailable) R.string.walkthrough_selection_info else R.string.walkthrough_selection_no_info)
             customizeToolbarId(null,null,null,null,R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
-            objectInfoSpinnerLayout = createLine(getString(R.string.literal_object), LineInputType.LOOKUP, null, scenarioContext?.getObjectNames("")) { objectInfoSelected() }
-            getInfoContentWrap().addView(objectInfoSpinnerLayout,0)
+            if (contextInfoAvailable){
+                objectInfoSpinnerLayout = createLine(getString(R.string.literal_object), LineInputType.LOOKUP, null, objects) { objectInfoSelected() }
+                getInfoContentWrap().addView(objectInfoSpinnerLayout,0)
+            }
             activeWalkthrough?.setInfoActive(true)
             mode = WalkthroughMode.INFO
         }

@@ -13,7 +13,9 @@ import uzh.scenere.R
 import uzh.scenere.views.SreTextView.STYLE.LIGHT
 
 @SuppressLint("ViewConstructor")
-class SreTextView(context: Context, parent: ViewGroup?, label: String? = null, style: STYLE = LIGHT): TextView(context) {
+open class SreTextView(context: Context, parent: ViewGroup?, label: String? = null, val style: STYLE = LIGHT): TextView(context) {
+
+    constructor(context: Context, parent: ViewGroup?, stringId: Int, style: STYLE = LIGHT): this(context,parent,context.getString(stringId),style)
 
     init {
         text = label
@@ -48,7 +50,7 @@ class SreTextView(context: Context, parent: ViewGroup?, label: String? = null, s
         }
     }
 
-    fun addRule(verb: Int, subject: Int?): SreTextView {
+    open fun addRule(verb: Int, subject: Int? = null): SreTextView {
         when (parentLayout){
             ParentLayout.RELATIVE -> {
                 if (subject == null){

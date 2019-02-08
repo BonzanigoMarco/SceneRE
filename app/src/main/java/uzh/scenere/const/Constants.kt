@@ -69,5 +69,14 @@ class Constants {
         const val MATERIAL_100_LIME: String = "#F0F4C3"
         const val MATERIAL_100_YELLOW: String = "#FFF9C4"
         const val MATERIAL_100_ORANGE: String = "#FFCCBC"
+
+        const val MATERIAL_700_RED: String = "#D32F2F"
+        const val MATERIAL_700_VIOLET: String = "#7B1FA2"
+        const val MATERIAL_700_BLUE: String = "#303F9F"
+        const val MATERIAL_700_TURQUOISE: String = "#0097A7"
+        const val MATERIAL_700_GREEN: String = "#388E3C"
+        const val MATERIAL_700_LIME: String = "#AFB42B"
+        const val MATERIAL_700_YELLOW: String = "#FBC02D"
+        const val MATERIAL_700_ORANGE: String = "#E64A19"
     }
 }

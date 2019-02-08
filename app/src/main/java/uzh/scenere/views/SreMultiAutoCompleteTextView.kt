@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
 
 
 @SuppressLint("ViewConstructor")
-class SreMultiAutoCompleteTextView(context: Context, val objects: ArrayList<Serializable>) : MultiAutoCompleteTextView(context) {
+class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Serializable>) : MultiAutoCompleteTextView(context) {
     private val colorArray = arrayOf(MATERIAL_100_RED, MATERIAL_100_VIOLET, MATERIAL_100_BLUE, MATERIAL_100_TURQUOISE, MATERIAL_100_GREEN, MATERIAL_100_LIME, MATERIAL_100_YELLOW, MATERIAL_100_ORANGE)
     private var objectPointer = 0
     private val objectMap = HashMap<String, Serializable>()
@@ -42,6 +42,10 @@ class SreMultiAutoCompleteTextView(context: Context, val objects: ArrayList<Seri
     }
 
     init {
+        initInternal(objects, context)
+    }
+
+    private fun initInternal(objects: ArrayList<out Serializable>, context: Context) {
         if (!objects.isEmpty()) {
             addObjects(objects)
             initSuggestions(context)
@@ -64,7 +68,7 @@ class SreMultiAutoCompleteTextView(context: Context, val objects: ArrayList<Seri
         return split[split.size - 1]
     }
 
-    fun addObjects(objects: ArrayList<Serializable>): SreMultiAutoCompleteTextView {
+    fun <T: Serializable>addObjects(objects: ArrayList<T>): SreMultiAutoCompleteTextView {
         if (objectPointer >= colorArray.size){
             Log.e("AutoComplete","Not enough Colors defined.")
             return this
@@ -110,6 +114,21 @@ class SreMultiAutoCompleteTextView(context: Context, val objects: ArrayList<Seri
             }
         }
         return list
+    }
+
+    fun getUsedObjectLabels(): ArrayList<String> {
+        val list = ArrayList<String>()
+        for (entry in objectMap){
+            if (text.toString().contains(entry.key)){
+                list.add(entry.key)
+            }
+        }
+        return list
+    }
+
+    fun setObjects(objects: ArrayList<out Serializable>) {
+        initInternal(objects, context)
+        colorizeObjects(this,false)
     }
 
     class SreAutoCompleteTextWatcher(private val textView: SreMultiAutoCompleteTextView) : TextWatcher {

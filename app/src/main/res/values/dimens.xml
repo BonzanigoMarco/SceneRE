@@ -13,7 +13,7 @@
     <dimen name="dimScrollbar">15dp</dimen>
     <dimen name="text_large">25sp</dimen>
     <!--Views-->
-    <dimen name="dimPaddingButton">0dp</dimen>
+    <dimen name="dimPaddingButton">5dp</dimen>
     <dimen name="dimMarginButton">5dp</dimen>
     <dimen name="dimPaddingTextView">15dp</dimen>
     <dimen name="dimMarginTextView">0dp</dimen>

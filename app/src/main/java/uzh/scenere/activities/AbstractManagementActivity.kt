@@ -42,7 +42,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         super.onCreate(savedInstanceState)
         //Debug
 //        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
-        //DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
 //        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
     }
 
@@ -67,12 +67,16 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 createTitle("", getContentHolderLayout())
             }
             if (getContentWrapperLayout() is SwipeButtonScrollView){
-                (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)
+                execFullScroll()
             }
             onToolbarRightClicked()
         } else {
             onBackPressed()
         }
+    }
+
+    open fun execFullScroll() {
+        (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)
     }
 
     /**
@@ -115,7 +119,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     //* CREATION *
     //************
     enum class LineInputType {
-        SINGLE_LINE_EDIT, MULTI_LINE_EDIT, LOOKUP, SINGLE_LINE_TEXT, MULTI_LINE_TEXT
+        SINGLE_LINE_EDIT, MULTI_LINE_EDIT, LOOKUP, SINGLE_LINE_TEXT, MULTI_LINE_TEXT, SINGLE_LINE_CONTEXT_EDIT, MULTI_LINE_CONTEXT_EDIT
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -142,6 +146,32 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             input.setText(presetValue)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
+            wrapper.addView(label)
+            wrapper.addView(input)
+            inputMap[labelText] = input
+            return wrapper
+        }else if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_CONTEXT_EDIT, LineInputType.MULTI_LINE_CONTEXT_EDIT)) {
+            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val wrapper = LinearLayout(this)
+            wrapper.layoutParams = layoutParams
+            wrapper.weightSum = 2f
+            wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+            val label = TextView(this)
+            label.text = getString(R.string.label, labelText)
+            label.textSize = textSize!!
+            label.layoutParams = childParams
+            val input = SreMultiAutoCompleteTextView(this, ArrayList())
+            input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
+            input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            input.textAlignment = if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
+            input.layoutParams = childParams
+            input.textSize = textSize!!
+            input.hint = labelText
+            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            input.setText(presetValue)
+            input.setSingleLine((inputType != LineInputType.MULTI_LINE_CONTEXT_EDIT))
             wrapper.addView(label)
             wrapper.addView(input)
             inputMap[labelText] = input

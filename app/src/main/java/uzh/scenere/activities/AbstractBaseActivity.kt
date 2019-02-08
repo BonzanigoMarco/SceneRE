@@ -48,11 +48,6 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     open fun onNavigationButtonClicked(view: View) {
         when (view.id) {
             R.id.startup_button_continue -> startActivity(Intent(this, MainMenuActivity::class.java))
-            R.id.main_menu_button_analytics -> startActivity(Intent(this, AnalyticsActivity::class.java))
-            R.id.main_menu_button_project_management -> startActivity(Intent(this, ProjectsActivity::class.java))
-            R.id.main_menu_button_walkthrough -> startActivity(Intent(this, WalkthroughActivity::class.java))
-            R.id.main_menu_button_share -> startActivity(Intent(this, ShareActivity::class.java))
-            R.id.main_menu_button_cockpit -> startActivity(Intent(this, CockpitActivity::class.java))
             R.id.projects_button_scenario_management -> startActivity(Intent(this, ScenariosActivity::class.java))
         }
     }

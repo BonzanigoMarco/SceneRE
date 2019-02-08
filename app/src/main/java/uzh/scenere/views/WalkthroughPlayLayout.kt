@@ -8,20 +8,22 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.ANONYMOUS
+import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.USER_NAME
+import uzh.scenere.datamodel.Object
 import uzh.scenere.datamodel.Path
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.datamodel.Stakeholder
-import uzh.scenere.datamodel.Walkthrough.WalkthroughStepProperty.*
-import uzh.scenere.datamodel.Walkthrough.WalkthroughProperty.*
 import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.StandardStep
 import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.DipHelper
-import uzh.scenere.helpers.NullHelper
+import uzh.scenere.helpers.StringHelper
+import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
 class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, private val stakeholder: Stakeholder, private val stopFunction: () -> Unit) : LinearLayout(context) {
@@ -74,8 +76,8 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         stepLayout.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 3f)
         triggerLayout.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 7f)
 
-        stepLayout.setBackgroundColor(Color.BLUE)
-        triggerLayout.setBackgroundColor(Color.YELLOW)
+//        stepLayout.setBackgroundColor(Color.BLUE)
+//        triggerLayout.setBackgroundColor(Color.YELLOW)
 
         addView(stepLayout)
         addView(triggerLayout)
@@ -92,7 +94,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     private fun resolveIntro() {
-        val text = generateText("Intro:\n"+scenario.intro)
+        val text = generateText("Intro", scenario.intro, ArrayList(),arrayListOf("Intro"))
         val button = generateButton("Start Scenario")
         button.setOnClickListener {
             Walkthrough.WalkthroughProperty.INTRO_TIME.set(getTime())
@@ -104,12 +106,12 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
 
 
     private fun resolveStepAndTrigger() {
-        //TODO When trigger empty, stuck here
         when (mode) {
             WalkthroughPlayMode.STEP_INDUCED -> {
                 when (first) {
                     is StandardStep -> {
-                        val text = generateText((first as StandardStep).text)
+                        val title = StringHelper.nvl((first as StandardStep).title, NOTHING)
+                        val text = generateText(title,(first as StandardStep).text, (first as StandardStep).objects,arrayListOf(title))
                         stepLayout.addView(text)
                     }
                 }
@@ -121,6 +123,14 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         }
                         triggerLayout.addView(button)
                     }
+                    else -> {
+                        //FALLBACK FOR MISSING TRIGGER AT THE END
+                        val button = generateButton(context.getString(R.string.walkthrough_complete))
+                        button.setOnClickListener {
+                            loadNextStep()
+                        }
+                        triggerLayout.addView(button)                        
+                    }
                 }
             }
             WalkthroughPlayMode.TRIGGER_INDUCED -> {
@@ -130,7 +140,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     private fun resolveOutro() {
-        val text = generateText("Outro:\n"+scenario.intro+"\n"+walkthrough.printStatistics())
+        val text = generateText("Outro", scenario.outro+"<br>"+walkthrough.printStatistics(), ArrayList(), arrayListOf("Outro","Statistics"))
         val button = generateButton("Finish Scenario")
         button.setOnClickListener {
             saveAndLoadNew()
@@ -139,25 +149,16 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         triggerLayout.addView(button)
     }
 
-    private fun generateText(label: String?): TextView {
-        val text = TextView(context)
-        val layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT)
-        text.layoutParams = layoutParams
-        text.setTextColor(Color.WHITE)
-        text.gravity = Gravity.CENTER
-        text.text = label
+    private fun <T: Serializable>generateText(title: String?, content: String?, contextObjects: ArrayList<T>, boldWords: ArrayList<String>): TextView {
+        val text = SreContextAwareTextView(context,stepLayout, boldWords,contextObjects)
+        text.addRule(RelativeLayout.CENTER_IN_PARENT)
+        text.text = StringHelper.fromHtml("$title<br>$content")
         return text
     }
 
     private fun generateButton(label: String?): Button {
-        val button = Button(context)
-        val layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT)
-        DipHelper.get(resources).setMargin(layoutParams, 10f)
-        button.layoutParams = layoutParams
-        button.gravity = Gravity.CENTER
-        button.text = label
+        val button = SreButton(context,triggerLayout,label)
+        button.addRule(RelativeLayout.CENTER_IN_PARENT)
         return button
     }
 
@@ -189,4 +190,21 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         }
     }
 
+    fun getContextObjects(): ArrayList<Object> {
+        if (first is AbstractStep){
+            return (first as AbstractStep).objects
+        }else if (second is AbstractStep){
+            return (second as AbstractStep).objects
+        }
+        return ArrayList()
+    }
+
+    fun getObjectNames(vararg additionalName: String): Array<String>{
+        val list = ArrayList<String>()
+        list.addAll(additionalName)
+        for (obj in getContextObjects()){
+            list.add(obj.name)
+        }
+        return list.toTypedArray()
+    }
 }

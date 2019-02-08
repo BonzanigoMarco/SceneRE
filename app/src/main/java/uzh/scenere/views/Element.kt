@@ -6,13 +6,11 @@ import android.graphics.Color
 import android.text.Spanned
 import android.util.TypedValue
 import android.view.View
-import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
 import uzh.scenere.datamodel.IElement
 import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.views.SreTextView.STYLE.DARK
 import uzh.scenere.views.SreTextView.STYLE.LIGHT
@@ -90,7 +88,7 @@ class Element (context: Context, private var element: IElement, private val top:
     private fun createTop() {
         connectionTop?.id = View.generateViewId()
         // LEFT
-        editButton = IconButton(context, R.string.icon_edit,topWrapper,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.LEFT_OF, connectionTop!!.id).addRule(CENTER_VERTICAL, TRUE)
+        editButton = IconButton(context, topWrapper, R.string.icon_edit,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.LEFT_OF, connectionTop!!.id).addRule(CENTER_VERTICAL, TRUE)
         topWrapper?.addView(editButton)
         // CENTER
         if (top) {
@@ -101,7 +99,7 @@ class Element (context: Context, private var element: IElement, private val top:
         connectionTop?.layoutParams = centerParams
         topWrapper?.addView(connectionTop)
         // RIGHT
-        deleteButton = IconButton(context, R.string.icon_delete,topWrapper,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionTop!!.id).addRule(CENTER_VERTICAL, TRUE)
+        deleteButton = IconButton(context,topWrapper, R.string.icon_delete,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionTop!!.id).addRule(CENTER_VERTICAL, TRUE)
         topWrapper?.addView(deleteButton)
     }
 
@@ -176,6 +174,7 @@ class Element (context: Context, private var element: IElement, private val top:
 
     fun setDeleteExecutable(function: () -> Unit) {
         deleteButton?.addExecutable(function)
+        deleteButton?.setLongClickOnly(true)
     }
 
     fun containsElement(element: IElement): Boolean {
