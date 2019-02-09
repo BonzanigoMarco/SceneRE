@@ -12,8 +12,8 @@ import uzh.scenere.R
 import uzh.scenere.datamodel.IElement
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.helpers.NumberHelper
-import uzh.scenere.views.SreTextView.STYLE.DARK
-import uzh.scenere.views.SreTextView.STYLE.LIGHT
+import uzh.scenere.views.SreTextView.TextStyle.DARK
+import uzh.scenere.views.SreTextView.TextStyle.LIGHT
 import java.io.Serializable
 
 

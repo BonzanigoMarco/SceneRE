@@ -79,7 +79,6 @@ class EditorActivity : AbstractManagementActivity() {
             projectContext = DatabaseHelper.getInstance(applicationContext).readFull("97a35810-27b2-4917-9346-196f9fb18f7a", Project::class)
             activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("558856ba-3074-4725-9ffc-b03677df77d0", Scenario::class)
         }
-        //TODO> FOR NOW, LOAD ALL STAKEHOLDERS OF THE PROJECT, LATER, LET SELECT
         var stakeholder: Stakeholder? = null
         if (projectContext != null && !projectContext!!.stakeholders.isNullOrEmpty()) {
             stakeholder = projectContext?.getNextStakeholder()

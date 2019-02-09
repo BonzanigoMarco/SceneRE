@@ -22,8 +22,6 @@ import uzh.scenere.const.Constants.Companion.MATERIAL_700_RED
 import uzh.scenere.const.Constants.Companion.MATERIAL_700_TURQUOISE
 import uzh.scenere.const.Constants.Companion.MATERIAL_700_VIOLET
 import uzh.scenere.const.Constants.Companion.MATERIAL_700_YELLOW
-import uzh.scenere.const.Constants.Companion.NEW_LINE_C
-import uzh.scenere.const.Constants.Companion.SPACE_C
 import uzh.scenere.datamodel.Attribute
 import uzh.scenere.datamodel.Object
 import uzh.scenere.helpers.StringHelper
@@ -33,7 +31,7 @@ import kotlin.reflect.KClass
 
 @SuppressLint("ViewConstructor")
 class SreContextAwareTextView(context: Context, parent: ViewGroup?,val boldWords: ArrayList<String>, val objects: ArrayList<out Serializable>) : SreTextView(context,parent) {
-    private val colorArray = if (style == STYLE.DARK)
+    private val colorArray = if (style == TextStyle.DARK)
         arrayOf(MATERIAL_100_RED, MATERIAL_100_VIOLET, MATERIAL_100_BLUE, MATERIAL_100_TURQUOISE, MATERIAL_100_GREEN, MATERIAL_100_LIME, MATERIAL_100_YELLOW, MATERIAL_100_ORANGE) else
         arrayOf(MATERIAL_700_RED, MATERIAL_700_VIOLET, MATERIAL_700_BLUE, MATERIAL_700_TURQUOISE, MATERIAL_700_GREEN, MATERIAL_700_LIME, MATERIAL_700_YELLOW, MATERIAL_700_ORANGE)
     private var objectPointer = 0

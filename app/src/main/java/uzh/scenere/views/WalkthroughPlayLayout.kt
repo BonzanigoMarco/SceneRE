@@ -140,7 +140,9 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     private fun resolveOutro() {
-        val text = generateText("Outro", scenario.outro+"<br>"+walkthrough.printStatistics(), ArrayList(), arrayListOf("Outro","Statistics"))
+        val content = scenario.outro + "<br>" + walkthrough.printStatistics()
+        val cutHtml = StringHelper.cutHtmlAfter(content, 10, context.getString(R.string.walkthrough_see_more))
+        val text = generateText("Outro", cutHtml, ArrayList(), arrayListOf("Outro","Statistics"))
         val button = generateButton("Finish Scenario")
         button.setOnClickListener {
             saveAndLoadNew()

@@ -1,7 +1,9 @@
 package uzh.scenere.datamodel
 
 import android.content.Context
+import com.google.android.gms.common.util.NumberUtils
 import uzh.scenere.helpers.DatabaseHelper
+import uzh.scenere.helpers.NumberHelper
 import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList
@@ -80,7 +82,10 @@ open class Scenario private constructor(val id: String, val projectId: String, v
 
     fun hasStakeholderPath(stakeholder: Stakeholder): Boolean{
         val pathMap = paths[stakeholder.id]
-        return !pathMap.isNullOrEmpty()
+        if (!pathMap.isNullOrEmpty() && NumberHelper.nvl(pathMap[0]?.elements?.size,0)>0){
+            return true
+        }
+        return false
     }
 
     class ScenarioBuilder(private val projectId: String, private val title: String, private val intro: String, private val outro: String){

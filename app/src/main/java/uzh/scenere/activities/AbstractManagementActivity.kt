@@ -9,6 +9,8 @@ import android.text.InputType
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
@@ -17,6 +19,7 @@ import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.*
+import uzh.scenere.views.SreTextView.TextStyle.*
 
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
@@ -122,29 +125,26 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         SINGLE_LINE_EDIT, MULTI_LINE_EDIT, LOOKUP, SINGLE_LINE_TEXT, MULTI_LINE_TEXT, SINGLE_LINE_CONTEXT_EDIT, MULTI_LINE_CONTEXT_EDIT
     }
 
+    //TODO: Clean that up and use Sre Views
     @Suppress("UNCHECKED_CAST")
     protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {
         if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT)) {
-            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            layoutParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             val wrapper = LinearLayout(this)
             wrapper.layoutParams = layoutParams
             wrapper.weightSum = 2f
             wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_EDIT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-            val label = TextView(this)
-            label.text = getString(R.string.label, labelText)
-            label.textSize = textSize!!
-            label.layoutParams = childParams
-            val input = EditText(this)
-            input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
-            input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val label = SreTextView(this,wrapper,getString(R.string.label, labelText), BORDERLESS_DARK)
+            label.setWeight(1f)
+            label.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
+            label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            val input = SreEditText(this,wrapper,null,getString(R.string.input, labelText))
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
-            input.layoutParams = childParams
             input.textSize = textSize!!
-            input.hint = labelText
             input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-            input.setText(presetValue)
+            input.setWeight(1f)
+            input.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
             wrapper.addView(label)
             wrapper.addView(input)
@@ -158,10 +158,10 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             wrapper.layoutParams = layoutParams
             wrapper.weightSum = 2f
             wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-            val label = TextView(this)
-            label.text = getString(R.string.label, labelText)
-            label.textSize = textSize!!
-            label.layoutParams = childParams
+            val label = SreTextView(this,wrapper,getString(R.string.label, labelText), BORDERLESS_DARK)
+            label.setWeight(1f)
+            label.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
+            label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val input = SreMultiAutoCompleteTextView(this, ArrayList())
             input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
             input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
@@ -177,27 +177,22 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             inputMap[labelText] = input
             return wrapper
         } else if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_TEXT, LineInputType.MULTI_LINE_TEXT)){
-            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            layoutParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             val wrapper = LinearLayout(this)
             wrapper.layoutParams = layoutParams
-            wrapper.weightSum = 2f
             wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_TEXT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-            val label = TextView(this)
-            label.text = getString(R.string.label, labelText)
-            label.textSize = textSize!!
-            label.layoutParams = childParams
-            val text = TextView(this)
-            text.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
-            text.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val label = SreTextView(this,wrapper,getString(R.string.label, labelText), BORDERLESS_DARK)
+            label.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_TEXT) MATCH_PARENT else WRAP_CONTENT)
+            label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            val scrollWrapper = ScrollView(this)
+            val text = SreTextView(this,scrollWrapper,presetValue, MEDIUM)
+            scrollWrapper.addView(text)
             text.textAlignment = if (inputType == LineInputType.MULTI_LINE_TEXT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
-            text.layoutParams = childParams
-            text.textSize = textSize!!
-            text.text = presetValue
+            text.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_TEXT) MATCH_PARENT else WRAP_CONTENT)
             text.setSingleLine((inputType != LineInputType.MULTI_LINE_TEXT))
             wrapper.addView(label)
-            wrapper.addView(text)
+            wrapper.addView(scrollWrapper)
             inputMap[labelText] = text
             return wrapper
         } else if (inputType == LineInputType.LOOKUP && data != null) {
@@ -216,14 +211,15 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             outerWrapper.orientation = LinearLayout.VERTICAL
             selectionCarrier.orientation = LinearLayout.VERTICAL
             selectionCarrier.gravity = Gravity.CENTER
-            val label = TextView(this)
-            label.text = getString(R.string.label, labelText)
-            label.textSize = textSize!!
-            label.layoutParams = childParams
+            val label = SreTextView(this,wrapper,getString(R.string.label, labelText), BORDERLESS_DARK)
+            label.setSize(WRAP_CONTENT,MATCH_PARENT)
+            label.setWeight(1f)
+            label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val spinner = Spinner(applicationContext)
-            val spinnerArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data as Array<String>)
+            val spinnerArrayAdapter = ArrayAdapter<String>(this, R.layout.sre_spinner_item, data as Array<String>)
             spinnerArrayAdapter.setDropDownViewResource(R.layout.sre_spinner_item)
             spinner.adapter = spinnerArrayAdapter
+            spinner.dropDownVerticalOffset = textSize!!.toInt()
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     val spinnerText = spinner.selectedItem as String
@@ -245,7 +241,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                     //NOP
                 }
             };
-            spinner.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
             spinner.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             spinner.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             spinner.layoutParams = childParams
@@ -266,7 +261,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun addSpinnerSelection(spinnerText: String, selectionCarrier: LinearLayout, labelText: String, spinner: Spinner) {
-        val textView = TextView(applicationContext)
+        val textView = SreTextView(applicationContext,selectionCarrier,spinnerText,DARK)
         val textParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         textParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
         textView.layoutParams = textParams

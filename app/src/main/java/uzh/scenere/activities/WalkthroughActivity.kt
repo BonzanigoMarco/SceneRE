@@ -11,9 +11,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
-import com.google.android.gms.common.util.NumberUtils
-import uzh.scenere.datamodel.Walkthrough.WalkthroughStepProperty.*
-import uzh.scenere.datamodel.Walkthrough.WalkthroughProperty.*
 import kotlinx.android.synthetic.main.activity_walkthrough.*
 import kotlinx.android.synthetic.main.holder.*
 import uzh.scenere.R
@@ -183,10 +180,15 @@ class WalkthroughActivity : AbstractManagementActivity() {
             WalkthroughMode.SELECT_SCENARIO ->  {
                 mode = WalkthroughMode.SELECT_STAKEHOLDER
                 loadedStakeholders.clear()
-                loadedStakeholders.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class, loadedProjects[projectPointer!!])) //TODO: Reduce to Scenario-Stakeholders
                 scenarioContext = DatabaseHelper.getInstance(applicationContext).readFull(loadedScenarios[pointer!!].id,Scenario::class)
                 scenarioPointer = pointer
                 pointer = null
+                val stakeholders = DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class, loadedProjects[projectPointer!!])
+                for (stakeholder in stakeholders){
+                    if (scenarioContext!!.hasStakeholderPath(stakeholder)){
+                        loadedStakeholders.add(stakeholder)
+                    }
+                }
                 walkthrough_text_selected_scenario.text = loadedScenarios[scenarioPointer!!].title
                 creationButton?.setButtonStates(!loadedStakeholders.isEmpty(), !loadedStakeholders.isEmpty(), true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_play, null)
@@ -260,6 +262,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
     private fun play() {
         mode = WalkthroughMode.PLAY
         customizeToolbarId(null,null,R.string.icon_info,null,null)
+        walkthrough_layout_selection_content.visibility = GONE
         walkthrough_layout_selection.visibility = GONE
         walkthrough_holder.visibility = VISIBLE
         activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!]) {stop()}
@@ -274,6 +277,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         }
         objectInfoSpinnerLayout = null
         mode = WalkthroughMode.SELECT_STAKEHOLDER
+        walkthrough_layout_selection_content.visibility = VISIBLE
         walkthrough_layout_selection.visibility = VISIBLE
         walkthrough_holder.visibility = GONE
         activeWalkthrough = null
@@ -303,16 +307,16 @@ class WalkthroughActivity : AbstractManagementActivity() {
             val spinner = searchForLayout(objectInfoSpinnerLayout!!, Spinner::class)
             val objectName = spinner?.selectedItem.toString()
             val obj = scenarioContext?.getObjectByName(objectName)
+            //Cleanup
+            getInfoContentWrap().removeView(attributeInfoSpinnerLayout)
+            getInfoContentWrap().removeView(selectedAttributeInfoLayout)
+            selectedObject = null
+            selectedAttribute = null
             if (obj != null && obj != selectedObject ){
                 Walkthrough.WalkthroughProperty.INFO_OBJECT.set(objectName,String::class)
                 selectedObject = obj
                 attributeInfoSpinnerLayout = createLine(getString(R.string.literal_attribute), LineInputType.LOOKUP, null, obj.getAttributeNames("")) { attributeInfoSelected() }
                 getInfoContentWrap().addView(attributeInfoSpinnerLayout,1)
-            }else if (obj == null){
-                getInfoContentWrap().removeView(attributeInfoSpinnerLayout)
-                getInfoContentWrap().removeView(selectedAttributeInfoLayout)
-                selectedObject = null
-                selectedAttribute = null
             }
         }
     }
@@ -322,14 +326,14 @@ class WalkthroughActivity : AbstractManagementActivity() {
             val spinner = searchForLayout(attributeInfoSpinnerLayout!!, Spinner::class)
             val attributeName = spinner?.selectedItem.toString()
             val attr = selectedObject?.getAttributeByName(attributeName)
+            //Cleanup
+            getInfoContentWrap().removeView(selectedAttributeInfoLayout)
+            selectedAttribute = null
             if (attr != null && attr != selectedAttribute){
                 Walkthrough.WalkthroughProperty.INFO_ATTRIBUTE.set(attributeName,String::class)
                 selectedAttribute = attr
                 selectedAttributeInfoLayout = createLine(getString(R.string.literal_value), LineInputType.MULTI_LINE_TEXT, attr.value)
                 getInfoContentWrap().addView(selectedAttributeInfoLayout,2)
-            }else if (attr == null){
-                getInfoContentWrap().removeView(selectedAttributeInfoLayout)
-                selectedAttribute = null
             }
         }
     }
@@ -337,6 +341,17 @@ class WalkthroughActivity : AbstractManagementActivity() {
     override fun onToolbarLeftClicked() {
         if (mode != WalkthroughMode.PLAY){
             super.onToolbarLeftClicked()
+        }
+    }
+
+    private var awaitingBackConfirmation = false
+    override fun onBackPressed() {
+        if (mode != WalkthroughMode.PLAY || awaitingBackConfirmation){
+            super.onBackPressed()
+        }else{
+            toast("Press the Back Button again to cancel the Walkthrough")
+            awaitingBackConfirmation = true
+            Handler().postDelayed({awaitingBackConfirmation=false},2000)
         }
     }
 }

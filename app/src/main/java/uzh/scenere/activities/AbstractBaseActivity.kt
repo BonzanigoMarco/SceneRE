@@ -39,7 +39,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
 
     private fun readVariables() {
         marginSmall = DipHelper.get(resources).dip5
-        textSize = DipHelper.get(resources).dip4.toFloat()
+        textSize = DipHelper.get(resources).dip3_5.toFloat()
         fontAwesome = Typeface.createFromAsset(applicationContext.assets, "FontAwesome900.otf")
     }
 

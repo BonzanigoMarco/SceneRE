@@ -6,47 +6,68 @@ import android.support.v4.content.ContextCompat
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
-import uzh.scenere.views.SreTextView.STYLE.LIGHT
+import uzh.scenere.views.SreTextView.TextStyle.*
 
 @SuppressLint("ViewConstructor")
-open class SreTextView(context: Context, parent: ViewGroup?, label: String? = null, val style: STYLE = LIGHT): TextView(context) {
+open class SreTextView(context: Context, parent: ViewGroup?, label: String? = null, val style: TextStyle = LIGHT): TextView(context) {
 
-    constructor(context: Context, parent: ViewGroup?, stringId: Int, style: STYLE = LIGHT): this(context,parent,context.getString(stringId),style)
+    constructor(context: Context, parent: ViewGroup?, stringId: Int, TextStyle: TextStyle = LIGHT): this(context,parent,context.getString(stringId),TextStyle)
 
     init {
         text = label
-        create(context,parent,style)
+        create(context,parent)
     }
 
-    enum class STYLE{
-        DARK,LIGHT
+    enum class TextStyle{
+        DARK,LIGHT,MEDIUM,BORDERLESS_DARK, BORDERLESS_LIGHT
     }
     enum class ParentLayout{
-        RELATIVE,LINEAR,UNKNOWN
+        RELATIVE,LINEAR,FRAME,UNKNOWN
     }
 
-    private var parentLayout: ParentLayout = if (parent is LinearLayout) ParentLayout.LINEAR else if (parent is RelativeLayout) ParentLayout.RELATIVE else ParentLayout.UNKNOWN
+    private var parentLayout: ParentLayout = if (parent is LinearLayout) ParentLayout.LINEAR else if (parent is RelativeLayout) ParentLayout.RELATIVE else if (parent is FrameLayout) ParentLayout.FRAME else ParentLayout.UNKNOWN
 
-    private fun create(context: Context, parent: ViewGroup?, style: STYLE) {
+    private fun create(context: Context, parent: ViewGroup?) {
         id = View.generateViewId()
         gravity = Gravity.CENTER
-        background = context.getDrawable(if (style== STYLE.DARK) R.drawable.sre_text_view_dark else R.drawable.sre_text_view_light)
-        setTextColor(if (style== STYLE.DARK) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.srePrimaryDark))
+        when (style){
+            LIGHT, BORDERLESS_LIGHT -> {
+                background = context.getDrawable(if (style== LIGHT) R.drawable.sre_text_view_light else R.drawable.sre_text_view_light_borderless)
+                setTextColor(ContextCompat.getColor(context,R.color.srePrimaryDark))
+            }
+            DARK, BORDERLESS_DARK -> {
+                background = context.getDrawable(if (style== DARK) R.drawable.sre_text_view_dark else R.drawable.sre_text_view_dark_borderless)
+                setTextColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
+            }
+            MEDIUM -> {
+                background = context.getDrawable(R.drawable.sre_text_view_medium)
+                setTextColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
+            }
+        }
         val padding = context.resources.getDimension(R.dimen.dimPaddingTextView).toInt()
         val margin = context.resources.getDimension(R.dimen.dimMarginTextView).toInt()
         setPadding(padding,padding,padding,padding)
-        if (parent is LinearLayout){
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,  LinearLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(margin,margin,margin,margin)
-            layoutParams = params
-        }else if (parent is RelativeLayout){
-            val params = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(margin,margin,margin,margin)
-            layoutParams = params
+        when (parent) {
+            is LinearLayout -> {
+                val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,  LinearLayout.LayoutParams.WRAP_CONTENT)
+                params.setMargins(margin,margin,margin,margin)
+                layoutParams = params
+            }
+            is RelativeLayout -> {
+                val params = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT)
+                params.setMargins(margin,margin,margin,margin)
+                layoutParams = params
+            }
+            is FrameLayout -> {
+                val params = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT)
+                params.setMargins(margin,margin,margin,margin)
+                layoutParams = params
+            }
         }
     }
 
@@ -62,6 +83,29 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
             else -> {}
         }
         return this
+    }
+
+    fun setWeight(weight: Float){
+        when (parentLayout){
+            ParentLayout.LINEAR -> {
+                (layoutParams as LinearLayout.LayoutParams).weight = weight
+            }
+            else -> {}
+        }
+    }
+
+    fun setSize(height: Int,width: Int){
+        when (parentLayout){
+            ParentLayout.LINEAR -> {
+                (layoutParams as LinearLayout.LayoutParams).height = height
+                (layoutParams as LinearLayout.LayoutParams).width = width
+            }
+            ParentLayout.RELATIVE -> {
+                (layoutParams as RelativeLayout.LayoutParams).height = height
+                (layoutParams as RelativeLayout.LayoutParams).width = width
+            }
+            else -> {}
+        }
     }
 
     fun getMargin(): Int{

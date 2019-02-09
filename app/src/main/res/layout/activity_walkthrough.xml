@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/srePrimaryPastel"
     tools:context=".activities.WalkthroughActivity">
 
     <include
@@ -29,20 +30,20 @@
 
 
     <LinearLayout
+        android:id="@+id/walkthrough_layout_selection_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/walkthrough_text_label"
+        android:orientation="horizontal" />
+
+    <LinearLayout
         android:id="@+id/walkthrough_layout_selection"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/walkthrough_text_label"
+        android:layout_below="@+id/walkthrough_layout_selection_content"
         android:orientation="vertical"
-        android:weightSum="10">
+        android:weightSum="5">
 
-
-        <LinearLayout
-            android:id="@+id/walkthrough_layout_selection_content"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="5"
-            android:orientation="horizontal" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -52,8 +53,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/sreBlack"
-                android:layout_marginStart="@dimen/dimMarginLarge"
+                android:textColor="@color/srePrimaryDark"
+                android:layout_margin="@dimen/dimMarginLarge"
+                android:textStyle="bold"
                 android:textAlignment="textStart"
                 android:layout_weight="1"
                 android:text="@string/walkthrough_selected_project"/>
@@ -61,9 +63,9 @@
                 android:id="@+id/walkthrough_text_selected_project"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/dimMarginLarge"
+                android:textColor="@color/srePrimaryDark"
+                android:layout_margin="@dimen/dimMarginLarge"
                 android:textAlignment="textEnd"
-                android:textColor="@color/sreBlack"
                 android:layout_weight="1"/>
         </LinearLayout>
         <LinearLayout
@@ -75,8 +77,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/sreBlack"
-                android:layout_marginStart="@dimen/dimMarginLarge"
+                android:textColor="@color/srePrimaryDark"
+                android:layout_margin="@dimen/dimMarginLarge"
+                android:textStyle="bold"
                 android:textAlignment="textStart"
                 android:layout_weight="1"
                 android:text="@string/walkthrough_selected_scenario"/>
@@ -84,9 +87,9 @@
                 android:id="@+id/walkthrough_text_selected_scenario"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/dimMarginLarge"
+                android:textColor="@color/srePrimaryDark"
+                android:layout_margin="@dimen/dimMarginLarge"
                 android:textAlignment="textEnd"
-                android:textColor="@color/sreBlack"
                 android:layout_weight="1"/>
         </LinearLayout>
 

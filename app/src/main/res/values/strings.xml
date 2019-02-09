@@ -72,6 +72,7 @@
     <!--General-->
     <string name="empty" />
     <string name="label">%1$s:</string>
+    <string name="input">Input %1$s</string>
     <string name="deleted">%1$s Deleted!</string>
     <string name="observing">Observing %1$s</string>
     <!--Info-->
@@ -137,5 +138,6 @@
     <string name="projects">Projects</string>
     <string name="walkthrough_complete">Complete Walkthrough</string>
     <string name="main_menu_title">Main-Menu</string>
+    <string name="walkthrough_see_more">See more Details in the Analytics</string>
 
 </resources>

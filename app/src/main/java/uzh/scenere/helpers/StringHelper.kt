@@ -9,7 +9,7 @@ import java.io.Serializable
 import android.text.Html
 import android.os.Build
 import android.text.Spanned
-
+import uzh.scenere.const.Constants.Companion.NOTHING
 
 
 class StringHelper{
@@ -113,6 +113,46 @@ class StringHelper{
             } else {
                 Html.fromHtml(html)
             }
+        }
+
+        fun countSubstrings(string: String, substring: String): Int{
+            var count = 0
+            var original = string
+            var replaced = string
+            var finished = false
+            do {
+                replaced = original.replaceFirst(substring, NOTHING)
+                if (replaced != original){
+                    original = replaced
+                    count++
+                }else{
+                    finished = true
+                }
+            }while(!finished)
+            return count
+        }
+
+        fun substringAfterOccurrences(string: String, substring: String, occurrences: Int): String{
+            if (string.length > substring.length) {
+                var count = 0
+                for (index in 0 until (string.length - substring.length)) {
+                    if (string.substring(index,index+substring.length) == substring){
+                        count++
+                    }
+                    if (count >= occurrences){
+                        return string.substring(0,index)
+                    }
+                }
+            }
+            return string
+        }
+
+        fun cutHtmlAfter(html: String, linesMax: Int, hint:String): String{
+            val lines = countSubstrings(html, "<br>")
+            if (lines > linesMax){
+                return substringAfterOccurrences(html,"<br>",linesMax)+"<br>"+hint
+            }
+            return html
         }
     }
 }
