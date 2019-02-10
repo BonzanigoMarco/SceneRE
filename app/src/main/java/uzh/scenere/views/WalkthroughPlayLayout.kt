@@ -205,7 +205,9 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         val list = ArrayList<String>()
         list.addAll(additionalName)
         for (obj in getContextObjects()){
-            list.add(obj.name)
+            if (obj !is Object.NullObject){
+                list.add(obj.name)
+            }
         }
         return list.toTypedArray()
     }

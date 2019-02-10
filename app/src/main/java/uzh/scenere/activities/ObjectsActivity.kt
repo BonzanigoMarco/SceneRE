@@ -3,6 +3,8 @@ package uzh.scenere.activities
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.widget.Spinner
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
@@ -11,6 +13,7 @@ import uzh.scenere.datamodel.Attribute
 import uzh.scenere.datamodel.Object
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.helpers.DatabaseHelper
+import uzh.scenere.helpers.ObjectHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.helpers.getStringValue
 import uzh.scenere.views.SwipeButton
@@ -38,13 +41,16 @@ class ObjectsActivity : AbstractManagementActivity() {
     }
     override fun resetEditMode() {
         activeObject = null
+        isResourceSpinner = null
         objectsMode = ObjectMode.VIEW
     }
 
     private val inputLabelName = "Object Name"
     private val inputLabelDescription = "Object Description"
+    private val inputLabelResource = "Resource"
     private var activeScenario: Scenario? = null
     private var activeObject: Object? = null
+    private var isResourceSpinner: View? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,7 +120,12 @@ class ObjectsActivity : AbstractManagementActivity() {
     override fun createEntity() {
         val name = inputMap[inputLabelName]!!.getStringValue()
         val introduction = inputMap[inputLabelDescription]!!.getStringValue()
-        val objectBuilder = Object.ObjectBuilder(activeScenario!!,name, introduction)
+        var isResource = false
+        if (isResourceSpinner != null){
+            val spinner = searchForLayout(isResourceSpinner!!, Spinner::class)
+            isResource = spinner?.selectedItem.toString()=="True"
+        }
+        val objectBuilder = Object.ObjectBuilder(activeScenario!!,name, introduction, isResource)
         if (activeObject != null){
             removeObject(activeObject!!)
             objectBuilder.copyId(activeObject!!)
@@ -132,6 +143,8 @@ class ObjectsActivity : AbstractManagementActivity() {
             ObjectMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeObject==null) getString(R.string.objects_create) else getString(R.string.objects_edit))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, obj?.name))
+                isResourceSpinner = createLine(inputLabelResource, LineInputType.LOOKUP, null, if (ObjectHelper.nvl(obj?.isResource,false)) arrayOf("True", "False") else arrayOf("False", "True")) { }
+                scroll_holder_text_info_content_wrap.addView(isResourceSpinner)
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, obj?.description))
             }
             ObjectMode.ATTRIBUTES -> {

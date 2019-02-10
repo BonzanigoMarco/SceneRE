@@ -1,5 +1,6 @@
 package uzh.scenere.helpers
 
+import android.database.Cursor
 import android.widget.EditText
 import android.widget.TextView
 import uzh.scenere.const.Constants.Companion.NOTHING
@@ -38,4 +39,7 @@ public fun Any.readableClassName(delimiter: String = SPACE): String {
         readableClassName += className[c]
     }
     return readableClassName
+}
+public fun Cursor.getBoolean(columnIndex: Int): Boolean{
+    return getInt(columnIndex) == 1
 }

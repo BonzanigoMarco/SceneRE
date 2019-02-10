@@ -211,10 +211,12 @@ abstract class AbstractSreDatabase {
             const val COLUMN_TYPE_SCENARIO_ID = TEXT_TYPE
             const val COLUMN_TYPE_NAME = TEXT_TYPE
             const val COLUMN_TYPE_DESCRIPTION = TEXT_TYPE
+            const val COLUMN_TYPE_IS_RESOURCE = NUMBER_TYPE
             const val ID = " ID "
             const val SCENARIO_ID = " SCENARIO_ID "
             const val NAME = " NAME "
             const val DESCRIPTION = " DESCRIPTION "
+            const val IS_RESOURCE = " IS_RESOURCE "
         }
     }
 

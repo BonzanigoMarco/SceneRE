@@ -47,6 +47,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 //        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
 //        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
 //        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Object::class)
     }
 
     override fun onResume() {

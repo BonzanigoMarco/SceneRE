@@ -326,6 +326,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Object::class == clz) {
                     val obj = readFull(key, Object::class)
                     database!!.deleteObject(key)
+                    database!!.deleteAttributeByKey(key)
                     if (obj != null) {
                         for (attribute in obj.attributes) {
                             delete(attribute.id, Attribute::class)
@@ -358,7 +359,7 @@ class DatabaseHelper private constructor(context: Context) {
                 }
                 if (IElement::class == clz) {
                     database!!.deleteElement(key)
-                    database!!.deleteAttributeByRef(key)
+                    database!!.deleteAttributeByRefId(key)
                 }
                 if (CollectionsHelper.oneOf(clz, Boolean::class, Short::class, Int::class, Long::class, Float::class, Double::class)) {
                     database!!.deleteNumber(key)
@@ -400,6 +401,9 @@ class DatabaseHelper private constructor(context: Context) {
         }
         if (kClass == Element::class) {
             database!!.dropAndRecreateTable("ELEMENT_TABLE")
+        }
+        if (kClass == Object::class) {
+            database!!.dropAndRecreateTable("OBJECT_TABLE")
         }
     }
 }

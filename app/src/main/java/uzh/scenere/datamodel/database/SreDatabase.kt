@@ -12,6 +12,7 @@ import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
 import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.ObjectHelper
+import uzh.scenere.helpers.getBoolean
 import java.util.*
 
 class SreDatabase private constructor(context: Context) : AbstractSreDatabase() {
@@ -118,6 +119,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         values.put(ObjectTableEntry.SCENARIO_ID, obj.scenarioId)
         values.put(ObjectTableEntry.NAME, obj.name)
         values.put(ObjectTableEntry.DESCRIPTION, obj.description)
+        values.put(ObjectTableEntry.IS_RESOURCE, obj.isResource)
         for (attribute in obj.attributes) {
             writeAttribute(attribute)
         }
@@ -344,13 +346,14 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
 
     fun readObject(key: String, valueIfNull: Object, fullLoad: Boolean = false): Object {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID, ObjectTableEntry.SCENARIO_ID, ObjectTableEntry.NAME, ObjectTableEntry.DESCRIPTION), ObjectTableEntry.ID + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
+        val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID, ObjectTableEntry.SCENARIO_ID, ObjectTableEntry.NAME, ObjectTableEntry.DESCRIPTION, ObjectTableEntry.IS_RESOURCE), ObjectTableEntry.ID + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         if (cursor.moveToFirst()) {
             val id = cursor.getString(0)
             val scenarioId = cursor.getString(1)
             val name = cursor.getString(2)
             val description = cursor.getString(3)
-            val objectBuilder = Object.ObjectBuilder(id, scenarioId, name, description)
+            val isResource = cursor.getBoolean(4)
+            val objectBuilder = Object.ObjectBuilder(id, scenarioId, name, description, isResource)
             if (fullLoad) {
                 objectBuilder.addAttributes(attributes = *readAttributes(id).toTypedArray())
             }
@@ -362,14 +365,15 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
 
     fun readObjects(scenario: Scenario, fullLoad: Boolean = false): List<Object> {
         val db = dbHelper.readableDatabase
-        val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID, ObjectTableEntry.NAME, ObjectTableEntry.DESCRIPTION), ObjectTableEntry.SCENARIO_ID + LIKE + QUOTES + scenario.id + QUOTES, null, null, null, null, null)
+        val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID, ObjectTableEntry.NAME, ObjectTableEntry.DESCRIPTION, ObjectTableEntry.IS_RESOURCE), ObjectTableEntry.SCENARIO_ID + LIKE + QUOTES + scenario.id + QUOTES, null, null, null, null, null)
         val objects = ArrayList<Object>()
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getString(0)
                 val name = cursor.getString(1)
                 val description = cursor.getString(2)
-                val objectBuilder = Object.ObjectBuilder(id, scenario, name, description)
+                val isResource = cursor.getBoolean(3)
+                val objectBuilder = Object.ObjectBuilder(id, scenario, name, description,isResource)
                 if (fullLoad) {
                     objectBuilder.addAttributes(attributes = *readAttributes(id).toTypedArray())
                 }
@@ -600,8 +604,12 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         delete(AttributeTableEntry.TABLE_NAME, AttributeTableEntry.ID, key)
     }
 
-    fun deleteAttributeByRef(key: String) {
+    fun deleteAttributeByRefId(key: String) {
         delete(AttributeTableEntry.TABLE_NAME, AttributeTableEntry.REF_ID, key)
+    }
+
+    fun deleteAttributeByKey(key: String) {
+        delete(AttributeTableEntry.TABLE_NAME, AttributeTableEntry.KEY, key)
     }
 
     fun deleteScenario(key: String) {

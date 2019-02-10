@@ -4,38 +4,38 @@ import uzh.scenere.helpers.StringHelper
 import java.io.Serializable
 import java.util.*
 
-open class Object private constructor(val id: String, val scenarioId: String, val name: String, val description: String) : Serializable {
+open class Object private constructor(val id: String, val scenarioId: String, val name: String, val description: String, val isResource: Boolean) : Serializable {
     var attributes: List<Attribute> = ArrayList()
 
-    fun getAttributeNames(vararg additionalName: String): Array<String>{
+    fun getAttributeNames(vararg additionalName: String): Array<String> {
         val list = ArrayList<String>()
         list.addAll(additionalName)
-        for (attribute in attributes){
-            if (StringHelper.hasText(attribute.key)){
+        for (attribute in attributes) {
+            if (StringHelper.hasText(attribute.key)) {
                 list.add(attribute.key!!)
             }
         }
         return list.toTypedArray()
     }
 
-    fun getAttributeByName(name: String?): Attribute?{
-        for (attribute in attributes){
-            if (attribute.key == name){
+    fun getAttributeByName(name: String?): Attribute? {
+        for (attribute in attributes) {
+            if (attribute.key == name) {
                 return attribute
             }
         }
         return null
     }
 
-    class ObjectBuilder(private val scenarioId: String, private val name: String, private val description: String) {
+    class ObjectBuilder(private val scenarioId: String, private val name: String, private val description: String, private val isResource: Boolean) {
 
-        constructor(scenario: Scenario, name: String, description: String) : this(scenario.id, name, description)
+        constructor(scenario: Scenario, name: String, description: String, isResource: Boolean) : this(scenario.id, name, description, isResource)
 
-        constructor(id: String, scenario: Scenario, name: String, description: String) : this(scenario.id, name, description) {
+        constructor(id: String, scenario: Scenario, name: String, description: String, isResource: Boolean) : this(scenario.id, name, description, isResource) {
             this.id = id
         }
 
-        constructor(id: String, scenarioId: String, name: String, description: String) : this(scenarioId, name, description) {
+        constructor(id: String, scenarioId: String, name: String, description: String, isResource: Boolean) : this(scenarioId, name, description, isResource) {
             this.id = id
         }
 
@@ -53,7 +53,8 @@ open class Object private constructor(val id: String, val scenarioId: String, va
         }
 
         fun build(): Object {
-            val obj = Object(id ?: UUID.randomUUID().toString(), scenarioId, name, description)
+            val obj = Object(id
+                    ?: UUID.randomUUID().toString(), scenarioId, name, description, isResource)
             obj.attributes = this.attributes
             return obj
         }
@@ -74,5 +75,5 @@ open class Object private constructor(val id: String, val scenarioId: String, va
         return name
     }
 
-    class NullObject(): Object("","","","") {}
+    class NullObject() : Object("", "", "", "", false) {}
 }
