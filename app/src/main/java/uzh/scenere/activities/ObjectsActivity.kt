@@ -30,14 +30,14 @@ class ObjectsActivity : AbstractManagementActivity() {
     }
 
     enum class ObjectMode{
-        VIEW, EDIT_CREATE, ATTRIBUTES
+        VIEW, EDIT, CREATE, ATTRIBUTES
     }
     private var objectsMode: ObjectMode = ObjectMode.VIEW
     override fun isInViewMode(): Boolean {
         return objectsMode == ObjectMode.VIEW
     }
     override fun isInEditMode(): Boolean {
-        return objectsMode == ObjectMode.EDIT_CREATE
+        return (objectsMode == ObjectMode.EDIT) || (objectsMode == ObjectMode.CREATE)
     }
     override fun resetEditMode() {
         activeObject = null
@@ -90,7 +90,7 @@ class ObjectsActivity : AbstractManagementActivity() {
         return object: SwipeButtonExecution{
             override fun execRight() {
                 activeButton = button
-                openInput(ObjectMode.EDIT_CREATE)
+                openInput(ObjectMode.CREATE)
             }
         }
     }
@@ -105,7 +105,7 @@ class ObjectsActivity : AbstractManagementActivity() {
             }
             override fun execRight() {
                 activeButton = button
-                openInput(ObjectMode.EDIT_CREATE,obj)
+                openInput(ObjectMode.EDIT,obj)
             }
             override fun execUp() {
                 activeButton = button
@@ -140,7 +140,7 @@ class ObjectsActivity : AbstractManagementActivity() {
         this.objectsMode = objectsMode
         when(objectsMode){
             ObjectMode.VIEW -> {}//NOP
-            ObjectMode.EDIT_CREATE -> {
+            ObjectMode.EDIT, ObjectMode.CREATE -> {
                 cleanInfoHolder(if (activeObject==null) getString(R.string.objects_create) else getString(R.string.objects_edit))
                 scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, obj?.name))
                 isResourceSpinner = createLine(inputLabelResource, LineInputType.LOOKUP, null, if (ObjectHelper.nvl(obj?.isResource,false)) arrayOf("True", "False") else arrayOf("False", "True")) { }
@@ -171,6 +171,9 @@ class ObjectsActivity : AbstractManagementActivity() {
     override fun execDoAdditionalCheck(): Boolean {
         val nameField = inputMap[inputLabelName] ?: return true
         if (StringHelper.hasText(nameField.getStringValue())) {
+            if (objectsMode == ObjectMode.EDIT){
+                return true
+            }
             for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
                 if ((scroll_holder_linear_layout_holder.getChildAt(v) is SwipeButton) && (((scroll_holder_linear_layout_holder.getChildAt(v)) as SwipeButton).getText() == nameField.getStringValue())) {
                     toast("An Object with similar Name already exists.")

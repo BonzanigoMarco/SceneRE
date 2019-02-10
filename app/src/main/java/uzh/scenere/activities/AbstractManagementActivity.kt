@@ -144,6 +144,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             input.textSize = textSize!!
             input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            input.setText(presetValue)
             input.setWeight(1f)
             input.setSize(MATCH_PARENT,if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
