@@ -144,7 +144,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.textSize = textSize!!
             input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             input.setWeight(1f)
-            input.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
+            input.setSize(MATCH_PARENT,if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
             wrapper.addView(label)
             wrapper.addView(input)

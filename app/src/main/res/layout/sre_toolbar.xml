@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="?actionBarSize"
     android:background="?colorPrimary"
-    app:contentInsetRight="@dimen/dimMarginLarge"
-    app:contentInsetEnd="@dimen/dimMarginLarge"
+    app:contentInsetRight="@dimen/dpi15"
+    app:contentInsetEnd="@dimen/dpi15"
     tools:showIn="@layout/activity_cockpit">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,7 +23,7 @@
             android:scaleType="centerInside"
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
-            android:textSize="@dimen/text_large"
+            android:textSize="@dimen/sp25"
             android:textColor="@color/sreWhite"
             tools:ignore="OnClick" />
 
@@ -34,11 +34,11 @@
             android:layout_width="?attr/actionBarSize"
             android:layout_toStartOf="@+id/toolbar_action_center"
             android:layout_alignParentTop="true"
-            android:layout_marginEnd="@dimen/dimMarginToolbarCenter"
+            android:layout_marginEnd="@dimen/dpi35"
             android:scaleType="centerInside"
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
-            android:textSize="@dimen/text_large"
+            android:textSize="@dimen/sp25"
             android:textColor="@color/sreWhite"
             tools:ignore="OnClick" />
 
@@ -53,7 +53,7 @@
             android:gravity="center"
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
-            android:textSize="@dimen/text_large"
+            android:textSize="@dimen/sp25"
             android:textColor="@color/sreWhite"
             tools:ignore="OnClick" />
 
@@ -64,11 +64,11 @@
             android:layout_width="?attr/actionBarSize"
             android:layout_toEndOf="@+id/toolbar_action_center"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="@dimen/dimMarginToolbarCenter"
+            android:layout_marginStart="@dimen/dpi35"
             android:scaleType="centerInside"
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
-            android:textSize="@dimen/text_large"
+            android:textSize="@dimen/sp25"
             android:textColor="@color/sreWhite"
             tools:ignore="OnClick" />
 
@@ -82,7 +82,7 @@
             android:scaleType="centerInside"
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
-            android:textSize="@dimen/text_large"
+            android:textSize="@dimen/sp25"
             android:textColor="@color/sreWhite"
             tools:ignore="OnClick" />
     </RelativeLayout>

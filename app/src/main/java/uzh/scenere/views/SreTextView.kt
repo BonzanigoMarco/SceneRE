@@ -49,8 +49,8 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
                 setTextColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
             }
         }
-        val padding = context.resources.getDimension(R.dimen.dimPaddingTextView).toInt()
-        val margin = context.resources.getDimension(R.dimen.dimMarginTextView).toInt()
+        val padding = context.resources.getDimension(R.dimen.dpi15).toInt()
+        val margin = context.resources.getDimension(R.dimen.dpi0).toInt()
         setPadding(padding,padding,padding,padding)
         when (parent) {
             is LinearLayout -> {

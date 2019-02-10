@@ -10,10 +10,11 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import uzh.scenere.R
+import uzh.scenere.views.SreEditText.EditStyle.DARK
 import uzh.scenere.views.SreEditText.EditStyle.LIGHT
 
 @SuppressLint("ViewConstructor")
-open class SreEditText(context: Context, parent: ViewGroup?, text: String? = null, hint: String? = null, val style: EditStyle = LIGHT): EditText(context) {
+open class SreEditText(context: Context, parent: ViewGroup?, text: String? = null, hint: String? = null, val style: EditStyle = DARK): EditText(context) {
 
     constructor(context: Context, parent: ViewGroup?, textId: Int,  hintId: Int, style: EditStyle = LIGHT): this(context,parent,context.getString(textId),context.getString(hintId),style)
 
@@ -35,10 +36,10 @@ open class SreEditText(context: Context, parent: ViewGroup?, text: String? = nul
     private fun create(context: Context, parent: ViewGroup?) {
         id = View.generateViewId()
         gravity = Gravity.CENTER
-        background = context.getDrawable(if (style== EditStyle.DARK) R.drawable.sre_edit_text_dark else R.drawable.sre_edit_text_light)
-        setTextColor(if (style== EditStyle.DARK) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.srePrimaryDark))
-        val padding = context.resources.getDimension(R.dimen.dimPaddingTextView).toInt()
-        val margin = context.resources.getDimension(R.dimen.dimMarginTextView).toInt()
+        background = context.getDrawable(if (style== DARK) R.drawable.sre_edit_text_dark else R.drawable.sre_edit_text_light)
+        setTextColor(if (style== DARK) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.srePrimaryDark))
+        val padding = context.resources.getDimension(R.dimen.dpi15).toInt()
+        val margin = context.resources.getDimension(R.dimen.dpi0).toInt()
         setPadding(padding,padding,padding,padding)
         if (parent is LinearLayout){
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,  LinearLayout.LayoutParams.WRAP_CONTENT)

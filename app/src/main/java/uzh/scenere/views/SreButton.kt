@@ -34,8 +34,8 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         gravity = Gravity.CENTER
         background = context.getDrawable(R.drawable.sre_button)
         setTextColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
-        val padding = context.resources.getDimension(R.dimen.dimPaddingButton).toInt()
-        val margin = context.resources.getDimension(R.dimen.dimMarginButton).toInt()
+        val padding = context.resources.getDimension(R.dimen.dpi5).toInt()
+        val margin = context.resources.getDimension(R.dimen.dpi5).toInt()
         setPadding(padding, padding, padding, padding)
         if (parent is LinearLayout) {
             val params = LinearLayout.LayoutParams(width

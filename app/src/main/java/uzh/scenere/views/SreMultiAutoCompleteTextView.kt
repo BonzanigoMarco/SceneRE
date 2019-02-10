@@ -2,6 +2,7 @@ package uzh.scenere.views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.support.v4.content.ContextCompat
 import android.text.*
 import android.util.Log
 import android.widget.ArrayAdapter
@@ -23,13 +24,12 @@ import uzh.scenere.datamodel.Attribute
 import uzh.scenere.datamodel.Object
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.SreMultiAutoCompleteTextView.AutoCompleteStyle.DARK
-import uzh.scenere.views.SreMultiAutoCompleteTextView.AutoCompleteStyle.LIGHT
 import java.io.Serializable
 import kotlin.reflect.KClass
 
 
 @SuppressLint("ViewConstructor")
-class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Serializable>, val style: AutoCompleteStyle = LIGHT) : MultiAutoCompleteTextView(context) {
+class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Serializable>, val style: AutoCompleteStyle = AutoCompleteStyle.DARK) : MultiAutoCompleteTextView(context) {
     private val colorArray = arrayOf(MATERIAL_100_RED, MATERIAL_100_VIOLET, MATERIAL_100_BLUE, MATERIAL_100_TURQUOISE, MATERIAL_100_GREEN, MATERIAL_100_LIME, MATERIAL_100_YELLOW, MATERIAL_100_ORANGE)
     private var objectPointer = 0
     private val objectMap = HashMap<String, Serializable>()
@@ -57,11 +57,12 @@ class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Seri
             initSuggestions(context)
         }
         background = context.getDrawable(if (style == DARK) R.drawable.sre_edit_text_dark else R.drawable.sre_edit_text_light)
+        setTextColor(if (style== DARK) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.srePrimaryDark))
 
     }
 
     private fun initSuggestions(context: Context) {
-        val adapter = ArrayAdapter<String>(context, R.layout.suggestion_dropdown, getObjectLabels())
+        val adapter = ArrayAdapter<String>(context, if (style== DARK) R.layout.sre_suggestion_dropdown_light else R.layout.sre_suggestion_dropdown_dark, getObjectLabels())
         setAdapter(adapter)
         threshold = 1
         setTokenizer(SreSpaceTokenizer())

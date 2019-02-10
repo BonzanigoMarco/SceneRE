@@ -12,7 +12,7 @@
         android:layout_height="0dp"
         android:background="@color/srePrimaryPastel"
         android:scrollbarAlwaysDrawVerticalTrack="true"
-        android:scrollbarSize="@dimen/dimScrollbar"
+        android:scrollbarSize="@dimen/dpi15"
         android:fadeScrollbars="false"
         android:scrollbarThumbVertical="@drawable/scrollbar"
         android:layout_weight="7">
@@ -41,10 +41,10 @@
             android:layout_height="0dp"
             android:textColor="@color/sreWhite"
             android:background="@color/srePrimary"
-            android:layout_marginTop="@dimen/dimMarginSmall"
-            android:layout_marginLeft="@dimen/dimMarginSmall"
-            android:layout_marginRight="@dimen/dimMarginSmall"
-            android:layout_marginBottom="@dimen/dimMarginSmallHalf"
+            android:layout_marginTop="@dimen/dpi5"
+            android:layout_marginLeft="@dimen/dpi5"
+            android:layout_marginRight="@dimen/dpi5"
+            android:layout_marginBottom="@dimen/dpi2_5"
             android:gravity="center"
             android:textAlignment="gravity"/>
 
@@ -63,10 +63,10 @@
                 android:layout_height="match_parent"
                 android:textColor="@color/sreWhite"
                 android:background="@color/srePrimary"
-                android:layout_marginTop="@dimen/dimMarginSmallHalf"
-                android:layout_marginLeft="@dimen/dimMarginSmall"
-                android:layout_marginRight="@dimen/dimMarginSmall"
-                android:layout_marginBottom="@dimen/dimMarginSmall"
+                android:layout_marginTop="@dimen/dpi2_5"
+                android:layout_marginLeft="@dimen/dpi5"
+                android:layout_marginRight="@dimen/dpi5"
+                android:layout_marginBottom="@dimen/dpi5"
                 android:gravity="center_horizontal"
                 android:maxLines="2"
                 android:ellipsize="end" />

@@ -25,7 +25,7 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
     init {
         orientation = VERTICAL
         val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        params.setMargins(0,0, resources.getDimension(R.dimen.dimScrollbar).toInt(),0)
+        params.setMargins(0,0, resources.getDimension(R.dimen.dpi15).toInt(),0)
         layoutParams = params
         createOverview()
     }

@@ -111,7 +111,7 @@ class SensorHelper private constructor(context: Context) {
                     //Cache and Adjust Text
                     cachedLayoutParams = outputText.layoutParams
                     val outputTextLp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 2f)
-                    val margin = NumberHelper.nvl(outputText.resources?.getDimension(R.dimen.dimMarginSmall), 0).toInt()
+                    val margin = NumberHelper.nvl(outputText.resources?.getDimension(R.dimen.dpi5), 0).toInt()
                     outputTextLp.setMargins(margin,margin,margin,margin)
                     outputText.layoutParams = outputTextLp
                     //Create and add Graph

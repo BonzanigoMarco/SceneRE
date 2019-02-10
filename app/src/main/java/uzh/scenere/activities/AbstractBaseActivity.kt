@@ -9,7 +9,6 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannedString
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -110,7 +109,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
                 weight
         )
         if (textView != null) {
-            val margin = NumberHelper.nvl(this.resources?.getDimension(R.dimen.dimMarginSmall), 0).toInt()
+            val margin = NumberHelper.nvl(this.resources?.getDimension(R.dimen.dpi5), 0).toInt()
             textView.setPadding(0, 0, 0, 0)
             layoutParams.setMargins(margin, margin, margin, margin)
             when (crop) {

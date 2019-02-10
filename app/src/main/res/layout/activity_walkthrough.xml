@@ -54,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/srePrimaryDark"
-                android:layout_margin="@dimen/dimMarginLarge"
+                android:layout_margin="@dimen/dpi15"
                 android:textStyle="bold"
                 android:textAlignment="textStart"
                 android:layout_weight="1"
@@ -64,7 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/srePrimaryDark"
-                android:layout_margin="@dimen/dimMarginLarge"
+                android:layout_margin="@dimen/dpi15"
                 android:textAlignment="textEnd"
                 android:layout_weight="1"/>
         </LinearLayout>
@@ -78,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/srePrimaryDark"
-                android:layout_margin="@dimen/dimMarginLarge"
+                android:layout_margin="@dimen/dpi15"
                 android:textStyle="bold"
                 android:textAlignment="textStart"
                 android:layout_weight="1"
@@ -88,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/srePrimaryDark"
-                android:layout_margin="@dimen/dimMarginLarge"
+                android:layout_margin="@dimen/dpi15"
                 android:textAlignment="textEnd"
                 android:layout_weight="1"/>
         </LinearLayout>
@@ -105,10 +105,10 @@
                 android:id="@+id/walkthrough_text_selection_info"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/dimMarginSmall"
-                android:layout_marginTop="@dimen/dimMarginSmallHalf"
-                android:layout_marginRight="@dimen/dimMarginSmall"
-                android:layout_marginBottom="@dimen/dimMarginSmall"
+                android:layout_marginLeft="@dimen/dpi5"
+                android:layout_marginTop="@dimen/dpi2_5"
+                android:layout_marginRight="@dimen/dpi5"
+                android:layout_marginBottom="@dimen/dpi5"
                 android:background="@color/srePrimary"
                 android:textAlignment="center"
                 android:textColor="@color/sreWhite" />
