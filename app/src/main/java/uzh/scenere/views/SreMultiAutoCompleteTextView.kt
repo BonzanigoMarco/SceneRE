@@ -5,6 +5,7 @@ import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.text.*
 import android.util.Log
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
 import uzh.scenere.R
@@ -21,7 +22,7 @@ import uzh.scenere.const.Constants.Companion.NEW_LINE_C
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.SPACE_C
 import uzh.scenere.datamodel.Attribute
-import uzh.scenere.datamodel.Object
+import uzh.scenere.datamodel.AbstractObject
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.SreMultiAutoCompleteTextView.AutoCompleteStyle.DARK
 import java.io.Serializable
@@ -56,6 +57,8 @@ class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Seri
             addObjects(objects)
             initSuggestions(context)
         }
+        val padding = context.resources.getDimension(R.dimen.dpi15).toInt()
+        setPadding(padding,padding,padding,padding)
         background = context.getDrawable(if (style == DARK) R.drawable.sre_edit_text_dark else R.drawable.sre_edit_text_light)
         setTextColor(if (style== DARK) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.srePrimaryDark))
 
@@ -83,9 +86,9 @@ class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Seri
             return this
         }
         when (objects[0]) {
-            is Object -> {
+            is AbstractObject -> {
                 for (obj in objects) {
-                    val name = (obj as Object).name
+                    val name = (obj as AbstractObject).name
                     objectMap[name] = obj
                     objectLabels[name] = fontBegin.replace(placeholder, colorArray[objectPointer]) + name + fontEnd
                 }

@@ -68,6 +68,8 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
     private var bottomBg: TextView? = null
     private var leftIconText: TextView? = null
     private var rightIconText: TextView? = null
+    //Position
+    private var firstPosition: Boolean = false
     //Configuration
     private var lIdx: Int = 0
     private var rIdx: Int = 1
@@ -449,6 +451,15 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
 
     fun getText(): String?{
         return labelText?.text.toString()
+    }
+
+    fun setFirstPosition(): SwipeButton{
+        firstPosition = true
+        return this
+    }
+
+    fun isFirstPosition(): Boolean{
+        return firstPosition
     }
 
     fun adaptMasterLayoutParams(borderless: Boolean = false): SwipeButton {

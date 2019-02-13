@@ -99,7 +99,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
     private var objectInfoSpinnerLayout: View? = null
     private var attributeInfoSpinnerLayout: View? = null
     private var selectedAttributeInfoLayout: View? = null
-    private var selectedObject: Object? = null
+    private var selectedObject: AbstractObject? = null
     private var selectedAttribute: Attribute? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,6 +114,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                 .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)
                 .adaptMasterLayoutParams(true)
+                .setFirstPosition()
                 .setAutoCollapse(true)
                 .updateViews(true)
         creationButton?.setExecutable(createControlExecutable())

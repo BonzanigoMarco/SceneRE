@@ -14,7 +14,8 @@ class NullHelper private constructor(){
                 Stakeholder::class -> Stakeholder.NullStakeholder() as T
                 Scenario::class -> Scenario.NullScenario() as T
                 Attribute::class -> Attribute.NullAttribute() as T
-                Object::class -> Object.NullObject() as T
+                ContextObject::class, AbstractObject::class -> ContextObject.NullContextObject() as T
+                Resource::class -> Resource.NullResource() as T
                 Path::class -> Path.NullPath() as T
                 Walkthrough::class -> Walkthrough.NullWalkthrough() as T
                 AbstractStep::class -> AbstractStep.NullStep() as T

@@ -17,7 +17,7 @@
         android:scrollbarThumbVertical="@drawable/scrollbar"
         android:layout_weight="7">
 
-        <LinearLayout
+        <uzh.scenere.views.SwipeButtonSortingLayout
             android:id="@+id/scroll_holder_linear_layout_holder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -47,7 +47,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 //        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
 //        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
 //        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Object::class)
+//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(AbstractObject::class)
     }
 
     override fun onResume() {
@@ -57,7 +57,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
     override fun onToolbarLeftClicked() { //SAVE
         if (isInEditMode()) {
-            if (!execDoAdditionalCheck()){
+            if (!execDoAdditionalCheck()) {
                 return
             }
             for (entry in inputMap) {
@@ -70,24 +70,28 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             if (isSpacingEnabled()) {
                 createTitle("", getContentHolderLayout())
             }
-            if (getContentWrapperLayout() is SwipeButtonScrollView){
-                execFullScroll()
+            if (getContentWrapperLayout() is SwipeButtonScrollView) {
+                execScroll()
             }
             onToolbarRightClicked()
         } else {
-            onBackPressed()
+            super.onBackPressed()
         }
     }
 
-    open fun execFullScroll() {
-        (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)
+    override fun onBackPressed() {
+        if (getContentWrapperLayout() is SwipeButtonScrollView &&
+                (getContentWrapperLayout() as SwipeButtonScrollView).scrollY > 0){
+            execFullScrollUp()
+        }else{
+            super.onBackPressed()
+        }
     }
 
-    /**
-     * @return true if all checks succeed
-     */
-    open fun execDoAdditionalCheck(): Boolean {
-        return true
+    override fun onToolbarCenterRightClicked() {
+        if (!isInEditMode()) {
+            execFullScrollUp()
+        }
     }
 
     override fun onToolbarCenterClicked() { //LOCK & UNLOCK
@@ -113,6 +117,29 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         }
     }
 
+    open fun execScroll() {
+        if (getContentHolderLayout() is SwipeButtonSortingLayout) {
+            execMinimizeKeyboard()
+            (getContentHolderLayout() as SwipeButtonSortingLayout).scrollToLastAdded()
+            execMinimizeKeyboard()
+        }
+    }
+
+    open fun execFullScroll() {
+        (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)
+    }
+
+    open fun execFullScrollUp() {
+        (getContentWrapperLayout() as SwipeButtonScrollView).scrollTo(0, 0)
+    }
+
+    /**
+     * @return true if all checks succeed
+     */
+    open fun execDoAdditionalCheck(): Boolean {
+        return true
+    }
+
     override fun onLayoutRendered() {
         if (infoState == null) {
             execMorphInfoBar(InfoState.INITIALIZE)
@@ -123,36 +150,36 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     //* CREATION *
     //************
     enum class LineInputType {
-        SINGLE_LINE_EDIT, MULTI_LINE_EDIT, LOOKUP, SINGLE_LINE_TEXT, MULTI_LINE_TEXT, SINGLE_LINE_CONTEXT_EDIT, MULTI_LINE_CONTEXT_EDIT
+        SINGLE_LINE_EDIT, MULTI_LINE_EDIT, LOOKUP, SINGLE_LINE_TEXT, MULTI_LINE_TEXT, SINGLE_LINE_CONTEXT_EDIT, MULTI_LINE_CONTEXT_EDIT, NUMBER_EDIT
     }
 
     //TODO: Clean that up and use Sre Views
     @Suppress("UNCHECKED_CAST")
     protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {
-        if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT)) {
+        if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT, LineInputType.NUMBER_EDIT)) {
             val layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             layoutParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             val wrapper = LinearLayout(this)
             wrapper.layoutParams = layoutParams
             wrapper.weightSum = 2f
             wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_EDIT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-            val label = SreTextView(this,wrapper,getString(R.string.label, labelText), BORDERLESS_DARK)
+            val label = SreTextView(this, wrapper, getString(R.string.label, labelText), BORDERLESS_DARK)
             label.setWeight(1f)
-            label.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
+            label.setSize(WRAP_CONTENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-            val input = SreEditText(this,wrapper,null,getString(R.string.input, labelText))
+            val input = SreEditText(this, wrapper, null, getString(R.string.input, labelText))
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             input.textSize = textSize!!
-            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            input.inputType = if (inputType == LineInputType.NUMBER_EDIT) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             input.setText(presetValue)
             input.setWeight(1f)
-            input.setSize(MATCH_PARENT,if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
+            input.setSize(MATCH_PARENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
             wrapper.addView(label)
             wrapper.addView(input)
             inputMap[labelText] = input
             return wrapper
-        }else if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_CONTEXT_EDIT, LineInputType.MULTI_LINE_CONTEXT_EDIT)) {
+        } else if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_CONTEXT_EDIT, LineInputType.MULTI_LINE_CONTEXT_EDIT)) {
             val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
@@ -160,9 +187,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             wrapper.layoutParams = layoutParams
             wrapper.weightSum = 2f
             wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-            val label = SreTextView(this,wrapper,getString(R.string.label, labelText), BORDERLESS_DARK)
+            val label = SreTextView(this, wrapper, getString(R.string.label, labelText), BORDERLESS_DARK)
             label.setWeight(1f)
-            label.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
+            label.setSize(WRAP_CONTENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val input = SreMultiAutoCompleteTextView(this, ArrayList())
             input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
@@ -178,20 +205,20 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             wrapper.addView(input)
             inputMap[labelText] = input
             return wrapper
-        } else if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_TEXT, LineInputType.MULTI_LINE_TEXT)){
+        } else if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_TEXT, LineInputType.MULTI_LINE_TEXT)) {
             val layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             layoutParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             val wrapper = LinearLayout(this)
             wrapper.layoutParams = layoutParams
             wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_TEXT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-            val label = SreTextView(this,wrapper,getString(R.string.label, labelText), BORDERLESS_DARK)
-            label.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_TEXT) MATCH_PARENT else WRAP_CONTENT)
+            val label = SreTextView(this, wrapper, getString(R.string.label, labelText), BORDERLESS_DARK)
+            label.setSize(WRAP_CONTENT, if (inputType == LineInputType.MULTI_LINE_TEXT) MATCH_PARENT else WRAP_CONTENT)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val scrollWrapper = ScrollView(this)
-            val text = SreTextView(this,scrollWrapper,presetValue, MEDIUM)
+            val text = SreTextView(this, scrollWrapper, presetValue, MEDIUM)
             scrollWrapper.addView(text)
             text.textAlignment = if (inputType == LineInputType.MULTI_LINE_TEXT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
-            text.setSize(WRAP_CONTENT,if (inputType == LineInputType.MULTI_LINE_TEXT) MATCH_PARENT else WRAP_CONTENT)
+            text.setSize(WRAP_CONTENT, if (inputType == LineInputType.MULTI_LINE_TEXT) MATCH_PARENT else WRAP_CONTENT)
             text.setSingleLine((inputType != LineInputType.MULTI_LINE_TEXT))
             wrapper.addView(label)
             wrapper.addView(scrollWrapper)
@@ -213,8 +240,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             outerWrapper.orientation = LinearLayout.VERTICAL
             selectionCarrier.orientation = LinearLayout.VERTICAL
             selectionCarrier.gravity = Gravity.CENTER
-            val label = SreTextView(this,wrapper,getString(R.string.label, labelText), BORDERLESS_DARK)
-            label.setSize(WRAP_CONTENT,MATCH_PARENT)
+            val label = SreTextView(this, wrapper, getString(R.string.label, labelText), BORDERLESS_DARK)
+            label.setSize(WRAP_CONTENT, MATCH_PARENT)
             label.setWeight(1f)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val spinner = Spinner(applicationContext)
@@ -225,7 +252,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     val spinnerText = spinner.selectedItem as String
-                    if (executable != null){
+                    if (executable != null) {
                         return executable()
                     }
                     if (StringHelper.hasText(spinnerText)) {
@@ -250,9 +277,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             wrapper.addView(spinner)
             outerWrapper.addView(wrapper)
             outerWrapper.addView(selectionCarrier)
-            if (StringHelper.hasText(presetValue)){
+            if (StringHelper.hasText(presetValue)) {
                 val split = presetValue!!.split(";")
-                for (value in split){
+                for (value in split) {
                     addSpinnerSelection(value, selectionCarrier, labelText, spinner)
                 }
             }
@@ -263,7 +290,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun addSpinnerSelection(spinnerText: String, selectionCarrier: LinearLayout, labelText: String, spinner: Spinner) {
-        val textView = SreTextView(applicationContext,selectionCarrier,spinnerText,DARK)
+        val textView = SreTextView(applicationContext, selectionCarrier, spinnerText, DARK)
         val textParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         textParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
         textView.layoutParams = textParams
@@ -313,8 +340,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 when {
                     swipeButton.dataObject is Project -> swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class, swipeButton.dataObject).size,
                             DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class, swipeButton.dataObject).size)
-                    swipeButton.dataObject is Scenario -> swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Object::class, swipeButton.dataObject).size, null)
-                    swipeButton.dataObject is Object -> swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Attribute::class, (swipeButton.dataObject as Object).id).size, null)
+                    swipeButton.dataObject is Scenario -> swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(AbstractObject::class, swipeButton.dataObject).size, null)
+                    swipeButton.dataObject is AbstractObject -> swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Attribute::class, (swipeButton.dataObject as AbstractObject).id).size, null)
                 }
             }
         }
@@ -332,7 +359,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     protected fun showDeletionConfirmation(objectName: String?) {
-        if (objectName == null){
+        if (objectName == null) {
             return
         }
         val textPrior = getInfoTitle().text
@@ -353,24 +380,31 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     open fun isSpacingEnabled(): Boolean {
         return true
     }
-    open fun getContentWrapperLayout(): ViewGroup{
+
+    open fun getContentWrapperLayout(): ViewGroup {
         return scroll_holder_scroll
     }
-    open fun getContentHolderLayout(): ViewGroup{
+
+    open fun getContentHolderLayout(): ViewGroup {
         return scroll_holder_linear_layout_holder
     }
-    open fun getInfoWrapper(): LinearLayout{
+
+    open fun getInfoWrapper(): LinearLayout {
         return scroll_holder_layout_info
     }
-    open fun getInfoTitle(): TextView{
+
+    open fun getInfoTitle(): TextView {
         return scroll_holder_text_info_title
     }
-    open fun getInfoContentWrap(): LinearLayout{
+
+    open fun getInfoContentWrap(): LinearLayout {
         return scroll_holder_text_info_content_wrap
     }
-    open fun getInfoContent(): TextView{
+
+    open fun getInfoContent(): TextView {
         return scroll_holder_text_info_content
     }
+
     open fun resetToolbar() {
         customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
     }
@@ -438,16 +472,16 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         return resources.getText(R.string.icon_null)
     }
 
-    fun getTextsFromLookupChoice(id: String): ArrayList<String>{
+    fun getTextsFromLookupChoice(id: String): ArrayList<String> {
         val list = ArrayList<String>()
-        if (!StringHelper.hasText(id)){
+        if (!StringHelper.hasText(id)) {
             return list
         }
         val multi = multiInputMap[id]
-        if (multi == null || multi.isEmpty()){
+        if (multi == null || multi.isEmpty()) {
             return list
         }
-        for (text in multi){
+        for (text in multi) {
             list.add(text.text.toString())
         }
         return list

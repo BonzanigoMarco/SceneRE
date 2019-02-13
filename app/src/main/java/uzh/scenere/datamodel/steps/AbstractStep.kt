@@ -3,7 +3,7 @@ package uzh.scenere.datamodel.steps
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.datamodel.IElement
-import uzh.scenere.datamodel.Object
+import uzh.scenere.datamodel.AbstractObject
 import uzh.scenere.datamodel.Path
 import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.helpers.NullHelper
@@ -11,7 +11,7 @@ import uzh.scenere.helpers.StringHelper
 import kotlin.collections.ArrayList
 
 abstract class AbstractStep(val id: String, var previousId: String?, val pathId: String): IElement {
-    var objects: ArrayList<Object> =  ArrayList<Object>()
+    var objects: ArrayList<AbstractObject> =  ArrayList<AbstractObject>()
     var title: String? = null
     var text: String? = null
     var time: Long = 0
@@ -29,12 +29,12 @@ abstract class AbstractStep(val id: String, var previousId: String?, val pathId:
         return this
     }
 
-    fun withObjects(objectList: ArrayList<Object>): IElement{
+    fun withObjects(objectList: ArrayList<AbstractObject>): IElement{
         this.objects.addAll(objectList)
         return this
     }
 
-    fun withObject(obj: Object): IElement{
+    fun withObject(obj: AbstractObject): IElement{
         this.objects.add(obj)
         return this
     }

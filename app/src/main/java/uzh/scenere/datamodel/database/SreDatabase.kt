@@ -2,6 +2,9 @@ package uzh.scenere.datamodel.database
 
 import android.content.ContentValues
 import android.content.Context
+import uzh.scenere.const.Constants.Companion.INIT_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.MAX_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.MIN_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.TYPE_BUTTON_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_OBJECT
 import uzh.scenere.const.Constants.Companion.TYPE_STANDARD_STEP
@@ -113,7 +116,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return insert(StakeholderTableEntry.TABLE_NAME, StakeholderTableEntry.ID, stakeholder.id, values)
     }
 
-    fun writeObject(obj: Object): Long {
+    fun writeObject(obj: AbstractObject): Long {
         val values = ContentValues()
         values.put(ObjectTableEntry.ID, obj.id)
         values.put(ObjectTableEntry.SCENARIO_ID, obj.scenarioId)
@@ -122,6 +125,11 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         values.put(ObjectTableEntry.IS_RESOURCE, obj.isResource)
         for (attribute in obj.attributes) {
             writeAttribute(attribute)
+        }
+        if (obj is Resource){
+            writeDouble(MIN_IDENTIFIER.plus(obj.id),obj.min)
+            writeDouble(MAX_IDENTIFIER.plus(obj.id),obj.max)
+            writeDouble(INIT_IDENTIFIER.plus(obj.id),obj.init)
         }
         return insert(ObjectTableEntry.TABLE_NAME, ObjectTableEntry.ID, obj.id, values)
     }
@@ -344,7 +352,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return valueIfNull
     }
 
-    fun readObject(key: String, valueIfNull: Object, fullLoad: Boolean = false): Object {
+    fun readObject(key: String, valueIfNull: AbstractObject, fullLoad: Boolean = false): AbstractObject {
         val db = dbHelper.readableDatabase
         val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID, ObjectTableEntry.SCENARIO_ID, ObjectTableEntry.NAME, ObjectTableEntry.DESCRIPTION, ObjectTableEntry.IS_RESOURCE), ObjectTableEntry.ID + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         if (cursor.moveToFirst()) {
@@ -353,7 +361,12 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val name = cursor.getString(2)
             val description = cursor.getString(3)
             val isResource = cursor.getBoolean(4)
-            val objectBuilder = Object.ObjectBuilder(id, scenarioId, name, description, isResource)
+            val objectBuilder: AbstractObject.AbstractObjectBuilder
+            if (isResource){
+                objectBuilder = Resource.ResourceBuilder(id, scenarioId, name, description)
+            }else{
+                objectBuilder = ContextObject.ContextObjectBuilder(id, scenarioId, name, description)
+            }
             if (fullLoad) {
                 objectBuilder.addAttributes(attributes = *readAttributes(id).toTypedArray())
             }
@@ -363,17 +376,26 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return valueIfNull
     }
 
-    fun readObjects(scenario: Scenario, fullLoad: Boolean = false): List<Object> {
+    fun readObjects(scenario: Scenario, fullLoad: Boolean = false): List<AbstractObject> {
         val db = dbHelper.readableDatabase
         val cursor = db.query(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID, ObjectTableEntry.NAME, ObjectTableEntry.DESCRIPTION, ObjectTableEntry.IS_RESOURCE), ObjectTableEntry.SCENARIO_ID + LIKE + QUOTES + scenario.id + QUOTES, null, null, null, null, null)
-        val objects = ArrayList<Object>()
+        val objects = ArrayList<AbstractObject>()
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getString(0)
                 val name = cursor.getString(1)
                 val description = cursor.getString(2)
                 val isResource = cursor.getBoolean(3)
-                val objectBuilder = Object.ObjectBuilder(id, scenario, name, description,isResource)
+                val objectBuilder: AbstractObject.AbstractObjectBuilder
+                if (isResource){
+                    objectBuilder = Resource.ResourceBuilder(id, scenario, name, description).configure(
+                            readDouble(MIN_IDENTIFIER.plus(id),0.0),
+                            readDouble(MAX_IDENTIFIER.plus(id),0.0),
+                            readDouble(INIT_IDENTIFIER.plus(id),0.0)
+                    )
+                }else{
+                    objectBuilder = ContextObject.ContextObjectBuilder(id, scenario, name, description)
+                }
                 if (fullLoad) {
                     objectBuilder.addAttributes(attributes = *readAttributes(id).toTypedArray())
                 }
@@ -513,7 +535,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         val step = StandardStep(id, prevId, path.id).withText(text).withTitle(title)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
-                                step.withObject(readObject(linkAttribute.key as String, NullHelper.get(Object::class)))
+                                step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
                             }
                         }
                         elements.add(step)

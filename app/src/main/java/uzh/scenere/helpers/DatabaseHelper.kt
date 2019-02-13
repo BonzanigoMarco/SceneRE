@@ -6,6 +6,9 @@ import android.util.Base64
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.ATTRIBUTE_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.ELEMENT_UID_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.INIT_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.MAX_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.MIN_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.OBJECT_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.PATH_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.PROJECT_UID_IDENTIFIER
@@ -67,7 +70,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Double) sharedPreferences.edit().putLong(key, java.lang.Double.doubleToLongBits(obj)).apply()
                 if (obj is Project) write(PROJECT_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
                 if (obj is Stakeholder) write(STAKEHOLDER_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
-                if (obj is Object) write(OBJECT_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
+                if (obj is AbstractObject) write(OBJECT_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
                 if (obj is Attribute) write(ATTRIBUTE_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
                 if (obj is Scenario) write(SCENARIO_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
                 if (obj is Path) write(PATH_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
@@ -85,7 +88,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Double) database!!.writeDouble(key, obj)
                 if (obj is Project) database!!.writeProject(obj)
                 if (obj is Stakeholder) database!!.writeStakeholder(obj)
-                if (obj is Object) database!!.writeObject(obj)
+                if (obj is AbstractObject) database!!.writeObject(obj)
                 if (obj is Attribute) database!!.writeAttribute(obj)
                 if (obj is Scenario) database!!.writeScenario(obj)
                 if (obj is Path) database!!.writePath(obj)
@@ -123,7 +126,7 @@ class DatabaseHelper private constructor(context: Context) {
                     }
                     if (Project::class == clz) return readBinary(key, clz, PROJECT_UID_IDENTIFIER, valIfNull)
                     if (Stakeholder::class == clz) return readBinary(key, clz, STAKEHOLDER_UID_IDENTIFIER, valIfNull)
-                    if (Object::class == clz) return readBinary(key, clz, OBJECT_UID_IDENTIFIER, valIfNull)
+                    if (AbstractObject::class == clz) return readBinary(key, clz, OBJECT_UID_IDENTIFIER, valIfNull)
                     if (Attribute::class == clz) return readBinary(key, clz, ATTRIBUTE_UID_IDENTIFIER, valIfNull)
                     if (Scenario::class == clz) return readBinary(key, clz, SCENARIO_UID_IDENTIFIER, valIfNull)
                     if (Path::class == clz) return readBinary(key, clz, PATH_UID_IDENTIFIER, NullHelper.get(clz))
@@ -141,7 +144,7 @@ class DatabaseHelper private constructor(context: Context) {
                     if (Double::class == clz) return database!!.readDouble(key, valIfNull as Double) as T
                     if (Project::class == clz) return database!!.readProject(key, valIfNull as Project) as T
                     if (Stakeholder::class == clz) return database!!.readStakeholders(key, valIfNull as Stakeholder) as T
-                    if (Object::class == clz) return database!!.readObject(key, valIfNull as Object) as T
+                    if (AbstractObject::class == clz) return database!!.readObject(key, valIfNull as AbstractObject) as T
                     if (Attribute::class == clz) return database!!.readAttribute(key, valIfNull as Attribute) as T
                     if (Scenario::class == clz) return database!!.readScenario(key, valIfNull as Scenario) as T
                     if (Path::class == clz) return database!!.readPath(key, valIfNull as Path) as T
@@ -168,7 +171,7 @@ class DatabaseHelper private constructor(context: Context) {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 if (Project::class == clz) return readBinary(key, clz, PROJECT_UID_IDENTIFIER, NullHelper.get(clz))
-                if (Object::class == clz) return readBinary(key, clz, OBJECT_UID_IDENTIFIER, NullHelper.get(clz))
+                if (AbstractObject::class == clz) return readBinary(key, clz, OBJECT_UID_IDENTIFIER, NullHelper.get(clz))
                 if (Scenario::class == clz) return readBinary(key, clz, SCENARIO_UID_IDENTIFIER, NullHelper.get(clz))
                 if (Path::class == clz) return readBinary(key, clz, PATH_UID_IDENTIFIER, NullHelper.get(clz))
                 if (IElement::class == clz) return readBinary(key, clz, ELEMENT_UID_IDENTIFIER, NullHelper.get(clz))
@@ -176,7 +179,7 @@ class DatabaseHelper private constructor(context: Context) {
             }
             DataMode.DATABASE -> {
                 if (Project::class == clz) return database!!.readProject(key, NullHelper.get(Project::class), true) as T?
-                if (Object::class == clz) return database!!.readObject(key, NullHelper.get(Object::class), true) as T?
+                if (AbstractObject::class == clz) return database!!.readObject(key, NullHelper.get(ContextObject::class), true) as T?
                 if (Scenario::class == clz) return database!!.readScenario(key, NullHelper.get(Scenario::class), true) as T?
                 if (Path::class == clz) return database!!.readPath(key, NullHelper.get(Path::class),true) as T?
                 if (IElement::class == clz) return null
@@ -229,11 +232,11 @@ class DatabaseHelper private constructor(context: Context) {
                     }
                     return list as List<T>
                 }
-                if (Object::class == clz) {
+                if (AbstractObject::class == clz) {
                     val objects = readBulkInternal(clz, OBJECT_UID_IDENTIFIER)
                     val list = ArrayList<Serializable>()
                     for (obj in objects) {
-                        if ((obj as Object).scenarioId == ((key as Scenario).id)) {
+                        if ((obj as AbstractObject).scenarioId == ((key as Scenario).id)) {
                             list.add(obj)
                         }
                     }
@@ -275,7 +278,7 @@ class DatabaseHelper private constructor(context: Context) {
             DataMode.DATABASE -> {
                 if (Project::class == clz) return database!!.readProjects() as List<T>
                 if (Stakeholder::class == clz && key is Project) return database!!.readStakeholders(key) as List<T>
-                if (Object::class == clz && key is Scenario) return database!!.readObjects(key, fullLoad) as List<T>
+                if (AbstractObject::class == clz && key is Scenario) return database!!.readObjects(key, fullLoad) as List<T>
                 if (Attribute::class == clz && key is String) return database!!.readAttributes(key) as List<T>
                 if (Scenario::class == clz && key is Project) return database!!.readScenarios(key, fullLoad) as List<T>
                 if (Path::class == clz && key is Scenario) return database!!.readPaths(key, fullLoad) as List<T>
@@ -323,14 +326,19 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Stakeholder::class == clz) {
                     database!!.deleteStakeholder(key)
                 }
-                if (Object::class == clz) {
-                    val obj = readFull(key, Object::class)
+                if (AbstractObject::class == clz || ContextObject::class == clz || Resource::class == clz) {
+                    val obj = readFull(key, AbstractObject::class)
                     database!!.deleteObject(key)
                     database!!.deleteAttributeByKey(key)
                     if (obj != null) {
                         for (attribute in obj.attributes) {
                             delete(attribute.id, Attribute::class)
                         }
+                    }
+                    if (obj is Resource){
+                        delete(MIN_IDENTIFIER.plus(obj.id),Double::class)
+                        delete(MAX_IDENTIFIER.plus(obj.id),Double::class)
+                        delete(INIT_IDENTIFIER.plus(obj.id),Double::class)
                     }
                 }
                 if (Attribute::class == clz) {
@@ -341,7 +349,7 @@ class DatabaseHelper private constructor(context: Context) {
                     database!!.deleteScenario(key)
                     if (scenario != null) {
                         for (obj in scenario.objects) {
-                            delete(obj.id, Object::class)
+                            delete(obj.id, AbstractObject::class)
                         }
                         for (path in scenario.getAllPaths()) {
                             delete(path.id, Path::class)
@@ -402,7 +410,7 @@ class DatabaseHelper private constructor(context: Context) {
         if (kClass == Element::class) {
             database!!.dropAndRecreateTable("ELEMENT_TABLE")
         }
-        if (kClass == Object::class) {
+        if (kClass == AbstractObject::class) {
             database!!.dropAndRecreateTable("OBJECT_TABLE")
         }
     }

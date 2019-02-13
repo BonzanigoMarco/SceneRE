@@ -82,8 +82,8 @@
     <string name="stakeholders_edit">Edit Stakeholder</string>
     <string name="scenarios_create">Creating a new Scenario</string>
     <string name="scenarios_edit">Edit Scenario</string>
-    <string name="objects_create">Creating a new Object</string>
-    <string name="objects_edit">Edit Object</string>
+    <string name="objects_create">Creating a new AbstractObject</string>
+    <string name="objects_edit">Edit AbstractObject</string>
     <string name="attributes_create">Creating a new Attribute</string>
     <string name="attributes_edit">Edit Attribute</string>
     <!--Titles-->
@@ -111,10 +111,10 @@
     <!--Walkthrough-->
     <string name="walkthrough_button_label">Select one of %1$d %2$s</string>
     <string name="walkthrough_button_label_failure">No %1$s created yet</string>
-    <string name="walkthrough_selection_info">Select an Object you want Information about</string>
+    <string name="walkthrough_selection_info">Select an AbstractObject you want Information about</string>
     <string name="walkthrough_selection_no_info">No Context Information available</string>
     <!--Literal-->
-    <string name="literal_object">Object</string>
+    <string name="literal_object">AbstractObject</string>
     <string name="literal_attribute">Attribute</string>
     <string name="literal_scenarios">Scenarios</string>
     <string name="literal_projects">Projects</string>
@@ -139,5 +139,6 @@
     <string name="walkthrough_complete">Complete Walkthrough</string>
     <string name="main_menu_title">Main-Menu</string>
     <string name="walkthrough_see_more">See more Details in the Analytics</string>
+    <string name="objects_similar_alert">An AbstractObject with similar Name already exists.</string>
 
 </resources>

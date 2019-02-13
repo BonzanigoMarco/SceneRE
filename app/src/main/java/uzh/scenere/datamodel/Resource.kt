@@ -1,32 +1,39 @@
 package uzh.scenere.datamodel
 
-class Resource private constructor(private val name: String, private val description: String) {
-    private var max: Double? = null
-    private var min: Double? = null
-    private var init: Double? = null
-    private var diff: Double? = null
+import java.util.*
 
-    class ResourceBuilder(val name: String, val description: String){
-        private var max: Double? = null
-        private var min: Double? = null
-        private var init: Double? = null
-        private var diff: Double? = null
+open class Resource private constructor(id: String, scenarioId: String, name: String, description: String, val max: Double, val min: Double, val init: Double) : AbstractObject(id, scenarioId, name, description, true) {
 
-        fun configure(min: Double?, max: Double?, init: Double?, diff: Double?): Resource{
+    class ResourceBuilder(private val scenarioId: String, private val name: String, private val description: String) : AbstractObjectBuilder(scenarioId, name, description) {
+
+        constructor(scenario: Scenario, name: String, description: String) : this(scenario.id, name, description)
+
+        constructor(id: String, scenario: Scenario, name: String, description: String) : this(scenario.id, name, description) {
+            this.id = id
+        }
+
+        constructor(id: String, scenarioId: String, name: String, description: String) : this(scenarioId, name, description) {
+            this.id = id
+        }
+
+        private var max: Double = 0.0
+        private var min: Double = 0.0
+        private var init: Double = 0.0
+
+        fun configure(min: Double, max: Double, init: Double): ResourceBuilder {
             this.max = max
             this.min = min
             this.init = init
-            this.diff = diff
-            return build()
+            return this
         }
-        private fun build(): Resource{
-            val resource  = Resource(name,description)
-            resource.max = this.max
-            resource.min = this.min
-            resource.init = this.init
-            resource.diff = this.diff
+
+        override fun build(): Resource {
+            val resource = Resource(id
+                    ?: UUID.randomUUID().toString(), scenarioId, name, description, max, min, init)
+            resource.attributes = this.attributes
             return resource
         }
     }
 
+    class NullResource() : Resource("", "", "", "",0.0,0.0,0.0) {}
 }

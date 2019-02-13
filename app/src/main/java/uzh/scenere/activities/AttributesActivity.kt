@@ -6,7 +6,7 @@ import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.Attribute
-import uzh.scenere.datamodel.Object
+import uzh.scenere.datamodel.AbstractObject
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.helpers.getStringValue
@@ -38,18 +38,19 @@ class AttributesActivity : AbstractManagementActivity() {
 
     private val inputLabelKey = "Attribute Name"
     private val inputLabelValue = "Attribute Description"
-    private var activeObject: Object? = null
+    private var activeObject: AbstractObject? = null
     private var activeAttribute: Attribute? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activeObject = intent.getSerializableExtra(Constants.BUNDLE_OBJECT) as Object
+        activeObject = intent.getSerializableExtra(Constants.BUNDLE_OBJECT) as AbstractObject
         creationButton =
                 SwipeButton(this, "Create New Attribute")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setColors(Color.WHITE, Color.GRAY)
                         .setButtonStates(false, true, false, false)
                         .setButtonIcons(R.string.icon_null, R.string.icon_edit, null, null, R.string.icon_info)
+                        .setFirstPosition()
                         .updateViews(true)
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
         scroll_holder_linear_layout_holder.addView(creationButton)
@@ -86,7 +87,7 @@ class AttributesActivity : AbstractManagementActivity() {
         return object : SwipeButton.SwipeButtonExecution {
             override fun execLeft() {
                 if (attribute != null) {
-                    removeAttribute(attribute)
+                    removeAttribute(attribute, true)
                     showDeletionConfirmation(attribute.key)
                 }
             }
@@ -127,12 +128,14 @@ class AttributesActivity : AbstractManagementActivity() {
         execMorphInfoBar(InfoState.MAXIMIZED)
     }
 
-    private fun removeAttribute(attribute: Attribute) {
+    private fun removeAttribute(attribute: Attribute, dbRemoval: Boolean = false) {
         for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount) {
             if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
                     (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == attribute) {
                 scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
-                DatabaseHelper.getInstance(applicationContext).delete(attribute.id, Attribute::class)
+                if (dbRemoval){
+                    DatabaseHelper.getInstance(applicationContext).delete(attribute.id, Attribute::class)
+                }
                 return
             }
         }

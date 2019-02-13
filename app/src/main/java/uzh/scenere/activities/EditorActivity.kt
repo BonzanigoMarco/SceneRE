@@ -101,6 +101,7 @@ class EditorActivity : AbstractManagementActivity() {
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
                 .setButtonStates(true, true, false, false)
                 .adaptMasterLayoutParams(true)
+                .setFirstPosition()
                 .setAutoCollapse(true)
                 .updateViews(true)
         creationButton?.setExecutable(createControlExecutable())
@@ -390,9 +391,9 @@ class EditorActivity : AbstractManagementActivity() {
         customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, null, null, null)
     }
 
-    override fun execFullScroll(){
+    override fun execScroll(){
         if (editorState == ADD){ //Avoid Scrolls on Edit
-            (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)
+            super.execScroll()
         }
     }
 }

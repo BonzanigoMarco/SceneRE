@@ -54,6 +54,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
                         .setColors(Color.WHITE,Color.GRAY)
                         .setButtonStates(false,true,false,false)
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_stakeholder)
+                        .setFirstPosition()
                         .updateViews(true )
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
         scroll_holder_linear_layout_holder.addView(creationButton)
@@ -90,7 +91,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
         return object: SwipeButtonExecution{
             override fun execLeft() {
                 if (stakeholder!=null){
-                    removeStakeholder(stakeholder)
+                    removeStakeholder(stakeholder,true)
                     showDeletionConfirmation(stakeholder.name)
                 }
             }
@@ -131,12 +132,14 @@ class StakeholdersActivity : AbstractManagementActivity() {
         execMorphInfoBar(InfoState.MAXIMIZED)
     }
 
-    private fun removeStakeholder(stakeholder: Stakeholder) {
+    private fun removeStakeholder(stakeholder: Stakeholder, dbRemoval: Boolean = false) {
         for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount){
             if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
                     (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == stakeholder){
                 scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
-                DatabaseHelper.getInstance(applicationContext).delete(stakeholder.id, Stakeholder::class)
+                if (dbRemoval){
+                    DatabaseHelper.getInstance(applicationContext).delete(stakeholder.id, Stakeholder::class)
+                }
                 return
             }
         }

@@ -11,7 +11,7 @@ import kotlin.collections.HashMap
 
 open class Scenario private constructor(val id: String, val projectId: String, val title: String, val intro: String, val outro: String): Serializable {
     private val resources: List<Resource> = ArrayList()
-    val objects: ArrayList<Object> = ArrayList()
+    val objects: ArrayList<AbstractObject> = ArrayList()
     var paths: HashMap<String,HashMap<Int,Path>> = HashMap()
     private val stakeholders: List<Stakeholder> = ArrayList()
     private val walkthroughs: List<Walkthrough> = ArrayList()
@@ -71,7 +71,7 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         return list.toTypedArray()
     }
 
-    fun getObjectByName(name: String?): Object?{
+    fun getObjectByName(name: String?): AbstractObject?{
         for (obj in objects){
             if (obj.name == name){
                 return obj
@@ -102,7 +102,7 @@ open class Scenario private constructor(val id: String, val projectId: String, v
 
         private var id: String? = null
         private var resources: List<Resource> = ArrayList()
-        private var objects: List<Object> = ArrayList()
+        private var objects: List<AbstractObject> = ArrayList()
         private val paths: HashMap<String,HashMap<Int,Path>> = HashMap()
         private var stakeholders: List<Stakeholder> = ArrayList()
         private var walkthroughs: List<Walkthrough> = ArrayList()
@@ -112,7 +112,7 @@ open class Scenario private constructor(val id: String, val projectId: String, v
 //            this.resources = this.resources.plus(resource)
 //            return this
 //        }
-        fun addObjects(vararg obj: Object): ScenarioBuilder{
+        fun addObjects(vararg obj: AbstractObject): ScenarioBuilder{
             this.objects = this.objects.plus(obj)
             return this
         }
@@ -173,8 +173,8 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         return super.hashCode()
     }
 
-    fun getObjectsWithNames(objectNames: ArrayList<String>): ArrayList<Object>{
-        val objectList = ArrayList<Object>()
+    fun getObjectsWithNames(objectNames: ArrayList<String>): ArrayList<AbstractObject>{
+        val objectList = ArrayList<AbstractObject>()
         for (name in objectNames){
             for (obj in this.objects){
                 if (obj.name == name){

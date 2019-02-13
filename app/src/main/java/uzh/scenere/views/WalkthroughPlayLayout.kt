@@ -12,11 +12,9 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.ANONYMOUS
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.USER_NAME
-import uzh.scenere.datamodel.Object
-import uzh.scenere.datamodel.Path
-import uzh.scenere.datamodel.Scenario
-import uzh.scenere.datamodel.Stakeholder
-import uzh.scenere.datamodel.Walkthrough
+import uzh.scenere.datamodel.*
+import uzh.scenere.datamodel.ContextObject.NullContextObject
+import uzh.scenere.datamodel.Resource.NullResource
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.StandardStep
 import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
@@ -192,7 +190,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         }
     }
 
-    fun getContextObjects(): ArrayList<Object> {
+    fun getContextObjects(): ArrayList<AbstractObject> {
         if (first is AbstractStep){
             return (first as AbstractStep).objects
         }else if (second is AbstractStep){
@@ -205,7 +203,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         val list = ArrayList<String>()
         list.addAll(additionalName)
         for (obj in getContextObjects()){
-            if (obj !is Object.NullObject){
+            if (obj !is NullContextObject && obj !is NullResource){
                 list.add(obj.name)
             }
         }

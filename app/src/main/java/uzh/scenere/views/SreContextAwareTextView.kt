@@ -23,7 +23,7 @@ import uzh.scenere.const.Constants.Companion.MATERIAL_700_TURQUOISE
 import uzh.scenere.const.Constants.Companion.MATERIAL_700_VIOLET
 import uzh.scenere.const.Constants.Companion.MATERIAL_700_YELLOW
 import uzh.scenere.datamodel.Attribute
-import uzh.scenere.datamodel.Object
+import uzh.scenere.datamodel.AbstractObject
 import uzh.scenere.helpers.StringHelper
 import java.io.Serializable
 import kotlin.reflect.KClass
@@ -66,9 +66,9 @@ class SreContextAwareTextView(context: Context, parent: ViewGroup?,val boldWords
             return this
         }
         when (objects[0]) {
-            is Object -> {
+            is AbstractObject -> {
                 for (obj in objects) {
-                    val name = (obj as Object).name
+                    val name = (obj as AbstractObject).name
                     objectMap[name] = obj
                     objectLabels[name] = fontBegin.replace(placeholder, colorArray[objectPointer]) + name + fontEnd
                 }

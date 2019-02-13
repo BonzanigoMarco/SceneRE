@@ -6,7 +6,7 @@ import android.os.Bundle
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
-import uzh.scenere.datamodel.Object
+import uzh.scenere.datamodel.AbstractObject
 import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.helpers.DatabaseHelper
@@ -53,6 +53,7 @@ class ScenariosActivity : AbstractManagementActivity() {
                         .setColors(Color.WHITE, Color.GRAY)
                         .setButtonStates(false, true, false, false)
                         .setButtonIcons(R.string.icon_null, R.string.icon_edit, null, null, R.string.icon_scenario)
+                        .setFirstPosition()
                         .updateViews(true)
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
         scroll_holder_linear_layout_holder.addView(creationButton)
@@ -72,7 +73,7 @@ class ScenariosActivity : AbstractManagementActivity() {
                 .setButtonStates(lockState == LockState.UNLOCKED, true, true, true)
                 .updateViews(true)
         swipeButton.dataObject = scenario
-        swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Object::class,scenario).size,null)
+        swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(AbstractObject::class,scenario).size,null)
         swipeButton.setExecutable(generateScenarioExecutable(swipeButton, scenario))
         scroll_holder_linear_layout_holder.addView(swipeButton)
     }
@@ -90,7 +91,7 @@ class ScenariosActivity : AbstractManagementActivity() {
         return object : SwipeButton.SwipeButtonExecution {
             override fun execLeft() {
                 if (scenario != null) {
-                    removeScenario(scenario)
+                    removeScenario(scenario,true)
                     showDeletionConfirmation(scenario.title)
                 }
             }
@@ -154,12 +155,14 @@ class ScenariosActivity : AbstractManagementActivity() {
         execMorphInfoBar(InfoState.MAXIMIZED)
     }
 
-    private fun removeScenario(scenario: Scenario) {
+    private fun removeScenario(scenario: Scenario, dbRemoval: Boolean = false) {
         for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount) {
             if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
                     (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == scenario) {
                 scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
-                DatabaseHelper.getInstance(applicationContext).delete(scenario.id, Scenario::class)
+                if (dbRemoval){
+                    DatabaseHelper.getInstance(applicationContext).delete(scenario.id, Scenario::class)
+                }
                 return
             }
         }

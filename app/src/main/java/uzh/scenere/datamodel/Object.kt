@@ -4,7 +4,7 @@ import uzh.scenere.helpers.StringHelper
 import java.io.Serializable
 import java.util.*
 
-open class Object private constructor(val id: String, val scenarioId: String, val name: String, val description: String, val isResource: Boolean) : Serializable {
+abstract class AbstractObject internal constructor(val id: String, val scenarioId: String, val name: String, val description: String, val isResource: Boolean) : Serializable {
     var attributes: List<Attribute> = ArrayList()
 
     fun getAttributeNames(vararg additionalName: String): Array<String> {
@@ -27,41 +27,26 @@ open class Object private constructor(val id: String, val scenarioId: String, va
         return null
     }
 
-    class ObjectBuilder(private val scenarioId: String, private val name: String, private val description: String, private val isResource: Boolean) {
+    abstract class AbstractObjectBuilder(private val scenarioId: String, private val name: String, private val description: String) {
 
-        constructor(scenario: Scenario, name: String, description: String, isResource: Boolean) : this(scenario.id, name, description, isResource)
+        protected var id: String? = null
+        protected var attributes: List<Attribute> = ArrayList()
 
-        constructor(id: String, scenario: Scenario, name: String, description: String, isResource: Boolean) : this(scenario.id, name, description, isResource) {
-            this.id = id
-        }
-
-        constructor(id: String, scenarioId: String, name: String, description: String, isResource: Boolean) : this(scenarioId, name, description, isResource) {
-            this.id = id
-        }
-
-        private var id: String? = null
-        private var attributes: List<Attribute> = ArrayList()
-
-        fun addAttributes(vararg attributes: Attribute): ObjectBuilder {
+        fun addAttributes(vararg attributes: Attribute): AbstractObjectBuilder {
             this.attributes = this.attributes.plus(attributes)
             return this
         }
 
-        fun copyId(obj: Object): ObjectBuilder {
+        fun copyId(obj: AbstractObject): AbstractObjectBuilder {
             this.id = obj.id
             return this
         }
 
-        fun build(): Object {
-            val obj = Object(id
-                    ?: UUID.randomUUID().toString(), scenarioId, name, description, isResource)
-            obj.attributes = this.attributes
-            return obj
-        }
+        abstract fun build(): AbstractObject
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other is Object) {
+        if (other is AbstractObject) {
             return (id == other.id)
         }
         return false
@@ -74,6 +59,4 @@ open class Object private constructor(val id: String, val scenarioId: String, va
     override fun toString(): String {
         return name
     }
-
-    class NullObject() : Object("", "", "", "", false) {}
 }
