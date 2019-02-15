@@ -1,6 +1,7 @@
 package uzh.scenere.activities
 
 import android.annotation.SuppressLint
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -486,5 +487,4 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         }
         return list
     }
-
 }

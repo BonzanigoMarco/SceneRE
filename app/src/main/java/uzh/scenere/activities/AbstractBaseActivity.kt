@@ -9,6 +9,7 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannedString
+import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +30,8 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     protected var textSize: Float? = null
     protected var fontAwesome: Typeface? = null
     protected var fontNormal: Typeface = Typeface.DEFAULT
+    protected var screenWidth = 0
+    protected var screenHeight = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +40,10 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     }
 
     private fun readVariables() {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        screenHeight = displayMetrics.heightPixels
+        screenWidth = displayMetrics.widthPixels
         marginSmall = DipHelper.get(resources).dip5
         textSize = DipHelper.get(resources).dip3_5.toFloat()
         fontAwesome = Typeface.createFromAsset(applicationContext.assets, "FontAwesome900.otf")

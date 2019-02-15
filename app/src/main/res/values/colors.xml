@@ -21,6 +21,7 @@
     <color name="sreQuarz">#444444</color>
     <color name="sreDarkGray">#222222</color>
     <color name="sreBlack">#000000</color>
+    <color name="sreTutorial">#FB8C00</color>
 
 
 
@@ -92,7 +93,7 @@
     <color name="list_green_d">#005C00</color>
     <color name="list_green_b">#007000</color>
 
-    <color name="list_red_d">#5C0000</color>
+    <color name="list_red_d">#5C0000</color>FF
     <color name="list_red_b">#700000</color>
 
     <color name="material_100_red">#F8BBD0</color>

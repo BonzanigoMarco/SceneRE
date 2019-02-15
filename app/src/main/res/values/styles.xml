@@ -26,4 +26,8 @@
         <item name="android:textColor">@color/sreWhite</item>
         <item name="android:colorBackground">@color/srePrimaryDark</item>
     </style>
+
+    <style name="SreDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/transparent</item>
+    </style>
 </resources>

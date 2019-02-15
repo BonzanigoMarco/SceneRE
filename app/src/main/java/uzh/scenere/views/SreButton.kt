@@ -12,7 +12,7 @@ import android.widget.RelativeLayout
 import uzh.scenere.R
 import uzh.scenere.views.SreButton.ButtonParentLayout.*
 
-open class SreButton(context: Context, parent: ViewGroup?, label: String?, height: Int? = null, width: Int? = null): Button(context) {
+open class SreButton(context: Context, parent: ViewGroup?, label: String?, height: Int? = null, width: Int? = null, val style: ButtonStyle = ButtonStyle.NORMAL): Button(context) {
 
     constructor(context: Context, parent: ViewGroup?, stringId: Int, height: Int? = null, width: Int? = null): this(context,parent,context.getString(stringId),height,width)
 
@@ -25,6 +25,11 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         RELATIVE, LINEAR, UNKNOWN
     }
 
+    enum class ButtonStyle{
+        NORMAL, TUTORIAL
+    }
+
+
     private var parentLayout: ButtonParentLayout = if (parent is LinearLayout) LINEAR else if (parent is RelativeLayout) RELATIVE else UNKNOWN
     private lateinit var function: () -> Unit
     private var longClickOnly: Boolean = false
@@ -32,8 +37,8 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
     private fun create(context: Context, parent: ViewGroup?, height: Int?, width: Int?) {
         id = View.generateViewId()
         gravity = Gravity.CENTER
-        background = context.getDrawable(R.drawable.sre_button)
-        setTextColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
+        background = if (style== ButtonStyle.NORMAL) context.getDrawable(R.drawable.sre_button) else context.getDrawable(R.drawable.sre_button_tutorial)
+        setTextColor(if (style== ButtonStyle.NORMAL) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.sreBlack))
         val padding = context.resources.getDimension(R.dimen.dpi5).toInt()
         val margin = context.resources.getDimension(R.dimen.dpi5).toInt()
         setPadding(padding, padding, padding, padding)

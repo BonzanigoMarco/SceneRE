@@ -140,5 +140,7 @@
     <string name="main_menu_title">Main-Menu</string>
     <string name="walkthrough_see_more">See more Details in the Analytics</string>
     <string name="objects_similar_alert">An AbstractObject with similar Name already exists.</string>
+    <string name="tutorial_close">Close</string>
+    <string name="tutorial_next">Next</string>
 
 </resources>
