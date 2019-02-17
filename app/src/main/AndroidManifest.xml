@@ -30,6 +30,7 @@
         android:theme="@style/SceneReTheme"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:windowSoftInputMode="adjustNothing"
+        android:screenOrientation="portrait"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".activities.MainMenuActivity"
             android:theme="@style/SceneReToolbarTheme">
@@ -40,42 +41,57 @@
         </activity>
         <activity android:name=".activities.AnalyticsActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".activities.StartupActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".activities.WalkthroughActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="landscape"/>
+
         <activity android:name=".activities.CockpitActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
-        <activity android:name=".activities.ResourcesActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".activities.ProjectsActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".activities.ScenariosActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".activities.ShareActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".activities.EditorActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
-        <activity android:name=".activities.TutorialActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".activities.StakeholdersActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".activities.ObjectsActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".activities.AttributesActivity"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SceneReToolbarTheme"/>
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
     </application>
 </manifest>

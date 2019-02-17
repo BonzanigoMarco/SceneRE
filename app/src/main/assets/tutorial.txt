@@ -1,0 +1,109 @@
+Welcome
+
+Before you can start,
+you need to grant the App
+some Permissions.
+Head to the Cockpit to do so.
+
+
+Creation Button
+
+Swipe right to open
+the Input Panel.
+Enter the required Information
+to create a new Entity.
+
+
+Top & Bottom Bar
+
+The Top Bar shows the Entity
+you are about to create or modify,
+while the Bottom Bar shows
+the functionality for each Icon.
+
+
+Toolbar
+
+Depending on your Location
+within the App, the Toolbar
+changes to provide different
+Functionalities, including a
+Back-, Cancel- and Accept-Button
+
+
+Entity Item
+
+Every created Entity appears
+in the Form of an Entity Item.
+It can be swiped to each side to
+either drill down to another Entity
+or invoke a Functionality indicated
+by the corresponding Icon.
+
+
+Permissions
+
+These are all the Permissions
+necessary for the Application to
+work properly. Swipe right to
+grant the Permissions.
+
+
+Communications
+
+This is an overview of the
+Communication Systems used in
+this Application. Swiping right
+or left enables and disables
+each one of them separately.
+
+
+Sensors
+
+This is an overview of all
+Sensors used in this Application.
+Swiping right or left starts
+and stops a Diagnosis. Maximize
+the Info-Bar for Details.
+
+
+Functions
+
+These Functions allow you,
+to administrate the Application.
+Swipe right to execute them.
+
+
+Stakeholder Selection
+
+Swipe through your previous
+created Stakeholders to select
+the one you want to create a
+Scenario Path for.
+
+
+Element Selection
+
+Select the kind of Step/Trigger
+you want to use and swipe down
+to add it to your Path. Steps
+and Triggers alternate.
+
+
+Context Awareness
+
+Mentioning previous created
+Objects in this Text Field leads
+to their highlighting. While
+conducting a Walkthrough,
+Attributes of these Objects
+can be looked up.
+
+
+Walkthrough
+
+To start a Walkthrough,
+drill down through Projects,
+Scenarios and Stakeholders.
+While playing, you can access
+further Information on top.

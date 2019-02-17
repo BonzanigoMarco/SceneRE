@@ -13,10 +13,13 @@ import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_ALL
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_GPS
+import uzh.scenere.const.Constants.Companion.TUTORIAL_UID_IDENTIFIER
 import uzh.scenere.helpers.CommunicationHelper
+import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.PermissionHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.sensors.SensorHelper
+import uzh.scenere.views.SreTutorialLayoutDialog
 import uzh.scenere.views.SwipeButton
 
 
@@ -44,7 +47,8 @@ class CockpitActivity : AbstractManagementActivity() {
     enum class CockpitMode(var id: Int, var label: String, var description: Int) {
         PERMISSIONS(0, "Missing Permissions", R.string.cockpit_info_permissions),
         COMMUNICATIONS(1, "Communication Systems", R.string.cockpit_info_communications),
-        SENSORS(2, "Available Sensors", R.string.cockpit_info_sensors);
+        SENSORS(2, "Available Sensors", R.string.cockpit_info_sensors),
+        FUNCTIONS(3,"Administrator Functions",R.string.cockpit_info_admin);
 
         fun next(): CockpitMode {
             return get((id + 1))
@@ -78,6 +82,11 @@ class CockpitActivity : AbstractManagementActivity() {
         customizeToolbarId(R.string.icon_back, R.string.icon_backward, R.string.icon_win_min, R.string.icon_forward, null)
         scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         recreateViews()
+        if (PermissionHelper.getRequiredPermissions(this).isEmpty()){
+            SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_bars, R.drawable.info_toolbar).addEndExecutable { tutorialOpen = false }.show()
+        }else{
+            SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_bars, R.drawable.info_toolbar,R.drawable.info_permissions).addEndExecutable { tutorialOpen = false }.show()
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -139,8 +148,7 @@ class CockpitActivity : AbstractManagementActivity() {
                     val granted = PermissionHelper.check(this, permission)
                     val swipeButton = SwipeButton(applicationContext, permission.label)
                             .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                            .setIndividualButtonColors(if (granted) Color.GREEN else Color.RED, Color.WHITE, Color.GRAY, Color.GRAY)
-                            .setButtonIcons(if (granted) R.string.icon_check else R.string.icon_cross, R.string.icon_sign, null, null, null)
+                            .setButtonIcons(R.string.icon_null,R.string.icon_check, null, null, null)
                             .setButtonStates(true, true, false, false)
                             .updateViews(true)
                     swipeButton.dataObject = permission
@@ -165,6 +173,7 @@ class CockpitActivity : AbstractManagementActivity() {
                     scroll_holder_linear_layout_holder.addView(swipeButton)
                     createTitle("",scroll_holder_linear_layout_holder) //Spacer
                 }
+                SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_communications).addEndExecutable { tutorialOpen = false }.show()
             }
             CockpitMode.SENSORS -> {
                 for (sensor in SensorHelper.getInstance(this).getSensorArray()) {
@@ -180,6 +189,22 @@ class CockpitActivity : AbstractManagementActivity() {
                     scroll_holder_linear_layout_holder.addView(swipeButton)
                     createTitle("",scroll_holder_linear_layout_holder) //Spacer
                 }
+                SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_sensors).addEndExecutable { tutorialOpen = false }.show()
+            }
+            CockpitMode.FUNCTIONS -> {
+                val resetTutorial = SwipeButton(this, "Reset Tutorials")
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
+                        .setButtonStates(false, true, false, false)
+                        .setExecutable(object : SwipeButton.SwipeButtonExecution{
+                            override fun execRight() {
+                                DatabaseHelper.getInstance(applicationContext).deletePreferenceUids(TUTORIAL_UID_IDENTIFIER)
+                            }
+                        })
+                        .setAutoCollapse(true)
+                        .updateViews(true)
+                scroll_holder_linear_layout_holder.addView(resetTutorial)
+                SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_functions).addEndExecutable { tutorialOpen = false }.show()
             }
         }
     }

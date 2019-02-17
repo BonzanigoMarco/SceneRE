@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="srePrimaryDisabled">#dddddd</color>
+    <color name="srePrimaryDisabledDark">#bbbbbb</color>
     <color name="srePrimaryPastel">#b5b6d2</color>
     <color name="srePrimaryLight">#7986cb</color>
     <color name="srePrimary">#3F51B5</color>

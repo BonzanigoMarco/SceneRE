@@ -64,7 +64,8 @@ class ProjectsActivity : AbstractManagementActivity() {
         }
         scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(),null,getLockIcon(),null,null)
-        SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_creation,R.drawable.info_bars,R.drawable.info_creation_t).show()
+        tutorialOpen = true
+        SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_creation,R.drawable.info_bars, R.drawable.info_toolbar).addEndExecutable { tutorialOpen = false }.show()
     }
 
     private fun addProjectToList(project: Project) {
@@ -126,6 +127,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         val project = projectBuilder.build()
         DatabaseHelper.getInstance(applicationContext).write(project.id,project)
         addProjectToList(project)
+        SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_entity_item).addEndExecutable { tutorialOpen = false }.show()
     }
 
     private fun openInput(projectsMode: ProjectsMode, project: Project? = null) {

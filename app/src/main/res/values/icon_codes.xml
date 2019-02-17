@@ -11,6 +11,7 @@
     <string name="icon_delete">&#xf2ed;</string>
     <string name="icon_eye">&#xf06e;</string>
     <string name="icon_eye_closed">&#xf070;</string>
+    <string name="icon_cogwheels">&#xf085;</string>
     <string name="icon_scenario">&#xf008;</string>
     <string name="icon_info">&#xf05a;</string>
     <string name="icon_back">&#xf053;</string>
@@ -42,8 +43,8 @@
     <string name="icon_path_editor">&#xf542;</string>
 
     <string name="icon_explain_cockpit">
-        <annotation font="font_awesome">&#xf04a;</annotation> Backward,
-        <annotation font="font_awesome">&#xf04e;</annotation> Forward\n
+        <annotation font="font_awesome">&#xf04a;</annotation> Previous Section,
+        <annotation font="font_awesome">&#xf04e;</annotation> Next Section\n
         <annotation font="font_awesome">&#xf068;</annotation>/
         <annotation font="font_awesome">&#xf52c;</annotation>/
         <annotation font="font_awesome">&#xf0c9;</annotation> Hide, Minimize, Maximize Info-Bar</string>

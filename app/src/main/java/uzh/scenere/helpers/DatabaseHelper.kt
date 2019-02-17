@@ -304,6 +304,14 @@ class DatabaseHelper private constructor(context: Context) {
         return list as List<T>
     }
 
+    public fun deletePreferenceUids(uidKey: String) {
+        for (entry in sharedPreferences.all.entries){
+            if (entry.key.startsWith(uidKey)){
+                sharedPreferences.edit().remove(entry.key).apply()
+            }
+        }
+    }
+
     public fun <T : Serializable> delete(key: String, clz: KClass<T>, internalMode: DataMode = mode) {
         when (internalMode) {
             DataMode.PREFERENCES -> {

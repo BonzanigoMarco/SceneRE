@@ -17,6 +17,7 @@ import uzh.scenere.R
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.views.SreTutorialLayoutDialog
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.WalkthroughPlayLayout
 import java.io.Serializable
@@ -120,6 +121,8 @@ class WalkthroughActivity : AbstractManagementActivity() {
         creationButton?.setExecutable(createControlExecutable())
         walkthrough_layout_selection_content.addView(creationButton)
         customizeToolbarId(R.string.icon_back,null,null,null,null)
+        SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_walkthrough).addEndExecutable { tutorialOpen = false }.show()
+
     }
 
     private fun <T : Serializable> createButtonLabel(selectedList: ArrayList<T>, label: String): String {
@@ -350,7 +353,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         if (mode != WalkthroughMode.PLAY || awaitingBackConfirmation){
             super.onBackPressed()
         }else{
-            toast("Press the Back Button again to cancel the Walkthrough")
+            notify("Press the Back Button again to cancel the Walkthrough")
             awaitingBackConfirmation = true
             Handler().postDelayed({awaitingBackConfirmation=false},2000)
         }

@@ -1,10 +1,14 @@
 package uzh.scenere.activities
 
 import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.NotificationManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.ContextCompat
 import android.text.InputType
 import android.view.Gravity
@@ -15,6 +19,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
@@ -63,7 +68,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             }
             for (entry in inputMap) {
                 if (!StringHelper.hasText(entry.value.text)) {
-                    toast("Not all required information entered!")
+                    notify("Not all required information entered!")
                     return
                 }
             }

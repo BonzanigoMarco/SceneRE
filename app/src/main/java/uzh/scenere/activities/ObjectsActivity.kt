@@ -218,7 +218,7 @@ class ObjectsActivity : AbstractManagementActivity() {
             }
             for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
                 if ((scroll_holder_linear_layout_holder.getChildAt(v) is SwipeButton) && (((scroll_holder_linear_layout_holder.getChildAt(v)) as SwipeButton).getText() == nameField.getStringValue())) {
-                    toast(getString(R.string.objects_similar_alert))
+                    notify(getString(R.string.objects_similar_alert))
                     return false
                 }
             }

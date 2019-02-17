@@ -12,8 +12,7 @@ import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
-import uzh.scenere.activities.EditorActivity.EditorState.ADD
-import uzh.scenere.activities.EditorActivity.EditorState.EDIT
+import uzh.scenere.activities.EditorActivity.EditorState.*
 import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.StandardStep
@@ -23,10 +22,7 @@ import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.helpers.getStringValue
 import uzh.scenere.helpers.readableClassName
-import uzh.scenere.views.Element
-import uzh.scenere.views.SreMultiAutoCompleteTextView
-import uzh.scenere.views.SwipeButton
-import uzh.scenere.views.SwipeButtonScrollView
+import uzh.scenere.views.*
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.reflect.KClass
@@ -120,6 +116,7 @@ class EditorActivity : AbstractManagementActivity() {
             }
 
         })
+        SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_editor_stakeholder,R.drawable.info_editor_element).addEndExecutable { tutorialOpen = false }.show()
     }
 
     private fun visualizeActivePath() {
@@ -180,12 +177,14 @@ class EditorActivity : AbstractManagementActivity() {
     private fun refreshState(view: View? = null) {
         if (view != null && view is Element){
             editorState = if ((view as Element).isStep()) EditorState.STEP else EditorState.TRIGGER
-        }else{
+        }else if (scroll_holder_linear_layout_holder.childCount > 0){
             for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
                 if (scroll_holder_linear_layout_holder.getChildAt(v) is Element) {
                     editorState = if ((scroll_holder_linear_layout_holder.getChildAt(v) as Element).isStep()) EditorState.TRIGGER else EditorState.STEP
                 }
             }
+        }else{
+            editorState = STEP
         }
         when (editorState) {
             EditorState.INIT -> {
@@ -263,6 +262,7 @@ class EditorActivity : AbstractManagementActivity() {
                     scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
                     (inputMap[elementAttributes[1]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
+                    SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_editor_context).addEndExecutable { tutorialOpen = false }.show()
                 }
                 resources.getString(R.string.trigger_button) -> {
                     creationUnitClass = ButtonTrigger::class

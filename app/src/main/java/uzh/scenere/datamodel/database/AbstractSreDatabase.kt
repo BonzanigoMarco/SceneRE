@@ -3,8 +3,10 @@ package uzh.scenere.datamodel.database
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.os.Environment
 import android.provider.BaseColumns
 import uzh.scenere.helpers.StringHelper
+import java.io.File
 
 abstract class AbstractSreDatabase {
     val tableCreations = ArrayList<String>()
@@ -308,10 +310,10 @@ abstract class AbstractSreDatabase {
 
     protected inner class DbHelper(context: Context,
                                    private val DATABASE_VERSION: Int = 1,
-                                   private val DATABASE_NAME: String = "SreDatabase.Db",
+                                   private val DATABASE_NAME: String = "SreDatabase",
                                    private val DATABASE_ENDING: String = ".db",
                                    private val FILE_DIR: String = "SRE"
-    ) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+    ) : SQLiteOpenHelper(context, Environment.getExternalStorageDirectory().toString() + File.separator + FILE_DIR + File.separator + DATABASE_NAME + DATABASE_ENDING, null, DATABASE_VERSION) {
 
         init {
             onCreate(writableDatabase)

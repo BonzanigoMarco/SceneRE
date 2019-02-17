@@ -1,6 +1,7 @@
 package uzh.scenere.views
 
 import android.content.Context
+import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.view.Gravity
 import android.view.MotionEvent.*
@@ -119,5 +120,17 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
             }
         }
         return 0
+    }
+
+
+    override fun setEnabled(enabled: Boolean) {
+        if (enabled){
+            background = if (style== ButtonStyle.NORMAL) context.getDrawable(R.drawable.sre_button) else context.getDrawable(R.drawable.sre_button_tutorial)
+            setTextColor(if (style== ButtonStyle.NORMAL) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.sreBlack))
+        }else{
+            background = context.getDrawable(R.drawable.sre_button_disabled)
+            setTextColor(ContextCompat.getColor(context,R.color.srePrimaryDisabledDark))
+        }
+        super.setEnabled(enabled)
     }
 }

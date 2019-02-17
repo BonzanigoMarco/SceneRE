@@ -1,9 +1,8 @@
 package uzh.scenere.const
 
-import android.util.TypedValue
-
 class Constants {
     companion object {
+        const val APPLICATION_ID: String = "uzh.scenere.SceneRe"
         //Kotlin
         const val REFLECTION: String = " (Kotlin reflection is not available)"
         //Storage
@@ -32,6 +31,7 @@ class Constants {
         const val PATH_UID_IDENTIFIER: String = "path_"
         const val ELEMENT_UID_IDENTIFIER: String = "element_"
         const val WALKTHROUGH_UID_IDENTIFIER: String = "walkthrough_"
+        const val TUTORIAL_UID_IDENTIFIER: String = "tutorial_"
         const val MIN_IDENTIFIER: String = "min_"
         const val MAX_IDENTIFIER: String = "max_"
         const val INIT_IDENTIFIER: String = "init_"

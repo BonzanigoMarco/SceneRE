@@ -142,5 +142,6 @@
     <string name="objects_similar_alert">An AbstractObject with similar Name already exists.</string>
     <string name="tutorial_close">Close</string>
     <string name="tutorial_next">Next</string>
+    <string name="cockpit_info_admin">This view contains Functions to administrate the Application</string>
 
 </resources>

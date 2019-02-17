@@ -1,12 +1,19 @@
 package uzh.scenere.activities
 
 import android.app.Activity
+import android.app.Notification
+import android.app.NotificationManager
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationManagerCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannedString
 import android.util.DisplayMetrics
@@ -19,6 +26,8 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
+import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
@@ -32,6 +41,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     protected var fontNormal: Typeface = Typeface.DEFAULT
     protected var screenWidth = 0
     protected var screenHeight = 0
+    protected var tutorialOpen = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -146,6 +156,27 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
 
     fun toast(toast: String) {
         Toast.makeText(this, toast, Toast.LENGTH_SHORT).show()
+    }
+
+    fun notify(title: String? = null, content: String? = null){
+        val notification = NotificationCompat.Builder(applicationContext, Constants.APPLICATION_ID)
+                .setSmallIcon(android.R.drawable.btn_star)
+                .setContentTitle(title)
+                .setColor(ContextCompat.getColor(this,R.color.srePrimary))
+                .setColorized(true)
+                .setDefaults(Notification.DEFAULT_ALL)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            notification.priority = NotificationManager.IMPORTANCE_HIGH
+        }else{
+            notification.priority = Notification.PRIORITY_MAX
+        }
+        if (content != null){
+            notification.setContentText(content)
+        }
+        val text = StringHelper.nvl(title,NOTHING).plus(StringHelper.nvl(content,NOTHING))
+        val notificationManager = NotificationManagerCompat.from(this)
+        notificationManager.notify(0, notification.build())
+        Handler().postDelayed( {notificationManager.cancel(0) },2000L+(50*text.length))
     }
 
     protected fun execMinimizeKeyboard(){

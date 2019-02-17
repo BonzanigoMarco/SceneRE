@@ -141,7 +141,7 @@ class StartupActivity : AbstractBaseActivity() {
             return
         }
         if (!StringHelper.hasText(startup_edit_name.text)) {
-            toast("Please enter a Name")
+            notify("Please enter a Name")
             return
         }
         closing = true

@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.TUTORIAL_UID_IDENTIFIER
 import uzh.scenere.helpers.DatabaseHelper
 
 class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, vararg drawableResources: Int): RelativeLayout(context){
@@ -22,11 +23,12 @@ class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, va
     private val closeButton = SreButton(context,this,NOTHING,null,null,SreButton.ButtonStyle.TUTORIAL)
     private val imageView = ImageView(context)
     private val dialog = Dialog(context)
+    private lateinit  var endExecutable: () -> Unit
 
     init {
         if (!drawableResources.isEmpty()){
             for (id in drawableResources){
-                val alreadySeen = DatabaseHelper.getInstance(context).read(id.toString(), Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
+                val alreadySeen = DatabaseHelper.getInstance(context).read(TUTORIAL_UID_IDENTIFIER.plus(id), Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
                 if (!alreadySeen){
                     idList.add(id)
                 }
@@ -42,6 +44,7 @@ class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, va
             addView(imageView)
             addView(closeButton)
             closeButton.setOnClickListener { execTutorialButtonClicked() }
+            dialog.setCancelable(false)
             dialog.addContentView(this, this.layoutParams)
             execTutorialButtonClicked()
         }
@@ -49,10 +52,13 @@ class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, va
 
     private fun execTutorialButtonClicked() {
         if (drawablePointer >= 0){
-            DatabaseHelper.getInstance(context).write(idList[drawablePointer].toString(),true,DatabaseHelper.DataMode.PREFERENCES)
+            DatabaseHelper.getInstance(context).write(TUTORIAL_UID_IDENTIFIER.plus(idList[drawablePointer]),true,DatabaseHelper.DataMode.PREFERENCES)
         }
         drawablePointer ++
         if (drawablePointer >= idList.size){
+            if (::endExecutable.isInitialized){
+                endExecutable()
+            }
             dialog.dismiss()
         }else{
             closeButton.text = if (drawablePointer == idList.size-1) context.getString(R.string.tutorial_close) else context.getString(R.string.tutorial_next)
@@ -60,9 +66,16 @@ class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, va
         }
     }
 
-    fun show(delayMilliseconds: Long = 0){
+    fun show(delayMilliseconds: Long = 0): Boolean{
         if (!idList.isEmpty()) {
             Handler().postDelayed({ dialog.show() }, delayMilliseconds)
+            return true
         }
+        return false
+    }
+
+    fun addEndExecutable(function: () -> Unit): SreTutorialLayoutDialog {
+        endExecutable = function
+        return this
     }
 }
