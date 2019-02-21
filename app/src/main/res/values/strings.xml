@@ -13,6 +13,7 @@
     <string-array name="spinner_triggers">
         <item>@string/trigger_none</item>
         <item>@string/trigger_button</item>
+        <item>@string/trigger_if_else</item>
     </string-array>
 
     <string name="spinner_none">[Select a Type first]</string>
@@ -28,6 +29,7 @@
     <string name="trigger_none">[Select a Trigger]</string>
     
     <string name="trigger_button">Button</string>
+    <string name="trigger_if_else">If-Else</string>
     <string name="trigger_timer">Timer</string>
 
     <string name="trigger_bt">Bluetooth</string>

@@ -2,21 +2,24 @@ package uzh.scenere.datamodel.database
 
 import android.content.ContentValues
 import android.content.Context
+import uzh.scenere.const.Constants.Companion.HASH_MAP_LINK_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.HASH_MAP_OPTIONS_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.HASH_MAP_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.INIT_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.MAX_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.MIN_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.TYPE_BUTTON_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_IF_ELSE_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_OBJECT
 import uzh.scenere.const.Constants.Companion.TYPE_STANDARD_STEP
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.StandardStep
 import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
-import uzh.scenere.helpers.NullHelper
-import uzh.scenere.helpers.NumberHelper
-import uzh.scenere.helpers.ObjectHelper
-import uzh.scenere.helpers.getBoolean
+import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
+import uzh.scenere.helpers.*
 import java.util.*
+import kotlin.collections.HashMap
 
 class SreDatabase private constructor(context: Context) : AbstractSreDatabase() {
     private val dbHelper: DbHelper = DbHelper(context)
@@ -163,14 +166,24 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             values.put(ElementTableEntry.TITLE, element.title)
             values.put(ElementTableEntry.TEXT, element.text)
         }
-        if (element is StandardStep) {
-            for (obj in element.objects) {
-                writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
+        when (element) {
+            is StandardStep -> {
+                for (obj in element.objects) {
+                    writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
+                }
+                values.put(ElementTableEntry.TYPE, TYPE_STANDARD_STEP)
             }
-            values.put(ElementTableEntry.TYPE, TYPE_STANDARD_STEP)
-        } else if (element is ButtonTrigger) {
-            values.put(ElementTableEntry.TITLE, element.buttonLabel)
-            values.put(ElementTableEntry.TYPE, TYPE_BUTTON_TRIGGER)
+            is ButtonTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.buttonLabel)
+                values.put(ElementTableEntry.TYPE, TYPE_BUTTON_TRIGGER)
+            }
+            is IfElseTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.defaultOption)
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_IF_ELSE_TRIGGER)
+                writeByteArray(HASH_MAP_OPTIONS_IDENTIFIER.plus(element.getElementId()),DataHelper.toByteArray(element.pathOptions))
+                writeByteArray(HASH_MAP_LINK_IDENTIFIER.plus(element.getElementId()),DataHelper.toByteArray(element.optionLayerLink))
+            }
         }
         return insert(ElementTableEntry.TABLE_NAME, ElementTableEntry.ID, element.getElementId(), values)
     }
@@ -519,6 +532,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return valueIfNull
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun readElements(path: Path, fullLoad: Boolean = false): List<IElement> {
         val db = dbHelper.readableDatabase
         val cursor = db.query(ElementTableEntry.TABLE_NAME, arrayOf(ElementTableEntry.ID, ElementTableEntry.PREV_ID, ElementTableEntry.TYPE, ElementTableEntry.TITLE, ElementTableEntry.TEXT), ElementTableEntry.PATH_ID + LIKE + QUOTES + path.id + QUOTES, null, null, null, null, null)
@@ -542,6 +556,22 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                     }
                     TYPE_BUTTON_TRIGGER -> {
                         val trigger = ButtonTrigger(id, prevId, path.id).withButtonLabel(title)
+                        elements.add(trigger)
+                    }
+                    TYPE_IF_ELSE_TRIGGER -> {
+                        val trigger = IfElseTrigger(id, prevId, path.id,text,title)
+                        var readByteArray = readByteArray(HASH_MAP_OPTIONS_IDENTIFIER.plus(id), byteArrayOf())
+                        if (!readByteArray.isEmpty()){
+                            trigger.withPathOptions(
+                                    ObjectHelper.nvl(
+                                            DataHelper.toObject(readByteArray,HashMap::class), HashMap<Int,String>()) as HashMap<Int, String>)
+                        }
+                        readByteArray = readByteArray(HASH_MAP_LINK_IDENTIFIER.plus(id), byteArrayOf())
+                        if (!readByteArray.isEmpty()){
+                            trigger.withOptionLayerLink(
+                                    ObjectHelper.nvl(
+                                            DataHelper.toObject(readByteArray,HashMap::class), HashMap<Int,Int>()) as HashMap<Int, Int>)
+                        }
                         elements.add(trigger)
                     }
                     else -> {

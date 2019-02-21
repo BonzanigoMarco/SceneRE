@@ -43,3 +43,42 @@ public fun Any.readableClassName(delimiter: String = SPACE): String {
 public fun Cursor.getBoolean(columnIndex: Int): Boolean{
     return getInt(columnIndex) == 1
 }
+public fun countNonNull(vararg args: Any?):Int {
+    var count = 0
+    for (arg in args){
+        if (arg != null){
+            count++
+        }
+    }
+    return count
+}
+
+@Suppress("UNCHECKED_CAST")
+public fun addToArrayBefore(array: Array<String>, vararg args: String): Array<String>{
+    val newArray = arrayOfNulls<String?>(array.size+args.size)
+    var i = 0
+    for (t in args){
+        newArray[i] = t
+        i++
+    }
+    for (t in array){
+        newArray[i] = t
+        i++
+    }
+    return newArray as Array<String>
+}
+
+@Suppress("UNCHECKED_CAST")
+public fun <T: Any> addToArrayAfter(array: Array<T>, vararg args: T): Array<T>{
+    val newArray: Array<T> = arrayOfNulls<Any>(array.size+args.size) as Array<T>
+    var i = 0
+    for (t in array){
+        newArray[i] = t
+        i++
+    }
+    for (t in args){
+        newArray[i] = t
+        i++
+    }
+    return newArray
+}

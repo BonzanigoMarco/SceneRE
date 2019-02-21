@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:padding="10dp"
     android:textAlignment="center"
+    android:maxLines="1"
     android:background="@drawable/sre_spinner_item"
     android:textColor="@color/srePrimaryPastel"
     />

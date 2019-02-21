@@ -1,14 +1,9 @@
 package uzh.scenere.activities
 
 import android.annotation.SuppressLint
-import android.app.Notification
-import android.app.NotificationManager
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.ContextCompat
 import android.text.InputType
 import android.view.Gravity
@@ -19,13 +14,13 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
-import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.*
 import uzh.scenere.views.SreTextView.TextStyle.*
+import java.util.*
 
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
@@ -132,7 +127,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     open fun execFullScroll() {
-        (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)
+        Handler().postDelayed({(getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)},250)
     }
 
     open fun execFullScrollUp() {
@@ -159,7 +154,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         SINGLE_LINE_EDIT, MULTI_LINE_EDIT, LOOKUP, SINGLE_LINE_TEXT, MULTI_LINE_TEXT, SINGLE_LINE_CONTEXT_EDIT, MULTI_LINE_CONTEXT_EDIT, NUMBER_EDIT
     }
 
-    //TODO: Clean that up and use Sre Views
     @Suppress("UNCHECKED_CAST")
     protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {
         if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT, LineInputType.NUMBER_EDIT)) {
@@ -171,7 +165,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             wrapper.orientation = if (inputType == LineInputType.MULTI_LINE_EDIT) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
             val label = SreTextView(this, wrapper, getString(R.string.label, labelText), BORDERLESS_DARK)
             label.setWeight(1f)
-            label.setSize(WRAP_CONTENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
+            label.setSize(WRAP_CONTENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else 0)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val input = SreEditText(this, wrapper, null, getString(R.string.input, labelText))
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
@@ -179,7 +173,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.inputType = if (inputType == LineInputType.NUMBER_EDIT) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             input.setText(presetValue)
             input.setWeight(1f)
-            input.setSize(MATCH_PARENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
+            input.setSize(MATCH_PARENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else 0)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
             wrapper.addView(label)
             wrapper.addView(input)
@@ -277,7 +271,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 }
             };
             spinner.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-            spinner.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             spinner.layoutParams = childParams
             wrapper.addView(label)
             wrapper.addView(spinner)
@@ -491,5 +484,24 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             list.add(text.text.toString())
         }
         return list
+    }
+
+    private var handlerId = 0L
+    private fun execShowInformation(titleId: Int?, contentId: Int?) {
+        if (titleId == null || contentId == null) {
+            return
+        }
+        execMorphInfoBar(InfoState.NORMAL)
+        getInfoTitle().text = resources.getString(titleId)
+        getInfoContent().text = resources.getString(contentId)
+        val localHandlerId = Random().nextLong()
+        handlerId = localHandlerId
+        Handler().postDelayed({
+            if (localHandlerId == handlerId) {
+                getInfoTitle().text = null
+                getInfoContent().text = null
+                execMorphInfoBar(InfoState.MINIMIZED)
+            }
+        }, 5000)
     }
 }

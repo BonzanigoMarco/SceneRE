@@ -1,7 +1,6 @@
 package uzh.scenere.datamodel
 
 import android.content.Context
-import com.google.android.gms.common.util.NumberUtils
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.NumberHelper
 import java.io.Serializable
@@ -20,17 +19,37 @@ open class Scenario private constructor(val id: String, val projectId: String, v
     fun getPath(stakeholder: Stakeholder, context: Context, layer: Int = -1 ): Path {
         val stakeholderPaths = paths[stakeholder.id]
         return if (stakeholderPaths == null){
+            createPath(stakeholder,context)
+        }else{
+            //no layer specified or path is null, create one, otherwise fetch path
+            var path: Path? = stakeholderPaths[layer]
+            if (path == null || layer == -1){
+                path = createPath(stakeholder,context)
+            }
+            path
+        }
+    }
+
+    private fun createPath(stakeholder: Stakeholder, context: Context): Path{
+        val stakeholderPaths = paths[stakeholder.id]
+        if (stakeholderPaths != null){
+            var maxLayer = 0
+            for (entry in stakeholderPaths.entries){
+                maxLayer = if (entry.key > maxLayer) entry.key else maxLayer
+            }
+            //create path with increased layer
+            val path = Path.PathBuilder(id, stakeholder, maxLayer+1).build()
+            DatabaseHelper.getInstance(context).write(path.id,path)
+            stakeholderPaths[path.layer] = path
+            paths[stakeholder.id] = stakeholderPaths
+            return path
+        }else{
+            //create path map because it does not exist
             val path = Path.PathBuilder(id, stakeholder, 0).build()
             DatabaseHelper.getInstance(context).write(path.id,path)
-            val initializedPath = hashMapOf(0 to path)
-            paths[stakeholder.id] = initializedPath
-            initializedPath[0]!!
-        }else{
-            if (layer == -1){
-                stakeholderPaths[0]!!
-            }else{
-                stakeholderPaths[layer]!!
-            }
+            val pathMap = hashMapOf(0 to path)
+            paths[stakeholder.id] = pathMap
+            return path
         }
     }
 
@@ -56,10 +75,13 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         }
     }
 
-    fun removePath(stakeholder: Stakeholder, path: Path ){
-        if (paths[stakeholder.id] != null){
-            paths[stakeholder.id]!![path.layer] = Path.PathBuilder(id, stakeholder, path.layer).build()
+    fun removePath(stakeholder: Stakeholder, pathLayer: Int?): Path?{
+        if (pathLayer != null) {
+            val path = paths[stakeholder.id]!![pathLayer]
+            paths[stakeholder.id]!!.remove(pathLayer)
+            return path
         }
+        return null
     }
 
     fun getObjectNames(vararg additionalName: String): Array<String>{

@@ -32,6 +32,9 @@ class Constants {
         const val ELEMENT_UID_IDENTIFIER: String = "element_"
         const val WALKTHROUGH_UID_IDENTIFIER: String = "walkthrough_"
         const val TUTORIAL_UID_IDENTIFIER: String = "tutorial_"
+        const val HASH_MAP_UID_IDENTIFIER: String = "hash_map_"
+        const val HASH_MAP_OPTIONS_IDENTIFIER: String = "hash_map_options_"
+        const val HASH_MAP_LINK_IDENTIFIER: String = "hash_map_link_"
         const val MIN_IDENTIFIER: String = "min_"
         const val MAX_IDENTIFIER: String = "max_"
         const val INIT_IDENTIFIER: String = "init_"
@@ -60,6 +63,7 @@ class Constants {
         const val TYPE_OBJECT: String = "Object"
         const val TYPE_STANDARD_STEP: String = "StandardStep"
         const val TYPE_BUTTON_TRIGGER: String = "ButtonTrigger"
+        const val TYPE_IF_ELSE_TRIGGER: String = "IfElseTrigger"
         //COLORS
         const val CRIMSON: String = "#DC143C"
         const val DARK_RED: String = "#8B0000"

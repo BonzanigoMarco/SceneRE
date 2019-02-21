@@ -3,11 +3,14 @@ package uzh.scenere.activities
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.RelativeLayout
+import android.widget.Spinner
 import kotlinx.android.synthetic.main.activity_main_menu.*
 import uzh.scenere.R
 import uzh.scenere.helpers.PermissionHelper
 import uzh.scenere.views.SreButton
+import uzh.scenere.views.SreSpinner
 import uzh.scenere.views.SreTutorialLayoutDialog
 
 class MainMenuActivity : AbstractBaseActivity() {

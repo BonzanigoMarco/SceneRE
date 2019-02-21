@@ -13,16 +13,18 @@ import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.activities.EditorActivity.EditorState.*
+import uzh.scenere.activities.EditorActivity.InputMode.UNSPECIFIED
 import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.StandardStep
 import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
-import uzh.scenere.helpers.DatabaseHelper
-import uzh.scenere.helpers.StringHelper
-import uzh.scenere.helpers.getStringValue
-import uzh.scenere.helpers.readableClassName
-import uzh.scenere.views.*
+import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
+import uzh.scenere.helpers.*
+import uzh.scenere.views.Element
+import uzh.scenere.views.SreMultiAutoCompleteTextView
+import uzh.scenere.views.SreTutorialLayoutDialog
+import uzh.scenere.views.SwipeButton
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.reflect.KClass
@@ -63,6 +65,7 @@ class EditorActivity : AbstractManagementActivity() {
     private var activeScenario: Scenario? = null
     private var projectContext: Project? = null
     private var activePath: Path? = null
+    private val pathList = ArrayList<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +81,7 @@ class EditorActivity : AbstractManagementActivity() {
         var stakeholder: Stakeholder? = null
         if (projectContext != null && !projectContext!!.stakeholders.isNullOrEmpty()) {
             stakeholder = projectContext?.getNextStakeholder()
-            activePath = activeScenario?.getPath(stakeholder!!, applicationContext)
+            activePath = activeScenario?.getPath(stakeholder!!, applicationContext, 0)
         } else {
             //TODO Warn that there
         }
@@ -129,6 +132,7 @@ class EditorActivity : AbstractManagementActivity() {
             }
         }
         refreshState()
+        execFullScroll()
     }
 
     private fun addAndRenderElement(element: IElement, edit: Boolean = (editorState==EDIT)) {
@@ -139,6 +143,7 @@ class EditorActivity : AbstractManagementActivity() {
         }else{
             renderElement(element)
         }
+        execFullScroll()
     }
 
     private fun renderElement(iElement: IElement) {
@@ -160,7 +165,49 @@ class EditorActivity : AbstractManagementActivity() {
             scroll_holder_linear_layout_holder.removeView(element)
             activePath?.remove(iElement)
         }
+        when (iElement){
+            is IfElseTrigger -> {
+                element.setPathData(iElement.getOptions())
+                        .setOnPathIndexSelectedExecutable(onPathSelected)
+                        .setInitSelectionExecutable(onPathSelectionInit)
+                        .setAddExecutable {onPathAdded(iElement)}
+                        .setRemoveExecutable {onPathRemoved(iElement)}
+            }
+        }
         scroll_holder_linear_layout_holder.addView(element)
+        colorizeZebraPattern()
+    }
+
+    private fun onPathAdded(iElement: IElement?) {
+        if (iElement != null){
+            openInput(iElement,InputMode.ADD)
+        }
+    }
+    private fun onPathRemoved(iElement: IElement?) {
+        if (iElement != null){
+            openInput(iElement,InputMode.REMOVE)
+        }
+    }
+
+    private val onPathSelected: (Int,Any?) -> Unit = { index: Int, data: Any? ->
+        if (activePath != null && data is IfElseTrigger){
+            val layer = data.getLayerForOption(index)
+            pathList.add(activePath!!.layer)
+            activePath = activeScenario?.getPath(activePath!!.stakeholder,this, layer)
+            visualizeActivePath()
+            creationButton?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, if (layer != 0) R.string.icon_undo else R.string.icon_null, R.string.icon_plus, null)
+                    ?.setButtonStates(true, true, (layer != 0), false)
+                    ?.updateViews(true)
+            notify("Currently on an alternative-path: "+data.pathOptions[layer])
+            creationButton?.setText(activePath!!.stakeholder.name+" ["+data.pathOptions[layer]+"]")?.updateViews(true)
+        }
+    }
+
+    private val onPathSelectionInit: (String) -> Unit = {
+        if (activePath != null && activePath?.layer == 0){
+            notify("Currently on the main-path: $it")
+            creationButton?.setText(activePath!!.stakeholder.name+" [$it]")?.updateViews(true)
+        }
     }
 
     private fun updateRenderedElement(iElement: IElement) {
@@ -170,6 +217,15 @@ class EditorActivity : AbstractManagementActivity() {
         for (v in 0 until scroll_holder_linear_layout_holder.childCount){
             if (scroll_holder_linear_layout_holder.getChildAt(v) is Element && (scroll_holder_linear_layout_holder.getChildAt(v) as Element).containsElement(iElement)){
                 (scroll_holder_linear_layout_holder.getChildAt(v) as Element).withLabel(StringHelper.fromHtml(title)).updateElement(iElement).setEditExecutable { openInput(iElement) }
+                when (iElement){
+                    is IfElseTrigger -> {
+                        (scroll_holder_linear_layout_holder.getChildAt(v) as Element).setPathData(iElement.getOptions())
+                                .resetSelectCount()
+                                .setOnPathIndexSelectedExecutable(onPathSelected)
+                                .setAddExecutable {onPathAdded(iElement)}
+                                .setRemoveExecutable {onPathRemoved(iElement)}
+                    }
+                }
             }
         }
     }
@@ -207,8 +263,12 @@ class EditorActivity : AbstractManagementActivity() {
             override fun execLeft() {
                 val stakeholder: Stakeholder? = projectContext?.getPreviousStakeholder(activePath?.stakeholder)
                 if (stakeholder != null) {
-                    activePath = activeScenario?.getPath(stakeholder, applicationContext)
+                    activePath = activeScenario?.getPath(stakeholder, applicationContext, 0)
                     creationButton?.setText(stakeholder.name)
+                    pathList.clear()
+                    creationButton?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
+                            ?.setButtonStates(true, true, false, false)
+                            ?.updateViews(true)
                     visualizeActivePath()
                 }
             }
@@ -216,20 +276,36 @@ class EditorActivity : AbstractManagementActivity() {
             override fun execRight() {
                 val stakeholder: Stakeholder? = projectContext?.getNextStakeholder(activePath?.stakeholder)
                 if (stakeholder != null) {
-                    activePath = activeScenario?.getPath(stakeholder, applicationContext)
+                    activePath = activeScenario?.getPath(stakeholder, applicationContext, 0)
                     creationButton?.setText(stakeholder.name)
+                    pathList.clear()
+                    creationButton?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
+                            ?.setButtonStates(true, true, false, false)
+                            ?.updateViews(true)
                     visualizeActivePath()
                 }
             }
 
             override fun execDown() {
-                super.execDown()
                 openInput()
+            }
+
+            override fun execUp() {
+                if (activePath?.layer != 0){
+                    val lastPathLayer = pathList.last()
+                    pathList.remove(lastPathLayer)
+                    activePath = activeScenario!!.getPath(activePath!!.stakeholder, applicationContext, lastPathLayer)
+                    visualizeActivePath()
+                }
             }
         }
     }
 
-    private fun openInput(element: IElement? = null) {
+
+    enum class InputMode{
+        UNSPECIFIED, ADD, REMOVE
+    }
+    private fun openInput(element: IElement? = null, inputMode: InputMode = InputMode.UNSPECIFIED) {
         editorState = if (element == null) ADD else EDIT
         editor_spinner_selection?.visibility = View.GONE
         creationButton?.visibility = View.GONE
@@ -251,40 +327,67 @@ class EditorActivity : AbstractManagementActivity() {
                     scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, element.buttonLabel))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
+                is IfElseTrigger -> {
+                    creationUnitClass = IfElseTrigger::class
+                    if (inputMode == InputMode.REMOVE){
+                        val index = adaptAttributes("Remove Options")
+                        scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.LOOKUP,null, addToArrayBefore(element.getDeletableIndexedOptions(),"")))
+                    }else {
+                        var index = adaptAttributes("Question","Default Option","Option 1","Option 2","Option 3","Option 4","Option 5")
+                        scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
+                        for (string in element.getOptions()){
+                            scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, string))
+                        }
+                        if (inputMode == InputMode.ADD){
+                            scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                        }
+                    }
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
             }
         } else {//CREATE
+            cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
             when ((editor_spinner_selection.selectedItem as String)) {
                 resources.getString(R.string.step_standard) -> {
                     creationUnitClass = StandardStep::class
-                    cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
-                    adaptAttributes("Title", "Text")
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, null))
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
-                    (inputMap[elementAttributes[1]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    var index = adaptAttributes("Title", "Instruction")
+                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
+                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
+                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_editor_context).addEndExecutable { tutorialOpen = false }.show()
                 }
                 resources.getString(R.string.trigger_button) -> {
                     creationUnitClass = ButtonTrigger::class
-                    cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
-                    adaptAttributes("Button-Label")
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, null))
+                    val index = adaptAttributes("Button-Label")
+                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                resources.getString(R.string.trigger_if_else) -> {
+                    creationUnitClass = IfElseTrigger::class
+                    var index = adaptAttributes("Question","Default Option")
+                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
+                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
             }
         }
     }
 
-    private fun adaptAttributes(vararg attributeNames: String) {
+    /**
+     * Prepares the Input and returns an Index
+     */
+    private fun adaptAttributes(vararg attributeNames: String): Int {
         for (i in elementAttributes.indices) {
             elementAttributes[i] = ""
         }
         for (name in attributeNames.indices) {
             if (name > elementAttributes.size - 1) {
-                return
+                return elementAttributes.size - 1
             }
             elementAttributes[name] = attributeNames[name]
         }
+        return 0
     }
 
     override fun createEntity() {
@@ -309,6 +412,48 @@ class EditorActivity : AbstractManagementActivity() {
                 val buttonLabel = inputMap[elementAttributes[0]]!!.getStringValue()
                 addAndRenderElement(ButtonTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withButtonLabel(buttonLabel))
             }
+            IfElseTrigger::class -> {
+                if (inputMap[elementAttributes[0]] == null){
+                    //Removal
+                    val selection = multiInputMap[elementAttributes[0]]
+                    if (!selection.isNullOrEmpty()){
+                        for (editText in selection){
+                            val option = (editUnit as IfElseTrigger).getOptionFromIndexedString(editText.getStringValue())
+                            val layer = (editUnit as IfElseTrigger).removePathOption(option)
+                            val removedPath = activeScenario?.removePath(activePath!!.stakeholder, layer)
+                            if (removedPath != null){
+                                DatabaseHelper.getInstance(applicationContext).delete(removedPath.id,Path::class)
+                            }
+                        }
+                        addAndRenderElement(editUnit!!)
+                    }
+                }else {
+                    //Add Edit
+                    val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                    val defaultOption = inputMap[elementAttributes[1]]!!.getStringValue()
+                    val option1 = inputMap[elementAttributes[2]]?.getStringValue()
+                    val option2 = inputMap[elementAttributes[3]]?.getStringValue()
+                    val option3 = inputMap[elementAttributes[4]]?.getStringValue()
+                    val option4 = inputMap[elementAttributes[5]]?.getStringValue()
+                    val option5 = inputMap[elementAttributes[6]]?.getStringValue()
+                    val newOptionCount = countNonNull(defaultOption, option1, option2, option3, option4, option5)
+                    val element = IfElseTrigger(editUnit?.getElementId(), endPoint, activePath!!.id, text, defaultOption)
+                            .addPathOption(defaultOption, activePath!!.layer, 0)
+                    if (newOptionCount > 1) {
+                        val oldOptionCount = (editUnit as IfElseTrigger).getOptionCount()
+                        if (oldOptionCount < newOptionCount) {
+                            val newPath = activeScenario?.getPath(activePath!!.stakeholder, applicationContext)
+                            element.addPathOption(inputMap[elementAttributes[newOptionCount]]?.getStringValue(), newPath!!.layer, newOptionCount - 1)
+                        }
+                        element.addPathOption(option1, (editUnit as IfElseTrigger).getLayerForOption(1), 1)
+                                .addPathOption(option2, (editUnit as IfElseTrigger).getLayerForOption(2), 2)
+                                .addPathOption(option3, (editUnit as IfElseTrigger).getLayerForOption(3), 3)
+                                .addPathOption(option4, (editUnit as IfElseTrigger).getLayerForOption(4), 4)
+                                .addPathOption(option5, (editUnit as IfElseTrigger).getLayerForOption(5), 5)
+                    }
+                    addAndRenderElement(element)
+                }
+            }
         }
         editUnit = null
         creationUnitClass = null
@@ -318,6 +463,14 @@ class EditorActivity : AbstractManagementActivity() {
         for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
             if (scroll_holder_linear_layout_holder.getChildAt(v) is Element) {
                 (scroll_holder_linear_layout_holder.getChildAt(v) as Element).connectToNext()
+            }
+        }
+    }
+
+    private fun colorizeZebraPattern() {
+        for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
+            if (scroll_holder_linear_layout_holder.getChildAt(v) is Element) {
+                (scroll_holder_linear_layout_holder.getChildAt(v) as Element).setZebraPattern(v%2==0)
             }
         }
     }
@@ -332,51 +485,19 @@ class EditorActivity : AbstractManagementActivity() {
         refreshState()
     }
 
-    fun onToolSelectionClicked(v: View) {
-        when (v.id) {
-//            R.id.editor_button_steps -> {updateSpinner(R.array.spinner_steps)}
-//            R.id.editor_button_triggers_communication -> {updateSpinner(R.array.spinner_triggers_communication)}
-//            R.id.editor_button_triggers_direct -> {updateSpinner(R.array.spinner_triggers_direct)}
-//            R.id.editor_button_triggers_indirect -> {updateSpinner(R.array.spinner_triggers_indirect)}
-//            R.id.editor_button_triggers_sensor -> {updateSpinner(R.array.spinner_triggers_sensor)}
-            else -> {
-            }
-        }
-    }
-
     private fun updateSpinner(arrayResource: Int) {
-//        showInformation(explanationMap[arrayResource]?.key,explanationMap[arrayResource]?.value)
         val spinnerArrayAdapter = ArrayAdapter<String>(this, R.layout.sre_spinner_item, resources.getStringArray(arrayResource))
         spinnerArrayAdapter.setDropDownViewResource(R.layout.sre_spinner_item)
         editor_spinner_selection.adapter = spinnerArrayAdapter
         editor_spinner_selection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                creationButton?.setButtonStates(true, true, false, activePath != null && !(editor_spinner_selection.selectedItem as String).contains("["))?.updateViews(false)
+                creationButton?.setButtonStates(true, true, !pathList.isEmpty(), activePath != null && !(editor_spinner_selection.selectedItem as String).contains("["))?.updateViews(false)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 //NOP
             }
         };
-    }
-
-    private var handlerId = 0L
-    private fun showInformation(titleId: Int?, contentId: Int?) {
-        if (titleId == null || contentId == null) {
-            return
-        }
-        execMorphInfoBar(InfoState.NORMAL)
-        scroll_holder_text_info_title.text = resources.getString(titleId)
-        scroll_holder_text_info_content.text = resources.getString(contentId)
-        val localHandlerId = Random().nextLong()
-        handlerId = localHandlerId
-        Handler().postDelayed({
-            if (localHandlerId == handlerId) {
-                scroll_holder_text_info_title.text = null
-                scroll_holder_text_info_content.text = null
-                execMorphInfoBar(InfoState.MINIMIZED)
-            }
-        }, 5000)
     }
 
     override fun execAdaptToOrientationChange() {
@@ -394,6 +515,14 @@ class EditorActivity : AbstractManagementActivity() {
     override fun execScroll(){
         if (editorState == ADD){ //Avoid Scrolls on Edit
             super.execScroll()
+        }
+    }
+
+    override fun onBackPressed() {
+        if (isInEditMode()){
+            onToolbarRightClicked()
+        }else{
+            super.onBackPressed()
         }
     }
 }
