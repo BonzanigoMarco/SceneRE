@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
+import uzh.scenere.helpers.DipHelper
 import uzh.scenere.views.SreTextView.TextStyle.*
 
 @SuppressLint("ViewConstructor")
@@ -49,8 +50,8 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
                 setTextColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
             }
         }
-        val padding = context.resources.getDimension(R.dimen.dpi15).toInt()
-        val margin = context.resources.getDimension(R.dimen.dpi0).toInt()
+        val padding = DipHelper.get(resources).dip15.toInt()
+        val margin = DipHelper.get(resources).dip0.toInt()
         setPadding(padding,padding,padding,padding)
         when (parent) {
             is LinearLayout -> {
@@ -106,6 +107,29 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
             }
             else -> {}
         }
+    }
+
+    fun setMargin(margin: Int){
+        setMargin(margin,margin,margin,margin)
+    }
+
+    private fun setMargin(l: Int,r: Int,b: Int,t: Int){
+        when (parentLayout){
+            ParentLayout.LINEAR -> {
+                (layoutParams as LinearLayout.LayoutParams).setMargins(l,r,t,b)
+            }
+            ParentLayout.RELATIVE -> {
+                (layoutParams as RelativeLayout.LayoutParams).setMargins(l,r,t,b)
+            }
+            ParentLayout.FRAME -> {
+                (layoutParams as FrameLayout.LayoutParams).setMargins(l,r,t,b)
+            }
+            else -> {}
+        }
+    }
+
+    fun setPadding(padding: Int){
+        setPadding(padding,padding,padding,padding)
     }
 
     fun getMargin(): Int{

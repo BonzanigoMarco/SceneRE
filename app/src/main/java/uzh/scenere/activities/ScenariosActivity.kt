@@ -3,6 +3,7 @@ package uzh.scenere.activities
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
@@ -30,9 +31,15 @@ class ScenariosActivity : AbstractManagementActivity() {
     override fun isInViewMode(): Boolean {
         return scenariosMode == ScenarioMode.VIEW
     }
+
     override fun isInEditMode(): Boolean {
         return scenariosMode == ScenarioMode.EDIT_CREATE
     }
+
+    override fun isInAddMode(): Boolean {
+        return scenariosMode == ScenarioMode.EDIT_CREATE
+    }
+
     override fun resetEditMode() {
         activeScenario = null
         scenariosMode = ScenarioMode.VIEW
@@ -147,7 +154,8 @@ class ScenariosActivity : AbstractManagementActivity() {
             ScenarioMode.EDITOR -> {
                 val intent = Intent(this, EditorActivity::class.java)
                 intent.putExtra(Constants.BUNDLE_SCENARIO, activeScenario)
-                startActivity(intent)
+                Handler().postDelayed({ // Delay loading since it can take a while TODO> Delay all?
+                startActivity(intent)},350)
                 return
             }
         }

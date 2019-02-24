@@ -23,7 +23,12 @@ import uzh.scenere.views.WalkthroughPlayLayout
 import java.io.Serializable
 
 class WalkthroughActivity : AbstractManagementActivity() {
+
     override fun isInEditMode(): Boolean {
+        return mode == WalkthroughMode.INFO
+    }
+
+    override fun isInAddMode(): Boolean {
         return mode == WalkthroughMode.INFO
     }
 
@@ -121,8 +126,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         creationButton?.setExecutable(createControlExecutable())
         walkthrough_layout_selection_content.addView(creationButton)
         customizeToolbarId(R.string.icon_back,null,null,null,null)
-        SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_walkthrough).addEndExecutable { tutorialOpen = false }.show()
-
+        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun <T : Serializable> createButtonLabel(selectedList: ArrayList<T>, label: String): String {

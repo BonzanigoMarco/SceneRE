@@ -17,6 +17,7 @@ import uzh.scenere.const.Constants.Companion.STAKEHOLDER_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.WALKTHROUGH_UID_IDENTIFIER
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.database.SreDatabase
+import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.views.Element
 import java.io.Serializable
 import kotlin.reflect.KClass
@@ -369,6 +370,16 @@ class DatabaseHelper private constructor(context: Context) {
                     database!!.deletePath(key)
                     if (path != null) {
                         for (element in path.elements) {
+                            if (element.value is IfElseTrigger){
+                                //Recursively delete
+                                val scenario = readFull(path.scenarioId, Scenario::class)
+                                for (entry in (element.value as IfElseTrigger).optionLayerLink.entries){
+                                    val p = scenario?.removePath(path.stakeholder,entry.value)
+                                    if (p != null){
+                                            delete(p.id,Path::class)
+                                    }
+                                }
+                            }
                             delete(element.value.getElementId(), IElement::class)
                         }
                     }

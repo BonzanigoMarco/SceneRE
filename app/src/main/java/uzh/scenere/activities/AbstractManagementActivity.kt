@@ -17,6 +17,7 @@ import uzh.scenere.R
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
+import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.*
 import uzh.scenere.views.SreTextView.TextStyle.*
@@ -38,6 +39,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     protected var lockState: LockState = LockState.LOCKED
     protected var creationButton: SwipeButton? = null
     protected var activeButton: SwipeButton? = null
+    private var scrollY: Int? = null
 
     //*********
     //* REACT *
@@ -57,7 +59,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     override fun onToolbarLeftClicked() { //SAVE
-        if (isInEditMode()) {
+        if (isInputOpen()) {
             if (!execDoAdditionalCheck()) {
                 return
             }
@@ -72,7 +74,11 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 createTitle("", getContentHolderLayout())
             }
             if (getContentWrapperLayout() is SwipeButtonScrollView) {
-                execScroll()
+                if (isInEditMode() && !isInAddMode()){
+                    execScrollBack()
+                }else{
+                    execScroll()
+                }
             }
             onToolbarRightClicked()
         } else {
@@ -90,7 +96,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     override fun onToolbarCenterRightClicked() {
-        if (!isInEditMode()) {
+        if (!isInputOpen()) {
             execFullScrollUp()
         }
     }
@@ -107,7 +113,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     override fun onToolbarRightClicked() { //CLOSE
-        if (isInEditMode()) {
+        if (isInputOpen()) {
             execMorphInfoBar(InfoState.MINIMIZED)
             getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
             getInfoContent().text = ""
@@ -115,19 +121,32 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             resetEditMode()
             activeButton?.collapse()
             activeButton = null
+            execScrollBack()
         }
     }
 
-    open fun execScroll() {
+    open fun execScroll(scrollBackToPrevious: Boolean = false) {
+        if (scrollBackToPrevious){
+            execScrollBack()
+        }else{
+            execFullScroll()
+        }
+    }
+
+    private fun execFullScroll() {
+        var alreadyLoaded = false
         if (getContentHolderLayout() is SwipeButtonSortingLayout) {
             execMinimizeKeyboard()
-            (getContentHolderLayout() as SwipeButtonSortingLayout).scrollToLastAdded()
+            alreadyLoaded = (getContentHolderLayout() as SwipeButtonSortingLayout).scrollToLastAdded()
             execMinimizeKeyboard()
+        }
+        if (!alreadyLoaded || (getContentWrapperLayout() as SwipeButtonScrollView).scrollY == 0) {
+            Handler().postDelayed({ (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN) }, 250)
         }
     }
 
-    open fun execFullScroll() {
-        Handler().postDelayed({(getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN)},250)
+    private fun execScrollBack() {
+        Handler().postDelayed({(getContentWrapperLayout() as SwipeButtonScrollView).scrollTo(0,NumberHelper.nvl(scrollY,0))},250)
     }
 
     open fun execFullScrollUp() {
@@ -371,13 +390,20 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         }, 1000)
     }
 
+    fun isInputOpen(): Boolean{
+        return (isInEditMode() || isInAddMode())
+    }
     abstract fun isInEditMode(): Boolean
+    abstract fun isInAddMode(): Boolean
     abstract fun isInViewMode(): Boolean
     abstract fun resetEditMode()
     abstract fun createEntity()
     abstract fun getConfiguredInfoString(): Int
     open fun isSpacingEnabled(): Boolean {
-        return true
+        return false
+    }
+    open fun isCanceling(): Boolean {
+        return false
     }
 
     open fun getContentWrapperLayout(): ViewGroup {
@@ -460,6 +486,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 return resources.getText(R.string.icon_win_norm)
             }
             InfoState.MAXIMIZED -> {
+                scrollY = (getContentWrapperLayout() as SwipeButtonScrollView).scrollY
                 WeightAnimator(getContentWrapperLayout(), 10f, 250).play()
                 WeightAnimator(getInfoWrapper(), 0f, 250).play()
                 createLayoutParams(2.7f, getInfoTitle(), 1)

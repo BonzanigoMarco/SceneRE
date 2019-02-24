@@ -4,7 +4,6 @@ import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -13,7 +12,6 @@ import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.activities.EditorActivity.EditorState.*
-import uzh.scenere.activities.EditorActivity.InputMode.UNSPECIFIED
 import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.StandardStep
@@ -31,8 +29,13 @@ import kotlin.reflect.KClass
 
 
 class EditorActivity : AbstractManagementActivity() {
+
     override fun isInEditMode(): Boolean {
-        return (editorState == ADD || editorState == EDIT)
+        return editorState == EDIT
+    }
+
+    override fun isInAddMode(): Boolean {
+        return editorState == ADD
     }
 
     override fun isInViewMode(): Boolean {
@@ -45,10 +48,6 @@ class EditorActivity : AbstractManagementActivity() {
 
     override fun getConfiguredLayout(): Int {
         return R.layout.activity_editor
-    }
-
-    override fun isSpacingEnabled(): Boolean {
-        return false
     }
 
     private val explanationMap: HashMap<Int, Map.Entry<Int, Int>> = HashMap<Int, Map.Entry<Int, Int>>()
@@ -66,6 +65,7 @@ class EditorActivity : AbstractManagementActivity() {
     private var projectContext: Project? = null
     private var activePath: Path? = null
     private val pathList = ArrayList<Int>()
+    private val pathNameList = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,7 +108,9 @@ class EditorActivity : AbstractManagementActivity() {
 
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, null, null, null)
+        tutorialOpen = true
         visualizeActivePath()
+        tutorialOpen = false
         scroll_holder_linear_layout_holder.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
             override fun onChildViewRemoved(parent: View?, child: View?) {
                 refreshState(child)
@@ -119,7 +121,7 @@ class EditorActivity : AbstractManagementActivity() {
             }
 
         })
-        SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_editor_stakeholder,R.drawable.info_editor_element).addEndExecutable { tutorialOpen = false }.show()
+        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_stakeholder","info_editor_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun visualizeActivePath() {
@@ -132,7 +134,7 @@ class EditorActivity : AbstractManagementActivity() {
             }
         }
         refreshState()
-        execFullScroll()
+        execScroll()
     }
 
     private fun addAndRenderElement(element: IElement, edit: Boolean = (editorState==EDIT)) {
@@ -140,10 +142,10 @@ class EditorActivity : AbstractManagementActivity() {
         DatabaseHelper.getInstance(applicationContext).write(element.getElementId(), element)
         if (edit){
             updateRenderedElement(element)
+            execScroll(true)
         }else{
             renderElement(element)
         }
-        execFullScroll()
     }
 
     private fun renderElement(iElement: IElement) {
@@ -151,8 +153,11 @@ class EditorActivity : AbstractManagementActivity() {
         if (iElement is StandardStep) title = "<b>" + iElement.readableClassName() + "</b><br>" + iElement.title
         if (iElement is AbstractTrigger) title = "<b>" + iElement.readableClassName() + "</b>"
         val previousAvailable = scroll_holder_linear_layout_holder.childCount != 0
+        var tutorialDrawable: String? = null
         if (previousAvailable) {
             connectPreviousToNext()
+        }else{
+            tutorialDrawable = "info_element"
         }
         val element = Element(applicationContext, iElement, previousAvailable, false, false, false).withLabel(StringHelper.fromHtml(title))
         element.setEditExecutable { openInput(iElement) }
@@ -164,6 +169,19 @@ class EditorActivity : AbstractManagementActivity() {
             }
             scroll_holder_linear_layout_holder.removeView(element)
             activePath?.remove(iElement)
+            if (iElement is IfElseTrigger){
+                //Delete all Paths associated with this Element
+                for (entry in iElement.optionLayerLink){
+                    if (entry.value != activePath?.layer){ //Don't delete the current path
+                        val path = activeScenario?.removePath(activePath!!.stakeholder,entry.value)
+                        if (path != null){
+                            DatabaseHelper.getInstance(applicationContext).delete(path.id,Path::class)
+                        }
+                    }
+                }
+                pathNameList.remove(pathNameList.last())
+                renderAndNotifyPath(activePath?.layer != 0)
+            }
         }
         when (iElement){
             is IfElseTrigger -> {
@@ -172,10 +190,14 @@ class EditorActivity : AbstractManagementActivity() {
                         .setInitSelectionExecutable(onPathSelectionInit)
                         .setAddExecutable {onPathAdded(iElement)}
                         .setRemoveExecutable {onPathRemoved(iElement)}
+                tutorialDrawable = "info_if_else_config"
             }
         }
         scroll_holder_linear_layout_holder.addView(element)
         colorizeZebraPattern()
+        if (tutorialDrawable != null){
+            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,tutorialDrawable).addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        }
     }
 
     private fun onPathAdded(iElement: IElement?) {
@@ -189,24 +211,47 @@ class EditorActivity : AbstractManagementActivity() {
         }
     }
 
+    private val onPathSelectionInit: (String) -> Unit = {
+        if (activePath != null){
+            val layer = activePath!!.layer
+            if (!pathNameList.contains(StringHelper.concatWithIdBrackets(it,layer))){
+                pathNameList.add(StringHelper.concatWithIdBrackets(it,layer))
+            }
+            renderAndNotifyPath(false)
+        }
+    }
+
     private val onPathSelected: (Int,Any?) -> Unit = { index: Int, data: Any? ->
         if (activePath != null && data is IfElseTrigger){
             val layer = data.getLayerForOption(index)
+            if (layer != 0){
+                pathNameList.remove(pathNameList.last())
+            }
             pathList.add(activePath!!.layer)
             activePath = activeScenario?.getPath(activePath!!.stakeholder,this, layer)
             visualizeActivePath()
             creationButton?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, if (layer != 0) R.string.icon_undo else R.string.icon_null, R.string.icon_plus, null)
                     ?.setButtonStates(true, true, (layer != 0), false)
                     ?.updateViews(true)
-            notify("Currently on an alternative-path: "+data.pathOptions[layer])
-            creationButton?.setText(activePath!!.stakeholder.name+" ["+data.pathOptions[layer]+"]")?.updateViews(true)
+            val pathName = data.pathOptions[layer]
+            if (pathName != null && !pathNameList.contains(StringHelper.concatWithIdBrackets(pathName,layer))){
+                pathNameList.add(StringHelper.concatWithIdBrackets(pathName,layer))
+                renderAndNotifyPath(true)
+            }
+            if (layer != 0){
+                tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_path_switch").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            }
         }
     }
 
-    private val onPathSelectionInit: (String) -> Unit = {
-        if (activePath != null && activePath?.layer == 0){
-            notify("Currently on the main-path: $it")
-            creationButton?.setText(activePath!!.stakeholder.name+" [$it]")?.updateViews(true)
+    private fun renderAndNotifyPath(alternativePath: Boolean) {
+        if (pathNameList.isEmpty()){
+            notify("Currently on the main-path")
+            creationButton?.setText(activePath!!.stakeholder.name)?.updateViews(true)
+        }else{
+            val pathName = StringHelper.concatListWithoutIdBrackets("->",pathNameList)
+            notify(if (alternativePath) "Currently on an alternative-path: $pathName" else "Currently on the main-path: $pathName" )
+            creationButton?.setText(activePath!!.stakeholder.name + " [$pathName]")?.updateViews(true)
         }
     }
 
@@ -264,9 +309,10 @@ class EditorActivity : AbstractManagementActivity() {
                 val stakeholder: Stakeholder? = projectContext?.getPreviousStakeholder(activePath?.stakeholder)
                 if (stakeholder != null) {
                     activePath = activeScenario?.getPath(stakeholder, applicationContext, 0)
-                    creationButton?.setText(stakeholder.name)
                     pathList.clear()
-                    creationButton?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
+                    pathNameList.clear()
+                    creationButton?.setText(stakeholder.name)
+                            ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
                             ?.setButtonStates(true, true, false, false)
                             ?.updateViews(true)
                     visualizeActivePath()
@@ -277,9 +323,10 @@ class EditorActivity : AbstractManagementActivity() {
                 val stakeholder: Stakeholder? = projectContext?.getNextStakeholder(activePath?.stakeholder)
                 if (stakeholder != null) {
                     activePath = activeScenario?.getPath(stakeholder, applicationContext, 0)
-                    creationButton?.setText(stakeholder.name)
                     pathList.clear()
-                    creationButton?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
+                    pathNameList.clear()
+                    creationButton?.setText(stakeholder.name)
+                            ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
                             ?.setButtonStates(true, true, false, false)
                             ?.updateViews(true)
                     visualizeActivePath()
@@ -296,6 +343,10 @@ class EditorActivity : AbstractManagementActivity() {
                     pathList.remove(lastPathLayer)
                     activePath = activeScenario!!.getPath(activePath!!.stakeholder, applicationContext, lastPathLayer)
                     visualizeActivePath()
+                    pathNameList.remove(pathNameList.last())
+                }
+                if (activePath?.layer == 0 && !pathNameList.isEmpty()){
+                    pathNameList.remove(pathNameList.last())
                 }
             }
         }
@@ -329,10 +380,13 @@ class EditorActivity : AbstractManagementActivity() {
                 }
                 is IfElseTrigger -> {
                     creationUnitClass = IfElseTrigger::class
+                    var tutorialDrawable: String? = null
                     if (inputMode == InputMode.REMOVE){
                         val index = adaptAttributes("Remove Options")
                         scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.LOOKUP,null, addToArrayBefore(element.getDeletableIndexedOptions(),"")))
+                        tutorialDrawable = "info_option_removal"
                     }else {
+                        pathNameList.remove(pathNameList.last())
                         var index = adaptAttributes("Question","Default Option","Option 1","Option 2","Option 3","Option 4","Option 5")
                         scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
                         for (string in element.getOptions()){
@@ -340,9 +394,13 @@ class EditorActivity : AbstractManagementActivity() {
                         }
                         if (inputMode == InputMode.ADD){
                             scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                            tutorialDrawable = "info_option_add"
                         }
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
+                    if (tutorialDrawable != null){
+                        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth, tutorialDrawable).addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                    }
                 }
             }
         } else {//CREATE
@@ -355,7 +413,7 @@ class EditorActivity : AbstractManagementActivity() {
                     scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
                     (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
-                    SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_editor_context).addEndExecutable { tutorialOpen = false }.show()
+                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
                 resources.getString(R.string.trigger_button) -> {
                     creationUnitClass = ButtonTrigger::class
@@ -369,6 +427,7 @@ class EditorActivity : AbstractManagementActivity() {
                     scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
                     scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
                     execMorphInfoBar(InfoState.MAXIMIZED)
+                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_if_else_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
             }
         }
@@ -491,7 +550,8 @@ class EditorActivity : AbstractManagementActivity() {
         editor_spinner_selection.adapter = spinnerArrayAdapter
         editor_spinner_selection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                creationButton?.setButtonStates(true, true, !pathList.isEmpty(), activePath != null && !(editor_spinner_selection.selectedItem as String).contains("["))?.updateViews(false)
+                creationButton?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, if (pathList.isEmpty()) R.string.icon_null else R.string.icon_undo, R.string.icon_plus, null)
+                        ?.setButtonStates(true, true, !pathList.isEmpty(), activePath != null && !(editor_spinner_selection.selectedItem as String).contains("["))?.updateViews(false)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -512,14 +572,14 @@ class EditorActivity : AbstractManagementActivity() {
         customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, null, null, null)
     }
 
-    override fun execScroll(){
-        if (editorState == ADD){ //Avoid Scrolls on Edit
-            super.execScroll()
-        }
-    }
+//    override fun execScroll(){
+//        if (editorState == ADD){ //Avoid Scrolls on Edit
+//            super.execScroll()
+//        }
+//    }
 
     override fun onBackPressed() {
-        if (isInEditMode()){
+        if (isInputOpen()){
             onToolbarRightClicked()
         }else{
             super.onBackPressed()

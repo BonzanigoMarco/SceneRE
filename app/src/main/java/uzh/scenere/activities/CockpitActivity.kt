@@ -24,7 +24,12 @@ import uzh.scenere.views.SwipeButton
 
 
 class CockpitActivity : AbstractManagementActivity() {
+
     override fun isInEditMode(): Boolean {
+        return false
+    }
+
+    override fun isInAddMode(): Boolean {
         return false
     }
 
@@ -83,9 +88,9 @@ class CockpitActivity : AbstractManagementActivity() {
         scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         recreateViews()
         if (PermissionHelper.getRequiredPermissions(this).isEmpty()){
-            SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_bars, R.drawable.info_toolbar).addEndExecutable { tutorialOpen = false }.show()
+            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_bars","info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }else{
-            SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_bars, R.drawable.info_toolbar,R.drawable.info_permissions).addEndExecutable { tutorialOpen = false }.show()
+            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_bars", "info_toolbar","info_permissions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }
     }
 
@@ -173,7 +178,7 @@ class CockpitActivity : AbstractManagementActivity() {
                     scroll_holder_linear_layout_holder.addView(swipeButton)
                     createTitle("",scroll_holder_linear_layout_holder) //Spacer
                 }
-                SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_communications).addEndExecutable { tutorialOpen = false }.show()
+                tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_communications").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
             CockpitMode.SENSORS -> {
                 for (sensor in SensorHelper.getInstance(this).getSensorArray()) {
@@ -189,7 +194,7 @@ class CockpitActivity : AbstractManagementActivity() {
                     scroll_holder_linear_layout_holder.addView(swipeButton)
                     createTitle("",scroll_holder_linear_layout_holder) //Spacer
                 }
-                SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_sensors).addEndExecutable { tutorialOpen = false }.show()
+                tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_sensors").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
             CockpitMode.FUNCTIONS -> {
                 val resetTutorial = SwipeButton(this, "Reset Tutorials")
@@ -204,7 +209,7 @@ class CockpitActivity : AbstractManagementActivity() {
                         .setAutoCollapse(true)
                         .updateViews(true)
                 scroll_holder_linear_layout_holder.addView(resetTutorial)
-                SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_functions).addEndExecutable { tutorialOpen = false }.show()
+                tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_functions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
         }
     }

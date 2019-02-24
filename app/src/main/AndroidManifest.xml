@@ -31,6 +31,7 @@
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:windowSoftInputMode="adjustNothing"
         android:screenOrientation="portrait"
+        android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".activities.MainMenuActivity"
             android:theme="@style/SceneReToolbarTheme">

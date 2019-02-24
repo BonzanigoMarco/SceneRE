@@ -1,6 +1,7 @@
 package uzh.scenere.views
 
 import android.content.Context
+import android.os.Handler
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
@@ -44,9 +45,11 @@ class SwipeButtonSortingLayout(context: Context, attributeSet: AttributeSet) : L
         return super.addView(newChild)
     }
 
-    fun scrollToLastAdded(){
+    fun scrollToLastAdded(): Boolean{
         if (lastAddedSwipeButton != null){
-            requestChildFocus(lastAddedSwipeButton,lastAddedSwipeButton);
+            Handler().postDelayed({requestChildFocus(lastAddedSwipeButton,lastAddedSwipeButton)},250)
+            return true
         }
+        return false
     }
 }

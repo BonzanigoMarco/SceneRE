@@ -1,6 +1,7 @@
 package uzh.scenere.datamodel
 
 import android.content.Context
+import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.NumberHelper
 import java.io.Serializable
@@ -79,6 +80,16 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         if (pathLayer != null) {
             val path = paths[stakeholder.id]!![pathLayer]
             paths[stakeholder.id]!!.remove(pathLayer)
+            if (path != null){
+                for (element in path.elements.entries){
+                    if (element.value is IfElseTrigger){
+                        //Recursively delete
+                        for (entry in (element.value as IfElseTrigger).optionLayerLink.entries){
+                            removePath(path.stakeholder,entry.value)
+                        }
+                    }
+                }
+            }
             return path
         }
         return null

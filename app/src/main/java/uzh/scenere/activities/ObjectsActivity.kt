@@ -34,9 +34,15 @@ class ObjectsActivity : AbstractManagementActivity() {
     override fun isInViewMode(): Boolean {
         return objectsMode == ObjectMode.VIEW
     }
+
     override fun isInEditMode(): Boolean {
-        return (objectsMode == ObjectMode.EDIT) || (objectsMode == ObjectMode.CREATE)
+        return objectsMode == ObjectMode.EDIT
     }
+
+    override fun isInAddMode(): Boolean {
+        return objectsMode == ObjectMode.CREATE
+    }
+
     override fun resetEditMode() {
         activeObject = null
         isResourceSpinner = null

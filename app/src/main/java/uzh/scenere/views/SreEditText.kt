@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import uzh.scenere.R
+import uzh.scenere.helpers.DipHelper
 import uzh.scenere.views.SreEditText.EditStyle.DARK
 import uzh.scenere.views.SreEditText.EditStyle.LIGHT
 
@@ -38,8 +39,8 @@ open class SreEditText(context: Context, parent: ViewGroup?, text: String? = nul
         gravity = Gravity.CENTER
         background = context.getDrawable(if (style== DARK) R.drawable.sre_edit_text_dark else R.drawable.sre_edit_text_light)
         setTextColor(if (style== DARK) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.srePrimaryDark))
-        val padding = context.resources.getDimension(R.dimen.dpi15).toInt()
-        val margin = context.resources.getDimension(R.dimen.dpi0).toInt()
+        val padding = DipHelper.get(resources).dip15.toInt()
+        val margin = DipHelper.get(resources).dip0.toInt()
         setPadding(padding,padding,padding,padding)
         if (parent is LinearLayout){
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,  LinearLayout.LayoutParams.WRAP_CONTENT)

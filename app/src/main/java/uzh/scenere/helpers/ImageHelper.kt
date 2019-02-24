@@ -1,15 +1,30 @@
 package uzh.scenere.helpers
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import java.io.ByteArrayOutputStream
 import java.util.*
+import android.graphics.drawable.BitmapDrawable
+import android.content.res.AssetManager
+import android.graphics.drawable.Drawable
+import java.io.BufferedInputStream
 
 
 class ImageHelper {
 
     companion object {
+        fun getAssetImage(context: Context, filename: String, fileType: String = "png"): Bitmap {
+            val assets = context.resources.assets
+            val buffer = BufferedInputStream(assets.open("drawable/$filename.$fileType"))
+            val bitmap = BitmapFactory.decodeStream(buffer)
+            return BitmapDrawable(context.resources, bitmap).bitmap
+        }
+
+
+
+
         fun calculateTopNColors(bitmap: Bitmap, nColors: Int, steps: Int): Array<Int> {
             val colorMap = HashMap<Int, ColorMapEntry>()
             val xStep = (bitmap.width / steps.toDouble()).toInt()

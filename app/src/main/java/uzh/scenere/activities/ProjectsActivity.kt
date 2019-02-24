@@ -34,9 +34,15 @@ class ProjectsActivity : AbstractManagementActivity() {
     override fun isInViewMode(): Boolean {
         return projectsMode == ProjectsMode.VIEW
     }
+
     override fun isInEditMode(): Boolean {
         return projectsMode == ProjectsMode.EDIT_CREATE
     }
+
+    override fun isInAddMode(): Boolean {
+        return projectsMode == ProjectsMode.EDIT_CREATE
+    }
+
     override fun resetEditMode() {
         activeProject = null
         projectsMode = ProjectsMode.VIEW
@@ -65,7 +71,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
         customizeToolbarText(resources.getText(R.string.icon_back).toString(),null,getLockIcon(),null,null)
         tutorialOpen = true
-        SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_creation,R.drawable.info_bars, R.drawable.info_toolbar).addEndExecutable { tutorialOpen = false }.show()
+        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_creation","info_bars", "info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun addProjectToList(project: Project) {
@@ -127,7 +133,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         val project = projectBuilder.build()
         DatabaseHelper.getInstance(applicationContext).write(project.id,project)
         addProjectToList(project)
-        SreTutorialLayoutDialog(this,screenWidth,R.drawable.info_entity_item).addEndExecutable { tutorialOpen = false }.show()
+        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_entity_item").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun openInput(projectsMode: ProjectsMode, project: Project? = null) {

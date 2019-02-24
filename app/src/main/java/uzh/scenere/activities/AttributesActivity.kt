@@ -28,9 +28,15 @@ class AttributesActivity : AbstractManagementActivity() {
     override fun isInViewMode(): Boolean {
         return attributesMode == AttributeMode.VIEW
     }
+
     override fun isInEditMode(): Boolean {
         return attributesMode == AttributeMode.EDIT_CREATE
     }
+
+    override fun isInAddMode(): Boolean {
+        return attributesMode == AttributeMode.EDIT_CREATE
+    }
+
     override fun resetEditMode() {
         activeAttribute = null
         attributesMode = AttributeMode.VIEW

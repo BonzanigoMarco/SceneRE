@@ -116,7 +116,7 @@
     <string name="walkthrough_selection_info">Select an AbstractObject you want Information about</string>
     <string name="walkthrough_selection_no_info">No Context Information available</string>
     <!--Literal-->
-    <string name="literal_object">AbstractObject</string>
+    <string name="literal_object">Object</string>
     <string name="literal_attribute">Attribute</string>
     <string name="literal_scenarios">Scenarios</string>
     <string name="literal_projects">Projects</string>

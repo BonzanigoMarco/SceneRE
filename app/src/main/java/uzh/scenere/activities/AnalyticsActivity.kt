@@ -17,7 +17,12 @@ import uzh.scenere.views.WalkthroughAnalyticLayout
 import java.io.Serializable
 
 class AnalyticsActivity : AbstractManagementActivity() {
+
     override fun isInEditMode(): Boolean {
+        return false
+    }
+
+    override fun isInAddMode(): Boolean {
         return false
     }
 

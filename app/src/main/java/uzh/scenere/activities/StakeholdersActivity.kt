@@ -32,7 +32,12 @@ class StakeholdersActivity : AbstractManagementActivity() {
     override fun isInViewMode(): Boolean {
         return stakeholdersMode == StakeholderMode.VIEW
     }
+
     override fun isInEditMode(): Boolean {
+        return stakeholdersMode == StakeholderMode.EDIT_CREATE
+    }
+
+    override fun isInAddMode(): Boolean {
         return stakeholdersMode == StakeholderMode.EDIT_CREATE
     }
     override fun resetEditMode() {

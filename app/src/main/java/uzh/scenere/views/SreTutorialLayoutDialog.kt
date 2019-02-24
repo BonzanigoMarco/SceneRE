@@ -2,7 +2,6 @@ package uzh.scenere.views
 
 import android.app.Dialog
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -15,10 +14,11 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.TUTORIAL_UID_IDENTIFIER
 import uzh.scenere.helpers.DatabaseHelper
+import uzh.scenere.helpers.ImageHelper
 
-class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, vararg drawableResources: Int): RelativeLayout(context){
+class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, vararg drawableNames: String): RelativeLayout(context){
 
-    private val idList = ArrayList<Int>()
+    private val nameList = ArrayList<String>()
     private var drawablePointer = -1
     private val closeButton = SreButton(context,this,NOTHING,null,null,SreButton.ButtonStyle.TUTORIAL)
     private val imageView = ImageView(context)
@@ -26,11 +26,11 @@ class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, va
     private lateinit  var endExecutable: () -> Unit
 
     init {
-        if (!drawableResources.isEmpty()){
-            for (id in drawableResources){
-                val alreadySeen = DatabaseHelper.getInstance(context).read(TUTORIAL_UID_IDENTIFIER.plus(id), Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
+        if (!drawableNames.isEmpty()){
+            for (name in drawableNames){
+                val alreadySeen = DatabaseHelper.getInstance(context).read(TUTORIAL_UID_IDENTIFIER.plus(name), Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
                 if (!alreadySeen){
-                    idList.add(id)
+                    nameList.add(name)
                 }
             }
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -52,30 +52,35 @@ class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, va
 
     private fun execTutorialButtonClicked() {
         if (drawablePointer >= 0){
-            DatabaseHelper.getInstance(context).write(TUTORIAL_UID_IDENTIFIER.plus(idList[drawablePointer]),true,DatabaseHelper.DataMode.PREFERENCES)
+            DatabaseHelper.getInstance(context).write(TUTORIAL_UID_IDENTIFIER.plus(nameList[drawablePointer]),true,DatabaseHelper.DataMode.PREFERENCES)
         }
         drawablePointer ++
-        if (drawablePointer >= idList.size){
+        if (drawablePointer >= nameList.size){
             if (::endExecutable.isInitialized){
                 endExecutable()
             }
             dialog.dismiss()
+            cleanUp()
         }else{
-            closeButton.text = if (drawablePointer == idList.size-1) context.getString(R.string.tutorial_close) else context.getString(R.string.tutorial_next)
-            imageView.setImageBitmap(BitmapFactory.decodeResource(resources, idList[drawablePointer]))
+            closeButton.text = if (drawablePointer == nameList.size-1) context.getString(R.string.tutorial_close) else context.getString(R.string.tutorial_next)
+            imageView.setImageBitmap(ImageHelper.getAssetImage(context,nameList[drawablePointer]))
         }
     }
 
-    fun show(delayMilliseconds: Long = 0): Boolean{
-        if (!idList.isEmpty()) {
+    fun show(tutorialOpen: Boolean, delayMilliseconds: Long = 0): Boolean{
+        if (!tutorialOpen && !nameList.isEmpty()) {
             Handler().postDelayed({ dialog.show() }, delayMilliseconds)
             return true
         }
-        return false
+        return tutorialOpen
     }
 
     fun addEndExecutable(function: () -> Unit): SreTutorialLayoutDialog {
         endExecutable = function
         return this
+    }
+
+    private fun cleanUp(){
+        System.gc()
     }
 }

@@ -37,6 +37,32 @@ class StringHelper{
             }
             return conc.substring(0,conc.length-delimiter.length)
         }
+
+        fun concatList(delimiter: String, obj: List<String>): String{
+            var conc = ""
+            for (o in obj){
+                conc += o+delimiter
+            }
+            return conc.substring(0,conc.length-delimiter.length)
+        }
+
+        fun concatListWithoutIdBrackets(delimiter: String, obj: List<String>): String{
+            var conc = ""
+            for (o in obj){
+                val split = o.split("[")
+                conc += split[0]+delimiter
+            }
+            return conc.substring(0,conc.length-delimiter.length)
+        }
+
+        fun concatWithIdBrackets(str: String, id: Int): String{
+            return "$str[$id]"
+        }
+
+        fun concatWithIdBrackets(str: String, id: String): String{
+            return "$str[$id]"
+        }
+
         fun nvl(value: String?, valueIfNull: String): String {
             return if (hasText(value)) value!! else  valueIfNull
         }

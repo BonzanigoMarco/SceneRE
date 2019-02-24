@@ -107,3 +107,61 @@ drill down through Projects,
 Scenarios and Stakeholders.
 While playing, you can access
 further Information on top.
+
+
+Element
+
+The Element you just created can
+either be edited by clicking the
+Edit-Button or deleted by holding
+down the Delete-Button for a
+certain amount of Time. Only the
+last Element can be deleted.
+
+
+If-Else Element
+
+An If-Else Element inhabits a
+Question and poses one or more
+possible options to pick from.
+On creation, the first option
+can be declared while further
+options can be added later.
+
+
+Configuring If-Else
+
+You can add or remove options to
+or from the If-Else Element by
+clicking the +/- on the right.
+Every option adds a Path that can
+be accessed in the dropdown.
+Elements here add to the main path
+
+
+Option Removal
+
+Select one or many options,
+besides your default option,
+and confirm to remove them.
+Be careful though, since this
+also removes their paths.
+
+
+Adding new Options
+
+Enter a name for your newly
+added Option and confirm.
+Build the path afterwards
+by selecting your option in
+the dropdown as explained
+in the previous tutorial.
+
+
+Switching Paths
+
+You switched to an alternative Path.
+Elements added here show up
+when choosing the corresponding
+Option. Swiping up loads the path
+you were previously editing.

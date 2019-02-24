@@ -2,12 +2,8 @@ package uzh.scenere.views
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
-import android.view.Gravity
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.view.View
+import android.widget.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.ANONYMOUS
 import uzh.scenere.const.Constants.Companion.NOTHING
@@ -18,6 +14,7 @@ import uzh.scenere.datamodel.Resource.NullResource
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.StandardStep
 import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
+import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.StringHelper
@@ -51,9 +48,9 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private var infoTime: Long = 0
     //Play
     private var layer: Int = 0
-    private val path: HashMap<Int, Path>? = scenario.getAllPaths(stakeholder)
-    private var first = path?.get(layer)?.getStartingPoint()
-    private var second = path?.get(layer)?.getNextElement(first)
+    private val paths: HashMap<Int, Path>? = scenario.getAllPaths(stakeholder)
+    private var first = paths?.get(layer)?.getStartingPoint()
+    private var second = paths?.get(layer)?.getNextElement(first)
     //State
     private val mode: WalkthroughPlayMode = if (first is AbstractStep) WalkthroughPlayMode.STEP_INDUCED else WalkthroughPlayMode.TRIGGER_INDUCED
     private var state: WalkthroughState = WalkthroughState.STARTED
@@ -80,7 +77,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         addView(stepLayout)
         addView(triggerLayout)
 
-        if (first == null && second == null) { //TODO Evaluate if end trigger is missing
+        if (first == null && second == null) {
             state = WalkthroughState.FINISHED
         }
         when (state) {
@@ -121,6 +118,29 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         }
                         triggerLayout.addView(button)
                     }
+                    is IfElseTrigger -> {
+                        val title = "Question [" + (second as IfElseTrigger).getOptions().size + " Option(s)]:"
+                        val questionText = generateText(title, (second as IfElseTrigger).text, ArrayList(), arrayListOf(title))
+                        questionText.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE)
+                        questionText.id = View.generateViewId()
+                        triggerLayout.addView(questionText)
+                        val scroll = SreScrollView(context,triggerLayout)
+                        scroll.addRule(RelativeLayout.BELOW, questionText.id)
+                        var optionId = 0
+                        for (option in (second as IfElseTrigger).getOptions()){
+                            val button = generateButton(option)
+                            button.addRule(RelativeLayout.BELOW, id)
+                            id = View.generateViewId()
+                            button.id = id
+                            val optionLayer = (second as IfElseTrigger).getLayerForOption(optionId++)
+                            button.setOnClickListener {
+                                layer = optionLayer
+                                loadNextStep(optionLayer != 0)
+                            }
+                            scroll.addScrollElement(button)
+                        }
+                        triggerLayout.addView(scroll)
+                    }
                     else -> {
                         //FALLBACK FOR MISSING TRIGGER AT THE END
                         val button = generateButton(context.getString(R.string.walkthrough_complete))
@@ -149,24 +169,31 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         triggerLayout.addView(button)
     }
 
-    private fun <T: Serializable>generateText(title: String?, content: String?, contextObjects: ArrayList<T>, boldWords: ArrayList<String>): TextView {
+
+    private fun generateText(title: String?, content: String?): TextView {
+        return generateText(title,content, ArrayList(), ArrayList())
+    }
+
+    private fun <T: Serializable> generateText(title: String?, content: String?, contextObjects: ArrayList<T>, boldWords: ArrayList<String>): SreTextView {
         val text = SreContextAwareTextView(context,stepLayout, boldWords,contextObjects)
         text.addRule(RelativeLayout.CENTER_IN_PARENT)
         text.text = StringHelper.fromHtml("$title<br>$content")
+        text.setMargin(DipHelper.get(resources).dip10.toInt())
+        text.setPadding(DipHelper.get(resources).dip5.toInt())
         return text
     }
 
-    private fun generateButton(label: String?): Button {
+    private fun generateButton(label: String?): SreButton {
         val button = SreButton(context,triggerLayout,label)
         button.addRule(RelativeLayout.CENTER_IN_PARENT)
         return button
     }
 
-    private fun loadNextStep() {
+    private fun loadNextStep(pathSwitch: Boolean = false) {
         if (state != WalkthroughState.STARTED){
             walkthrough.addStep(if (first is AbstractStep) ((first as AbstractStep).withTime(getTime())) else if (second is AbstractStep) ((second as AbstractStep).withTime(getTime())) else null)
-            first = path?.get(0)?.getNextElement(second)
-            second = path?.get(0)?.getNextElement(first)
+            first = if (pathSwitch) paths?.get(layer)?.getStartingPoint() else paths?.get(layer)?.getNextElement(second)
+            second = paths?.get(layer)?.getNextElement(first)
         }
         state = WalkthroughState.PLAYING
         prepareLayout()
