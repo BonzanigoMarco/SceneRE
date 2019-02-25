@@ -150,7 +150,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         titleText.textAlignment = View.TEXT_ALIGNMENT_CENTER
         titleText.gravity = Gravity.CENTER
         titleText.text = title
-        titleText.setTextColor(Color.BLACK)
+        titleText.setTextColor(ContextCompat.getColor(applicationContext,R.color.sreBlack))
         holder.addView(titleText)
     }
 

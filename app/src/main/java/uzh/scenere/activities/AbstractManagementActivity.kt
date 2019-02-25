@@ -1,6 +1,7 @@
 package uzh.scenere.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -14,6 +15,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
@@ -92,12 +94,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             execFullScrollUp()
         }else{
             super.onBackPressed()
-        }
-    }
-
-    override fun onToolbarCenterRightClicked() {
-        if (!isInputOpen()) {
-            execFullScrollUp()
         }
     }
 
@@ -314,8 +310,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         textView.layoutParams = textParams
         textView.text = spinnerText
         textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
-        textView.setBackgroundColor(Color.WHITE)
-        textView.setTextColor(Color.BLACK)
+        textView.setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.sreWhite))
+        textView.setTextColor(ContextCompat.getColor(applicationContext,R.color.sreBlack))
         textView.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
         textView.setOnTouchListener { _, _ ->
             selectionCarrier.removeView(textView)
@@ -383,7 +379,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         val textPrior = getInfoTitle().text
         val textColorPrior = getInfoTitle().currentTextColor
         getInfoTitle().text = resources.getString(R.string.deleted, objectName)
-        getInfoTitle().setTextColor(Color.RED)
+        getInfoTitle().setTextColor(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn))
         Handler().postDelayed({
             getInfoTitle().text = textPrior
             getInfoTitle().setTextColor(textColorPrior)
@@ -431,7 +427,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     open fun resetToolbar() {
-        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
+        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), resources.getText(R.string.icon_info).toString(), null)
     }
 
     //*************

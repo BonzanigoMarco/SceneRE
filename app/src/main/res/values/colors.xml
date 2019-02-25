@@ -1,41 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!--APPLICATION NORMAL-->
+    <!--<color name="srePrimaryDisabled">#dddddd</color>-->
+    <!--<color name="srePrimaryDisabledDark">#bbbbbb</color>-->
+    <!--<color name="srePrimaryPastel">#c5cae9</color>  &lt;!&ndash; 100 indigo &ndash;&gt;-->
+    <!--<color name="srePrimaryLight">#7986cb</color>  &lt;!&ndash; 300 indigo &ndash;&gt;-->
+    <!--<color name="srePrimary">#3F51B5</color>  &lt;!&ndash; 500 indigo &ndash;&gt;-->
+    <!--<color name="srePrimaryDark">#303F9F</color>  &lt;!&ndash; 700 indigo &ndash;&gt;-->
+    <!--<color name="srePrimaryAccent">#1E88E5</color>  &lt;!&ndash; 500 blue  &ndash;&gt;-->
+    <!--<color name="srePrimaryNeon">#64B5F6</color>  &lt;!&ndash; 300 blue  &ndash;&gt;-->
+    <!--<color name="srePrimaryWarn">@color/material_700_red</color>-->
+    <!--<color name="srePrimaryAttention">@color/material_700_yellow</color>-->
+    <!--<color name="sreBlack">#000000</color>-->
+    <!--<color name="sreWhite">#FFFFFF</color>-->
+    <!--<color name="sreTutorial">#FB8C00</color>  &lt;!&ndash; 600 orange  &ndash;&gt;-->
+    <!--<color name="sreSecondaryLight">#ff80ab</color>  &lt;!&ndash; 100 pink  &ndash;&gt;-->
+    <!--<color name="sreSecondary">#FF4081</color>  &lt;!&ndash; 200 pink  &ndash;&gt;-->
+    <!--<color name="sreSecondaryDark">#f50057</color>  &lt;!&ndash; 400 pink  &ndash;&gt;-->
+
+    <!--APPLICATION INVERSE-->
+    <!--<color name="srePrimaryDisabled">#dddddd</color>-->
+    <!--<color name="srePrimaryDisabledDark">#bbbbbb</color>-->
+    <!--<color name="srePrimaryPastel">#DDDDDD</color>  &lt;!&ndash; 100 indigo &ndash;&gt;-->
+    <!--<color name="srePrimaryLight">#AAAAAA</color>  &lt;!&ndash; 300 indigo &ndash;&gt;-->
+    <!--<color name="srePrimary">#777777</color>  &lt;!&ndash; 500 indigo &ndash;&gt;-->
+    <!--<color name="srePrimaryDark">#333333</color>  &lt;!&ndash; 700 indigo &ndash;&gt;-->
+    <!--<color name="srePrimaryAccent">#FFC107</color>  &lt;!&ndash; 500 blue  &ndash;&gt;-->
+    <!--<color name="srePrimaryNeon">#FFD54F</color>  &lt;!&ndash; 300 blue  &ndash;&gt;-->
+    <!--<color name="srePrimaryWarn">@color/material_700_red</color>-->
+    <!--<color name="srePrimaryAttention">@color/material_700_yellow</color>-->
+    <!--<color name="sreWhite">#000000</color>-->
+    <!--<color name="sreBlack">#FFFFFF</color>-->
+    <!--<color name="sreTutorial">#FB8C00</color>  &lt;!&ndash; 600 orange  &ndash;&gt;-->
+    <!--<color name="sreSecondaryLight">#ff80ab</color>  &lt;!&ndash; 100 pink  &ndash;&gt;-->
+    <!--<color name="sreSecondary">#FF4081</color>  &lt;!&ndash; 200 pink  &ndash;&gt;-->
+    <!--<color name="sreSecondaryDark">#f50057</color>  &lt;!&ndash; 400 pink  &ndash;&gt;-->
+
+    <!--APPLICATION NIGHTMODE-->
+    <!--<color name="srePrimaryDisabled">#dddddd</color>-->
+    <!--<color name="srePrimaryDisabledDark">#bbbbbb</color>-->
+    <!--<color name="srePrimaryPastel">#333333</color>  &lt;!&ndash; 100 indigo &ndash;&gt;-->
+    <!--<color name="srePrimaryLight">#555555</color>  &lt;!&ndash; 300 indigo &ndash;&gt;-->
+    <!--<color name="srePrimary">#777777</color>  &lt;!&ndash; 500 indigo &ndash;&gt;-->
+    <!--<color name="srePrimaryDark">#999999</color>  &lt;!&ndash; 700 indigo &ndash;&gt;-->
+    <!--<color name="srePrimaryAccent">#FFC107</color>  &lt;!&ndash; 500 blue  &ndash;&gt;-->
+    <!--<color name="srePrimaryNeon">#FFD54F</color>  &lt;!&ndash; 300 blue  &ndash;&gt;-->
+    <!--<color name="srePrimaryWarn">@color/material_700_red</color>-->
+    <!--<color name="srePrimaryAttention">@color/material_700_yellow</color>-->
+    <!--<color name="sreWhite">#000000</color>-->
+    <!--<color name="sreBlack">#FFFFFF</color>-->
+    <!--<color name="sreTutorial">#FB8C00</color>  &lt;!&ndash; 600 orange  &ndash;&gt;-->
+    <!--<color name="sreSecondaryLight">#ff80ab</color>  &lt;!&ndash; 100 pink  &ndash;&gt;-->
+    <!--<color name="sreSecondary">#FF4081</color>  &lt;!&ndash; 200 pink  &ndash;&gt;-->
+    <!--<color name="sreSecondaryDark">#f50057</color>  &lt;!&ndash; 400 pink  &ndash;&gt;-->
+
+    <!--APPLICATION NORMAL-->
     <color name="srePrimaryDisabled">#dddddd</color>
     <color name="srePrimaryDisabledDark">#bbbbbb</color>
-    <color name="srePrimaryPastel">#b5b6d2</color>
-    <color name="srePrimaryLight">#7986cb</color>
-    <color name="srePrimary">#3F51B5</color>
-    <color name="srePrimaryDark">#303F9F</color>
-    <color name="srePrimaryAccent">#1E88E5</color>
-    <color name="srePrimaryNeon">#64B5F6</color>
-    <!--<color title="srePrimaryLight">#ff80ab</color>-->
-    <!--<color title="srePrimary">#FF4081</color>-->
-    <!--<color title="srePrimaryDark">#f50057</color>-->
-    <color name="sreSecondaryLight">#ff80ab</color>
-    <color name="sreSecondary">#FF4081</color>
-    <color name="sreSecondaryDark">#f50057</color>
-    <!-- SceneRE-->
-    <color name="sreWhite">#FFFFFF</color>
-    <color name="sreLightGray">#dddddd</color>
-    <color name="sreTintGray">#bbbbbb</color>
-    <color name="sreMediumGray">#888888</color>
-    <color name="sreAnthrazit">#555555</color>
-    <color name="sreQuarz">#444444</color>
-    <color name="sreDarkGray">#222222</color>
+    <color name="srePrimaryPastel">#B2DFDB</color>  <!-- 100 indigo -->
+    <color name="srePrimaryLight">#4DB6AC</color>  <!-- 300 indigo -->
+    <color name="srePrimary">#009688</color>  <!-- 500 indigo -->
+    <color name="srePrimaryDark">#00796B</color>  <!-- 700 indigo -->
+    <color name="srePrimaryAccent">#4CAF50</color>  <!-- 500 blue  -->
+    <color name="srePrimaryNeon">#81C784</color>  <!-- 300 blue  -->
+    <color name="srePrimaryWarn">@color/material_700_red</color>
+    <color name="srePrimaryAttention">@color/material_700_yellow</color>
     <color name="sreBlack">#000000</color>
-    <color name="sreTutorial">#FB8C00</color>
-
-
-
-
-
-
-
-
-
-
-
-
+    <color name="sreWhite">#FFFFFF</color>
+    <color name="sreTutorial">#FB8C00</color>  <!-- 600 orange  -->
+    <color name="sreSecondaryLight">#E1BEE7</color>  <!-- 100 pink  -->
+    <color name="sreSecondary">#CE93D8</color>  <!-- 200 pink  -->
+    <color name="sreSecondaryDark">#AB47BC</color>  <!-- 400 pink  -->
 
     <color name="transparent">#00FFFFFF</color>
     <color name="black">#000000</color>

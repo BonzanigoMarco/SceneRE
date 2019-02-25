@@ -23,15 +23,17 @@ class MainMenuActivity : AbstractBaseActivity() {
         val analyticsButton = SreButton(applicationContext, main_menu_root, "Analytics",RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, walkthroughButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, AnalyticsActivity::class.java)) }
         val shareButton = SreButton(applicationContext, main_menu_root, "Share",RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, analyticsButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, ShareActivity::class.java)) }
         val cockpitButton = SreButton(applicationContext, main_menu_root, "Cockpit",RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, shareButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, CockpitActivity::class.java)) }
+        val glossaryButton = SreButton(applicationContext, main_menu_root, "Glossary",RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, cockpitButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, GlossaryActivity::class.java)) }
 
-        shareButton.isEnabled = false
-
+        shareButton.isEnabled = true
+        analyticsButton.isEnabled = false
 
         main_menu_root.addView(projectsButton)
         main_menu_root.addView(walkthroughButton)
         main_menu_root.addView(analyticsButton)
         main_menu_root.addView(shareButton)
         main_menu_root.addView(cockpitButton)
+        main_menu_root.addView(glossaryButton)
         if (!PermissionHelper.check(applicationContext,PermissionHelper.Companion.PermissionGroups.STORAGE)){
             projectsButton.isEnabled = false
             walkthroughButton.isEnabled = false

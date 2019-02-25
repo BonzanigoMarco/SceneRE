@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
@@ -57,24 +58,24 @@ class ScenariosActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this, "Create New Scenario")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(Color.WHITE, Color.GRAY)
+                        .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                         .setButtonStates(false, true, false, false)
                         .setButtonIcons(R.string.icon_null, R.string.icon_edit, null, null, R.string.icon_scenario)
                         .setFirstPosition()
                         .updateViews(true)
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
-        scroll_holder_linear_layout_holder.addView(creationButton)
-        createTitle("", scroll_holder_linear_layout_holder)
+        getContentHolderLayout().addView(creationButton)
+        createTitle("", getContentHolderLayout())
         for (scenario in DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class, activeProject)) {
             addScenarioToList(scenario)
         }
-        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_scenarios), fontAwesome)
-        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), null, null)
+        getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_scenarios), fontAwesome)
+        resetToolbar()
     }
 
     private fun addScenarioToList(scenario: Scenario) {
         val swipeButton = SwipeButton(this, scenario.title)
-                .setColors(Color.WHITE, Color.GRAY)
+                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_object, R.string.icon_path_editor, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, true, true)
@@ -82,7 +83,7 @@ class ScenariosActivity : AbstractManagementActivity() {
         swipeButton.dataObject = scenario
         swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(AbstractObject::class,scenario).size,null)
         swipeButton.setExecutable(generateScenarioExecutable(swipeButton, scenario))
-        scroll_holder_linear_layout_holder.addView(swipeButton)
+        getContentHolderLayout().addView(swipeButton)
     }
 
     private fun generateCreationExecutable(button: SwipeButton, scenario: Scenario? = null): SwipeButton.SwipeButtonExecution {
@@ -141,9 +142,9 @@ class ScenariosActivity : AbstractManagementActivity() {
             ScenarioMode.VIEW -> {}//NOP
             ScenarioMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeScenario == null) getString(R.string.scenarios_create) else getString(R.string.scenarios_edit))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelTitle, LineInputType.SINGLE_LINE_EDIT, scenario?.title))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelIntro, LineInputType.MULTI_LINE_EDIT, scenario?.intro))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelOutro, LineInputType.MULTI_LINE_EDIT, scenario?.outro))
+                getInfoContentWrap().addView(createLine(inputLabelTitle, LineInputType.SINGLE_LINE_EDIT, scenario?.title))
+                getInfoContentWrap().addView(createLine(inputLabelIntro, LineInputType.MULTI_LINE_EDIT, scenario?.intro))
+                getInfoContentWrap().addView(createLine(inputLabelOutro, LineInputType.MULTI_LINE_EDIT, scenario?.outro))
             }
             ScenarioMode.OBJECTS -> {
                 val intent = Intent(this, ObjectsActivity::class.java)
@@ -154,7 +155,7 @@ class ScenariosActivity : AbstractManagementActivity() {
             ScenarioMode.EDITOR -> {
                 val intent = Intent(this, EditorActivity::class.java)
                 intent.putExtra(Constants.BUNDLE_SCENARIO, activeScenario)
-                Handler().postDelayed({ // Delay loading since it can take a while TODO> Delay all?
+                Handler().postDelayed({
                 startActivity(intent)},350)
                 return
             }
@@ -164,15 +165,23 @@ class ScenariosActivity : AbstractManagementActivity() {
     }
 
     private fun removeScenario(scenario: Scenario, dbRemoval: Boolean = false) {
-        for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount) {
-            if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == scenario) {
-                scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
+        for (viewPointer in 0 until getContentHolderLayout().childCount) {
+            if (getContentHolderLayout().getChildAt(viewPointer) is SwipeButton &&
+                    (getContentHolderLayout().getChildAt(viewPointer) as SwipeButton).dataObject == scenario) {
+                getContentHolderLayout().removeViewAt(viewPointer)
                 if (dbRemoval){
                     DatabaseHelper.getInstance(applicationContext).delete(scenario.id, Scenario::class)
                 }
                 return
             }
+        }
+    }
+
+    override fun onToolbarCenterRightClicked() {
+        if (!isInputOpen()) {
+            val intent = Intent(this, GlossaryActivity::class.java)
+            intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Scenario")
+            startActivity(intent)
         }
     }
 }

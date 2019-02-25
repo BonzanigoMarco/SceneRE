@@ -1,11 +1,14 @@
 package uzh.scenere.activities
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.BUNDLE_PROJECT
 import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Stakeholder
@@ -56,31 +59,31 @@ class StakeholdersActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this,"Create New Stakeholder")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(Color.WHITE,Color.GRAY)
+                        .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                         .setButtonStates(false,true,false,false)
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_stakeholder)
                         .setFirstPosition()
                         .updateViews(true )
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
-        scroll_holder_linear_layout_holder.addView(creationButton)
-        createTitle("",scroll_holder_linear_layout_holder)
+        getContentHolderLayout().addView(creationButton)
+        createTitle("",getContentHolderLayout())
         for (stakeholder in DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class,activeProject)){
             addStakeholderToList(stakeholder)
         }
-        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholders),fontAwesome)
-        customizeToolbarText(resources.getText(R.string.icon_back).toString(),null,getLockIcon(),null,null)
+        getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_stakeholders),fontAwesome)
+        resetToolbar()
     }
 
     private fun addStakeholderToList(stakeholder: Stakeholder) {
         val swipeButton = SwipeButton(this, stakeholder.name)
-                .setColors(Color.WHITE, Color.GRAY)
+                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit, null, null, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, false, false)
                 .updateViews(true)
         swipeButton.dataObject = stakeholder
         swipeButton.setExecutable(generateStakeholderExecutable(swipeButton, stakeholder))
-        scroll_holder_linear_layout_holder.addView(swipeButton)
+        getContentHolderLayout().addView(swipeButton)
     }
 
     private fun generateCreationExecutable(button: SwipeButton, stakeholder: Stakeholder? = null): SwipeButtonExecution {
@@ -129,8 +132,8 @@ class StakeholdersActivity : AbstractManagementActivity() {
         cleanInfoHolder(if (activeStakeholder==null) getString(R.string.stakeholders_create) else getString(R.string.stakeholders_edit))
         when(stakeholdersMode){
             StakeholderMode.EDIT_CREATE -> {
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, stakeholder?.name))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, stakeholder?.description))
+                getInfoContentWrap().addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, stakeholder?.name))
+                getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, stakeholder?.description))
             }
         }
 
@@ -138,15 +141,23 @@ class StakeholdersActivity : AbstractManagementActivity() {
     }
 
     private fun removeStakeholder(stakeholder: Stakeholder, dbRemoval: Boolean = false) {
-        for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount){
-            if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == stakeholder){
-                scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
+        for (viewPointer in 0 until getContentHolderLayout().childCount){
+            if (getContentHolderLayout().getChildAt(viewPointer) is SwipeButton &&
+                    (getContentHolderLayout().getChildAt(viewPointer) as SwipeButton).dataObject == stakeholder){
+                getContentHolderLayout().removeViewAt(viewPointer)
                 if (dbRemoval){
                     DatabaseHelper.getInstance(applicationContext).delete(stakeholder.id, Stakeholder::class)
                 }
                 return
             }
+        }
+    }
+
+    override fun onToolbarCenterRightClicked() {
+        if (!isInputOpen()) {
+            val intent = Intent(this, GlossaryActivity::class.java)
+            intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Stakeholder")
+            startActivity(intent)
         }
     }
 }

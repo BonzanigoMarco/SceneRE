@@ -3,6 +3,7 @@ package uzh.scenere.activities
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_analytics.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
@@ -66,7 +67,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         loadData()
         creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) "No Walkthroughs found" else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.projects)))
-                .setColors(Color.WHITE, Color.GRAY)
+                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                 .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)
@@ -214,7 +215,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                         ?.setText(createButtonLabel(activeScenarios, getString(R.string.literal_scenarios)))
                         ?.updateViews(false)
-                scroll_holder_linear_layout_holder.removeAllViews()
+                getContentHolderLayout().removeAllViews()
             }
             else -> return
         }
@@ -264,8 +265,8 @@ class AnalyticsActivity : AbstractManagementActivity() {
             is Walkthrough -> {
                 creationButton?.setButtonStates(true, true, true, true)?.setText("Walkthrough number "+(pointer!!+1))?.updateViews(false)
                 Handler().postDelayed({
-                    scroll_holder_linear_layout_holder.removeAllViews()
-                    scroll_holder_linear_layout_holder.addView(WalkthroughAnalyticLayout(this, selectedList[pointer!!] as Walkthrough, true))
+                    getContentHolderLayout().removeAllViews()
+                    getContentHolderLayout().addView(WalkthroughAnalyticLayout(this, selectedList[pointer!!] as Walkthrough, true))
                 }, 500)
             }
         }

@@ -146,4 +146,18 @@
     <string name="tutorial_next">Next</string>
     <string name="cockpit_info_admin">This view contains Functions to administrate the Application</string>
 
+    <!--Glossary-->
+    <string name="glossary_title">Glossary</string>
+    <string name="glossary_project">Projects contain all data to conduct Walkthroughs. It can be seen as a wrapper to group Stakeholders, Scenarios, Objects, Attributes and all the other Entities together.\nExample:\nLaunch of a digital Access System</string>
+    <string name="glossary_stakeholder">Stakeholders are people that can be impersonated while conducting Walkthroughs. For each Stakeholder within a Scenario, a path of consecutive Steps can be modelled for him/her to follow.\nExample:\nAccess Card Vendor</string>
+    <string name="glossary_object">Objects can be integrated in Steps and enriched with Attributes to provide contextual information. Integrating Objects in Steps allows the Walkthrough conductor to access their Attributes as information base. What-If questions can draw contextual information from them.\nExample:\nAccess Card</string>
+    <string name="glossary_attribute">Attributes belong to Objects and can be looked up while conducting a Walkthrough. What-If questions can draw contextual information from them.\nExample:\nAccess Card Color: Blue</string>
+    <string name="glossary_resource">Resources are special Objects that have a numerical value. There are special Steps that integrate these Resources and manipulate this value by either increasing, decreasing or checking it.\nExample:\nNumber of Admissions</string>
+    <string name="glossary_scenario">Scenarios consist of a continuous sequence of Steps and Triggers for each Stakeholder and can be seen as Theater Scripts. Together they build a Path which will be played while conducting a Walkthrough. The main-Path can branch out in different Paths by including If-Else Triggers.</string>
+    <string name="glossary_walkthrough">Walkthroughs are the actual conduction of playing through a Scenario and can be seen as Theater Performance. While playing through Scenarios,  What-If Questions  and contextual Information about Objects are sometimes available. Since the Walkthroughs should spark ideas, Input can be added at any given point.</string>
+    <string name="glossary_step">Steps are Elements that make up a Path in a Scenario. They guide the Stakeholder through the Walkthrough and provide Information.</string>
+    <string name="glossary_trigger">Trigger get combined with Steps and decide when the Walkthrough continues with the next step and which step this will be.</string>
+    <string name="glossary_editor">The Editor provides the Tools to put together the Paths contained in a Scenario</string>
+    <string name="title_share">Share</string>
+
 </resources>

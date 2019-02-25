@@ -52,4 +52,8 @@ class SwipeButtonSortingLayout(context: Context, attributeSet: AttributeSet) : L
         }
         return false
     }
+
+    fun scrollTo(button: SwipeButton) {
+        Handler().postDelayed({ requestChildFocus(button, button)}, 250)
+    }
 }

@@ -3,6 +3,7 @@ package uzh.scenere.views
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -138,8 +139,8 @@ class SreSpinner(context: Context, parent: ViewGroup?, lookupData: Array<String>
         textView.layoutParams = textParams
         textView.text = spinnerText
         textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
-        textView.setBackgroundColor(Color.WHITE)
-        textView.setTextColor(Color.BLACK)
+        textView.setBackgroundColor(ContextCompat.getColor(context,R.color.sreWhite))
+        textView.setTextColor(ContextCompat.getColor(context,R.color.sreBlack))
         textView.setPadding(margin,margin,margin,margin)
         textView.setOnTouchListener { _, _ ->
             selectionCarrier?.removeView(textView)

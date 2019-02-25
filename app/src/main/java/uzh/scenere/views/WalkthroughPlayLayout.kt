@@ -72,7 +72,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         triggerLayout.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 7f)
 
 //        stepLayout.setBackgroundColor(Color.BLUE)
-//        triggerLayout.setBackgroundColor(Color.YELLOW)
+//        triggerLayout.setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention))
 
         addView(stepLayout)
         addView(triggerLayout)

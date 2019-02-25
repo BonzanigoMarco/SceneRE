@@ -96,7 +96,7 @@ class Element (context: Context, private var element: IElement, private val top:
         topWrapper?.addView(editButton)
         // CENTER
         if (top) {
-            connectionTop?.setBackgroundColor(Color.BLACK)
+            connectionTop?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
         }
         val centerParams = LayoutParams(dpiConnectorWidth, dpiConnectorHeight+NumberHelper.nvl(editButton?.getMargin(),0)*2)
         centerParams.addRule(CENTER_HORIZONTAL, TRUE)
@@ -114,7 +114,7 @@ class Element (context: Context, private var element: IElement, private val top:
         centerWrapper?.addView(centerElement)
         // LEFT
         if (left) {
-            connectionLeft?.setBackgroundColor(Color.BLACK)
+            connectionLeft?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
         }
         val leftParams = LayoutParams(dpiConnectorHeight, dpiConnectorWidth)
         leftParams.addRule(START_OF, NumberHelper.nvl(centerElement?.id, 0))
@@ -123,7 +123,7 @@ class Element (context: Context, private var element: IElement, private val top:
         centerWrapper?.addView(connectionLeft, leftParams)
         // RIGHT
         if (right) {
-            connectionRight?.setBackgroundColor(Color.BLACK)
+            connectionRight?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
         }
         val rightParams = LayoutParams(dpiConnectorHeight, dpiConnectorWidth)
         rightParams.addRule(END_OF, NumberHelper.nvl(centerElement?.id, 0))
@@ -140,7 +140,7 @@ class Element (context: Context, private var element: IElement, private val top:
         bottomWrapper?.addView(pathSpinner)
         // CENTER
         if (bottom) {
-            connectionBottom?.setBackgroundColor(Color.BLACK)
+            connectionBottom?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
         }
         connectionBottom?.layoutParams = connectionTop?.layoutParams
         bottomWrapper?.addView(connectionBottom)
@@ -155,7 +155,7 @@ class Element (context: Context, private var element: IElement, private val top:
     }
 
     fun connectToNext(){
-        connectionBottom?.setBackgroundColor(Color.BLACK)
+        connectionBottom?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
         deleteButton?.visibility = View.INVISIBLE
     }
 

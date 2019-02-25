@@ -1,9 +1,11 @@
 package uzh.scenere.activities
 
+import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -86,7 +88,7 @@ class EditorActivity : AbstractManagementActivity() {
             //TODO Warn that there
         }
 
-        scroll_holder_scroll.setBackgroundColor(Color.WHITE)
+        getContentWrapperLayout().setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.sreWhite))
         populateExplanationMap()
         execAdaptToOrientationChange()
         //TODO Toolbar
@@ -95,7 +97,7 @@ class EditorActivity : AbstractManagementActivity() {
 
         creationButton = SwipeButton(this, stakeholder?.name
                 ?: "No Stakeholders, Path cannot be built.")
-                .setColors(Color.WHITE, Color.GRAY)
+                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
                 .setButtonStates(true, true, false, false)
@@ -107,11 +109,11 @@ class EditorActivity : AbstractManagementActivity() {
         editor_linear_layout_control.addView(creationButton)
 
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
-        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, null, null, null)
+        resetToolbar()
         tutorialOpen = true
         visualizeActivePath()
         tutorialOpen = false
-        scroll_holder_linear_layout_holder.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+        getContentHolderLayout().setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
             override fun onChildViewRemoved(parent: View?, child: View?) {
                 refreshState(child)
             }
@@ -126,7 +128,7 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun visualizeActivePath() {
         if (activePath != null) {
-            scroll_holder_linear_layout_holder.removeAllViews()
+            getContentHolderLayout().removeAllViews()
             var element = activePath?.getStartingPoint()
             while (element != null) {
                 renderElement(element)
@@ -152,7 +154,7 @@ class EditorActivity : AbstractManagementActivity() {
         var title: String? = null
         if (iElement is StandardStep) title = "<b>" + iElement.readableClassName() + "</b><br>" + iElement.title
         if (iElement is AbstractTrigger) title = "<b>" + iElement.readableClassName() + "</b>"
-        val previousAvailable = scroll_holder_linear_layout_holder.childCount != 0
+        val previousAvailable = getContentHolderLayout().childCount != 0
         var tutorialDrawable: String? = null
         if (previousAvailable) {
             connectPreviousToNext()
@@ -163,11 +165,11 @@ class EditorActivity : AbstractManagementActivity() {
         element.setEditExecutable { openInput(iElement) }
         element.setDeleteExecutable {
             DatabaseHelper.getInstance(applicationContext).delete(iElement.getElementId(),IElement::class)
-            val prevPosition = scroll_holder_linear_layout_holder.indexOfChild(element)-1
+            val prevPosition = getContentHolderLayout().indexOfChild(element)-1
             if (prevPosition >= 0){
-                (scroll_holder_linear_layout_holder.getChildAt(prevPosition) as Element).disconnectFromNext()
+                (getContentHolderLayout().getChildAt(prevPosition) as Element).disconnectFromNext()
             }
-            scroll_holder_linear_layout_holder.removeView(element)
+            getContentHolderLayout().removeView(element)
             activePath?.remove(iElement)
             if (iElement is IfElseTrigger){
                 //Delete all Paths associated with this Element
@@ -193,7 +195,7 @@ class EditorActivity : AbstractManagementActivity() {
                 tutorialDrawable = "info_if_else_config"
             }
         }
-        scroll_holder_linear_layout_holder.addView(element)
+        getContentHolderLayout().addView(element)
         colorizeZebraPattern()
         if (tutorialDrawable != null){
             tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,tutorialDrawable).addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
@@ -246,11 +248,11 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun renderAndNotifyPath(alternativePath: Boolean) {
         if (pathNameList.isEmpty()){
-            notify("Currently on the main-path")
+            notify("Currently on the main-Path")
             creationButton?.setText(activePath!!.stakeholder.name)?.updateViews(true)
         }else{
             val pathName = StringHelper.concatListWithoutIdBrackets("->",pathNameList)
-            notify(if (alternativePath) "Currently on an alternative-path: $pathName" else "Currently on the main-path: $pathName" )
+            notify(if (alternativePath) "Currently on an alternative-Path: $pathName" else "Currently on the main-Path: $pathName" )
             creationButton?.setText(activePath!!.stakeholder.name + " [$pathName]")?.updateViews(true)
         }
     }
@@ -259,12 +261,12 @@ class EditorActivity : AbstractManagementActivity() {
         var title: String? = null
         if (iElement is StandardStep) title = "<b>" + iElement.readableClassName() + "</b><br>" + iElement.title
         if (iElement is AbstractTrigger) title = "<b>" + iElement.readableClassName() + "</b>"
-        for (v in 0 until scroll_holder_linear_layout_holder.childCount){
-            if (scroll_holder_linear_layout_holder.getChildAt(v) is Element && (scroll_holder_linear_layout_holder.getChildAt(v) as Element).containsElement(iElement)){
-                (scroll_holder_linear_layout_holder.getChildAt(v) as Element).withLabel(StringHelper.fromHtml(title)).updateElement(iElement).setEditExecutable { openInput(iElement) }
+        for (v in 0 until getContentHolderLayout().childCount){
+            if (getContentHolderLayout().getChildAt(v) is Element && (getContentHolderLayout().getChildAt(v) as Element).containsElement(iElement)){
+                (getContentHolderLayout().getChildAt(v) as Element).withLabel(StringHelper.fromHtml(title)).updateElement(iElement).setEditExecutable { openInput(iElement) }
                 when (iElement){
                     is IfElseTrigger -> {
-                        (scroll_holder_linear_layout_holder.getChildAt(v) as Element).setPathData(iElement.getOptions())
+                        (getContentHolderLayout().getChildAt(v) as Element).setPathData(iElement.getOptions())
                                 .resetSelectCount()
                                 .setOnPathIndexSelectedExecutable(onPathSelected)
                                 .setAddExecutable {onPathAdded(iElement)}
@@ -278,10 +280,10 @@ class EditorActivity : AbstractManagementActivity() {
     private fun refreshState(view: View? = null) {
         if (view != null && view is Element){
             editorState = if ((view as Element).isStep()) EditorState.STEP else EditorState.TRIGGER
-        }else if (scroll_holder_linear_layout_holder.childCount > 0){
-            for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
-                if (scroll_holder_linear_layout_holder.getChildAt(v) is Element) {
-                    editorState = if ((scroll_holder_linear_layout_holder.getChildAt(v) as Element).isStep()) EditorState.TRIGGER else EditorState.STEP
+        }else if (getContentHolderLayout().childCount > 0){
+            for (v in 0 until getContentHolderLayout().childCount) {
+                if (getContentHolderLayout().getChildAt(v) is Element) {
+                    editorState = if ((getContentHolderLayout().getChildAt(v) as Element).isStep()) EditorState.TRIGGER else EditorState.STEP
                 }
             }
         }else{
@@ -367,15 +369,15 @@ class EditorActivity : AbstractManagementActivity() {
                 is StandardStep -> {
                     creationUnitClass = StandardStep::class
                     adaptAttributes("Title", "Text")
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, element.title))
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[1], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text))
+                    getInfoContentWrap().addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, element.title))
+                    getInfoContentWrap().addView(createLine(elementAttributes[1], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text))
                     (inputMap[elementAttributes[1]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is ButtonTrigger -> {
                     creationUnitClass = ButtonTrigger::class
                     adaptAttributes("Button-Label")
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, element.buttonLabel))
+                    getInfoContentWrap().addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, element.buttonLabel))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is IfElseTrigger -> {
@@ -383,17 +385,17 @@ class EditorActivity : AbstractManagementActivity() {
                     var tutorialDrawable: String? = null
                     if (inputMode == InputMode.REMOVE){
                         val index = adaptAttributes("Remove Options")
-                        scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.LOOKUP,null, addToArrayBefore(element.getDeletableIndexedOptions(),"")))
+                        getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP,null, addToArrayBefore(element.getDeletableIndexedOptions(),"")))
                         tutorialDrawable = "info_option_removal"
                     }else {
                         pathNameList.remove(pathNameList.last())
                         var index = adaptAttributes("Question","Default Option","Option 1","Option 2","Option 3","Option 4","Option 5")
-                        scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
+                        getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
                         for (string in element.getOptions()){
-                            scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, string))
+                            getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, string))
                         }
                         if (inputMode == InputMode.ADD){
-                            scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                            getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
                             tutorialDrawable = "info_option_add"
                         }
                     }
@@ -409,8 +411,8 @@ class EditorActivity : AbstractManagementActivity() {
                 resources.getString(R.string.step_standard) -> {
                     creationUnitClass = StandardStep::class
                     var index = adaptAttributes("Title", "Instruction")
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
                     (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
@@ -418,14 +420,14 @@ class EditorActivity : AbstractManagementActivity() {
                 resources.getString(R.string.trigger_button) -> {
                     creationUnitClass = ButtonTrigger::class
                     val index = adaptAttributes("Button-Label")
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_if_else) -> {
                     creationUnitClass = IfElseTrigger::class
                     var index = adaptAttributes("Question","Default Option")
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
-                    scroll_holder_text_info_content_wrap.addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_if_else_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
@@ -519,17 +521,17 @@ class EditorActivity : AbstractManagementActivity() {
     }
 
     private fun connectPreviousToNext() {
-        for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
-            if (scroll_holder_linear_layout_holder.getChildAt(v) is Element) {
-                (scroll_holder_linear_layout_holder.getChildAt(v) as Element).connectToNext()
+        for (v in 0 until getContentHolderLayout().childCount) {
+            if (getContentHolderLayout().getChildAt(v) is Element) {
+                (getContentHolderLayout().getChildAt(v) as Element).connectToNext()
             }
         }
     }
 
     private fun colorizeZebraPattern() {
-        for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
-            if (scroll_holder_linear_layout_holder.getChildAt(v) is Element) {
-                (scroll_holder_linear_layout_holder.getChildAt(v) as Element).setZebraPattern(v%2==0)
+        for (v in 0 until getContentHolderLayout().childCount) {
+            if (getContentHolderLayout().getChildAt(v) is Element) {
+                (getContentHolderLayout().getChildAt(v) as Element).setZebraPattern(v%2==0)
             }
         }
     }
@@ -568,21 +570,20 @@ class EditorActivity : AbstractManagementActivity() {
         }
     }
 
-    override fun resetToolbar() {
-        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, null, null, null)
-    }
-
-//    override fun execScroll(){
-//        if (editorState == ADD){ //Avoid Scrolls on Edit
-//            super.execScroll()
-//        }
-//    }
-
     override fun onBackPressed() {
         if (isInputOpen()){
             onToolbarRightClicked()
         }else{
             super.onBackPressed()
+        }
+    }
+
+    override fun onToolbarCenterRightClicked() {
+        if (!isInputOpen()) {
+            val intent = Intent(this, GlossaryActivity::class.java)
+            intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Editor")
+            intent.putExtra(Constants.BUNDLE_GLOSSARY_ADDITIONAL_TOPICS, arrayOf("Step","Trigger"))
+            startActivity(intent)
         }
     }
 }

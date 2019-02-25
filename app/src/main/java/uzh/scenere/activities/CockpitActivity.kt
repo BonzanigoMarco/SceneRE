@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.hardware.Sensor
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import kotlinx.android.synthetic.main.scroll_holder.*
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
@@ -85,7 +86,7 @@ class CockpitActivity : AbstractManagementActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         customizeToolbarId(R.string.icon_back, R.string.icon_backward, R.string.icon_win_min, R.string.icon_forward, null)
-        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+        getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         recreateViews()
         if (PermissionHelper.getRequiredPermissions(this).isEmpty()){
             tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_bars","info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
@@ -98,11 +99,11 @@ class CockpitActivity : AbstractManagementActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_ALL && permissions.isNotEmpty()) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                activeButton?.setIndividualButtonColors(Color.GREEN, Color.WHITE, Color.GRAY, Color.GRAY)
+                activeButton?.setIndividualButtonColors(Color.GREEN, ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                         ?.setButtonIcons(R.string.icon_check, R.string.icon_sign, null, null, null)
                         ?.updateViews(false)
             } else {
-                activeButton?.setIndividualButtonColors(Color.RED, Color.WHITE, Color.GRAY, Color.GRAY)
+                activeButton?.setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                         ?.setButtonIcons(R.string.icon_cross, R.string.icon_sign, null, null, null)
                         ?.updateViews(false)
             }
@@ -127,14 +128,14 @@ class CockpitActivity : AbstractManagementActivity() {
     override fun onToolbarCenterRightClicked() {
         SensorHelper.getInstance(this).unregisterTextGraphListener()
         mode = mode.next()
-        scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
+        getInfoContent().text = mode.getDescription(applicationContext)
         recreateViews()
     }
 
     override fun onToolbarCenterLeftClicked() {
         SensorHelper.getInstance(this).unregisterTextGraphListener()
         mode = mode.previous()
-        scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
+        getInfoContent().text = mode.getDescription(applicationContext)
         recreateViews()
     }
 
@@ -143,10 +144,10 @@ class CockpitActivity : AbstractManagementActivity() {
     }
 
     private fun recreateViews() {
-        scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
-        scroll_holder_linear_layout_holder.removeAllViews()
-        scroll_holder_scroll.scrollTo(0,0)
-        createTitle(mode.label,scroll_holder_linear_layout_holder)
+        getInfoContent().text = mode.getDescription(applicationContext)
+        getContentHolderLayout().removeAllViews()
+        getContentWrapperLayout().scrollTo(0,0)
+        createTitle(mode.label,getContentHolderLayout())
         when (this.mode) {
             CockpitMode.PERMISSIONS -> {
                 for (permission in PermissionHelper.getRequiredPermissions(this)) {
@@ -157,10 +158,10 @@ class CockpitActivity : AbstractManagementActivity() {
                             .setButtonStates(true, true, false, false)
                             .updateViews(true)
                     swipeButton.dataObject = permission
-                    swipeButton.outputObject = scroll_holder_text_info_content
+                    swipeButton.outputObject = getInfoContent()
                     swipeButton.setExecutable(generatePermissionExecutable(permission, swipeButton))
-                    scroll_holder_linear_layout_holder.addView(swipeButton)
-                    createTitle("",scroll_holder_linear_layout_holder) //Spacer
+                    getContentHolderLayout().addView(swipeButton)
+                    createTitle("",getContentHolderLayout()) //Spacer
                 }
             }
             CockpitMode.COMMUNICATIONS -> {
@@ -168,15 +169,15 @@ class CockpitActivity : AbstractManagementActivity() {
                     val granted = CommunicationHelper.check(this, communication)
                     val swipeButton = SwipeButton(this, communication.label)
                             .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                            .setIndividualButtonColors(if (granted) Color.WHITE else Color.RED, if (granted) Color.GREEN else Color.WHITE, Color.GRAY, Color.GRAY)
+                            .setIndividualButtonColors(if (granted) ContextCompat.getColor(applicationContext,R.color.sreWhite) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (granted) Color.GREEN else ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                             .setButtonIcons(R.string.icon_cross, R.string.icon_check, null, null, null)
                             .setButtonStates(true, true, false, false)
                             .updateViews(true)
                     swipeButton.dataObject = communication
-                    swipeButton.outputObject = scroll_holder_text_info_content
+                    swipeButton.outputObject = getInfoContent()
                     swipeButton.setExecutable(generateCommunicationExecutable(communication, swipeButton))
-                    scroll_holder_linear_layout_holder.addView(swipeButton)
-                    createTitle("",scroll_holder_linear_layout_holder) //Spacer
+                    getContentHolderLayout().addView(swipeButton)
+                    createTitle("",getContentHolderLayout()) //Spacer
                 }
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_communications").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
@@ -184,15 +185,15 @@ class CockpitActivity : AbstractManagementActivity() {
                 for (sensor in SensorHelper.getInstance(this).getSensorArray()) {
                     val swipeButton = SwipeButton(this, SensorHelper.getInstance(this).getTypeName(sensor.name))
                             .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                            .setIndividualButtonColors(Color.WHITE, Color.WHITE, Color.GRAY, Color.GRAY)
+                            .setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                             .setButtonIcons(R.string.icon_eye_closed, R.string.icon_eye, null, null, null)
                             .setButtonStates(true, true, false, false)
                             .updateViews(true)
                     swipeButton.dataObject = sensor
-                    swipeButton.outputObject = scroll_holder_text_info_content
+                    swipeButton.outputObject = getInfoContent()
                     swipeButton.setExecutable(generateSensorExecutable(sensor, swipeButton))
-                    scroll_holder_linear_layout_holder.addView(swipeButton)
-                    createTitle("",scroll_holder_linear_layout_holder) //Spacer
+                    getContentHolderLayout().addView(swipeButton)
+                    createTitle("",getContentHolderLayout()) //Spacer
                 }
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_sensors").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
@@ -208,7 +209,7 @@ class CockpitActivity : AbstractManagementActivity() {
                         })
                         .setAutoCollapse(true)
                         .updateViews(true)
-                scroll_holder_linear_layout_holder.addView(resetTutorial)
+                getContentHolderLayout().addView(resetTutorial)
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_functions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
         }
@@ -225,10 +226,10 @@ class CockpitActivity : AbstractManagementActivity() {
                 }
             }
             override fun execLeft() {
-                scroll_holder_text_info_content.text = permission.getDescription(applicationContext)
+                getInfoContent().text = permission.getDescription(applicationContext)
             }
             override fun execReset() {
-                scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
+                getInfoContent().text = mode.getDescription(applicationContext)
             }
         }
     }
@@ -238,7 +239,7 @@ class CockpitActivity : AbstractManagementActivity() {
             override fun execRight() {
                 if (!CommunicationHelper.check(this@CockpitActivity, communication)) {
                     val active = CommunicationHelper.toggle(this@CockpitActivity, communication)
-                    button.setIndividualButtonColors(if (active) Color.WHITE else Color.RED, if (active) Color.GREEN else Color.WHITE, Color.GRAY, Color.GRAY).updateViews(false)
+                    button.setIndividualButtonColors(if (active) ContextCompat.getColor(applicationContext,R.color.sreWhite) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (active) Color.GREEN else ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark)).updateViews(false)
                     Handler().postDelayed({ button.collapse() }, 500)
                 } else {
                     Handler().postDelayed({ button.collapse() }, 500)
@@ -248,7 +249,7 @@ class CockpitActivity : AbstractManagementActivity() {
             override fun execLeft() {
                 if (CommunicationHelper.check(this@CockpitActivity, communication)) {
                     val active = CommunicationHelper.toggle(this@CockpitActivity, communication)
-                    button.setIndividualButtonColors(if (active) Color.WHITE else Color.RED, if (active) Color.GREEN else Color.WHITE, Color.GRAY, Color.GRAY).updateViews(false)
+                    button.setIndividualButtonColors(if (active) ContextCompat.getColor(applicationContext,R.color.sreWhite) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (active) Color.GREEN else ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark)).updateViews(false)
                     Handler().postDelayed({ button.collapse() }, 500)
                 } else {
                     Handler().postDelayed({ button.collapse() }, 500)
@@ -256,7 +257,7 @@ class CockpitActivity : AbstractManagementActivity() {
             }
 
             override fun execReset() {
-                scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
+                getInfoContent().text = mode.getDescription(applicationContext)
             }
         }
     }
@@ -264,19 +265,19 @@ class CockpitActivity : AbstractManagementActivity() {
     private fun generateSensorExecutable(sensor: Sensor, button: SwipeButton): SwipeButton.SwipeButtonExecution {
         return object : SwipeButton.SwipeButtonExecution {
             override fun execRight() {
-                SensorHelper.getInstance(applicationContext).registerTextGraphListener(sensor, scroll_holder_text_info_content)
+                SensorHelper.getInstance(applicationContext).registerTextGraphListener(sensor, getInfoContent())
                 Handler().postDelayed({ button.collapse() }, 500)
-                scroll_holder_text_info_title.text = resources.getString(R.string.observing,SensorHelper.getInstance(applicationContext).getTypeName(sensor.name))
+                getInfoTitle().text = resources.getString(R.string.observing,SensorHelper.getInstance(applicationContext).getTypeName(sensor.name))
             }
 
             override fun execLeft() {
                 SensorHelper.getInstance(applicationContext).unregisterTextGraphListener()
                 Handler().postDelayed({ button.collapse() }, 500)
-                scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+                getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
             }
 
             override fun execReset() {
-                scroll_holder_text_info_content.text = mode.getDescription(applicationContext)
+                getInfoContent().text = mode.getDescription(applicationContext)
             }
         }
     }

@@ -16,7 +16,7 @@ class ExperimentalActivity : AbstractBaseActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_experimental)
-    root.setBackgroundColor( ContextCompat.getColor(this, R.color.sreDarkGray))
+    root.setBackgroundColor( ContextCompat.getColor(this, R.color.srePrimaryDisabledDark))
     swipe_button_holder.addView(SwipeButton(this,"Project LOCUST"))
     swipe_button_holder.addView(SwipeButton(this,"Project SIPHON"))
     swipe_button_holder.addView(SwipeButton(this,"Project BARRIER"))

@@ -1,5 +1,7 @@
 package uzh.scenere.datamodel
 
+import android.content.Context
+import uzh.scenere.helpers.DatabaseHelper
 import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList
@@ -81,6 +83,18 @@ open class Project private constructor(val id: String, val creator: String, val 
             return (id == other.id)
         }
         return false
+    }
+
+    fun reloadScenarios(context: Context): Project{
+        val list = ArrayList<Scenario>()
+        for (scenario in scenarios){
+            val s = DatabaseHelper.getInstance(context).readFull(scenario.id, Scenario::class)
+            if (s != null){
+                list.add(s)
+            }
+        }
+        scenarios = list
+        return this
     }
 
     override fun hashCode(): Int {

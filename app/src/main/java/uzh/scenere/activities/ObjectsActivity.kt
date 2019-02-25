@@ -3,6 +3,7 @@ package uzh.scenere.activities
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.Spinner
 import kotlinx.android.synthetic.main.scroll_holder.*
@@ -63,32 +64,32 @@ class ObjectsActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this,"Create New Object")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(Color.WHITE,Color.GRAY)
+                        .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                         .setButtonStates(false,true,false,false)
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_object)
                         .setFirstPosition()
                         .updateViews(true )
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
-        scroll_holder_linear_layout_holder.addView(creationButton)
-        createTitle("",scroll_holder_linear_layout_holder)
+        getContentHolderLayout().addView(creationButton)
+        createTitle("",getContentHolderLayout())
         for (obj in DatabaseHelper.getInstance(applicationContext).readBulk(AbstractObject::class, activeScenario)){
             addObjectToList(obj)
         }
-        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_objects),fontAwesome)
-        customizeToolbarText(resources.getText(R.string.icon_back).toString(),null,getLockIcon(),null,null)
+        getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_objects),fontAwesome)
+        resetToolbar()
     }
 
     private fun addObjectToList(obj: AbstractObject) {
         val swipeButton = SwipeButton(this, obj.name)
-                .setColors(Color.WHITE, Color.GRAY)
+                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
-                .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_info, R.string.icon_null, null)
+                .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_attributes, R.string.icon_null, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, true, false)
                 .updateViews(true)
         swipeButton.dataObject = obj
         swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Attribute::class,obj.id).size,null)
         swipeButton.setExecutable(generateObjectExecutable(swipeButton, obj))
-        scroll_holder_linear_layout_holder.addView(swipeButton)
+        getContentHolderLayout().addView(swipeButton)
     }
 
     private fun generateCreationExecutable(button: SwipeButton, obj: AbstractObject? = null): SwipeButtonExecution {
@@ -155,10 +156,10 @@ class ObjectsActivity : AbstractManagementActivity() {
             ObjectMode.VIEW -> {}//NOP
             ObjectMode.EDIT, ObjectMode.CREATE -> {
                 cleanInfoHolder(if (activeObject==null) getString(R.string.objects_create) else getString(R.string.objects_edit))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, obj?.name))
+                getInfoContentWrap().addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, obj?.name))
                 isResourceSpinner = createLine(inputLabelResource, LineInputType.LOOKUP, null, if (ObjectHelper.nvl(obj?.isResource,false)) arrayOf("True", "False") else arrayOf("False", "True")) { execResourceStateChanged() }
-                scroll_holder_text_info_content_wrap.addView(isResourceSpinner)
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, obj?.description))
+                getInfoContentWrap().addView(isResourceSpinner)
+                getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, obj?.description))
             }
             ObjectMode.ATTRIBUTES -> {
                 val intent = Intent(this, AttributesActivity::class.java)
@@ -204,10 +205,10 @@ class ObjectsActivity : AbstractManagementActivity() {
     }
 
     private fun removeObject(obj: AbstractObject, dbRemoval: Boolean = false) {
-        for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount){
-            if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == obj){
-                scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
+        for (viewPointer in 0 until getContentHolderLayout().childCount){
+            if (getContentHolderLayout().getChildAt(viewPointer) is SwipeButton &&
+                    (getContentHolderLayout().getChildAt(viewPointer) as SwipeButton).dataObject == obj){
+                getContentHolderLayout().removeViewAt(viewPointer)
                 if (dbRemoval) {
                     DatabaseHelper.getInstance(applicationContext).delete(obj.id, AbstractObject::class)
                 }
@@ -222,13 +223,22 @@ class ObjectsActivity : AbstractManagementActivity() {
             if (objectsMode == ObjectMode.EDIT){
                 return true
             }
-            for (v in 0 until scroll_holder_linear_layout_holder.childCount) {
-                if ((scroll_holder_linear_layout_holder.getChildAt(v) is SwipeButton) && (((scroll_holder_linear_layout_holder.getChildAt(v)) as SwipeButton).getText() == nameField.getStringValue())) {
+            for (v in 0 until getContentHolderLayout().childCount) {
+                if ((getContentHolderLayout().getChildAt(v) is SwipeButton) && (((getContentHolderLayout().getChildAt(v)) as SwipeButton).getText() == nameField.getStringValue())) {
                     notify(getString(R.string.objects_similar_alert))
                     return false
                 }
             }
         }
         return true
+    }
+
+    override fun onToolbarCenterRightClicked() {
+        if (!isInputOpen()) {
+            val intent = Intent(this, GlossaryActivity::class.java)
+            intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Object")
+            intent.putExtra(Constants.BUNDLE_GLOSSARY_ADDITIONAL_TOPICS, arrayOf("Resource","Attribute"))
+            startActivity(intent)
+        }
     }
 }

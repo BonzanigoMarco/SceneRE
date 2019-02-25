@@ -3,6 +3,7 @@ package uzh.scenere.activities
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
@@ -57,26 +58,25 @@ class ProjectsActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this,"Create New Project")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(Color.WHITE,Color.GRAY)
+                        .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                         .setButtonStates(false,true,false,false)
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_project)
                         .setFirstPosition()
                         .updateViews(true )
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
-        scroll_holder_linear_layout_holder.addView(creationButton)
-        createTitle("",scroll_holder_linear_layout_holder)
+        getContentHolderLayout().addView(creationButton)
+        createTitle("",getContentHolderLayout())
         for (project in DatabaseHelper.getInstance(applicationContext).readBulk(Project::class,null)){
             addProjectToList(project)
         }
-        scroll_holder_text_info_title.text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
-        customizeToolbarText(resources.getText(R.string.icon_back).toString(),null,getLockIcon(),null,null)
-        tutorialOpen = true
+        getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
+        resetToolbar()
         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_creation","info_bars", "info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun addProjectToList(project: Project) {
         val swipeButton = SwipeButton(this, project.title)
-                .setColors(Color.WHITE, Color.GRAY)
+                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_stakeholder, R.string.icon_scenario, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, true, true)
                 .updateViews(true)
@@ -84,7 +84,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         swipeButton.setCounter(DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class,project).size,
                 DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class,project).size)
         swipeButton.setExecutable(generateProjectExecutable(swipeButton, project))
-        scroll_holder_linear_layout_holder.addView(swipeButton)
+        getContentHolderLayout().addView(swipeButton)
     }
 
     private fun generateCreationExecutable(button: SwipeButton, project: Project? = null): SwipeButtonExecution {
@@ -143,8 +143,8 @@ class ProjectsActivity : AbstractManagementActivity() {
             ProjectsMode.VIEW -> {}//NOP
             ProjectsMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeProject==null) getString(R.string.projects_create) else getString(R.string.projects_edit))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelTitle,LineInputType.SINGLE_LINE_EDIT, project?.title))
-                scroll_holder_text_info_content_wrap.addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, project?.description))
+                getInfoContentWrap().addView(createLine(inputLabelTitle,LineInputType.SINGLE_LINE_EDIT, project?.title))
+                getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, project?.description))
             }
             ProjectsMode.SCENARIO -> {
                 val intent = Intent(this,ScenariosActivity::class.java)
@@ -164,15 +164,23 @@ class ProjectsActivity : AbstractManagementActivity() {
     }
 
     private fun removeProject(project: Project, dbRemoval: Boolean = false) {
-        for (viewPointer in 0 until scroll_holder_linear_layout_holder.childCount){
-            if (scroll_holder_linear_layout_holder.getChildAt(viewPointer) is SwipeButton &&
-                    (scroll_holder_linear_layout_holder.getChildAt(viewPointer) as SwipeButton).dataObject == project){
-                scroll_holder_linear_layout_holder.removeViewAt(viewPointer)
+        for (viewPointer in 0 until getContentHolderLayout().childCount){
+            if (getContentHolderLayout().getChildAt(viewPointer) is SwipeButton &&
+                    (getContentHolderLayout().getChildAt(viewPointer) as SwipeButton).dataObject == project){
+                getContentHolderLayout().removeViewAt(viewPointer)
                 if (dbRemoval){
                     DatabaseHelper.getInstance(applicationContext).delete(project.id, Project::class)
                 }
                 return
             }
+        }
+    }
+
+    override fun onToolbarCenterRightClicked() {
+        if (!isInputOpen()) {
+            val intent = Intent(this, GlossaryActivity::class.java)
+            intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Project")
+            startActivity(intent)
         }
     }
 }

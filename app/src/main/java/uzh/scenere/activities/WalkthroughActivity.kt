@@ -1,9 +1,11 @@
 package uzh.scenere.activities
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -14,6 +16,7 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_walkthrough.*
 import kotlinx.android.synthetic.main.holder.*
 import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
@@ -115,7 +118,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         loadedProjects.clear()
         loadedProjects.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Project::class, null))
         creationButton = SwipeButton(this, createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
-                .setColors(Color.WHITE, Color.GRAY)
+                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                 .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)
@@ -125,7 +128,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
                 .updateViews(true)
         creationButton?.setExecutable(createControlExecutable())
         walkthrough_layout_selection_content.addView(creationButton)
-        customizeToolbarId(R.string.icon_back,null,null,null,null)
+        resetToolbar()
         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
@@ -290,7 +293,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         walkthrough_holder.visibility = GONE
         activeWalkthrough = null
         getContentHolderLayout().removeAllViews()
-        customizeToolbarId(R.string.icon_back,null,null,null,null)
+        resetToolbar()
     }
 
     override fun onToolbarCenterClicked() {
@@ -360,6 +363,14 @@ class WalkthroughActivity : AbstractManagementActivity() {
             notify("Press the Back Button again to cancel the Walkthrough")
             awaitingBackConfirmation = true
             Handler().postDelayed({awaitingBackConfirmation=false},2000)
+        }
+    }
+
+    override fun onToolbarCenterRightClicked() {
+        if (mode != WalkthroughMode.PLAY){
+            val intent = Intent(this, GlossaryActivity::class.java)
+            intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Walkthrough")
+            startActivity(intent)
         }
     }
 }
