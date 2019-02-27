@@ -3,6 +3,7 @@ package uzh.scenere.views
 import android.content.Context
 import android.os.Handler
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import uzh.scenere.helpers.NumberHelper
@@ -11,6 +12,10 @@ import java.util.*
 class SwipeButtonSortingLayout(context: Context, attributeSet: AttributeSet) : LinearLayout(context, attributeSet) {
 
     private var lastAddedSwipeButton: SwipeButton? = null
+
+    init {
+        gravity = Gravity.CENTER_HORIZONTAL
+    }
 
     fun sort() {
         val treeMap: TreeMap<String, SwipeButton> = TreeMap()

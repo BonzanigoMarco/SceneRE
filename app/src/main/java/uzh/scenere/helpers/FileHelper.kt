@@ -6,6 +6,8 @@ import java.io.File
 import java.io.PrintWriter
 import android.content.Intent
 import android.net.Uri
+import uzh.scenere.const.Constants.Companion.NOTHING
+import java.lang.Exception
 
 
 class FileHelper {
@@ -22,9 +24,21 @@ class FileHelper {
             return context.filesDir.path
         }
 
-        fun readFile(context: Context, fileName: String): ByteArray{
-            val file = File(context.filesDir, fileName)
-            return file.readBytes()
+        fun getDefaultFilePath(context: Context): String{
+            return context.filesDir.path
+        }
+
+        fun readFile(context: Context, filePath: String): ByteArray{
+            var bytes: ByteArray? = null
+            try{
+                val file = File(filePath)
+                if (file.exists()){
+                    bytes =  file.readBytes()
+                }
+            }catch (e: Exception){
+
+            }
+            return bytes ?: ByteArray(0)
         }
 
         fun openFolder(context: Context, uri: String){
@@ -34,6 +48,22 @@ class FileHelper {
             if (intent.resolveActivityInfo(context.packageManager, 0) != null){
                 context.startActivity(intent);
             }
+        }
+
+        fun removeFileFromPath(filePath: String?): String {
+            if (!StringHelper.hasText(filePath)){
+                return NOTHING
+            }
+            val split = filePath!!.split("/")
+            return filePath.replace("/".plus(split[split.size-1]),NOTHING)
+        }
+
+        fun getFilesInFolder(folderPath: String): Array<out File> {
+            val folder = File(folderPath)
+            if (folder.isDirectory){
+                return folder.listFiles()
+            }
+            return emptyArray()
         }
 
     }

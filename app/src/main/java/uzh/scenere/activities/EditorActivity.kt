@@ -52,6 +52,10 @@ class EditorActivity : AbstractManagementActivity() {
         return R.layout.activity_editor
     }
 
+    override fun resetToolbar() {
+        customizeToolbarId(R.string.icon_back,null,null,R.string.icon_info,null)
+    }
+
     private val explanationMap: HashMap<Int, Map.Entry<Int, Int>> = HashMap<Int, Map.Entry<Int, Int>>()
 
     enum class EditorState {
@@ -91,7 +95,6 @@ class EditorActivity : AbstractManagementActivity() {
         getContentWrapperLayout().setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.sreWhite))
         populateExplanationMap()
         execAdaptToOrientationChange()
-        //TODO Toolbar
 
         refreshState()
 

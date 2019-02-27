@@ -8,6 +8,7 @@ class Constants {
         //Storage
         const val SHARED_PREFERENCES: String = "scenereSharedPreferences"
         const val USER_NAME: String = "scenereUserName"
+        const val IMPORT_FOLDER: String = "scenereImportFolder"
         const val ANONYMOUS: String = "John Doe"
         //NUMBERS
         const val MILLION: Double = 1000000.0
@@ -16,10 +17,18 @@ class Constants {
         //PERMISSIONS
         const val PERMISSION_REQUEST_ALL: Int = 888
         const val PERMISSION_REQUEST_GPS: Int = 666
-        //TAGS
-        const val GENERAL_TAG: String = "SRE-TAG"
+        //REQUESTS
+        const val IMPORT_DATA_FILE: Int = 111
+        const val IMPORT_DATA_FOLDER: Int = 222
         //BUNDLE
         const val BUNDLE_GLOSSARY_TOPIC: String = "sreGlossaryTopic"
+        //VALIDATION
+        const val NOT_VALIDATED: Int = 0
+        const val VALIDATION_OK: Int = 1
+        const val VALIDATION_EMPTY: Int = 2
+        const val VALIDATION_FAILED: Int = 3
+        //TAGS
+        const val GENERAL_TAG: String = "SRE-TAG"
         const val BUNDLE_GLOSSARY_ADDITIONAL_TOPICS: String = "sreGlossaryAdditionalTopics"
         const val BUNDLE_PROJECT: String = "sreBundleProject"
         const val BUNDLE_SCENARIO: String = "sreBundleScenario"

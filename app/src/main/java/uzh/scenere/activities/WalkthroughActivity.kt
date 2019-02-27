@@ -90,6 +90,10 @@ class WalkthroughActivity : AbstractManagementActivity() {
         return holder_text_info_content
     }
 
+    override fun resetToolbar() {
+        customizeToolbarId(R.string.icon_back,null,null,R.string.icon_info,null)
+    }
+
     enum class WalkthroughMode {
         SELECT_PROJECT, SELECT_SCENARIO, SELECT_STAKEHOLDER, PLAY, INFO
     }
