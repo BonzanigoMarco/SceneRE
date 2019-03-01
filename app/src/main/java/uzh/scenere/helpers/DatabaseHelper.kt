@@ -486,6 +486,9 @@ class DatabaseHelper private constructor(context: Context) {
         database!!.dropAndRecreateTable("NUMBER_TABLE")
         database!!.dropAndRecreateTable("DATA_TABLE")
         database!!.dropAndRecreateTable("TEXT_TABLE")
+        for (pref in sharedPreferences.all){
+            sharedPreferences.edit().remove(pref.key).apply()
+        }
     }
 
 

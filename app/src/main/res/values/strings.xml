@@ -56,6 +56,13 @@
     <string name="cockpit_info_permissions">This view shows you all missing Permissions\nSwipe left to see further Details\nSwipe right to grant the Permission\nNote:\nMost of these Permissions are needed for the App to function</string>
     <string name="cockpit_info_communications">This view shows the available Communication Technologies\nSwipe right to enable, or left to disable each Technology</string>
     <string name="cockpit_info_sensors">This view shows all Sensors used in this App\nSwipe right to start a Diagnosis\nSwipe left to disable the Diagnosis again</string>
+    <string name="cockpit_info_admin">This view contains Functions to administrate the Application</string>
+    <string name="cockpit_tutorial_reset">Reset Tutorials</string>
+    <string name="cockpit_tutorial_reset_confirm">Tutorials reset! Disable to hide again.</string>
+    <string name="cockpit_tutorial_disable">Disable Tutorials</string>
+    <string name="cockpit_tutorial_disable_confirm">Tutorials disabled! Reset to show again.</string>
+    <string name="cockpit_wipe_data">Wipe Data</string>
+    <string name="cockpit_wipe_data_confirm">All Data wiped!</string>
     <string name="permission_description_network_title">Network-Permissions</string>
     <string name="permission_description_storage_title">Storage-Permissions</string>
     <string name="permission_description_audio_title">Audio-Permissions (Optional)</string>
@@ -72,7 +79,6 @@
     <string name="permission_description_nfc">NFC-Permissions\n\nUsed to interact with other Stakeholders.</string>
     <string name="permission_description_sms">SMS-Permissions\n\nUsed for special Triggers.</string>
     <string name="permission_description_gps">GPS-Permissions\n\nUsed for special Triggers.</string>
-    <string name="cockpit_info_admin">This view contains Functions to administrate the Application</string>
 
     <!--General-->
     <string name="empty" />
@@ -183,6 +189,7 @@
     <string name="share_too_many_files_title">Too many Files</string>
     <string name="share_return">Return</string>
     <string name="share_import_newer">Import Newer</string>
+    <string name="share_import">Import</string>
     <string name="share_import_finished">Import finished</string>
     <string name="share_import_all_1">Import All (+%1$d)</string>
     <string name="share_import_all_2">Import (all Items are old)</string>

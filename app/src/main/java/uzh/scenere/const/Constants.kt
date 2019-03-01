@@ -71,6 +71,9 @@ class Constants {
         const val LONG: String = "Long"
         const val DOUBLE: String = "Double"
         const val BOOLEAN: String = "Boolean"
+        //FILE FORMATS
+        const val PNG_FILE: String = ".png"
+        const val SRE_FILE: String = ".sre"
         //ELEMENTS
         const val STARTING_POINT: String = "starting_point"
         //ATTRIBUTE TYPES

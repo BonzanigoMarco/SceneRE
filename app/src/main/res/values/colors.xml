@@ -65,7 +65,7 @@
     <color name="srePrimaryAccent">#4CAF50</color>  <!-- 500 blue  -->
     <color name="srePrimaryNeon">#81C784</color>  <!-- 300 blue  -->
     <color name="srePrimaryWarn">@color/material_700_red</color>
-    <color name="srePrimaryAttention">@color/material_700_yellow</color>
+    <color name="srePrimaryAttention">@color/material_700_orange</color>
     <color name="sreBlack">#000000</color>
     <color name="sreWhite">#FFFFFF</color>
     <color name="sreTutorial">#FB8C00</color>  <!-- 600 orange  -->
@@ -150,7 +150,7 @@
     <color name="material_700_green">#388E3C</color>
     <color name="material_700_lime">#AFB42B</color>
     <color name="material_700_yellow">#FBC02D</color>
-    <color name="material_700_orange">#E64A19</color>
+    <color name="material_700_orange">#F57C00</color>
 
     <color name="material_a700_red">#D50000</color>
     <color name="material_a700_violet">#AA00FF</color>

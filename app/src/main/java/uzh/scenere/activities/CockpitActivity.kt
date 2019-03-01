@@ -12,8 +12,11 @@ import android.support.v4.content.ContextCompat
 import kotlinx.android.synthetic.main.scroll_holder.*
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
+import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_ALL
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_GPS
+import uzh.scenere.const.Constants.Companion.PNG_FILE
 import uzh.scenere.const.Constants.Companion.TUTORIAL_UID_IDENTIFIER
 import uzh.scenere.helpers.CommunicationHelper
 import uzh.scenere.helpers.DatabaseHelper
@@ -198,18 +201,50 @@ class CockpitActivity : AbstractManagementActivity() {
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_sensors").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
             CockpitMode.FUNCTIONS -> {
-                val resetTutorial = SwipeButton(this, "Reset Tutorials")
+                val resetTutorial = SwipeButton(this, getString(R.string.cockpit_tutorial_reset))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
                         .setButtonStates(false, true, false, false)
                         .setExecutable(object : SwipeButton.SwipeButtonExecution{
                             override fun execRight() {
                                 DatabaseHelper.getInstance(applicationContext).deletePreferenceUids(TUTORIAL_UID_IDENTIFIER)
+                                showInfoText(getString(R.string.cockpit_tutorial_reset_confirm))
                             }
                         })
                         .setAutoCollapse(true)
                         .updateViews(true)
+                val disableTutorial = SwipeButton(this, getString(R.string.cockpit_tutorial_disable))
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
+                        .setButtonStates(false, true, false, false)
+                        .setExecutable(object : SwipeButton.SwipeButtonExecution{
+                            override fun execRight() {
+                                for (imageName in applicationContext.assets.list("drawable")){
+                                    DatabaseHelper.getInstance(applicationContext).write(TUTORIAL_UID_IDENTIFIER.plus(imageName.replace(PNG_FILE,NOTHING)),true,DatabaseHelper.DataMode.PREFERENCES)
+                                }
+                                showInfoText(getString(R.string.cockpit_tutorial_disable_confirm))
+                            }
+                        })
+                        .setAutoCollapse(true)
+                        .updateViews(true)
+                val wipeData = SwipeButton(this, getString(R.string.cockpit_wipe_data))
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
+                        .setButtonStates(false, true, false, false)
+                        .setExecutable(object : SwipeButton.SwipeButtonExecution{
+                            override fun execRight() {
+                                val userName = DatabaseHelper.getInstance(applicationContext).read(Constants.USER_NAME, String::class, Constants.NOTHING)
+                                DatabaseHelper.getInstance(applicationContext).dropAndRecreateAll()
+                                DatabaseHelper.getInstance(applicationContext).write(Constants.USER_NAME,userName)
+                                showInfoText(getString(R.string.cockpit_wipe_data_confirm), R.color.srePrimaryWarn)
+                            }
+                        })
+                        .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
+                        .setAutoCollapse(true)
+                        .updateViews(true)
                 getContentHolderLayout().addView(resetTutorial)
+                getContentHolderLayout().addView(disableTutorial)
+                getContentHolderLayout().addView(wipeData)
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_functions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
         }

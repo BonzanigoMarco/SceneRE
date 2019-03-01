@@ -15,6 +15,7 @@ import uzh.scenere.const.Constants.Companion.IMPORT_DATA_FOLDER
 import uzh.scenere.const.Constants.Companion.IMPORT_FOLDER
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NOT_VALIDATED
+import uzh.scenere.const.Constants.Companion.SRE_FILE
 import uzh.scenere.const.Constants.Companion.VALIDATION_EMPTY
 import uzh.scenere.const.Constants.Companion.VALIDATION_FAILED
 import uzh.scenere.const.Constants.Companion.VALIDATION_INVALID
@@ -60,7 +61,7 @@ class ShareActivity : AbstractManagementActivity() {
     }
 
     override fun resetToolbar() {
-        customizeToolbarId(R.string.icon_back, null, null, R.string.icon_info, null)
+        customizeToolbarId(R.string.icon_back, null, null, R.string.icon_null, null)
     }
 
     enum class ShareMode(private val index: Int, val label: String, private val enabled: Boolean) {
@@ -153,7 +154,7 @@ class ShareActivity : AbstractManagementActivity() {
                 if (wrapper.validationCode == VALIDATION_OK){
                     controlButton?.text = getString(R.string.share_export_data)
                     controlButton?.addExecutable {
-                        val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp()
+                        val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + SRE_FILE
                         val destination = FileHelper.writeFile(applicationContext, cachedBinary!!, fileName)
                         notify(getString(R.string.share_export_finished))
                         controlButton?.text = getString(R.string.share_export_location)
@@ -256,7 +257,7 @@ class ShareActivity : AbstractManagementActivity() {
             val wrapper = createStatisticsFromCachedBinary(false)
             if (wrapper.validationCode == VALIDATION_OK){
                 if (wrapper.totalItems > wrapper.oldItems) {
-                    val importNewerButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_import_newer)).addExecutable {
+                    val importNewerButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.oldItems == 0) getString(R.string.share_import) else getString(R.string.share_import_newer)).addExecutable {
                         importBinaryToDatabase(wrapper, true)
                         notify(getString(R.string.share_import_finished), getString(R.string.share_import_number_successful,(wrapper.totalItems - wrapper.oldItems)))
                         execLoadFileImport()
@@ -468,16 +469,7 @@ class ShareActivity : AbstractManagementActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            IMPORT_DATA_FILE -> {
-                if (resultCode == Activity.RESULT_OK && data != null && data.data is Uri) {
-                    val filePath = (data.data as Uri).path
-                    importFolder = FileHelper.removeFileFromPath(filePath)
-                    controlInput?.text = application.getString(R.string.share_folder,importFolder)
-                    DatabaseHelper.getInstance(applicationContext).write(IMPORT_FOLDER,importFolder)
-                    execLoadFileImport()
-                }
-            }
-            IMPORT_DATA_FOLDER -> {
+            IMPORT_DATA_FILE,IMPORT_DATA_FOLDER -> {
                 if (resultCode == Activity.RESULT_OK && data != null && data.data is Uri) {
                     val filePath = (data.data as Uri).path
                     importFolder = FileHelper.removeFileFromPath(filePath)

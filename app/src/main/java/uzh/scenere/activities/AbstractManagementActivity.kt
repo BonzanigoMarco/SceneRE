@@ -1,8 +1,6 @@
 package uzh.scenere.activities
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
@@ -15,7 +13,6 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
-import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.CollectionsHelper
 import uzh.scenere.helpers.DatabaseHelper
@@ -377,14 +374,41 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         if (objectName == null) {
             return
         }
-        val textPrior = getInfoTitle().text
-        val textColorPrior = getInfoTitle().currentTextColor
+        if (!infoShowing){
+            textPrior = getInfoTitle().text
+            textColorPrior = getInfoTitle().currentTextColor
+            infoShowing = true
+        }
         getInfoTitle().text = resources.getString(R.string.deleted, objectName)
         getInfoTitle().setTextColor(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn))
+        resetInfo()
+    }
+
+    protected fun showInfoText(infoText: String, color: Int = R.color.sreTutorial) {
+        if (!infoShowing){
+            textPrior = getInfoTitle().text
+            textColorPrior = getInfoTitle().currentTextColor
+            infoShowing = true
+        }
+        getInfoTitle().text = infoText
+        getInfoTitle().setTextColor(ContextCompat.getColor(applicationContext,color))
+        resetInfo(2000L+(50*infoText.length))
+    }
+
+    private var textPrior: CharSequence? = null
+    private var textColorPrior: Int? = null
+    private var infoShowing = false
+    private var handlerId = 0L
+    private fun resetInfo(time: Long = 1000) {
+        val localHandlerId = Random().nextLong()
+        handlerId = localHandlerId
         Handler().postDelayed({
-            getInfoTitle().text = textPrior
-            getInfoTitle().setTextColor(textColorPrior)
-        }, 1000)
+            if (localHandlerId == handlerId) {
+                getInfoTitle().text = textPrior
+                getInfoTitle().setTextColor(NumberHelper.nvl(textColorPrior,ContextCompat.getColor(applicationContext,R.color.sreWhite)))
+                infoShowing = false
+            }
+        }, time)
     }
 
     fun isInputOpen(): Boolean{
@@ -508,24 +532,5 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             list.add(text.text.toString())
         }
         return list
-    }
-
-    private var handlerId = 0L
-    private fun execShowInformation(titleId: Int?, contentId: Int?) {
-        if (titleId == null || contentId == null) {
-            return
-        }
-        execMorphInfoBar(InfoState.NORMAL)
-        getInfoTitle().text = resources.getString(titleId)
-        getInfoContent().text = resources.getString(contentId)
-        val localHandlerId = Random().nextLong()
-        handlerId = localHandlerId
-        Handler().postDelayed({
-            if (localHandlerId == handlerId) {
-                getInfoTitle().text = null
-                getInfoContent().text = null
-                execMorphInfoBar(InfoState.MINIMIZED)
-            }
-        }, 5000)
     }
 }
