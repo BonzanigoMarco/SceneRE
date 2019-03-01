@@ -99,7 +99,7 @@ class ShareActivity : AbstractManagementActivity() {
     private var mode: ShareMode = ShareMode.values().last()
     private var importFolder: String = NOTHING
     private var controlButton: SreButton? = null
-    private var controlInput: SreTextView? = null
+    private var controlInput: SreContextAwareTextView? = null
     private var cachedBinary: ByteArray? = null
     private val fileMap =  HashMap<File,LinearLayout>()
 
@@ -167,7 +167,7 @@ class ShareActivity : AbstractManagementActivity() {
             }
         }
         getContentHolderLayout().addView(controlButton)
-        getInfoTitle().text = ""
+        getInfoTitle().text = NOTHING
     }
 
     private fun createStatisticsFromCachedBinary(export: Boolean): ShareWrapper {
@@ -192,13 +192,16 @@ class ShareActivity : AbstractManagementActivity() {
         }
         statistics.isEnabled = false
         getContentHolderLayout().addView(statistics)
+        getInfoTitle().text = NOTHING
         return wrapper
     }
 
     private fun execLoadFileImport() {
         getContentHolderLayout().removeAllViews()
         controlButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_location)).addExecutable { openFileInput() }
-        controlInput = SreTextView(applicationContext, getContentHolderLayout(), if (StringHelper.hasText(importFolder)) importFolder else getString(R.string.share_no_folder))
+        val sreContextAwareTextView = SreContextAwareTextView(applicationContext, getContentHolderLayout(), arrayListOf("Folder"), ArrayList())
+        sreContextAwareTextView.text = if (StringHelper.hasText(importFolder)) application.getString(R.string.share_folder,importFolder) else getString(R.string.share_no_folder)
+        controlInput = sreContextAwareTextView
         getContentHolderLayout().addView(controlButton)
         getContentHolderLayout().addView(controlInput)
         val files = loadImportFolder()
@@ -469,7 +472,7 @@ class ShareActivity : AbstractManagementActivity() {
                 if (resultCode == Activity.RESULT_OK && data != null && data.data is Uri) {
                     val filePath = (data.data as Uri).path
                     importFolder = FileHelper.removeFileFromPath(filePath)
-                    controlInput?.text = importFolder
+                    controlInput?.text = application.getString(R.string.share_folder,importFolder)
                     DatabaseHelper.getInstance(applicationContext).write(IMPORT_FOLDER,importFolder)
                     execLoadFileImport()
                 }
@@ -477,7 +480,8 @@ class ShareActivity : AbstractManagementActivity() {
             IMPORT_DATA_FOLDER -> {
                 if (resultCode == Activity.RESULT_OK && data != null && data.data is Uri) {
                     val filePath = (data.data as Uri).path
-                    controlInput?.text = filePath
+                    importFolder = FileHelper.removeFileFromPath(filePath)
+                    controlInput?.text = application.getString(R.string.share_folder,importFolder)
                     DatabaseHelper.getInstance(applicationContext).write(IMPORT_FOLDER,importFolder)
                     execLoadFileImport()
                 }

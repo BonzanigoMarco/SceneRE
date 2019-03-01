@@ -177,7 +177,7 @@
     <string name="share_error_format">Wrong File-Format!</string>
     <string name="share_error_invalid">Validation Failed!</string>
     <string name="share_error_no_data">No Data created yet!</string>
-    <string name="share_location">Locate File in Import Folder</string>
+    <string name="share_location">Locate File in Import-Folder</string>
     <string name="share_no_folder">No Folder selected</string>
     <string name="share_too_many_files">More than 100 Files in current Folder... remove some!</string>
     <string name="share_too_many_files_title">Too many Files</string>
@@ -188,5 +188,6 @@
     <string name="share_import_all_2">Import (all Items are old)</string>
     <string name="share_import_number_successful">All %1$d Items imported successfully.</string>
     <string name="share_click_to_import">Select one of the %1$d Files to analyze it</string>
+    <string name="share_folder">Folder: %1$s</string>
 
 </resources>
