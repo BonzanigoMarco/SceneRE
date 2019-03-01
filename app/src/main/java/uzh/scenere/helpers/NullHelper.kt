@@ -2,6 +2,7 @@ package uzh.scenere.helpers
 
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.AbstractStep
+import uzh.scenere.datamodel.trigger.AbstractTrigger
 import java.io.Serializable
 import kotlin.reflect.KClass
 
@@ -19,6 +20,7 @@ class NullHelper private constructor(){
                 Path::class -> Path.NullPath() as T
                 Walkthrough::class -> Walkthrough.NullWalkthrough() as T
                 AbstractStep::class -> AbstractStep.NullStep() as T
+                AbstractTrigger::class -> AbstractTrigger.NullTrigger() as T
                 String::class -> "" as T
                 Long::class -> 0 as T
                 Float::class -> 0 as T

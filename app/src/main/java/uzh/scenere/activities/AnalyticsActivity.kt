@@ -1,11 +1,9 @@
 package uzh.scenere.activities
 
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_analytics.*
-import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
@@ -66,7 +64,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
         super.onCreate(savedInstanceState)
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         loadData()
-        creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) "No Walkthroughs found" else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.projects)))
+        creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) "No Walkthroughs found" else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
                 .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
@@ -162,7 +160,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                             activeScenarios.add(scenario)
                         }
                     }
-                    label = createButtonLabel(activeScenarios, getString(R.string.scenarios))
+                    label = createButtonLabel(activeScenarios, getString(R.string.literal_scenarios))
                 }
                 creationButton?.setButtonStates(true, true, true, pointer==0)?.setText(label)?.updateViews(false)
 
@@ -192,7 +190,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         }
                     }
                 }
-                creationButton?.setButtonStates(true, true, true, false)?.setText(createButtonLabel(activeWalkthroughs, getString(R.string.walkthroughs)))?.updateViews(false)
+                creationButton?.setButtonStates(true, true, true, false)?.setText(createButtonLabel(activeWalkthroughs, getString(R.string.literal_walkthroughs)))?.updateViews(false)
             }
             AnalyticsMode.SELECT_WALKTHROUGH -> showStatistics()
             else -> return

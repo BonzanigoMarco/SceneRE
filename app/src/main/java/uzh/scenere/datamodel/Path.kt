@@ -5,7 +5,9 @@ import uzh.scenere.helpers.NullHelper
 import java.io.Serializable
 import java.util.*
 
-open class Path private constructor(val id: String, val scenarioId: String, val stakeholder: Stakeholder, val layer: Int): Serializable {
+open class Path private constructor(val id: String, val scenarioId: String, val stakeholder: Stakeholder, val layer: Int): Serializable, IVersionItem {
+    override var changeTimeMs: Long = 0
+
     val elements: HashMap<String,IElement> = HashMap()
     private val previousElements: HashMap<String,IElement> = HashMap()
 

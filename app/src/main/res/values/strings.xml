@@ -50,6 +50,7 @@
     <string name="trigger_pressure">Pressure</string>
     <string name="trigger_proximity">Proximity</string>
     <string name="trigger_temperature">Temperature</string>
+
     <!--Cockpit-->
     <string name="cockpit_info_title">Info Text</string>
     <string name="cockpit_info_permissions">This view shows you all missing Permissions\nSwipe left to see further Details\nSwipe right to grant the Permission\nNote:\nMost of these Permissions are needed for the App to function</string>
@@ -71,12 +72,15 @@
     <string name="permission_description_nfc">NFC-Permissions\n\nUsed to interact with other Stakeholders.</string>
     <string name="permission_description_sms">SMS-Permissions\n\nUsed for special Triggers.</string>
     <string name="permission_description_gps">GPS-Permissions\n\nUsed for special Triggers.</string>
+    <string name="cockpit_info_admin">This view contains Functions to administrate the Application</string>
+
     <!--General-->
     <string name="empty" />
     <string name="label">%1$s:</string>
     <string name="input">Input %1$s</string>
     <string name="deleted">%1$s Deleted!</string>
     <string name="observing">Observing %1$s</string>
+
     <!--Info-->
     <string name="projects_create">Creating a new Project</string>
     <string name="projects_edit">Edit Project</string>
@@ -88,6 +92,7 @@
     <string name="objects_edit">Edit AbstractObject</string>
     <string name="attributes_create">Creating a new Attribute</string>
     <string name="attributes_edit">Edit Attribute</string>
+
     <!--Titles-->
     <string name="cockpit_title"><b>Cockpit</b></string>
     <string name="projects_title"><b>Projects</b></string>
@@ -98,6 +103,10 @@
     <string name="editor_title"><b>Editor</b></string>
     <string name="walkthrough_title">Walkthrough</string>
     <string name="analytics_title">Analytics</string>
+    <string name="main_menu_title">Main-Menu</string>
+    <string name="glossary_title">Glossary</string>
+    <string name="title_share">Share</string>
+
     <!--Explanations-->
     <string name="explanation_steps_title">Steps</string>
     <string name="explanation_steps_content">Steps are single Actions in a Scenario.</string>
@@ -110,18 +119,29 @@
     <string name="explanation_sensor_triggers_title">Sensor Triggers</string>
     <string name="explanation_sensor_triggers_content">Triggers are Events that let a Scenario transition from one to the another Step\nSensor Triggers are based on Acceleration, Gyroscope, Humidity, Light, Magnetism, Pressure, Proximity and Temperature.</string>
     <string name="explanation_step_standard">A standard Step with a simple Text.</string>
+
     <!--Walkthrough-->
     <string name="walkthrough_button_label">Select one of %1$d %2$s</string>
     <string name="walkthrough_button_label_failure">No %1$s created yet</string>
     <string name="walkthrough_selection_info">Select an AbstractObject you want Information about</string>
     <string name="walkthrough_selection_no_info">No Context Information available</string>
-    <!--Literal-->
+    <string name="walkthrough_selected_scenario">Selected Scenario:</string>
+    <string name="walkthrough_selected_project">Selected Project:</string>
+    <string name="walkthrough_complete">Complete Walkthrough</string>
+    <string name="walkthrough_see_more">See more Details in the Analytics</string>
+
+    <!--Literal and related-->
     <string name="literal_object">Object</string>
     <string name="literal_attribute">Attribute</string>
     <string name="literal_scenarios">Scenarios</string>
     <string name="literal_projects">Projects</string>
     <string name="literal_stakeholders">Stakeholders</string>
     <string name="literal_value">Value</string>
+    <string name="literal_walkthroughs">Walkthroughs</string>
+    <string name="project_anonymous">Anonymous Project</string>
+    <string name="scenario_anonymous">Anonymous Scenario</string>
+    <string name="objects_similar_alert">An AbstractObject with similar Name already exists.</string>
+
     <!--XML-->
     <string name="xml_declaration"><![CDATA[<?xml version="1.0" encoding="utf-8"?>]]></string>
     <string name="xml_begin_tag"><![CDATA[<]]>%1$s type=<![CDATA["]]>%2$s<![CDATA[">]]></string>
@@ -130,24 +150,11 @@
     <string name="xml_empty"><![CDATA[<]]>%1$s<![CDATA[/>]]></string>
     <string name="xml_enclosing"><![CDATA[<]]>%1$s<![CDATA[ type="]]>%2$s<![CDATA[">]]>%3$s<![CDATA[</]]>%1$s<![CDATA[>]]></string>
 
-
-    <string name="walkthrough_selected_scenario">Selected Scenario:</string>
-    <string name="walkthrough_selected_project">Selected Project:</string>
-    <string name="scenario_anonymous">Anonymous Scenario</string>
-    <string name="project_anonymous">Anonymous Project</string>
-    <string name="walkthroughs">Walkthroughs</string>
-    <string name="scenarios">Scenarios</string>
-    <string name="projects">Projects</string>
-    <string name="walkthrough_complete">Complete Walkthrough</string>
-    <string name="main_menu_title">Main-Menu</string>
-    <string name="walkthrough_see_more">See more Details in the Analytics</string>
-    <string name="objects_similar_alert">An AbstractObject with similar Name already exists.</string>
+    <!--Tutorial-->
     <string name="tutorial_close">Close</string>
     <string name="tutorial_next">Next</string>
-    <string name="cockpit_info_admin">This view contains Functions to administrate the Application</string>
 
     <!--Glossary-->
-    <string name="glossary_title">Glossary</string>
     <string name="glossary_project">Projects contain all data to conduct Walkthroughs. It can be seen as a wrapper to group Stakeholders, Scenarios, Objects, Attributes and all the other Entities together.\nExample:\nLaunch of a digital Access System</string>
     <string name="glossary_stakeholder">Stakeholders are people that can be impersonated while conducting Walkthroughs. For each Stakeholder within a Scenario, a path of consecutive Steps can be modelled for him/her to follow.\nExample:\nAccess Card Vendor</string>
     <string name="glossary_object">Objects can be integrated in Steps and enriched with Attributes to provide contextual information. Integrating Objects in Steps allows the Walkthrough conductor to access their Attributes as information base. What-If questions can draw contextual information from them.\nExample:\nAccess Card</string>
@@ -158,6 +165,28 @@
     <string name="glossary_step">Steps are Elements that make up a Path in a Scenario. They guide the Stakeholder through the Walkthrough and provide Information.</string>
     <string name="glossary_trigger">Trigger get combined with Steps and decide when the Walkthrough continues with the next step and which step this will be.</string>
     <string name="glossary_editor">The Editor provides the Tools to put together the Paths contained in a Scenario</string>
-    <string name="title_share">Share</string>
+
+    <!--Share-->
+    <string name="share_import_folder">Select a Folder for Import</string>
+    <string name="share_import_file">Select a File for Import</string>
+    <string name="share_export_data">Export Data</string>
+    <string name="share_export_location">Open Export Location</string>
+    <string name="share_export_finished">Export finished</string>
+    <string name="share_export_file_prefix">Export_</string>
+    <string name="share_error_empty">Wrong File-Format or Content is missing!</string>
+    <string name="share_error_format">Wrong File-Format!</string>
+    <string name="share_error_invalid">Validation Failed!</string>
+    <string name="share_error_no_data">No Data created yet!</string>
+    <string name="share_location">Locate File in Import Folder</string>
+    <string name="share_no_folder">No Folder selected</string>
+    <string name="share_too_many_files">More than 100 Files in current Folder... remove some!</string>
+    <string name="share_too_many_files_title">Too many Files</string>
+    <string name="share_return">Return</string>
+    <string name="share_import_newer">Import Newer</string>
+    <string name="share_import_finished">Import finished</string>
+    <string name="share_import_all_1">Import All (+%1$d)</string>
+    <string name="share_import_all_2">Import (all Items are old)</string>
+    <string name="share_import_number_successful">All %1$d Items imported successfully.</string>
+    <string name="share_click_to_import">Select one of the %1$d Files to analyze it</string>
 
 </resources>

@@ -9,7 +9,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-open class Scenario private constructor(val id: String, val projectId: String, val title: String, val intro: String, val outro: String): Serializable {
+open class Scenario private constructor(val id: String, val projectId: String, val title: String, val intro: String, val outro: String): Serializable, IVersionItem {
+    override var changeTimeMs: Long = 0
+
     private val resources: List<Resource> = ArrayList()
     val objects: ArrayList<AbstractObject> = ArrayList()
     var paths: HashMap<String,HashMap<Int,Path>> = HashMap()

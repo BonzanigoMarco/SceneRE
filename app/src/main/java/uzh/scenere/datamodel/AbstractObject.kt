@@ -4,7 +4,9 @@ import uzh.scenere.helpers.StringHelper
 import java.io.Serializable
 import java.util.*
 
-abstract class AbstractObject internal constructor(val id: String, val scenarioId: String, val name: String, val description: String, val isResource: Boolean) : Serializable {
+abstract class AbstractObject internal constructor(val id: String, val scenarioId: String, val name: String, val description: String, val isResource: Boolean) : Serializable, IVersionItem {
+    override var changeTimeMs: Long = 0
+
     var attributes: List<Attribute> = ArrayList()
 
     fun getAttributeNames(vararg additionalName: String): Array<String> {

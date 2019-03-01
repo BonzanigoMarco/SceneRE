@@ -7,7 +7,7 @@ import java.util.*
 class DateHelper {
 
     companion object {
-        fun getCurrentTimestamp(pattern: String = "dd-MM-yyyy_HH_mm_ss"): String{
+        fun getCurrentTimestamp(pattern: String = "dd-MM-yyyy_HHmmss"): String{
             return toTimestamp(System.currentTimeMillis(),pattern)
         }
 

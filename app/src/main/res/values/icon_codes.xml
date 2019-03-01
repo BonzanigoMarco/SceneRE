@@ -45,6 +45,8 @@
     <string name="icon_path_editor">&#xf542;</string>
     <string name="icon_walkthrough">&#xf008;</string>
     <string name="icon_step">&#xf54b;</string>
+    <string name="icon_file_archive">&#xf1c6;</string>
+    <string name="icon_file">&#xf15c;</string>
     <string name="icon_trigger">&#xf2f5;</string>
 
     <string name="icon_explain_cockpit">

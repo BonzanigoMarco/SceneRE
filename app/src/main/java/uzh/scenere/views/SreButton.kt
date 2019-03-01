@@ -1,7 +1,6 @@
 package uzh.scenere.views
 
 import android.content.Context
-import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.view.Gravity
 import android.view.MotionEvent.*
@@ -27,7 +26,7 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
     }
 
     enum class ButtonStyle{
-        NORMAL, TUTORIAL
+        NORMAL, ATTENTION, WARN, TUTORIAL
     }
 
 
@@ -38,8 +37,7 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
     private fun create(context: Context, parent: ViewGroup?, height: Int?, width: Int?) {
         id = View.generateViewId()
         gravity = Gravity.CENTER
-        background = if (style== ButtonStyle.NORMAL) context.getDrawable(R.drawable.sre_button) else context.getDrawable(R.drawable.sre_button_tutorial)
-        setTextColor(if (style== ButtonStyle.NORMAL) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.sreBlack))
+        resolveStyle(true)
         val padding = context.resources.getDimension(R.dimen.dpi5).toInt()
         val margin = context.resources.getDimension(R.dimen.dpi5).toInt()
         setPadding(padding, padding, padding, padding)
@@ -69,6 +67,42 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         setOnLongClickListener {
             execAction(true)
             false
+        }
+    }
+
+    private fun resolveStyle(enabled: Boolean) {
+        if (enabled){
+            when (style) {
+
+                ButtonStyle.NORMAL -> {
+                    background = context.getDrawable(R.drawable.sre_button)
+                    setTextColor(ContextCompat.getColor(context, R.color.srePrimaryPastel))
+                }
+                ButtonStyle.ATTENTION -> {
+                    background = context.getDrawable(R.drawable.sre_button_attention)
+                    setTextColor(ContextCompat.getColor(context, R.color.sreBlack))
+                }
+                ButtonStyle.WARN -> {
+                    background = context.getDrawable(R.drawable.sre_button_warn)
+                    setTextColor(ContextCompat.getColor(context, R.color.sreBlack))
+                }
+                ButtonStyle.TUTORIAL -> {
+                    background = context.getDrawable(R.drawable.sre_button_tutorial)
+                    setTextColor(ContextCompat.getColor(context, R.color.sreBlack))
+                }
+            }
+        }else{
+            background = context.getDrawable(R.drawable.sre_button_disabled)
+            setTextColor(ContextCompat.getColor(context,R.color.srePrimaryDisabledDark))
+        }
+    }
+
+    fun setWeight(weight: Float){
+        when (parentLayout){
+            LINEAR -> {
+                (layoutParams as LinearLayout.LayoutParams).weight = weight
+            }
+            else -> {}
         }
     }
 
@@ -124,13 +158,7 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
 
 
     override fun setEnabled(enabled: Boolean) {
-        if (enabled){
-            background = if (style== ButtonStyle.NORMAL) context.getDrawable(R.drawable.sre_button) else context.getDrawable(R.drawable.sre_button_tutorial)
-            setTextColor(if (style== ButtonStyle.NORMAL) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.sreBlack))
-        }else{
-            background = context.getDrawable(R.drawable.sre_button_disabled)
-            setTextColor(ContextCompat.getColor(context,R.color.srePrimaryDisabledDark))
-        }
+        resolveStyle(enabled)
         super.setEnabled(enabled)
     }
 }

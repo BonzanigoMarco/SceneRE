@@ -1,6 +1,9 @@
 package uzh.scenere.datamodel
 
-class WhatIf private constructor(private val previousId: String, private val description: String) {
+import java.io.Serializable
+
+class WhatIf private constructor(private val previousId: String, private val description: String): Serializable, IVersionItem {
+    override var changeTimeMs: Long = 0
 
     class WhatIfBuilder(val previousId: String, val description: String){
 

@@ -6,7 +6,9 @@ import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList
 
-open class Project private constructor(val id: String, val creator: String, val title: String, val description: String): Serializable {
+open class Project private constructor(val id: String, val creator: String, val title: String, val description: String): Serializable, IVersionItem {
+    override var changeTimeMs: Long = 0
+
     var scenarios: List<Scenario> = ArrayList()
     var stakeholders: List<Stakeholder> = ArrayList()
 

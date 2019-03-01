@@ -3,9 +3,10 @@ package uzh.scenere.datamodel
 import java.io.Serializable
 import java.util.*
 
-open class Attribute private constructor(val id: String, val refId: String, val key: String?, val value: String?) : Serializable {
-    var type: String? = null
+open class Attribute private constructor(val id: String, val refId: String, val key: String?, val value: String?): Serializable, IVersionItem {
+    override var changeTimeMs: Long = 0
 
+    var type: String? = null
 
     class AttributeBuilder(private val refId: String, private val key: String?, private val value: String?) {
 

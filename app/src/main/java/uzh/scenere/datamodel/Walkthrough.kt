@@ -20,7 +20,9 @@ import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 
 
-open class Walkthrough private constructor(val id: String, val owner: String, val scenarioId: String, val stakeholderId: String) : Serializable {
+open class Walkthrough private constructor(val id: String, val owner: String, val scenarioId: String, val stakeholderId: String): Serializable, IVersionItem {
+    override var changeTimeMs: Long = 0
+
     private val localPropertiesMap = HashMap<WalkthroughProperty, Any>()
     private val localStepPropertiesMap = HashMap<String, HashMap<WalkthroughStepProperty, Any>>()
     private var xmlRepresentation: String? = null

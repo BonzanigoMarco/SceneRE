@@ -17,6 +17,8 @@ import uzh.scenere.const.Constants.Companion.STAKEHOLDER_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.WALKTHROUGH_UID_IDENTIFIER
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.database.SreDatabase
+import uzh.scenere.datamodel.steps.AbstractStep
+import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.views.Element
 import java.io.Serializable
@@ -58,7 +60,7 @@ class DatabaseHelper private constructor(context: Context) {
         }
     }
 
-    public fun write(key: String, obj: Any, internalMode: DataMode = mode): Boolean {
+    fun write(key: String, obj: Any, internalMode: DataMode = mode): Boolean {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 if (obj is Boolean) sharedPreferences.edit().putBoolean(key, obj).apply()
@@ -101,7 +103,7 @@ class DatabaseHelper private constructor(context: Context) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T : Serializable> read(key: String, clz: KClass<T>, valIfNull: T, internalMode: DataMode = mode): T {
+    fun <T : Serializable> read(key: String, clz: KClass<T>, valIfNull: T, internalMode: DataMode = mode): T {
         try {
             when (internalMode) {
                 DataMode.PREFERENCES -> {
@@ -168,7 +170,7 @@ class DatabaseHelper private constructor(context: Context) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T : Serializable> readFull(key: String, clz: KClass<T>, internalMode: DataMode = mode): T? {
+    fun <T : Serializable> readFull(key: String, clz: KClass<T>, internalMode: DataMode = mode): T? {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 if (Project::class == clz) return readBinary(key, clz, PROJECT_UID_IDENTIFIER, NullHelper.get(clz))
@@ -182,15 +184,15 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Project::class == clz) return database!!.readProject(key, NullHelper.get(Project::class), true) as T?
                 if (AbstractObject::class == clz) return database!!.readObject(key, NullHelper.get(ContextObject::class), true) as T?
                 if (Scenario::class == clz) return database!!.readScenario(key, NullHelper.get(Scenario::class), true) as T?
-                if (Path::class == clz) return database!!.readPath(key, NullHelper.get(Path::class),true) as T?
+                if (Path::class == clz) return database!!.readPath(key, NullHelper.get(Path::class), true) as T?
                 if (IElement::class == clz) return null
-                if (Walkthrough::class == clz) return read(key,clz,NullHelper.get(clz))
+                if (Walkthrough::class == clz) return read(key, clz, NullHelper.get(clz))
             }
         }
         return null
     }
 
-    public fun <T : Serializable> readAndMigrate(key: String, clz: KClass<T>, valIfNull: T, deleteInPrefs: Boolean = true): T? {
+    fun <T : Serializable> readAndMigrate(key: String, clz: KClass<T>, valIfNull: T, deleteInPrefs: Boolean = true): T? {
         when (mode) {
             DataMode.PREFERENCES -> {
                 return read(key, clz, valIfNull)
@@ -219,7 +221,7 @@ class DatabaseHelper private constructor(context: Context) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T : Serializable> readBulk(clz: KClass<T>, key: Any?, fullLoad: Boolean = false, internalMode: DataMode = mode): List<T> {
+    fun <T : Serializable> readBulk(clz: KClass<T>, key: Any?, fullLoad: Boolean = false, internalMode: DataMode = mode): List<T> {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 if (Project::class == clz) return readBulkInternal(clz, PROJECT_UID_IDENTIFIER)
@@ -266,14 +268,14 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Path::class == clz) return emptyList()
                 if (IElement::class == clz) return emptyList()
                 if (Walkthrough::class == clz) {
-                        val walkthroughs = readBulkInternal(clz, WALKTHROUGH_UID_IDENTIFIER)
-                        val list = ArrayList<Serializable>()
-                        for (walkthrough in walkthroughs) {
-                            if ((walkthrough as Walkthrough).scenarioId == ((key as Scenario).id)) {
-                                list.add(walkthrough)
-                            }
+                    val walkthroughs = readBulkInternal(clz, WALKTHROUGH_UID_IDENTIFIER)
+                    val list = ArrayList<Serializable>()
+                    for (walkthrough in walkthroughs) {
+                        if ((walkthrough as Walkthrough).scenarioId == ((key as Scenario).id)) {
+                            list.add(walkthrough)
                         }
-                        return list as List<T>
+                    }
+                    return list as List<T>
                 }
             }
             DataMode.DATABASE -> {
@@ -305,15 +307,53 @@ class DatabaseHelper private constructor(context: Context) {
         return list as List<T>
     }
 
-    public fun deletePreferenceUids(uidKey: String) {
-        for (entry in sharedPreferences.all.entries){
-            if (entry.key.startsWith(uidKey)){
+    // Versioning
+    fun isNewerVersion(versionItem: IVersionItem): Boolean {
+       return when (versionItem){
+            is Project -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            is Stakeholder -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            is Scenario -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            is AbstractObject -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            is Attribute -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            is Path -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            is AbstractTrigger -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            is AbstractStep -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            is Walkthrough -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            else -> false
+        }
+    }
+
+    fun addVersioning(id: String, internalMode: DataMode = mode){
+        when (internalMode){
+            DataMode.PREFERENCES -> sharedPreferences.edit().putLong(Constants.VERSIONING_IDENTIFIER.plus(id),System.currentTimeMillis()).apply()
+            DataMode.DATABASE -> database?.writeLong(Constants.VERSIONING_IDENTIFIER.plus(id),System.currentTimeMillis())
+        }
+    }
+
+    fun readVersioning(id: String, internalMode: DataMode = mode): Long{
+        return when (internalMode){
+            DataMode.PREFERENCES -> sharedPreferences.getLong(Constants.VERSIONING_IDENTIFIER.plus(id),0)
+            DataMode.DATABASE -> NumberHelper.nvl(database?.readLong(Constants.VERSIONING_IDENTIFIER.plus(id),0),0)
+        }
+    }
+
+    fun deleteVersioning(id: String, internalMode: DataMode = mode){
+        when (internalMode){
+            DataMode.PREFERENCES -> sharedPreferences.edit().remove(Constants.VERSIONING_IDENTIFIER.plus(id)).apply()
+            DataMode.DATABASE -> database?.deleteNumber(Constants.VERSIONING_IDENTIFIER.plus(id))
+        }
+    }
+
+
+    fun deletePreferenceUids(uidKey: String) {
+        for (entry in sharedPreferences.all.entries) {
+            if (entry.key.startsWith(uidKey)) {
                 sharedPreferences.edit().remove(entry.key).apply()
             }
         }
     }
 
-    public fun <T : Serializable> delete(key: String, clz: KClass<T>, internalMode: DataMode = mode) {
+    fun <T : Serializable> delete(key: String, clz: KClass<T>, internalMode: DataMode = mode) {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 sharedPreferences.edit().remove(key).apply()
@@ -344,10 +384,10 @@ class DatabaseHelper private constructor(context: Context) {
                             delete(attribute.id, Attribute::class)
                         }
                     }
-                    if (obj is Resource){
-                        delete(MIN_IDENTIFIER.plus(obj.id),Double::class)
-                        delete(MAX_IDENTIFIER.plus(obj.id),Double::class)
-                        delete(INIT_IDENTIFIER.plus(obj.id),Double::class)
+                    if (obj is Resource) {
+                        delete(MIN_IDENTIFIER.plus(obj.id), Double::class)
+                        delete(MAX_IDENTIFIER.plus(obj.id), Double::class)
+                        delete(INIT_IDENTIFIER.plus(obj.id), Double::class)
                     }
                 }
                 if (Attribute::class == clz) {
@@ -370,13 +410,13 @@ class DatabaseHelper private constructor(context: Context) {
                     database!!.deletePath(key)
                     if (path != null) {
                         for (element in path.elements) {
-                            if (element.value is IfElseTrigger){
+                            if (element.value is IfElseTrigger) {
                                 //Recursively delete
                                 val scenario = readFull(path.scenarioId, Scenario::class)
-                                for (entry in (element.value as IfElseTrigger).optionLayerLink.entries){
-                                    val p = scenario?.removePath(path.stakeholder,entry.value)
-                                    if (p != null){
-                                            delete(p.id,Path::class)
+                                for (entry in (element.value as IfElseTrigger).optionLayerLink.entries) {
+                                    val p = scenario?.removePath(path.stakeholder, entry.value)
+                                    if (p != null) {
+                                        delete(p.id, Path::class)
                                     }
                                 }
                             }
@@ -433,4 +473,20 @@ class DatabaseHelper private constructor(context: Context) {
             database!!.dropAndRecreateTable("OBJECT_TABLE")
         }
     }
+
+    fun dropAndRecreateAll(){
+        database!!.dropAndRecreateTable("ATTRIBUTE_TABLE")
+        database!!.dropAndRecreateTable("PATH_TABLE")
+        database!!.dropAndRecreateTable("ELEMENT_TABLE")
+        database!!.dropAndRecreateTable("OBJECT_TABLE")
+        database!!.dropAndRecreateTable("PROJECT_TABLE")
+        database!!.dropAndRecreateTable("SCENARIO_TABLE")
+        database!!.dropAndRecreateTable("STAKEHOLDER_TABLE")
+        database!!.dropAndRecreateTable("WALKTHROUGH_TABLE")
+        database!!.dropAndRecreateTable("NUMBER_TABLE")
+        database!!.dropAndRecreateTable("DATA_TABLE")
+        database!!.dropAndRecreateTable("TEXT_TABLE")
+    }
+
+
 }

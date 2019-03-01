@@ -3,7 +3,8 @@ package uzh.scenere.datamodel
 import java.io.Serializable
 import java.util.*
 
-open class Stakeholder private constructor(val id: String,val projectId: String,val name: String, val description: String): Serializable {
+open class Stakeholder private constructor(val id: String,val projectId: String,val name: String, val description: String): Serializable, IVersionItem {
+    override var changeTimeMs: Long = 0
 
     class StakeholderBuilder(private val projectId: String, private val name: String, private val description: String){
 

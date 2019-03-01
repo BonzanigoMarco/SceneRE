@@ -12,7 +12,7 @@ class ButtonTrigger(id: String?, previousId: String?, pathId: String): AbstractT
         SINGLE, MULTIPLE
     }
 
-    fun withButtonLabel(label: String?): IElement{
+    fun withButtonLabel(label: String?): ButtonTrigger{
         buttonLabel = label
         return this
     }

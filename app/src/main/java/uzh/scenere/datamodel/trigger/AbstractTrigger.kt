@@ -1,8 +1,11 @@
 package uzh.scenere.datamodel.trigger
 
 import uzh.scenere.datamodel.IElement
+import uzh.scenere.datamodel.IVersionItem
 
-abstract class AbstractTrigger(val id: String, var previousId: String?, val pathId: String) : IElement {
+abstract class AbstractTrigger(val id: String, var previousId: String?, val pathId: String) : IElement, IVersionItem {
+    override var changeTimeMs: Long = 0
+
     private val nextStepsIds: List<String> = ArrayList()
 
     fun hasSingleTransition(): Boolean{
@@ -29,4 +32,9 @@ abstract class AbstractTrigger(val id: String, var previousId: String?, val path
         previousId = id
         return this
     }
+
+    class NullTrigger(): AbstractTrigger("","","") {
+        override var changeTimeMs: Long = 0
+    }
+
 }

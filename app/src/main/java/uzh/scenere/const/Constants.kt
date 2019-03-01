@@ -27,6 +27,8 @@ class Constants {
         const val VALIDATION_OK: Int = 1
         const val VALIDATION_EMPTY: Int = 2
         const val VALIDATION_FAILED: Int = 3
+        const val VALIDATION_INVALID: Int = 4
+        const val VALIDATION_NO_DATA: Int = 5
         //TAGS
         const val GENERAL_TAG: String = "SRE-TAG"
         const val BUNDLE_GLOSSARY_ADDITIONAL_TOPICS: String = "sreGlossaryAdditionalTopics"
@@ -46,6 +48,7 @@ class Constants {
         const val HASH_MAP_UID_IDENTIFIER: String = "hash_map_"
         const val HASH_MAP_OPTIONS_IDENTIFIER: String = "hash_map_options_"
         const val HASH_MAP_LINK_IDENTIFIER: String = "hash_map_link_"
+        const val VERSIONING_IDENTIFIER: String = "version_"
         const val MIN_IDENTIFIER: String = "min_"
         const val MAX_IDENTIFIER: String = "max_"
         const val INIT_IDENTIFIER: String = "init_"

@@ -1,8 +1,8 @@
 package uzh.scenere.views
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Handler
@@ -16,6 +16,7 @@ import uzh.scenere.const.Constants.Companion.TUTORIAL_UID_IDENTIFIER
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.ImageHelper
 
+@SuppressLint("ViewConstructor")
 class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, vararg drawableNames: String): RelativeLayout(context){
 
     private val nameList = ArrayList<String>()

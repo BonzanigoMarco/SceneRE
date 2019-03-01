@@ -7,6 +7,8 @@ import java.io.Serializable
 
 class ShareWrapper() : Serializable {
     var validationCode: Int = NOT_VALIDATED
+    var oldItems: Int = 0
+    var totalItems: Int = 0
     var statistics: String = NOTHING
     var timeMs: Long = 0L
     var owner: String = ""
