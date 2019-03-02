@@ -37,7 +37,7 @@ open class Stakeholder private constructor(val id: String,val projectId: String,
     }
 
     override fun hashCode(): Int {
-        return super.hashCode()
+        return id.hashCode()
     }
 
     class NullStakeholder(): Stakeholder("","","","") {}

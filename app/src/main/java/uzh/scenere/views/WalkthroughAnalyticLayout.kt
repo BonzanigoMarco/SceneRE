@@ -1,5 +1,6 @@
 package uzh.scenere.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.text.InputType
@@ -17,16 +18,16 @@ import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.className
 
+@SuppressLint("ViewConstructor")
 class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, val topLayer: Boolean) : LinearLayout(context) {
 
-    private val textSize = 4f
     private val margin = 5f
-    
+
+
     init {
         orientation = VERTICAL
         val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        val margin = DipHelper.get(resources).dip15.toInt()
-        params.setMargins(0,0, margin,0)
+        params.setMargins(DipHelper.get(resources).dip5,0, DipHelper.get(resources).dip15,0)
         layoutParams = params
         createOverview()
     }
@@ -60,11 +61,10 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
                 }
             }
         }
-        //TODO, Step Details
         //TODO Delete
-        //TODO headless walkthroughs with diff color
     }
 
+    //TODO: SRE VIEWS & Copy to SCENARIO ANALYTICS
     private fun createLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -90,7 +90,8 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
         return wrapper
     }
 
-    private fun createEditLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {
+    //TODO DELETE BUTTON
+    private fun createDeleteLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         DipHelper.get(resources).setMargin(childParams,margin)
@@ -116,6 +117,4 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
         wrapper.addView(input)
         return wrapper
     }
-
-
 }

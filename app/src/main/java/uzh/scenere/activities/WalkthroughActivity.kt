@@ -2,7 +2,6 @@ package uzh.scenere.activities
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
@@ -50,7 +49,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         selectedObject = null
         selectedAttribute = null
         getInfoContent().visibility = VISIBLE
-        customizeToolbarId(null,null,R.string.icon_info,null,null)
+        resetToolbar()
         activeWalkthrough?.setInfoActive(false)
     }
 
@@ -276,7 +275,6 @@ class WalkthroughActivity : AbstractManagementActivity() {
 
     private fun play() {
         mode = WalkthroughMode.PLAY
-        customizeToolbarId(null,null,R.string.icon_info,null,null)
         walkthrough_layout_selection_content.visibility = GONE
         walkthrough_layout_selection.visibility = GONE
         walkthrough_holder.visibility = VISIBLE
@@ -298,23 +296,6 @@ class WalkthroughActivity : AbstractManagementActivity() {
         activeWalkthrough = null
         getContentHolderLayout().removeAllViews()
         resetToolbar()
-    }
-
-    override fun onToolbarCenterClicked() {
-        if (mode == WalkthroughMode.PLAY){
-            getInfoContent().visibility = GONE
-            val objects = activeWalkthrough!!.getObjectNames("")
-            val contextInfoAvailable = objects.size > 1
-            getInfoTitle().text = getString(if (contextInfoAvailable) R.string.walkthrough_selection_info else R.string.walkthrough_selection_no_info)
-            customizeToolbarId(null,null,null,null,R.string.icon_cross)
-            execMorphInfoBar(InfoState.MAXIMIZED)
-            if (contextInfoAvailable){
-                objectInfoSpinnerLayout = createLine(getString(R.string.literal_object), LineInputType.LOOKUP, null, objects) { objectInfoSelected() }
-                getInfoContentWrap().addView(objectInfoSpinnerLayout,0)
-            }
-            activeWalkthrough?.setInfoActive(true)
-            mode = WalkthroughMode.INFO
-        }
     }
 
     private fun objectInfoSelected(){
@@ -356,6 +337,8 @@ class WalkthroughActivity : AbstractManagementActivity() {
     override fun onToolbarLeftClicked() {
         if (mode != WalkthroughMode.PLAY){
             super.onToolbarLeftClicked()
+        }else{
+            onBackPressed()
         }
     }
 
@@ -364,14 +347,27 @@ class WalkthroughActivity : AbstractManagementActivity() {
         if (mode != WalkthroughMode.PLAY || awaitingBackConfirmation){
             super.onBackPressed()
         }else{
-            notify("Press the Back Button again to cancel the Walkthrough")
+            notify(getString(R.string.walkthrough_confirm))
             awaitingBackConfirmation = true
             Handler().postDelayed({awaitingBackConfirmation=false},2000)
         }
     }
 
     override fun onToolbarCenterRightClicked() {
-        if (mode != WalkthroughMode.PLAY){
+        if (mode == WalkthroughMode.PLAY){
+            getInfoContent().visibility = GONE
+            val objects = activeWalkthrough!!.getObjectNames("")
+            val contextInfoAvailable = objects.size > 1
+            getInfoTitle().text = getString(if (contextInfoAvailable) R.string.walkthrough_selection_info else R.string.walkthrough_selection_no_info)
+            customizeToolbarId(null,null,null,null,R.string.icon_cross)
+            execMorphInfoBar(InfoState.MAXIMIZED)
+            if (contextInfoAvailable){
+                objectInfoSpinnerLayout = createLine(getString(R.string.literal_object), LineInputType.LOOKUP, null, objects) { objectInfoSelected() }
+                getInfoContentWrap().addView(objectInfoSpinnerLayout,0)
+            }
+            activeWalkthrough?.setInfoActive(true)
+            mode = WalkthroughMode.INFO
+        }else {
             val intent = Intent(this, GlossaryActivity::class.java)
             intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Walkthrough")
             startActivity(intent)

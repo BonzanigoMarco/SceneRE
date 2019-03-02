@@ -184,12 +184,12 @@ class ShareActivity : AbstractManagementActivity() {
                 VALIDATION_FAILED -> {
                     statistics.text = getString(R.string.share_error_format)
                 }
-            VALIDATION_INVALID -> {
-                statistics.text = getString(R.string.share_error_invalid)
-            }
-            VALIDATION_NO_DATA -> {
-                statistics.text = getString(R.string.share_error_no_data)
-            }
+                VALIDATION_INVALID -> {
+                    statistics.text = getString(R.string.share_error_invalid)
+                }
+                VALIDATION_NO_DATA -> {
+                    statistics.text = getString(R.string.share_error_no_data)
+                }
         }
         statistics.isEnabled = false
         getContentHolderLayout().addView(statistics)

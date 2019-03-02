@@ -13,6 +13,7 @@ import uzh.scenere.datamodel.ContextObject.NullContextObject
 import uzh.scenere.datamodel.Resource.NullResource
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.StandardStep
+import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
 import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.helpers.DatabaseHelper
@@ -71,9 +72,6 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         stepLayout.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 3f)
         triggerLayout.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 7f)
 
-//        stepLayout.setBackgroundColor(Color.BLUE)
-//        triggerLayout.setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention))
-
         addView(stepLayout)
         addView(triggerLayout)
 
@@ -93,7 +91,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         val button = generateButton("Start Scenario")
         button.setOnClickListener {
             Walkthrough.WalkthroughProperty.INTRO_TIME.set(getTime())
-            loadNextStep()
+            loadNextStep("Start Scenario")
         }
         stepLayout.addView(text)
         triggerLayout.addView(button)
@@ -114,7 +112,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                     is ButtonTrigger -> {
                         val button = generateButton((second as ButtonTrigger).buttonLabel)
                         button.setOnClickListener {
-                            loadNextStep()
+                            loadNextStep("Button Clicked")
                         }
                         triggerLayout.addView(button)
                     }
@@ -135,7 +133,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                             val optionLayer = (second as IfElseTrigger).getLayerForOption(optionId++)
                             button.setOnClickListener {
                                 layer = optionLayer
-                                loadNextStep(optionLayer != 0)
+                                loadNextStep("Button Clicked: ${button.text}",optionLayer != 0)
                             }
                             scroll.addScrollElement(button)
                         }
@@ -145,7 +143,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         //FALLBACK FOR MISSING TRIGGER AT THE END
                         val button = generateButton(context.getString(R.string.walkthrough_complete))
                         button.setOnClickListener {
-                            loadNextStep()
+                            loadNextStep("Automatic Continuation")
                         }
                         triggerLayout.addView(button)                        
                     }
@@ -189,15 +187,19 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         return button
     }
 
-    private fun loadNextStep(pathSwitch: Boolean = false) {
+    private fun loadNextStep(info: String, pathSwitch: Boolean = false) {
+        walkthrough.addTriggerInfo(getCurrentStep(),info,getCurrentTrigger())
         if (state != WalkthroughState.STARTED){
-            walkthrough.addStep(if (first is AbstractStep) ((first as AbstractStep).withTime(getTime())) else if (second is AbstractStep) ((second as AbstractStep).withTime(getTime())) else null)
+            walkthrough.addStep(getCurrentStep()?.withTime(getTime()))
             first = if (pathSwitch) paths?.get(layer)?.getStartingPoint() else paths?.get(layer)?.getNextElement(second)
             second = paths?.get(layer)?.getNextElement(first)
         }
         state = WalkthroughState.PLAYING
         prepareLayout()
     }
+
+    private fun getCurrentTrigger(): AbstractTrigger? = if (first is AbstractTrigger) (first as AbstractTrigger) else if (second is AbstractTrigger) (second as AbstractTrigger) else null
+    private fun getCurrentStep(): AbstractStep? = if (first is AbstractStep) (first as AbstractStep) else if (second is AbstractStep) (second as AbstractStep) else null
 
     private fun saveAndLoadNew() {
         walkthrough.toXml(context)

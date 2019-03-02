@@ -56,6 +56,7 @@ class Constants {
         const val NEW_LINE_C: Char = '\n'
         const val SPACE_C: Char = ' '
         const val NEW_LINE: String = "\n"
+        const val PERCENT: String = "%"
         const val SPACE: String = " "
         const val DOLLAR_STRING: Char = '$'
         const val NOTHING: String = ""

@@ -8,6 +8,7 @@ import uzh.scenere.const.Constants.Companion.NO_DATA
 import uzh.scenere.datamodel.Walkthrough.WalkthroughProperty.*
 import uzh.scenere.datamodel.Walkthrough.WalkthroughStepProperty.*
 import uzh.scenere.datamodel.steps.AbstractStep
+import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.helpers.DataHelper
 import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.StringHelper
@@ -20,7 +21,7 @@ import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 
 
-open class Walkthrough private constructor(val id: String, val owner: String, val scenarioId: String, val stakeholderId: String): Serializable, IVersionItem {
+open class Walkthrough private constructor(val id: String, val owner: String, val scenarioId: String, val stakeholderId: String) : Serializable, IVersionItem {
     override var changeTimeMs: Long = 0
 
     private val localPropertiesMap = HashMap<WalkthroughProperty, Any>()
@@ -87,7 +88,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
                         val time = SimpleDateFormat("HH:mm:ss")
                         val d = date.format(currentDate)
                         val t = time.format(currentDate)
-                        return "Date: $d<br>Time: $t"
+                        return "Date: $d\nTime: $t"
                     }
                 }
                 INFO_OBJECT, INFO_ATTRIBUTE -> {
@@ -171,15 +172,16 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
 
     @Suppress("UNCHECKED_CAST")
     enum class WalkthroughStepProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val isStatisticalValue: Boolean, val multivalued: Boolean = false) {
-        STEP_ID("Step-ID", String::class, "" ,false),
-        STEP_TIME("Step Time", Long::class, 0L,true),
-        STEP_NUMBER("Step Number", Int::class, 0,true),
-        STEP_TITLE("Step Title", String::class, "",true),
-        STEP_TYPE("Step Type", String::class, "",true);
+        STEP_ID("Step-ID", String::class, "", false),
+        STEP_TIME("Step Time", Long::class, 0L, true),
+        STEP_NUMBER("Step Number", Int::class, 0, true),
+        STEP_TITLE("Step Title", String::class, "", true),
+        STEP_TYPE("Step Type", String::class, "", true),
+        TRIGGER_INFO("Trigger Info", String::class, "", true);
 
         @SuppressLint("SimpleDateFormat")
         fun getDisplayText(stepId: String): String {
-            val value = get(stepId,type)
+            val value = get(stepId, type)
             when (this) {
                 STEP_TIME -> {
                     if (value != valueIfNull) {
@@ -280,6 +282,12 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         }
     }
 
+    fun addTriggerInfo(step: AbstractStep?, info: String, trigger: AbstractTrigger? = null){
+        if (step != null) {
+            TRIGGER_INFO.set(step.id,info)
+        }
+    }
+
     fun printStatistics(): String {
         var total = INTRO_TIME.get(Long::class)
         for (stepId in STEP_ID_LIST.getAll(String::class)) {
@@ -321,7 +329,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         }
     }
 
-    private fun calculateCompletionTime(){
+    private fun calculateCompletionTime() {
         var total = INTRO_TIME.get(Long::class)
         for (stepId in STEP_ID_LIST.getAll(String::class)) {
             total += STEP_TIME.get(stepId, Long::class)
@@ -373,7 +381,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             if (line.startsWith("<?")) {
                 continue;
             } else if (line.contains(" type=")) {
-                val enumString = line.substring(1, line.indexOf(" type=")).replace("[0-9]+".toRegex(),"")
+                val enumString = line.substring(1, line.indexOf(" type=")).replace("[0-9]+".toRegex(), "")
                 if (StringHelper.hasText(stepId)) {
                     var enum: WalkthroughStepProperty? = null
                     try {
@@ -403,7 +411,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
                 stepId = ""
             }
         }
-        if (COMPLETION_TIME.get(Long::class)==0L){
+        if (COMPLETION_TIME.get(Long::class) == 0L) {
             calculateCompletionTime()
         }
         copy()

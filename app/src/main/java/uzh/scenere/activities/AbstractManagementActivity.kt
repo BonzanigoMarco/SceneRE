@@ -86,8 +86,12 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         }
     }
 
+    open fun getIsFirstScrollUp(): Boolean {
+        return true
+    }
+
     override fun onBackPressed() {
-        if (getContentWrapperLayout() is SwipeButtonScrollView &&
+        if (getIsFirstScrollUp() && getContentWrapperLayout() is SwipeButtonScrollView &&
                 (getContentWrapperLayout() as SwipeButtonScrollView).scrollY > 0){
             execFullScrollUp()
         }else{
@@ -128,23 +132,23 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     private fun execFullScroll() {
-        var alreadyLoaded = false
         if (getContentHolderLayout() is SwipeButtonSortingLayout) {
             execMinimizeKeyboard()
-            alreadyLoaded = (getContentHolderLayout() as SwipeButtonSortingLayout).scrollToLastAdded()
+            val alreadyLoaded = (getContentHolderLayout() as SwipeButtonSortingLayout).scrollToLastAdded()
             execMinimizeKeyboard()
-        }
-        if (!alreadyLoaded || (getContentWrapperLayout() as SwipeButtonScrollView).scrollY == 0) {
-            Handler().postDelayed({ (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN) }, 250)
+
+            if (!alreadyLoaded || (getContentWrapperLayout() as SwipeButtonScrollView).scrollY == 0) {
+                Handler().postDelayed({ (getContentWrapperLayout() as SwipeButtonScrollView).fullScroll(View.FOCUS_DOWN) }, 250)
+            }
         }
     }
 
     private fun execScrollBack() {
-        Handler().postDelayed({(getContentWrapperLayout() as SwipeButtonScrollView).scrollTo(0,NumberHelper.nvl(scrollY,0))},250)
+        Handler().postDelayed({ getContentWrapperLayout().scrollTo(0,NumberHelper.nvl(scrollY,0))},250)
     }
 
     open fun execFullScrollUp() {
-        (getContentWrapperLayout() as SwipeButtonScrollView).scrollTo(0, 0)
+        getContentWrapperLayout().scrollTo(0, 0)
     }
 
     /**
@@ -503,11 +507,11 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 WeightAnimator(getInfoWrapper(), 7f, 250).play()
                 createLayoutParams(2f, getInfoTitle(), 1)
                 getInfoContentWrap().layoutParams = createLayoutParams(1f)
-                getInfoContent().maxLines = contentDefaultMaxLines
+                 getInfoContent().maxLines = contentDefaultMaxLines
                 return resources.getText(R.string.icon_win_norm)
             }
             InfoState.MAXIMIZED -> {
-                scrollY = (getContentWrapperLayout() as SwipeButtonScrollView).scrollY
+                scrollY = getContentWrapperLayout().scrollY
                 WeightAnimator(getContentWrapperLayout(), 10f, 250).play()
                 WeightAnimator(getInfoWrapper(), 0f, 250).play()
                 createLayoutParams(2.7f, getInfoTitle(), 1)

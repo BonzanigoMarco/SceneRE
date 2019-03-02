@@ -25,8 +25,7 @@ class MainMenuActivity : AbstractBaseActivity() {
         val cockpitButton = SreButton(applicationContext, main_menu_root, "Cockpit",RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, shareButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, CockpitActivity::class.java)) }
         val glossaryButton = SreButton(applicationContext, main_menu_root, "Glossary",RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, cockpitButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, GlossaryActivity::class.java)) }
 
-        shareButton.isEnabled = true
-        analyticsButton.isEnabled = false
+        analyticsButton.isEnabled = true
 
         main_menu_root.addView(projectsButton)
         main_menu_root.addView(walkthroughButton)

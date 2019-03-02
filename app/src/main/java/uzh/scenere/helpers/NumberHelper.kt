@@ -51,6 +51,21 @@ class NumberHelper{
             return multiply(java.lang.Long.MAX_VALUE, Math.random())
         }
 
+        fun floor(num: Double, digits: Int): Double{
+            return Math.floor(num*digits)/digits
+        }
+
+        fun ceil(num: Double, digits: Int): Double{
+            return Math.ceil(num*digits)/digits
+        }
+
+        fun floor(num: Float, digits: Int): Float{
+            return (Math.floor((num*digits).toDouble())/digits).toFloat()
+        }
+
+        fun ceil(num: Float, digits: Int): Float{
+            return (Math.ceil((num*digits).toDouble())/digits).toFloat()
+        }
 
         fun createApplicationIdFromString(applicationString: String?): Long {
             if (applicationString == null || applicationString.contains("\\.")) {
