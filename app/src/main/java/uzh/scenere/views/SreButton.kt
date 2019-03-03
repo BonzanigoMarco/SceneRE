@@ -136,7 +136,6 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         }
         try {
             function()
-
         } catch (e: UninitializedPropertyAccessException) {
             //NOP
         }

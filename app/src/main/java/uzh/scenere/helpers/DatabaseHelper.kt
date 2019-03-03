@@ -428,6 +428,9 @@ class DatabaseHelper private constructor(context: Context) {
                     database!!.deleteElement(key)
                     database!!.deleteAttributeByRefId(key)
                 }
+                if (Walkthrough::class == clz) {
+                    database!!.deleteWalkthrough(key)
+                }
                 if (CollectionsHelper.oneOf(clz, Boolean::class, Short::class, Int::class, Long::class, Float::class, Double::class)) {
                     database!!.deleteNumber(key)
                 }

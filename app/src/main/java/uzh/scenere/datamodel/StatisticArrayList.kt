@@ -1,11 +1,12 @@
 package uzh.scenere.datamodel
 
+import uzh.scenere.const.Constants.Companion.FRACTION
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.PERCENT
 import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.helpers.NumberHelper
-import kotlin.reflect.full.isSubclassOf
+import java.util.*
 
 class StatisticArrayList<E> : ArrayList<E>() {
     private val stats = HashMap<E,Float>()
@@ -22,6 +23,36 @@ class StatisticArrayList<E> : ArrayList<E>() {
             statistics += "".plus(entry.key).plus(SPACE).plus(NumberHelper.floor(part*entry.value,2)).plus(PERCENT).plus(NEW_LINE)
         }
         return if (statistics.length > NEW_LINE.length) statistics.substring(0,statistics.length- NEW_LINE.length) else statistics
+    }
+
+    fun getAsc(): List<E>{
+        return getOrdered()
+    }
+
+    fun getDesc(): List<E>{
+        return getOrdered(true)
+    }
+
+    private fun getOrdered(reversed: Boolean = false): ArrayList<E> {
+        val list = ArrayList<E>()
+        val sortMap = if (reversed) TreeMap<Float, E>(Collections.reverseOrder()) else TreeMap<Float, E>()
+        for (entry in stats.entries) {
+            var key: Float = entry.value
+            while (sortMap.contains(key)) {
+                key += FRACTION
+            }
+            sortMap[key] = entry.key
+        }
+        for (entry in sortMap.entries){
+            list.add(entry.value)
+        }
+        return list
+    }
+
+    fun getPercentage(elem: E): Float{
+        val part = 100f/size
+        val count = stats[elem]
+        return if (count == null) 0f else count*part
     }
 
     @Suppress("UNCHECKED_CAST")

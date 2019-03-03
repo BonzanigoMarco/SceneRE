@@ -10,11 +10,14 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import uzh.scenere.R
+import uzh.scenere.const.Constants.Companion.NEW_LINE
+import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.NumberHelper
+import java.util.*
 
 @SuppressLint("ViewConstructor")
 class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
@@ -25,15 +28,8 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         STEPS, COMMENTS
     }
 
-    init {
-        orientation = VERTICAL
-        val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        params.setMargins(DipHelper.get(resources).dip5,0, DipHelper.get(resources).dip15,0)
-        layoutParams = params
-        createOverview()
-    }
-
     private lateinit var steps: HashMap<Stakeholder,HashMap<Int,StatisticArrayList<String>>>
+    private lateinit var paths: HashMap<Stakeholder,StatisticArrayList<String>>
     private lateinit var stepTimes: HashMap<Stakeholder,HashMap<Int,StatisticArrayList<Long>>>
     private lateinit var walkthroughAmount: HashMap<Stakeholder,Int>
     private var stakeholderPointer: Int = 0
@@ -76,18 +72,30 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         visualizeOverview()
     }
 
+    init {
+        orientation = VERTICAL
+        val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        params.setMargins(DipHelper.get(resources).dip5,0, DipHelper.get(resources).dip15,0)
+        layoutParams = params
+        createOverview()
+    }
+
     private fun createOverview() {
         steps = HashMap()
         stepTimes = HashMap()
         walkthroughAmount = HashMap()
+        paths = HashMap()
         for (walkthrough in walkthroughs){
             walkthrough.load()
             val stakeholder = DatabaseHelper.getInstance(context).read(walkthrough.stakeholderId, Stakeholder::class, NullHelper.get(Stakeholder::class))
             if (!steps.contains(stakeholder)){
                 steps[stakeholder] = HashMap()
                 stepTimes[stakeholder] = HashMap()
+                paths[stakeholder] = StatisticArrayList()
             }
             walkthroughAmount[stakeholder] = NumberHelper.nvl(walkthroughAmount[stakeholder],0)+1
+            val pathSteps = TreeMap<Int,String>()
+            var path = NOTHING
             for (stepId in Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class)){
                 val stepNumber = Walkthrough.WalkthroughStepProperty.STEP_NUMBER.get(stepId, Int::class)
                 if (!steps[stakeholder]!!.contains(stepNumber)){
@@ -96,10 +104,16 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                 }
                 val stepTitle = Walkthrough.WalkthroughStepProperty.STEP_TITLE.get(stepId, String::class)
                 val stepTime = Walkthrough.WalkthroughStepProperty.STEP_TIME.get(stepId, Long::class)
-//                val stepType = Walkthrough.WalkthroughStepProperty.STEP_TYPE.get(stepId, String::class)
-//                val triggerInfo = Walkthrough.WalkthroughStepProperty.TRIGGER_INFO.get(stepId, String::class) //TODO for later
-                steps[stakeholder]!![stepNumber]!!.add(stepTitle)
+                val triggerInfo = Walkthrough.WalkthroughStepProperty.TRIGGER_INFO.get(stepId, String::class)
+                steps[stakeholder]!![stepNumber]!!.add(triggerInfo)
                 stepTimes[stakeholder]!![stepNumber]!!.add(stepTime)
+                pathSteps.put(stepNumber,stepTitle)
+            }
+            for (entry in pathSteps.entries){
+                path += "(${entry.key}) ${entry.value}".plus(NEW_LINE)
+            }
+            if (path.length > NEW_LINE.length){
+                paths[stakeholder]?.add(path.substring(0,path.length- NEW_LINE.length))
             }
         }
         visualizeOverview()
@@ -114,11 +128,18 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                 val walkthroughCount = walkthroughAmount[entry.key]
                 addView(createLine("Walkthroughs",false,"$walkthroughCount"))
                 for (step in entry.value.entries){
-                    addView(createLine("Step #${step.key}", false, step.value.getStatistics()))
+                    addView(createLine("Transition #${step.key}", false, step.value.getStatistics()))
                     val times = stepTimes[entry.key]?.get(step.key)
                     if (times != null) {
                         val avg = times.avg()?.div(1000)
-                        addView(createLine("Avg Time", false, "$avg Seconds"))
+                        addView(createLine("Avg. Time", false, "$avg Seconds"))
+                    }
+                }
+                val paths = paths[entry.key]
+                if (paths != null){
+                    for (path in paths.getDesc()){
+                        val percentage = NumberHelper.floor(paths.getPercentage(path), 2)
+                        addView(createLine("Path Version ($percentage%)", false, path))
                     }
                 }
             }
@@ -126,25 +147,19 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         }
     }
 
-    private fun createLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {
+    private fun createLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null): View? {
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        DipHelper.get(resources).setMargin(childParams,margin)
         val wrapper = LinearLayout(context)
         wrapper.layoutParams = layoutParams
         wrapper.weightSum = 2f
         wrapper.orientation = if (multiLine) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-        val label = TextView(context)
-        label.text = context.getString(R.string.label, labelText)
-        label.textSize = DipHelper.get(resources).dip4.toFloat()
-        label.layoutParams = childParams
-        val text = TextView(context)
-        text.setBackgroundColor(ContextCompat.getColor(context, R.color.srePrimary))
-        DipHelper.get(resources).setPadding(text,margin)
+        val label = SreTextView(context,wrapper,context.getString(R.string.label, labelText))
+        val weightedParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+        weightedParams.weight = 1f
+        label.setWeight(weightedParams)
+        val text = SreTextView(context,wrapper,presetValue,SreTextView.TextStyle.DARK)
+        text.setWeight(1f)
         text.textAlignment = if (multiLine) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
-        text.layoutParams = childParams
-        text.textSize = DipHelper.get(resources).dip4.toFloat()
-        text.text = presetValue
         text.setSingleLine(multiLine)
         wrapper.addView(label)
         wrapper.addView(text)

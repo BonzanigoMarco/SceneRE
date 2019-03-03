@@ -731,6 +731,11 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         deleteVersioning(key)
     }
 
+    fun deleteWalkthrough(key: String) {
+        delete(WalkthroughTableEntry.TABLE_NAME, WalkthroughTableEntry.ID, key)
+        deleteVersioning(key)
+    }
+
     fun truncateStrings() {
         truncate(TextTableEntry.TABLE_NAME)
     }

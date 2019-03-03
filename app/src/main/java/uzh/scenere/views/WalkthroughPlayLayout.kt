@@ -112,7 +112,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                     is ButtonTrigger -> {
                         val button = generateButton((second as ButtonTrigger).buttonLabel)
                         button.setOnClickListener {
-                            loadNextStep("Button Clicked")
+                            loadNextStep("Button")
                         }
                         triggerLayout.addView(button)
                     }
@@ -133,7 +133,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                             val optionLayer = (second as IfElseTrigger).getLayerForOption(optionId++)
                             button.setOnClickListener {
                                 layer = optionLayer
-                                loadNextStep("Button Clicked: ${button.text}",optionLayer != 0)
+                                loadNextStep("Button: ${button.text}",optionLayer != 0)
                             }
                             scroll.addScrollElement(button)
                         }
@@ -143,7 +143,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         //FALLBACK FOR MISSING TRIGGER AT THE END
                         val button = generateButton(context.getString(R.string.walkthrough_complete))
                         button.setOnClickListener {
-                            loadNextStep("Automatic Continuation")
+                            loadNextStep("Automatic")
                         }
                         triggerLayout.addView(button)                        
                     }

@@ -86,10 +86,22 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
         return this
     }
 
-    fun setWeight(weight: Float){
+    fun setWeight(weight: Float, horizontal: Boolean = true){
         when (parentLayout){
             ParentLayout.LINEAR -> {
-                (layoutParams as LinearLayout.LayoutParams).weight = weight
+                val params = LinearLayout.LayoutParams(if (horizontal) LinearLayout.LayoutParams.MATCH_PARENT else LinearLayout.LayoutParams.WRAP_CONTENT,
+                        if (horizontal) LinearLayout.LayoutParams.WRAP_CONTENT else LinearLayout.LayoutParams.MATCH_PARENT)
+                params.weight = weight
+                layoutParams = params
+            }
+            else -> {}
+        }
+    }
+
+    fun setWeight(layoutParamsWithWeight: LinearLayout.LayoutParams){
+        when (parentLayout){
+            ParentLayout.LINEAR -> {
+                layoutParams = layoutParamsWithWeight
             }
             else -> {}
         }

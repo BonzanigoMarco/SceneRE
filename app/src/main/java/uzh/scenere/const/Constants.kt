@@ -14,6 +14,8 @@ class Constants {
         const val MILLION: Double = 1000000.0
         const val THOUSAND: Double = 1000.0
         const val HUNDRED: Double = 100.0
+        const val FRACTION: Float = 0.1f
+        const val ZERO: Float = 0.0f
         //PERMISSIONS
         const val PERMISSION_REQUEST_ALL: Int = 888
         const val PERMISSION_REQUEST_GPS: Int = 666

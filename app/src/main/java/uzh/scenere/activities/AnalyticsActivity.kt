@@ -304,7 +304,13 @@ class AnalyticsActivity : AbstractManagementActivity() {
                 creationButton?.setButtonStates(true, true, true, true)?.setText("Walkthrough number "+(pointer!!+1))?.updateViews(false)
                 Handler().postDelayed({
                     getContentHolderLayout().removeAllViews()
-                    getContentHolderLayout().addView(WalkthroughAnalyticLayout(applicationContext, selectedList[pointer!!] as Walkthrough, true))
+                    getContentHolderLayout().addView(WalkthroughAnalyticLayout(applicationContext, selectedList[pointer!!] as Walkthrough, true) {
+                        DatabaseHelper.getInstance(applicationContext).delete((selectedList[pointer!!] as Walkthrough).id,Walkthrough::class)
+                        loadedWalkthroughs.remove(selectedList[pointer!!] as Walkthrough)
+                        selectedList.removeAt(pointer!!)
+                        execNext()
+                        notify("Deleted")
+                    })
                 }, 500)
             }
         }

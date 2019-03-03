@@ -135,6 +135,9 @@
     <string name="walkthrough_selected_project">Selected Project:</string>
     <string name="walkthrough_complete">Complete Walkthrough</string>
     <string name="walkthrough_see_more">See more Details in the Analytics</string>
+    <string name="walkthrough_confirm">Press the Back Button again to cancel the Walkthrough</string>
+    <string name="walkthrough_confirm_button">Confirm Deletion</string>
+    <string name="walkthrough_delete">Delete Walkthrough</string>
 
     <!--Literal and related-->
     <string name="literal_object">Object</string>
@@ -196,6 +199,5 @@
     <string name="share_import_number_successful">All %1$d Items imported successfully.</string>
     <string name="share_click_to_import">Select one of the %1$d Files to analyze it</string>
     <string name="share_folder">Folder: %1$s</string>
-    <string name="walkthrough_confirm">Press the Back Button again to cancel the Walkthrough</string>
 
 </resources>
