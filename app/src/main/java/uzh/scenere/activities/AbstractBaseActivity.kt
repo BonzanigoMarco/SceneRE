@@ -36,6 +36,7 @@ import kotlin.reflect.KClass
 
 abstract class AbstractBaseActivity : AppCompatActivity() {
     protected var marginSmall: Int? = null
+    protected var marginHuge: Int? = null
     protected var textSize: Float? = null
     protected var fontAwesome: Typeface? = null
     protected var fontNormal: Typeface = Typeface.DEFAULT
@@ -55,6 +56,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         screenHeight = displayMetrics.heightPixels
         screenWidth = displayMetrics.widthPixels
         marginSmall = DipHelper.get(resources).dip5
+        marginHuge = DipHelper.get(resources).dip50
         textSize = DipHelper.get(resources).dip3_5.toFloat()
         fontAwesome = Typeface.createFromAsset(applicationContext.assets, "FontAwesome900.otf")
     }

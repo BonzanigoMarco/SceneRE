@@ -16,9 +16,11 @@ import kotlinx.android.synthetic.main.activity_walkthrough.*
 import kotlinx.android.synthetic.main.holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.NONE
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.views.SreContextAwareTextView
 import uzh.scenere.views.SreTutorialLayoutDialog
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.WalkthroughPlayLayout
@@ -90,7 +92,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
     }
 
     override fun resetToolbar() {
-        customizeToolbarId(R.string.icon_back,null,null,R.string.icon_info,null)
+        customizeToolbarId(R.string.icon_back, null, null, R.string.icon_info, null)
     }
 
     enum class WalkthroughMode {
@@ -114,6 +116,9 @@ class WalkthroughActivity : AbstractManagementActivity() {
     private var selectedObject: AbstractObject? = null
     private var selectedAttribute: Attribute? = null
 
+    private var projectLabel: SreContextAwareTextView? =  null
+    private var scenarioLabel: SreContextAwareTextView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
@@ -121,7 +126,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         loadedProjects.clear()
         loadedProjects.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Project::class, null))
         creationButton = SwipeButton(this, createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
-                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
+                .setColors(ContextCompat.getColor(applicationContext, R.color.sreWhite), ContextCompat.getColor(applicationContext, R.color.srePrimaryDisabledDark))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                 .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)
@@ -132,7 +137,17 @@ class WalkthroughActivity : AbstractManagementActivity() {
         creationButton?.setExecutable(createControlExecutable())
         walkthrough_layout_selection_content.addView(creationButton)
         resetToolbar()
-        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        projectLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_project)), ArrayList())
+        scenarioLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_scenario)), ArrayList())
+        val weightedParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0)
+        weightedParams.weight = 2f
+        projectLabel?.setWeight(weightedParams)
+        scenarioLabel?.setWeight(weightedParams)
+        projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(Constants.SPACE).plus(NONE)
+        scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(Constants.SPACE).plus(NONE)
+        walkthrough_layout_selection_orientation.addView(projectLabel)
+        walkthrough_layout_selection_orientation.addView(scenarioLabel)
+        tutorialOpen = SreTutorialLayoutDialog(this, screenWidth, "info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun <T : Serializable> createButtonLabel(selectedList: ArrayList<T>, label: String): String {
@@ -188,22 +203,22 @@ class WalkthroughActivity : AbstractManagementActivity() {
                 loadedScenarios.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class, loadedProjects[pointer!!]))
                 projectPointer = pointer
                 pointer = null
-                walkthrough_text_selected_project.text = loadedProjects[projectPointer!!].title
+                projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(Constants.SPACE).plus(loadedProjects[projectPointer!!].title)
                 creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)?.setText(createButtonLabel(loadedScenarios, "Scenarios"))?.updateViews(false)
             }
-            WalkthroughMode.SELECT_SCENARIO ->  {
+            WalkthroughMode.SELECT_SCENARIO -> {
                 mode = WalkthroughMode.SELECT_STAKEHOLDER
                 loadedStakeholders.clear()
-                scenarioContext = DatabaseHelper.getInstance(applicationContext).readFull(loadedScenarios[pointer!!].id,Scenario::class)
+                scenarioContext = DatabaseHelper.getInstance(applicationContext).readFull(loadedScenarios[pointer!!].id, Scenario::class)
                 scenarioPointer = pointer
                 pointer = null
                 val stakeholders = DatabaseHelper.getInstance(applicationContext).readBulk(Stakeholder::class, loadedProjects[projectPointer!!])
-                for (stakeholder in stakeholders){
-                    if (scenarioContext!!.hasStakeholderPath(stakeholder)){
+                for (stakeholder in stakeholders) {
+                    if (scenarioContext!!.hasStakeholderPath(stakeholder)) {
                         loadedStakeholders.add(stakeholder)
                     }
                 }
-                walkthrough_text_selected_scenario.text = loadedScenarios[scenarioPointer!!].title
+                scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(Constants.SPACE).plus(loadedScenarios[scenarioPointer!!].title)
                 creationButton?.setButtonStates(!loadedStakeholders.isEmpty(), !loadedStakeholders.isEmpty(), true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_play, null)
                         ?.setText(createButtonLabel(loadedStakeholders, getString(R.string.literal_stakeholders)))
@@ -253,7 +268,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
                 loadedProjects.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Project::class, null))
                 pointer = null
                 projectPointer = null
-                walkthrough_text_selected_project.text = null
+                projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(Constants.SPACE).plus(NONE)
                 creationButton?.setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)?.setText(createButtonLabel(loadedProjects, getString(R.string.literal_projects)))?.updateViews(false)
             }
             WalkthroughMode.SELECT_STAKEHOLDER -> {
@@ -263,7 +278,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
                 scenarioContext = null
                 pointer = null
                 scenarioPointer = null
-                walkthrough_text_selected_scenario.text = null
+                scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(Constants.SPACE).plus(NONE)
                 creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                         ?.setText(createButtonLabel(loadedScenarios, getString(R.string.literal_scenarios)))
@@ -278,13 +293,13 @@ class WalkthroughActivity : AbstractManagementActivity() {
         walkthrough_layout_selection_content.visibility = GONE
         walkthrough_layout_selection.visibility = GONE
         walkthrough_holder.visibility = VISIBLE
-        activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!]) {stop()}
+        activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!]) { stop() }
         getContentHolderLayout().addView(activeWalkthrough)
     }
 
-    private fun stop(){
+    private fun stop() {
         val walkthroughStatistics = activeWalkthrough?.getWalkthrough()
-        if (walkthroughStatistics != null){
+        if (walkthroughStatistics != null) {
             walkthroughStatistics.toXml(applicationContext)
             DatabaseHelper.getInstance(applicationContext).write(walkthroughStatistics.id, walkthroughStatistics)
         }
@@ -298,8 +313,8 @@ class WalkthroughActivity : AbstractManagementActivity() {
         resetToolbar()
     }
 
-    private fun objectInfoSelected(){
-        if (objectInfoSpinnerLayout != null){
+    private fun objectInfoSelected() {
+        if (objectInfoSpinnerLayout != null) {
             val spinner = searchForLayout(objectInfoSpinnerLayout!!, Spinner::class)
             val objectName = spinner?.selectedItem.toString()
             val obj = scenarioContext?.getObjectByName(objectName)
@@ -308,66 +323,66 @@ class WalkthroughActivity : AbstractManagementActivity() {
             getInfoContentWrap().removeView(selectedAttributeInfoLayout)
             selectedObject = null
             selectedAttribute = null
-            if (obj != null && obj != selectedObject ){
-                Walkthrough.WalkthroughProperty.INFO_OBJECT.set(objectName,String::class)
+            if (obj != null && obj != selectedObject) {
+                Walkthrough.WalkthroughProperty.INFO_OBJECT.set(objectName, String::class)
                 selectedObject = obj
                 attributeInfoSpinnerLayout = createLine(getString(R.string.literal_attribute), LineInputType.LOOKUP, null, obj.getAttributeNames("")) { attributeInfoSelected() }
-                getInfoContentWrap().addView(attributeInfoSpinnerLayout,1)
+                getInfoContentWrap().addView(attributeInfoSpinnerLayout, 1)
             }
         }
     }
 
-    private fun attributeInfoSelected(){
-        if (attributeInfoSpinnerLayout != null){
+    private fun attributeInfoSelected() {
+        if (attributeInfoSpinnerLayout != null) {
             val spinner = searchForLayout(attributeInfoSpinnerLayout!!, Spinner::class)
             val attributeName = spinner?.selectedItem.toString()
             val attr = selectedObject?.getAttributeByName(attributeName)
             //Cleanup
             getInfoContentWrap().removeView(selectedAttributeInfoLayout)
             selectedAttribute = null
-            if (attr != null && attr != selectedAttribute){
-                Walkthrough.WalkthroughProperty.INFO_ATTRIBUTE.set(attributeName,String::class)
+            if (attr != null && attr != selectedAttribute) {
+                Walkthrough.WalkthroughProperty.INFO_ATTRIBUTE.set(attributeName, String::class)
                 selectedAttribute = attr
                 selectedAttributeInfoLayout = createLine(getString(R.string.literal_value), LineInputType.MULTI_LINE_TEXT, attr.value)
-                getInfoContentWrap().addView(selectedAttributeInfoLayout,2)
+                getInfoContentWrap().addView(selectedAttributeInfoLayout, 2)
             }
         }
     }
 
     override fun onToolbarLeftClicked() {
-        if (mode != WalkthroughMode.PLAY){
+        if (mode != WalkthroughMode.PLAY) {
             super.onToolbarLeftClicked()
-        }else{
+        } else {
             onBackPressed()
         }
     }
 
     private var awaitingBackConfirmation = false
     override fun onBackPressed() {
-        if (mode != WalkthroughMode.PLAY || awaitingBackConfirmation){
+        if (mode != WalkthroughMode.PLAY || awaitingBackConfirmation) {
             super.onBackPressed()
-        }else{
+        } else {
             notify(getString(R.string.walkthrough_confirm))
             awaitingBackConfirmation = true
-            Handler().postDelayed({awaitingBackConfirmation=false},2000)
+            Handler().postDelayed({ awaitingBackConfirmation = false }, 2000)
         }
     }
 
     override fun onToolbarCenterRightClicked() {
-        if (mode == WalkthroughMode.PLAY){
+        if (mode == WalkthroughMode.PLAY) {
             getInfoContent().visibility = GONE
             val objects = activeWalkthrough!!.getObjectNames("")
             val contextInfoAvailable = objects.size > 1
             getInfoTitle().text = getString(if (contextInfoAvailable) R.string.walkthrough_selection_info else R.string.walkthrough_selection_no_info)
-            customizeToolbarId(null,null,null,null,R.string.icon_cross)
+            customizeToolbarId(null, null, null, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
-            if (contextInfoAvailable){
+            if (contextInfoAvailable) {
                 objectInfoSpinnerLayout = createLine(getString(R.string.literal_object), LineInputType.LOOKUP, null, objects) { objectInfoSelected() }
-                getInfoContentWrap().addView(objectInfoSpinnerLayout,0)
+                getInfoContentWrap().addView(objectInfoSpinnerLayout, 0)
             }
             activeWalkthrough?.setInfoActive(true)
             mode = WalkthroughMode.INFO
-        }else {
+        } else {
             val intent = Intent(this, GlossaryActivity::class.java)
             intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Walkthrough")
             startActivity(intent)

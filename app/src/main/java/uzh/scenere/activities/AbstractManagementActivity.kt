@@ -168,7 +168,14 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     //* CREATION *
     //************
     enum class LineInputType {
-        SINGLE_LINE_EDIT, MULTI_LINE_EDIT, LOOKUP, SINGLE_LINE_TEXT, MULTI_LINE_TEXT, SINGLE_LINE_CONTEXT_EDIT, MULTI_LINE_CONTEXT_EDIT, NUMBER_EDIT
+        SINGLE_LINE_EDIT,
+        MULTI_LINE_EDIT,
+        LOOKUP, SINGLE_LINE_TEXT,
+        MULTI_LINE_TEXT,
+        SINGLE_LINE_CONTEXT_EDIT,
+        MULTI_LINE_CONTEXT_EDIT,
+        NUMBER_EDIT,
+        MULTI_TEXT
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -279,7 +286,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                                 return // Item already selected
                             }
                         }
-                        addSpinnerSelection(spinnerText, selectionCarrier, labelText, spinner)
+                        addSelection(spinnerText, selectionCarrier, labelText, spinner)
                     }
                 }
 
@@ -296,30 +303,81 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             if (StringHelper.hasText(presetValue)) {
                 val split = presetValue!!.split(";")
                 for (value in split) {
-                    addSpinnerSelection(value, selectionCarrier, labelText, spinner)
+                    addSelection(value, selectionCarrier, labelText, spinner)
                 }
             }
+            return outerWrapper
+        } else if (inputType == LineInputType.MULTI_TEXT){
+            val wrapperParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            val topWrapperParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT,1f)
+            wrapperParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val outerWrapper = LinearLayout(this)
+            val wrapper = LinearLayout(this)
+            val scrollView = ScrollView(this)
+            val selectionCarrier = LinearLayout(this)
+            outerWrapper.layoutParams = wrapperParams
+            wrapper.layoutParams = wrapperParams
+            selectionCarrier.layoutParams = wrapperParams
+            outerWrapper.weightSum = 2f
+            outerWrapper.orientation = LinearLayout.VERTICAL
+            selectionCarrier.orientation = LinearLayout.VERTICAL
+            selectionCarrier.gravity = Gravity.CENTER
+            wrapper.weightSum = 2f
+            wrapper.orientation = LinearLayout.VERTICAL
+            val topWrapper = LinearLayout(this)
+            topWrapper.layoutParams = topWrapperParams
+            topWrapper.weightSum = 2f
+            topWrapper.orientation = LinearLayout.HORIZONTAL
+            val label = SreTextView(this, topWrapper, getString(R.string.label, labelText), BORDERLESS_DARK)
+            val addButton = SreButton(this, topWrapper, getString(R.string.add),null,null)
+            label.setWeight(1f)
+            label.setSize(WRAP_CONTENT, MATCH_PARENT)
+            label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            val addButtonParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT,1f)
+            addButtonParams.weight = 1f
+            addButtonParams.setMargins(0,0,0,0)
+            addButton.layoutParams = addButtonParams
+            val input = SreEditText(this, wrapper, null, getString(R.string.input, labelText))
+            input.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            input.textSize = textSize!!
+            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            input.setText(presetValue)
+            input.setWeight(1f)
+            input.setSize(MATCH_PARENT, MATCH_PARENT)
+            input.setSingleLine(false)
+            addButton.addExecutable {
+                val text = input.text.toString()
+                if (StringHelper.hasText(text)){
+                    addSelection(text, selectionCarrier, labelText)
+                }
+                input.text = null
+            }
+
+            topWrapper.addView(label)
+            topWrapper.addView(addButton)
+            wrapper.addView(topWrapper)
+            wrapper.addView(input)
+            scrollView.addView(selectionCarrier)
+            outerWrapper.addView(wrapper)
+            outerWrapper.addView(scrollView)
             return outerWrapper
         }
         return null
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun addSpinnerSelection(spinnerText: String, selectionCarrier: LinearLayout, labelText: String, spinner: Spinner) {
-        val textView = SreTextView(applicationContext, selectionCarrier, spinnerText, DARK)
+    private fun addSelection(spinnerText: String, selectionCarrier: LinearLayout, labelText: String, spinner: Spinner? = null) {
+        val textView = SreButton(applicationContext, selectionCarrier, spinnerText, null,null, SreButton.ButtonStyle.DARK)
         val textParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         textParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
         textView.layoutParams = textParams
         textView.text = spinnerText
         textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
-        textView.setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.sreWhite))
-        textView.setTextColor(ContextCompat.getColor(applicationContext,R.color.sreBlack))
-        textView.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-        textView.setOnTouchListener { _, _ ->
+        textView.addExecutable {
             selectionCarrier.removeView(textView)
             multiInputMap[labelText]?.remove(textView)
-            false
         }
+        textView.setLongClickOnly(true)
         selectionCarrier.addView(textView)
         if (multiInputMap[labelText] == null) {
             val list = ArrayList<TextView>()
@@ -328,7 +386,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         } else {
             multiInputMap[labelText]?.add(textView)
         }
-        spinner.setSelection(0)
+        spinner?.setSelection(0)
     }
 
     //*******

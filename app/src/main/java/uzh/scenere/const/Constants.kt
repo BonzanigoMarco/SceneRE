@@ -62,6 +62,7 @@ class Constants {
         const val SPACE: String = " "
         const val DOLLAR_STRING: Char = '$'
         const val NOTHING: String = ""
+        const val NONE: String = "None"
         const val NO_DATA: String = "No Data"
         //XML
         const val EMPTY_LIST: String = "EmptyList"

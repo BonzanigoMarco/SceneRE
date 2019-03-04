@@ -50,6 +50,7 @@
     <string name="icon_file_archive">&#xf1c6;</string>
     <string name="icon_file">&#xf15c;</string>
     <string name="icon_trigger">&#xf2f5;</string>
+    <string name="icon_what_if">&#xf128;</string>
 
     <string name="icon_explain_cockpit">
         <annotation font="font_awesome">&#xf04a;</annotation> Previous Section,
@@ -96,6 +97,7 @@
         <annotation font="font_awesome">&#xf04a;</annotation>/
         <annotation font="font_awesome">&#xf04e;</annotation> Previous / Next,
         <annotation font="font_awesome">&#xf00c;</annotation> Select,
+        <annotation font="font_awesome">&#xf080;</annotation> Statistics,
         <annotation font="font_awesome">&#xf2ea;</annotation> Back</string>
 
     <string name="icon_dice_one">&#xf525;</string>

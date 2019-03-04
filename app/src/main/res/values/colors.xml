@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--APPLICATION NORMAL-->
+    <!--APPLICATION LIGHT-->
     <!--<color name="srePrimaryDisabled">#dddddd</color>-->
     <!--<color name="srePrimaryDisabledDark">#bbbbbb</color>-->
     <!--<color name="srePrimaryPastel">#c5cae9</color>  &lt;!&ndash; 100 indigo &ndash;&gt;-->
@@ -55,7 +55,7 @@
     <!--<color name="sreSecondary">#FF4081</color>  &lt;!&ndash; 200 pink  &ndash;&gt;-->
     <!--<color name="sreSecondaryDark">#f50057</color>  &lt;!&ndash; 400 pink  &ndash;&gt;-->
 
-    <!--APPLICATION NORMAL-->
+    <!--APPLICATION LIGHT-->
     <color name="srePrimaryDisabled">#dddddd</color>
     <color name="srePrimaryDisabledDark">#bbbbbb</color>
     <color name="srePrimaryPastel">#B2DFDB</color>  <!-- 100 indigo -->

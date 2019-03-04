@@ -85,6 +85,8 @@
     <string name="label">%1$s:</string>
     <string name="input">Input %1$s</string>
     <string name="deleted">%1$s Deleted!</string>
+    <string name="add">Add</string>
+    <string name="none">None</string>
     <string name="observing">Observing %1$s</string>
 
     <!--Info-->
@@ -131,8 +133,9 @@
     <string name="walkthrough_button_label_failure">No %1$s created yet</string>
     <string name="walkthrough_selection_info">Select an AbstractObject you want Information about</string>
     <string name="walkthrough_selection_no_info">No Context Information available</string>
-    <string name="walkthrough_selected_scenario">Selected Scenario:</string>
-    <string name="walkthrough_selected_project">Selected Project:</string>
+    <string name="walkthrough_selected_scenario">Selected Scenario: </string>
+    <string name="walkthrough_selected_project">Selected Project: </string>
+    <string name="walkthrough_selected_analytics">Analytics: </string>
     <string name="walkthrough_complete">Complete Walkthrough</string>
     <string name="walkthrough_see_more">See more Details in the Analytics</string>
     <string name="walkthrough_confirm">Press the Back Button again to cancel the Walkthrough</string>
@@ -147,6 +150,7 @@
     <string name="literal_stakeholders">Stakeholders</string>
     <string name="literal_value">Value</string>
     <string name="literal_walkthroughs">Walkthroughs</string>
+    <string name="literal_what_if">What-If</string>
     <string name="project_anonymous">Anonymous Project</string>
     <string name="scenario_anonymous">Anonymous Scenario</string>
     <string name="objects_similar_alert">An AbstractObject with similar Name already exists.</string>
@@ -200,4 +204,8 @@
     <string name="share_click_to_import">Select one of the %1$d Files to analyze it</string>
     <string name="share_folder">Folder: %1$s</string>
 
+
+    <!--Analytics-->
+    <string name="analytics_statistics">Statistics</string>
+    <string name="analytics_walkthroughs">Walkthroughs</string>
 </resources>

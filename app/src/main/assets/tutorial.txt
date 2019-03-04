@@ -174,3 +174,14 @@ other Users, you can export and
 import it here. Swipe left or right
 to access the different modes
 of Data-Sharing.
+
+
+Analytics
+
+Drill down to your own or shared
+Walkthroughs in order to analyze
+and compare them. You can also
+see Inputs that were given through
+the course of the Walkthrough
+or delete Walkthroughs entirely.
+

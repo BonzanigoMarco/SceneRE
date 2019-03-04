@@ -26,6 +26,7 @@ class Element (context: Context, private var element: IElement, private val top:
     var deleteButton: IconButton? = null
     var addButton: IconButton? = null
     var removeButton: IconButton? = null
+    var whatIfButton: IconButton? = null
     var pathSpinner: SreSpinner? = null
     private var connectionTop: TextView? = null
     private var connectionLeft: TextView? = null
@@ -78,15 +79,6 @@ class Element (context: Context, private var element: IElement, private val top:
         val bottomParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         bottomParams.addRule(RelativeLayout.BELOW, NumberHelper.nvl(centerWrapper?.id, 0))
         addView(bottomWrapper, bottomParams)
-//        val fadeIn = AnimationUtils.loadAnimation(context, uzh.scenere.R.anim.fade_in)
-//        val slideDown = AnimationUtils.loadAnimation(context, uzh.scenere.R.anim.slide_down)
-//
-//        val s = AnimationSet(true)
-//        s.interpolator = AccelerateInterpolator()
-//
-//        s.addAnimation(slideDown)
-//        s.addAnimation(fadeIn)
-//        startAnimation(s)
     }
 
     private fun createTop() {
@@ -145,13 +137,19 @@ class Element (context: Context, private var element: IElement, private val top:
         connectionBottom?.layoutParams = connectionTop?.layoutParams
         bottomWrapper?.addView(connectionBottom)
         // RIGHT
-        addButton = IconButton(context, bottomWrapper, R.string.icon_plus,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
-        addButton?.id = View.generateViewId()
-        removeButton = IconButton(context, bottomWrapper, R.string.icon_minus,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, addButton!!.id).addRule(CENTER_VERTICAL, TRUE)
-        addButton?.visibility = if (element is IfElseTrigger) View.VISIBLE else View.INVISIBLE
-        removeButton?.visibility = if (element is IfElseTrigger) View.VISIBLE else View.INVISIBLE
-        bottomWrapper?.addView(addButton)
-        bottomWrapper?.addView(removeButton)
+        when (element){
+            is IfElseTrigger -> {
+                addButton = IconButton(context, bottomWrapper, R.string.icon_plus,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
+                addButton?.id = View.generateViewId()
+                removeButton = IconButton(context, bottomWrapper, R.string.icon_minus,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, addButton!!.id).addRule(CENTER_VERTICAL, TRUE)
+                bottomWrapper?.addView(addButton)
+                bottomWrapper?.addView(removeButton)
+            }
+            is AbstractStep -> {
+                whatIfButton = IconButton(context, bottomWrapper, R.string.icon_question,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
+                bottomWrapper?.addView(whatIfButton)
+            }
+        }
     }
 
     fun connectToNext(){
@@ -196,6 +194,11 @@ class Element (context: Context, private var element: IElement, private val top:
 
     fun setAddExecutable(function: () -> Unit): Element {
         addButton?.addExecutable(function)
+        return this
+    }
+
+    fun setWhatIfExecutable(function: () -> Unit): Element {
+        whatIfButton?.addExecutable(function)
         return this
     }
 

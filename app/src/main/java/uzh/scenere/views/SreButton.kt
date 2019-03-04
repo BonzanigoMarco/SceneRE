@@ -12,7 +12,7 @@ import android.widget.RelativeLayout
 import uzh.scenere.R
 import uzh.scenere.views.SreButton.ButtonParentLayout.*
 
-open class SreButton(context: Context, parent: ViewGroup?, label: String?, height: Int? = null, width: Int? = null, val style: ButtonStyle = ButtonStyle.NORMAL): Button(context) {
+open class SreButton(context: Context, parent: ViewGroup?, label: String?, height: Int? = null, width: Int? = null, val style: ButtonStyle = ButtonStyle.LIGHT): Button(context) {
 
     constructor(context: Context, parent: ViewGroup?, stringId: Int, height: Int? = null, width: Int? = null): this(context,parent,context.getString(stringId),height,width)
 
@@ -26,7 +26,7 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
     }
 
     enum class ButtonStyle{
-        NORMAL, ATTENTION, WARN, TUTORIAL
+        LIGHT, DARK, ATTENTION, WARN, TUTORIAL
     }
 
 
@@ -73,9 +73,12 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
     private fun resolveStyle(enabled: Boolean) {
         if (enabled){
             when (style) {
-
-                ButtonStyle.NORMAL -> {
+                ButtonStyle.LIGHT -> {
                     background = context.getDrawable(R.drawable.sre_button)
+                    setTextColor(ContextCompat.getColor(context, R.color.srePrimaryPastel))
+                }
+                ButtonStyle.DARK -> {
+                    background = context.getDrawable(R.drawable.sre_button_dark)
                     setTextColor(ContextCompat.getColor(context, R.color.srePrimaryPastel))
                 }
                 ButtonStyle.ATTENTION -> {
@@ -101,6 +104,20 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         when (parentLayout){
             LINEAR -> {
                 (layoutParams as LinearLayout.LayoutParams).weight = weight
+            }
+            else -> {}
+        }
+    }
+
+    fun setSize(height: Int,width: Int){
+        when (parentLayout){
+            LINEAR -> {
+                (layoutParams as LinearLayout.LayoutParams).height = height
+                (layoutParams as LinearLayout.LayoutParams).width = width
+            }
+            RELATIVE -> {
+                (layoutParams as RelativeLayout.LayoutParams).height = height
+                (layoutParams as RelativeLayout.LayoutParams).width = width
             }
             else -> {}
         }
@@ -155,6 +172,10 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         return 0
     }
 
+    override fun performLongClick(): Boolean {
+        //NOP
+        return false
+    }
 
     override fun setEnabled(enabled: Boolean) {
         resolveStyle(enabled)

@@ -3,17 +3,21 @@ package uzh.scenere.activities
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.LinearLayout.VERTICAL
 import kotlinx.android.synthetic.main.activity_analytics.*
+import kotlinx.android.synthetic.main.activity_walkthrough.*
 import uzh.scenere.R
+import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.NONE
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
-import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.helpers.*
-import uzh.scenere.views.ScenarioAnalyticLayout
-import uzh.scenere.views.SwipeButton
-import uzh.scenere.views.WalkthroughAnalyticLayout
+import uzh.scenere.views.*
 import java.io.Serializable
 
 class AnalyticsActivity : AbstractManagementActivity() {
@@ -77,6 +81,55 @@ class AnalyticsActivity : AbstractManagementActivity() {
         creationButton?.setExecutable(createControlExecutable())
         analytics_layout_button_holder.addView(creationButton)
         customizeToolbarId(R.string.icon_back, null, null, null, null)
+        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_analytics").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        createOverviewLayout()
+    }
+
+
+    private var projectLabel: SreContextAwareTextView? =  null
+    private var scenarioLabel: SreContextAwareTextView? = null
+    private var analyticsLabel: SreContextAwareTextView? = null
+    private var labelWrapper: LinearLayout? = null
+
+    private fun createOverviewLayout(){
+        labelWrapper = LinearLayout(applicationContext)
+        labelWrapper?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+        labelWrapper?.orientation = VERTICAL
+        labelWrapper?.weightSum = 6f
+        projectLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_project)), ArrayList())
+        scenarioLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_scenario)), ArrayList())
+        analyticsLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_analytics)), ArrayList())
+        val weightedParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0)
+        weightedParams.weight = 2f
+        projectLabel?.setWeight(weightedParams)
+        scenarioLabel?.setWeight(weightedParams)
+        analyticsLabel?.setWeight(weightedParams)
+        projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(Constants.NONE)
+        scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(Constants.NONE)
+        analyticsLabel?.text = getString(R.string.walkthrough_selected_analytics).plus(Constants.NONE)
+        labelWrapper?.addView(projectLabel)
+        labelWrapper?.addView(scenarioLabel)
+        labelWrapper?.addView(analyticsLabel)
+        analyticsLabel?.visibility = View.INVISIBLE
+        getContentHolderLayout().addView(labelWrapper)
+    }
+
+    private fun updateLabelWrapper(project: String? = null, scenario: String? = null, analytics: String? = null){
+        if (labelWrapper!= null && labelWrapper?.parent == null){
+            getContentHolderLayout().addView(labelWrapper)
+        }
+        if (StringHelper.hasText(project)){
+            projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(SPACE).plus(project)
+        }
+        if (StringHelper.hasText(scenario)){
+            scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(SPACE).plus(scenario)
+        }
+        if (StringHelper.hasText(analytics)){
+            analyticsLabel?.visibility = View.VISIBLE
+            analyticsLabel?.text = getString(R.string.walkthrough_selected_analytics).plus(SPACE).plus(analytics)
+        }else{
+            analyticsLabel?.visibility = View.INVISIBLE
+        }
     }
 
     private fun loadData() {
@@ -171,6 +224,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         }
                     }
                     label = createButtonLabel(activeScenarios, getString(R.string.literal_scenarios))
+                    updateLabelWrapper(activeProject.title,NONE)
                 }
                 creationButton?.setButtonStates(true, true, true, pointer==0)?.setText(label)?.updateViews(false)
 
@@ -199,6 +253,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                             activeWalkthroughs.add(walkthrough)
                         }
                     }
+                    updateLabelWrapper(null,activeScenario.title,getString(R.string.analytics_walkthroughs))
                 }
                 creationButton?.setButtonStates(true, true, true, true)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_chart_bar, null)
@@ -208,6 +263,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
             AnalyticsMode.SELECT_WALKTHROUGH-> {
                 mode = AnalyticsMode.SELECT_STAKEHOLDER
                 createStatistics()
+                updateLabelWrapper(null,null,getString(R.string.analytics_statistics))
                 creationButton?.setButtonStates(true, true, true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_null, null)
                         ?.setText(createButtonLabel(NumberHelper.nvl(scenarioAnalytics?.getStakeholderCount(),0), getString(R.string.literal_stakeholders)))
@@ -225,6 +281,8 @@ class AnalyticsActivity : AbstractManagementActivity() {
                 pointer = null
                 projectPointer = null
                 creationButton?.setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)?.setText(createButtonLabel(loadedProjects, getString(R.string.literal_projects)))?.updateViews(false)
+                getContentHolderLayout().removeAllViews()
+                updateLabelWrapper(NONE,NONE)
             }
             AnalyticsMode.SELECT_WALKTHROUGH -> {
                 mode = AnalyticsMode.SELECT_SCENARIO
@@ -235,6 +293,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         ?.setText(createButtonLabel(activeScenarios, getString(R.string.literal_scenarios)))
                         ?.updateViews(false)
                 getContentHolderLayout().removeAllViews()
+                updateLabelWrapper(null,NONE)
             }
             AnalyticsMode.SELECT_STAKEHOLDER -> {
                 mode = AnalyticsMode.SELECT_WALKTHROUGH
@@ -244,6 +303,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         ?.setText(createButtonLabel(activeWalkthroughs, getString(R.string.literal_walkthroughs)))
                         ?.updateViews(false)
                 getContentHolderLayout().removeAllViews()
+                updateLabelWrapper(null,null)
             }
             else -> return
         }

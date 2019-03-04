@@ -2,17 +2,15 @@ package uzh.scenere.views
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v4.content.ContextCompat
-import android.text.InputType
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.TextView
 import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
-import uzh.scenere.datamodel.*
+import uzh.scenere.datamodel.Stakeholder
+import uzh.scenere.datamodel.StatisticArrayList
+import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NullHelper
