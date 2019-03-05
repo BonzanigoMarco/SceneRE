@@ -50,6 +50,7 @@ class Constants {
         const val HASH_MAP_UID_IDENTIFIER: String = "hash_map_"
         const val HASH_MAP_OPTIONS_IDENTIFIER: String = "hash_map_options_"
         const val HASH_MAP_LINK_IDENTIFIER: String = "hash_map_link_"
+        const val ARRAY_LIST_WHAT_IF_IDENTIFIER: String = "array_list_what_if_"
         const val VERSIONING_IDENTIFIER: String = "version_"
         const val MIN_IDENTIFIER: String = "min_"
         const val MAX_IDENTIFIER: String = "max_"

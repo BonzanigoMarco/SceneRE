@@ -2,6 +2,7 @@ package uzh.scenere.datamodel.database
 
 import android.content.ContentValues
 import android.content.Context
+import uzh.scenere.const.Constants.Companion.ARRAY_LIST_WHAT_IF_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.HASH_MAP_LINK_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.HASH_MAP_OPTIONS_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.INIT_IDENTIFIER
@@ -20,6 +21,7 @@ import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
 import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.helpers.*
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class SreDatabase private constructor(context: Context) : AbstractSreDatabase() {
@@ -172,6 +174,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             addVersioning(element.id)
             values.put(ElementTableEntry.TITLE, element.title)
             values.put(ElementTableEntry.TEXT, element.text)
+            writeByteArray(ARRAY_LIST_WHAT_IF_IDENTIFIER.plus(element.getElementId()),DataHelper.toByteArray(element.whatIfs))
         }else if (element is AbstractTrigger){
             addVersioning(element.id)
         }
@@ -588,6 +591,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                             }
                         }
                         step.changeTimeMs = readVersioning(id)
+                        readWhatIfs(id, step)
                         elements.add(step)
                     }
                     TYPE_BUTTON_TRIGGER -> {
@@ -620,6 +624,16 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         }
         cursor.close()
         return elements
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun readWhatIfs(id: String?, step: AbstractStep) {
+        val readByteArray = readByteArray(ARRAY_LIST_WHAT_IF_IDENTIFIER.plus(id), byteArrayOf())
+        if (!readByteArray.isEmpty()) {
+            step.withWhatIfs(
+                    ObjectHelper.nvl(
+                            DataHelper.toObject(readByteArray, ArrayList::class), ArrayList<String>()) as ArrayList<String>)
+        }
     }
 
     fun readWalkthrough(key: String, valueIfNull: Walkthrough): Walkthrough {

@@ -208,4 +208,5 @@
     <!--Analytics-->
     <string name="analytics_statistics">Statistics</string>
     <string name="analytics_walkthroughs">Walkthroughs</string>
+    <string name="literal_remove_all">Remove All</string>
 </resources>

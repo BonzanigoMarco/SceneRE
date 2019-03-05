@@ -8,7 +8,8 @@ import kotlin.collections.ArrayList
 abstract class AbstractStep(val id: String, var previousId: String?, val pathId: String): IElement, IVersionItem {
     override var changeTimeMs: Long = 0
 
-    var objects: ArrayList<AbstractObject> =  ArrayList<AbstractObject>()
+    var whatIfs = ArrayList<String>()
+    var objects =  ArrayList<AbstractObject>()
     var title: String? = null
     var text: String? = null
     var time: Long = 0
@@ -26,15 +27,23 @@ abstract class AbstractStep(val id: String, var previousId: String?, val pathId:
         return this
     }
 
-    fun withObjects(objectList: ArrayList<AbstractObject>): IElement{
+    fun withObjects(objectList: ArrayList<AbstractObject>): AbstractStep{
         this.objects.addAll(objectList)
         return this
     }
 
-    fun withObject(obj: AbstractObject): IElement{
+    fun withObject(obj: AbstractObject): AbstractStep{
         this.objects.add(obj)
         return this
     }
+
+    fun withWhatIfs(whatIfs: List<String>? = null): AbstractStep{
+        if (!whatIfs.isNullOrEmpty()){
+            this.whatIfs.addAll(whatIfs)
+        }
+        return this
+    }
+
 
     override fun getElementId(): String {
         return id

@@ -334,6 +334,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.setSize(WRAP_CONTENT, MATCH_PARENT)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val addButtonParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT,1f)
+            addButtonParams.setMargins(0,marginSmall!!,0,marginSmall!!)
             addButtonParams.weight = 1f
             addButtonParams.setMargins(0,0,0,0)
             addButton.layoutParams = addButtonParams
@@ -352,7 +353,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 }
                 input.text = null
             }
-
             topWrapper.addView(label)
             topWrapper.addView(addButton)
             wrapper.addView(topWrapper)
@@ -360,35 +360,58 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             scrollView.addView(selectionCarrier)
             outerWrapper.addView(wrapper)
             outerWrapper.addView(scrollView)
+            if (data != null){
+                for (option in data as Array<String>){
+                    addSelection(option, selectionCarrier, labelText)
+                }
+            }
+            addClearSelectionButton(getString(R.string.literal_remove_all), selectionCarrier, labelText)
             return outerWrapper
         }
         return null
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun addSelection(spinnerText: String, selectionCarrier: LinearLayout, labelText: String, spinner: Spinner? = null) {
-        val textView = SreButton(applicationContext, selectionCarrier, spinnerText, null,null, SreButton.ButtonStyle.DARK)
+    private fun addSelection(text: String, selectionCarrier: LinearLayout, labelText: String, spinner: Spinner? = null) {
+        val textButton = SreButton(applicationContext, selectionCarrier, text, null,null, SreButton.ButtonStyle.DARK)
         val textParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         textParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
-        textView.layoutParams = textParams
-        textView.text = spinnerText
-        textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
-        textView.addExecutable {
-            selectionCarrier.removeView(textView)
-            multiInputMap[labelText]?.remove(textView)
+        textButton.layoutParams = textParams
+        textButton.text = text
+        textButton.textAlignment = View.TEXT_ALIGNMENT_CENTER
+        textButton.setAllCaps(false)
+        textButton.addExecutable {
+            selectionCarrier.removeView(textButton)
+            multiInputMap[labelText]?.remove(textButton)
         }
-        textView.setLongClickOnly(true)
-        selectionCarrier.addView(textView)
+        textButton.setLongClickOnly(true)
+        selectionCarrier.addView(textButton,0)
         if (multiInputMap[labelText] == null) {
             val list = ArrayList<TextView>()
-            list.add(textView)
+            list.add(textButton)
             multiInputMap[labelText] = list
         } else {
-            multiInputMap[labelText]?.add(textView)
+            multiInputMap[labelText]?.add(textButton)
         }
         spinner?.setSelection(0)
     }
 
+    private fun addClearSelectionButton(text: String, selectionCarrier: LinearLayout, labelText: String) {
+        val removalButton = SreButton(applicationContext, selectionCarrier, text, null,null, SreButton.ButtonStyle.ATTENTION)
+        val textParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        textParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+        removalButton.layoutParams = textParams
+        removalButton.text = text
+        removalButton.textAlignment = View.TEXT_ALIGNMENT_CENTER
+        removalButton.setAllCaps(false)
+        removalButton.addExecutable {
+            selectionCarrier.removeAllViews()
+            multiInputMap[labelText]?.clear()
+            selectionCarrier.addView(removalButton)
+        }
+        removalButton.setLongClickOnly(true)
+        selectionCarrier.addView(removalButton)
+    }
     //*******
     //* GUI *
     //*******

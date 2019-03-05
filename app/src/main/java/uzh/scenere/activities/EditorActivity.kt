@@ -13,6 +13,7 @@ import kotlinx.android.synthetic.main.activity_editor.*
 import uzh.scenere.R
 import uzh.scenere.activities.EditorActivity.EditorState.*
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.StandardStep
@@ -378,8 +379,8 @@ class EditorActivity : AbstractManagementActivity() {
             editUnit = element
             when (element) {
                 is StandardStep -> {
+                    creationUnitClass = StandardStep::class
                     if (inputMode == InputMode.WHAT_IF){
-                        creationUnitClass = StandardStep::class
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, createWhatIfs(element)))
                     }else{
@@ -451,42 +452,58 @@ class EditorActivity : AbstractManagementActivity() {
         }
     }
 
-    private fun createWhatIfs(element: StandardStep): Array<String>{
-        val obj = "Object"
-        val stakeholder2 = "Stakeholder1"
-        val stakeholder1 = "Stakeholder2"
-        val list = ArrayList<String>()
-        list.add("A different event occurs instead of this event in the scenario?")
-        list.add("An unexpected intrusion occurs into the system during this event?")
-        list.add("$obj cannot participate during this action?")
-        list.add("$obj is functioning incorrectly during this action?")
-        list.add("$obj is not functioning during this action?")
-        list.add("$obj is unavailable during this action?")
-        list.add("$stakeholder2  and $stakeholder1 are the same instance of an agent?")
-        list.add("$stakeholder2  and $stakeholder1 fulfil the same roles during this action?")
-        list.add("$stakeholder2  is unavailable during this action?")
-        list.add("the end of this action is delayed?")
-        list.add("The information manipulated in this action is incorrect in some way?")
-        list.add("The information manipulated in this action is out-of-date?")
-        list.add("The information manipulated in this action is too detailed for the task?")
-        list.add("The information manipulated in this action is too general for the task?")
-        list.add("The information manipulated in this action is unreliable in some way?")
-        list.add("The information manipulated in this action represents a deliberate lie?")
-        list.add("The information manipulated is inappropriate to this task?")
-        list.add("The roles that are fulfilled by $stakeholder2  and $stakeholder1 are fulfilled by the same agent?")
-        list.add("There is insufficient information available to complete the action?")
-        list.add("This action does not complete?")
-        list.add("This action ends before it is planned to?")
-        list.add("This event and the previous one are the same event?")
-        list.add("This event and the previous one occur in the wrong order in the scenario?")
-        list.add("This event does not occur in this scenario?")
-        list.add("This event occurs earlier in time than expected in the scenario?")
-        list.add("This event occurs later in time than expected in the scenario?")
-        list.add("This event occurs less frequently than expected in the scenario?")
-        list.add("This event occurs more than once in the scenario?")
-        list.add("This event occurs more than once in this scenario?")
-        list.add("This event repeats at a later time in this scenario?")
-        return list.toTypedArray()
+    private fun createWhatIfs(element: AbstractStep): Array<String>{
+        if (element.whatIfs.isEmpty()) {
+            val stakeholder1 = StringHelper.nvl(activePath?.stakeholder?.name,NOTHING)
+            var stakeholder2 = "Stakeholder2"
+            val list = ArrayList<String>()
+            //Variable
+            for (o in element.objects){
+                list.add("${o.name} cannot participate during this action?")
+                list.add("${o.name} is functioning incorrectly during this action?")
+                list.add("${o.name} is not functioning during this action?")
+                list.add("${o.name} is unavailable during this action?")
+            }
+            //Attributes
+            //TODO
+            //Stakeholders
+            val stakeholderCount = NumberHelper.nvl(projectContext?.stakeholders?.size, 0)
+            if (stakeholderCount > 1){
+                for (s in 0 until stakeholderCount){
+                    stakeholder2 = projectContext!!.stakeholders[s].name
+                    if (stakeholder2 != stakeholder1)
+                    list.add("$stakeholder1 and $stakeholder2 are the same instance of an agent?")
+                    list.add("$stakeholder1 and $stakeholder2 fulfil the same roles during this action?")
+                    list.add("The roles that are fulfilled by $stakeholder1 and $stakeholder2 are fulfilled by the same agent?")
+                }
+            }
+            list.add("$stakeholder1 is unavailable during this action?")
+            //Fixed
+            list.add("A different event occurs instead of this event in the scenario?")
+            list.add("An unexpected intrusion occurs into the system during this event?")
+            list.add("the end of this action is delayed?")
+            list.add("The information manipulated in this action is incorrect in some way?")
+            list.add("The information manipulated in this action is out-of-date?")
+            list.add("The information manipulated in this action is too detailed for the task?")
+            list.add("The information manipulated in this action is too general for the task?")
+            list.add("The information manipulated in this action is unreliable in some way?")
+            list.add("The information manipulated in this action represents a deliberate lie?")
+            list.add("The information manipulated is inappropriate to this task?")
+            list.add("There is insufficient information available to complete the action?")
+            list.add("This action does not complete?")
+            list.add("This action ends before it is planned to?")
+            list.add("This event and the previous one are the same event?")
+            list.add("This event and the previous one occur in the wrong order in the scenario?")
+            list.add("This event does not occur in this scenario?")
+            list.add("This event occurs earlier in time than expected in the scenario?")
+            list.add("This event occurs later in time than expected in the scenario?")
+            list.add("This event occurs less frequently than expected in the scenario?")
+            list.add("This event occurs more than once in the scenario?")
+            list.add("This event occurs more than once in this scenario?")
+            list.add("This event repeats at a later time in this scenario?")
+            return list.toTypedArray()
+        }
+        return element.whatIfs.toTypedArray()
     }
 
     /**
@@ -509,69 +526,76 @@ class EditorActivity : AbstractManagementActivity() {
         if (activePath == null) {
             return
         }
+        val whatIfs = ArrayList<String>()
+        if (elementAttributes[0] == getString(R.string.literal_what_if) && inputMap[elementAttributes[0]] == null && multiInputMap[getString(R.string.literal_what_if)] != null){
+            val rawWhatIfs = multiInputMap[getString(R.string.literal_what_if)]
+            for (view in rawWhatIfs!!){
+                whatIfs.add(view.text.toString())
+            }
+        }
         if (editUnit != null){
             DatabaseHelper.getInstance(applicationContext).delete(editUnit!!.getElementId(),IElement::class)
             activePath?.remove(editUnit!!)
         }
+        if (!whatIfs.isEmpty() && editUnit is AbstractStep){
+            DatabaseHelper.getInstance(applicationContext).write(editUnit!!.getElementId(),(editUnit as AbstractStep).withWhatIfs(whatIfs))
+            return
+        }
         val endPoint = if (editUnit != null) editUnit?.getPreviousElementId() else activePath?.getEndPoint()?.getElementId()
 
-        if (elementAttributes[0] == getString(R.string.literal_what_if) && inputMap[elementAttributes[0]] == null){
-            //TODO What Ifs
-        }else {
-            when (creationUnitClass) {
-                //Steps
-                StandardStep::class -> {
-                    val title = inputMap[elementAttributes[0]]!!.getStringValue()
-                    val objects = activeScenario?.getObjectsWithNames((inputMap[elementAttributes[1]]!! as SreMultiAutoCompleteTextView).getUsedObjectLabels())
-                    val text = inputMap[elementAttributes[1]]!!.getStringValue()
-                    addAndRenderElement(StandardStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTitle(title).withText(text).withObjects(objects!!))
-                }
-                //Triggers
-                ButtonTrigger::class -> {
-                    val buttonLabel = inputMap[elementAttributes[0]]!!.getStringValue()
-                    addAndRenderElement(ButtonTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withButtonLabel(buttonLabel))
-                }
-                IfElseTrigger::class -> {
-                    if (inputMap[elementAttributes[0]] == null) {
-                        //Removal
-                        val selection = multiInputMap[elementAttributes[0]]
-                        if (!selection.isNullOrEmpty()) {
-                            for (editText in selection) {
-                                val option = (editUnit as IfElseTrigger).getOptionFromIndexedString(editText.getStringValue())
-                                val layer = (editUnit as IfElseTrigger).removePathOption(option)
-                                val removedPath = activeScenario?.removePath(activePath!!.stakeholder, layer)
-                                if (removedPath != null) {
-                                    DatabaseHelper.getInstance(applicationContext).delete(removedPath.id, Path::class)
-                                }
+        when (creationUnitClass) {
+            //Steps
+            StandardStep::class -> {
+                val title = inputMap[elementAttributes[0]]!!.getStringValue()
+                val objects = activeScenario?.getObjectsWithNames((inputMap[elementAttributes[1]]!! as SreMultiAutoCompleteTextView).getUsedObjectLabels())
+                val text = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(StandardStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTitle(title).withText(text).withObjects(objects!!).withWhatIfs((editUnit as AbstractStep).whatIfs))
+            }
+            //Triggers
+            ButtonTrigger::class -> {
+                val buttonLabel = inputMap[elementAttributes[0]]!!.getStringValue()
+                addAndRenderElement(ButtonTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withButtonLabel(buttonLabel))
+            }
+            IfElseTrigger::class -> {
+                if (inputMap[elementAttributes[0]] == null) {
+                    //Removal
+                    val selection = multiInputMap[elementAttributes[0]]
+                    if (!selection.isNullOrEmpty()) {
+                        for (editText in selection) {
+                            val option = (editUnit as IfElseTrigger).getOptionFromIndexedString(editText.getStringValue())
+                            val layer = (editUnit as IfElseTrigger).removePathOption(option)
+                            val removedPath = activeScenario?.removePath(activePath!!.stakeholder, layer)
+                            if (removedPath != null) {
+                                DatabaseHelper.getInstance(applicationContext).delete(removedPath.id, Path::class)
                             }
-                            addAndRenderElement(editUnit!!)
                         }
-                    } else {
-                        //Add Edit
-                        val text = inputMap[elementAttributes[0]]!!.getStringValue()
-                        val defaultOption = inputMap[elementAttributes[1]]!!.getStringValue()
-                        val option1 = inputMap[elementAttributes[2]]?.getStringValue()
-                        val option2 = inputMap[elementAttributes[3]]?.getStringValue()
-                        val option3 = inputMap[elementAttributes[4]]?.getStringValue()
-                        val option4 = inputMap[elementAttributes[5]]?.getStringValue()
-                        val option5 = inputMap[elementAttributes[6]]?.getStringValue()
-                        val newOptionCount = countNonNull(defaultOption, option1, option2, option3, option4, option5)
-                        val element = IfElseTrigger(editUnit?.getElementId(), endPoint, activePath!!.id, text, defaultOption)
-                                .addPathOption(defaultOption, activePath!!.layer, 0)
-                        if (newOptionCount > 1) {
-                            val oldOptionCount = (editUnit as IfElseTrigger).getOptionCount()
-                            if (oldOptionCount < newOptionCount) {
-                                val newPath = activeScenario?.getPath(activePath!!.stakeholder, applicationContext)
-                                element.addPathOption(inputMap[elementAttributes[newOptionCount]]?.getStringValue(), newPath!!.layer, newOptionCount - 1)
-                            }
-                            element.addPathOption(option1, (editUnit as IfElseTrigger).getLayerForOption(1), 1)
-                                    .addPathOption(option2, (editUnit as IfElseTrigger).getLayerForOption(2), 2)
-                                    .addPathOption(option3, (editUnit as IfElseTrigger).getLayerForOption(3), 3)
-                                    .addPathOption(option4, (editUnit as IfElseTrigger).getLayerForOption(4), 4)
-                                    .addPathOption(option5, (editUnit as IfElseTrigger).getLayerForOption(5), 5)
-                        }
-                        addAndRenderElement(element)
+                        addAndRenderElement(editUnit!!)
                     }
+                } else {
+                    //Add Edit
+                    val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                    val defaultOption = inputMap[elementAttributes[1]]!!.getStringValue()
+                    val option1 = inputMap[elementAttributes[2]]?.getStringValue()
+                    val option2 = inputMap[elementAttributes[3]]?.getStringValue()
+                    val option3 = inputMap[elementAttributes[4]]?.getStringValue()
+                    val option4 = inputMap[elementAttributes[5]]?.getStringValue()
+                    val option5 = inputMap[elementAttributes[6]]?.getStringValue()
+                    val newOptionCount = countNonNull(defaultOption, option1, option2, option3, option4, option5)
+                    val element = IfElseTrigger(editUnit?.getElementId(), endPoint, activePath!!.id, text, defaultOption)
+                            .addPathOption(defaultOption, activePath!!.layer, 0)
+                    if (newOptionCount > 1) {
+                        val oldOptionCount = (editUnit as IfElseTrigger).getOptionCount()
+                        if (oldOptionCount < newOptionCount) {
+                            val newPath = activeScenario?.getPath(activePath!!.stakeholder, applicationContext)
+                            element.addPathOption(inputMap[elementAttributes[newOptionCount]]?.getStringValue(), newPath!!.layer, newOptionCount - 1)
+                        }
+                        element.addPathOption(option1, (editUnit as IfElseTrigger).getLayerForOption(1), 1)
+                                .addPathOption(option2, (editUnit as IfElseTrigger).getLayerForOption(2), 2)
+                                .addPathOption(option3, (editUnit as IfElseTrigger).getLayerForOption(3), 3)
+                                .addPathOption(option4, (editUnit as IfElseTrigger).getLayerForOption(4), 4)
+                                .addPathOption(option5, (editUnit as IfElseTrigger).getLayerForOption(5), 5)
+                    }
+                    addAndRenderElement(element)
                 }
             }
         }

@@ -153,7 +153,7 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         }
         try {
             function()
-        } catch (e: UninitializedPropertyAccessException) {
+        } catch (e: Exception) {
             //NOP
         }
     }
@@ -172,10 +172,20 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         return 0
     }
 
-    override fun performLongClick(): Boolean {
+    override fun showContextMenu(): Boolean {
         //NOP
         return false
     }
+
+    override fun showContextMenu(x: Float, y: Float): Boolean {
+        //NOP
+        return false
+    }
+//
+//    override fun performLongClick(): Boolean {
+//        //NOP
+//        return false
+//    }
 
     override fun setEnabled(enabled: Boolean) {
         resolveStyle(enabled)
