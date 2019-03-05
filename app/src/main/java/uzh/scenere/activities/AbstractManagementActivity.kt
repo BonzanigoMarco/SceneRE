@@ -14,12 +14,13 @@ import android.widget.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.datamodel.*
-import uzh.scenere.helpers.CollectionsHelper
+import uzh.scenere.helpers.CollectionHelper
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.*
-import uzh.scenere.views.SreTextView.TextStyle.*
+import uzh.scenere.views.SreTextView.TextStyle.BORDERLESS_DARK
+import uzh.scenere.views.SreTextView.TextStyle.MEDIUM
 import java.util.*
 
 
@@ -179,8 +180,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     @Suppress("UNCHECKED_CAST")
-    protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, data: Any? = null, executable: (() -> Unit)? = null): View? {
-        if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT, LineInputType.NUMBER_EDIT)) {
+    protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, data: Any? = null, addExecutable: ((String?) -> Unit)? = null, removalExecutable: ((String?) -> Unit)? = null): View? {
+        if (CollectionHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT, LineInputType.NUMBER_EDIT)) {
             val layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             layoutParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             val wrapper = LinearLayout(this)
@@ -203,7 +204,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             wrapper.addView(input)
             inputMap[labelText] = input
             return wrapper
-        } else if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_CONTEXT_EDIT, LineInputType.MULTI_LINE_CONTEXT_EDIT)) {
+        } else if (CollectionHelper.oneOf(inputType, LineInputType.SINGLE_LINE_CONTEXT_EDIT, LineInputType.MULTI_LINE_CONTEXT_EDIT)) {
             val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             val childParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             childParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
@@ -229,7 +230,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             wrapper.addView(input)
             inputMap[labelText] = input
             return wrapper
-        } else if (CollectionsHelper.oneOf(inputType, LineInputType.SINGLE_LINE_TEXT, LineInputType.MULTI_LINE_TEXT)) {
+        } else if (CollectionHelper.oneOf(inputType, LineInputType.SINGLE_LINE_TEXT, LineInputType.MULTI_LINE_TEXT)) {
             val layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             layoutParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             val wrapper = LinearLayout(this)
@@ -276,8 +277,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     val spinnerText = spinner.selectedItem as String
-                    if (executable != null) {
-                        return executable()
+                    if (addExecutable != null) {
+                        return addExecutable(null)
                     }
                     if (StringHelper.hasText(spinnerText)) {
                         for (t in 0 until selectionCarrier.childCount) {
@@ -308,6 +309,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             }
             return outerWrapper
         } else if (inputType == LineInputType.MULTI_TEXT){
+            val readOnly = "readOnly" == presetValue
+            val noCompleteRemoval = "noCompleteRemoval" == presetValue
             val wrapperParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             val topWrapperParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT,1f)
             wrapperParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
@@ -342,16 +345,23 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             input.textSize = textSize!!
             input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-            input.setText(presetValue)
+            if (!readOnly && !noCompleteRemoval){
+                input.setText(presetValue)
+            }
             input.setWeight(1f)
             input.setSize(MATCH_PARENT, MATCH_PARENT)
             input.setSingleLine(false)
             addButton.addExecutable {
                 val text = input.text.toString()
                 if (StringHelper.hasText(text)){
-                    addSelection(text, selectionCarrier, labelText)
+                    addSelection(text, selectionCarrier, labelText, null, removalExecutable)
                 }
                 input.text = null
+                addExecutable?.invoke(text)
+            }
+            if (readOnly) {
+                addButton.visibility = View.GONE
+                input.visibility = View.GONE
             }
             topWrapper.addView(label)
             topWrapper.addView(addButton)
@@ -362,17 +372,22 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             outerWrapper.addView(scrollView)
             if (data != null){
                 for (option in data as Array<String>){
-                    addSelection(option, selectionCarrier, labelText)
+                    val addSelection = addSelection(option, selectionCarrier, labelText,null, removalExecutable)
+                    if (readOnly) {
+                        addSelection.addExecutable {  } //Override
+                    }
                 }
             }
-            addClearSelectionButton(getString(R.string.literal_remove_all), selectionCarrier, labelText)
+            if (!readOnly && !noCompleteRemoval){
+                addClearSelectionButton(getString(R.string.literal_remove_all), selectionCarrier, labelText)
+            }
             return outerWrapper
         }
         return null
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun addSelection(text: String, selectionCarrier: LinearLayout, labelText: String, spinner: Spinner? = null) {
+    private fun addSelection(text: String, selectionCarrier: LinearLayout, labelText: String, spinner: Spinner? = null, removalExecutable: ((String?) -> Unit)? = null): SreButton {
         val textButton = SreButton(applicationContext, selectionCarrier, text, null,null, SreButton.ButtonStyle.DARK)
         val textParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         textParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
@@ -383,6 +398,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         textButton.addExecutable {
             selectionCarrier.removeView(textButton)
             multiInputMap[labelText]?.remove(textButton)
+            removalExecutable?.invoke(text)
         }
         textButton.setLongClickOnly(true)
         selectionCarrier.addView(textButton,0)
@@ -394,6 +410,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             multiInputMap[labelText]?.add(textButton)
         }
         spinner?.setSelection(0)
+        return textButton
     }
 
     private fun addClearSelectionButton(text: String, selectionCarrier: LinearLayout, labelText: String) {

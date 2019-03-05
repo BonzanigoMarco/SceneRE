@@ -131,7 +131,7 @@
     <!--Walkthrough-->
     <string name="walkthrough_button_label">Select one of %1$d %2$s</string>
     <string name="walkthrough_button_label_failure">No %1$s created yet</string>
-    <string name="walkthrough_selection_info">Select an AbstractObject you want Information about</string>
+    <string name="walkthrough_selection_info">Select an Object you want Information about</string>
     <string name="walkthrough_selection_no_info">No Context Information available</string>
     <string name="walkthrough_selected_scenario">Selected Scenario: </string>
     <string name="walkthrough_selected_project">Selected Project: </string>
@@ -148,9 +148,12 @@
     <string name="literal_scenarios">Scenarios</string>
     <string name="literal_projects">Projects</string>
     <string name="literal_stakeholders">Stakeholders</string>
+    <string name="literal_steps_with_comments">Steps with Comments</string>
     <string name="literal_value">Value</string>
     <string name="literal_walkthroughs">Walkthroughs</string>
     <string name="literal_what_if">What-If</string>
+    <string name="literal_remove_all">Remove All</string>
+    <string name="literal_comment">Comment</string>
     <string name="project_anonymous">Anonymous Project</string>
     <string name="scenario_anonymous">Anonymous Scenario</string>
     <string name="objects_similar_alert">An AbstractObject with similar Name already exists.</string>
@@ -207,6 +210,6 @@
 
     <!--Analytics-->
     <string name="analytics_statistics">Statistics</string>
+    <string name="analytics_comments">Comments</string>
     <string name="analytics_walkthroughs">Walkthroughs</string>
-    <string name="literal_remove_all">Remove All</string>
 </resources>

@@ -2,7 +2,9 @@ package uzh.scenere.helpers
 
 import uzh.scenere.const.Constants.Companion.BOOLEAN
 import uzh.scenere.const.Constants.Companion.DOUBLE
+import uzh.scenere.const.Constants.Companion.EQUALS
 import uzh.scenere.const.Constants.Companion.FLOAT
+import uzh.scenere.const.Constants.Companion.HASH_MAP_ENTRY
 import uzh.scenere.const.Constants.Companion.INT
 import uzh.scenere.const.Constants.Companion.LONG
 import uzh.scenere.const.Constants.Companion.STRING
@@ -56,6 +58,7 @@ class DataHelper {
                     DOUBLE -> return stringValue.toDouble()
                     BOOLEAN -> return stringValue.toBoolean()
                     LONG -> return stringValue.toLong()
+                    HASH_MAP_ENTRY -> return stringValue.split(EQUALS)[0]
                 }
             }
             return null

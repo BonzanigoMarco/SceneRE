@@ -3,7 +3,6 @@ package uzh.scenere.views
 import android.animation.*
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
@@ -20,7 +19,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
-import uzh.scenere.helpers.CollectionsHelper
+import uzh.scenere.helpers.CollectionHelper
 import uzh.scenere.helpers.NumberHelper
 
 
@@ -548,7 +547,6 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
 
     fun collapse() {
         this.state = SwipeButtonState.MIDDLE
-        sliderButton?.text = resources.getText(icons[cIdx])
         initialEventX = -1f
         initialEventY = -1f
         val sliderWidth = NumberHelper.nvl(sliderButton?.width, 0).toInt()
@@ -575,8 +573,13 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         val rightTextAnimator = ObjectAnimator.ofFloat(rightIconText as TextView, "alpha", 1f)
         val topTextAnimator = ObjectAnimator.ofFloat(topIconText as TextView, "alpha", 1f)
         val bottomTextAnimator = ObjectAnimator.ofFloat(bottomIconText as TextView, "alpha", 1f)
-
-        playAnimations(null, positionAnimator, widthAnimator, leftTextAnimator, rightTextAnimator, topTextAnimator, bottomTextAnimator)
+        val listener = object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                super.onAnimationEnd(animation)
+                sliderButton?.text = resources.getText(icons[cIdx])
+            }
+        }
+        playAnimations(listener, positionAnimator, widthAnimator, leftTextAnimator, rightTextAnimator, topTextAnimator, bottomTextAnimator)
         execute()
     }
 
@@ -626,7 +629,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
     }
 
     private fun execute() {
-        if (autoCollapse && !CollectionsHelper.oneOf(state,SwipeButtonState.MIDDLE,SwipeButtonState.LONG_CLICK)){
+        if (autoCollapse && !CollectionHelper.oneOf(state,SwipeButtonState.MIDDLE,SwipeButtonState.LONG_CLICK)){
             android.os.Handler().postDelayed({ collapse() }, 250)
         }
         when (state) {

@@ -83,6 +83,7 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
         val button = SreButton(context,wrapper,context.getString(R.string.walkthrough_delete),null,null,SreButton.ButtonStyle.ATTENTION)
         button.layoutParams = layoutParams
         button.addExecutable(function)
+        button.setLongClickOnly(true)
         return button
     }
 }

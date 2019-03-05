@@ -537,7 +537,8 @@ class EditorActivity : AbstractManagementActivity() {
             DatabaseHelper.getInstance(applicationContext).delete(editUnit!!.getElementId(),IElement::class)
             activePath?.remove(editUnit!!)
         }
-        if (!whatIfs.isEmpty() && editUnit is AbstractStep){
+        if ((!whatIfs.isEmpty() && editUnit is AbstractStep ) || //Add new What-Ifs
+                (whatIfs.isEmpty() && inputMap[elementAttributes[0]] == null)){ //Clear What-Ifs
             DatabaseHelper.getInstance(applicationContext).write(editUnit!!.getElementId(),(editUnit as AbstractStep).withWhatIfs(whatIfs))
             return
         }
@@ -549,7 +550,7 @@ class EditorActivity : AbstractManagementActivity() {
                 val title = inputMap[elementAttributes[0]]!!.getStringValue()
                 val objects = activeScenario?.getObjectsWithNames((inputMap[elementAttributes[1]]!! as SreMultiAutoCompleteTextView).getUsedObjectLabels())
                 val text = inputMap[elementAttributes[1]]!!.getStringValue()
-                addAndRenderElement(StandardStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTitle(title).withText(text).withObjects(objects!!).withWhatIfs((editUnit as AbstractStep).whatIfs))
+                addAndRenderElement(StandardStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTitle(title).withText(text).withObjects(objects!!).withWhatIfs((editUnit as AbstractStep?)?.whatIfs))
             }
             //Triggers
             ButtonTrigger::class -> {

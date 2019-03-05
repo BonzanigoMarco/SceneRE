@@ -58,6 +58,7 @@ class Constants {
         //GENERAL
         const val NEW_LINE_C: Char = '\n'
         const val SPACE_C: Char = ' '
+        const val EQUALS: String = "="
         const val NEW_LINE: String = "\n"
         const val PERCENT: String = "%"
         const val SPACE: String = " "
@@ -76,6 +77,7 @@ class Constants {
         const val LONG: String = "Long"
         const val DOUBLE: String = "Double"
         const val BOOLEAN: String = "Boolean"
+        const val HASH_MAP_ENTRY: String = "HashMap\$HashMapEntry"
         //FILE FORMATS
         const val PNG_FILE: String = ".png"
         const val SRE_FILE: String = ".sre"

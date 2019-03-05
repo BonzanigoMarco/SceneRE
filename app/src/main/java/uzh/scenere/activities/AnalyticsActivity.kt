@@ -51,7 +51,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
     }
 
     enum class AnalyticsMode {
-        SELECT_PROJECT, SELECT_SCENARIO, SELECT_WALKTHROUGH, SELECT_STAKEHOLDER
+        SELECT_PROJECT, SELECT_SCENARIO, SELECT_WALKTHROUGH, SELECT_STATISTICS, SELECT_COMMENTS
     }
 
     private var mode: AnalyticsMode = AnalyticsMode.SELECT_PROJECT
@@ -64,6 +64,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
     private val activeScenarios = ArrayList<Scenario>()
     private val activeWalkthroughs = ArrayList<Walkthrough>()
     private var scenarioAnalytics: ScenarioAnalyticLayout? = null
+    private var stepAnalytics: StepAnalyticsLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -182,10 +183,18 @@ class AnalyticsActivity : AbstractManagementActivity() {
             AnalyticsMode.SELECT_PROJECT -> select(loadedProjects, true)
             AnalyticsMode.SELECT_SCENARIO -> select(activeScenarios, true)
             AnalyticsMode.SELECT_WALKTHROUGH -> select(activeWalkthroughs, true)
-            AnalyticsMode.SELECT_STAKEHOLDER -> {
+            AnalyticsMode.SELECT_STATISTICS -> {
+                getContentHolderLayout().removeView(labelWrapper)
                 scenarioAnalytics?.addTo(getContentHolderLayout())
                 scenarioAnalytics?.nextStakeholder()
                 val text = ObjectHelper.nvl(scenarioAnalytics?.getActiveStakeholder()?.name, NOTHING)
+                creationButton?.setText(text)?.updateViews(false)
+            }
+            AnalyticsMode.SELECT_COMMENTS -> {
+                getContentHolderLayout().removeView(labelWrapper)
+                stepAnalytics?.addTo(getContentHolderLayout())
+                stepAnalytics?.nextStep()
+                val text = ObjectHelper.nvl(stepAnalytics?.getActiveStepName(), NOTHING)
                 creationButton?.setText(text)?.updateViews(false)
             }
         }
@@ -196,10 +205,18 @@ class AnalyticsActivity : AbstractManagementActivity() {
             AnalyticsMode.SELECT_PROJECT -> select(loadedProjects, false)
             AnalyticsMode.SELECT_SCENARIO -> select(activeScenarios, false)
             AnalyticsMode.SELECT_WALKTHROUGH -> select(activeWalkthroughs, false)
-            AnalyticsMode.SELECT_STAKEHOLDER -> {
+            AnalyticsMode.SELECT_STATISTICS -> {
+                getContentHolderLayout().removeView(labelWrapper)
                 scenarioAnalytics?.addTo(getContentHolderLayout())
                 scenarioAnalytics?.previousStakeholder()
                 val text = ObjectHelper.nvl(scenarioAnalytics?.getActiveStakeholder()?.name, NOTHING)
+                creationButton?.setText(text)?.updateViews(false)
+            }
+            AnalyticsMode.SELECT_COMMENTS -> {
+                getContentHolderLayout().removeView(labelWrapper)
+                stepAnalytics?.addTo(getContentHolderLayout())
+                stepAnalytics?.previousStep()
+                val text = ObjectHelper.nvl(stepAnalytics?.getActiveStepName(), NOTHING)
                 creationButton?.setText(text)?.updateViews(false)
             }
         }
@@ -226,7 +243,9 @@ class AnalyticsActivity : AbstractManagementActivity() {
                     label = createButtonLabel(activeScenarios, getString(R.string.literal_scenarios))
                     updateLabelWrapper(activeProject.title,NONE)
                 }
-                creationButton?.setButtonStates(true, true, true, pointer==0)?.setText(label)?.updateViews(false)
+                creationButton?.setButtonStates(true, true, true, pointer==0)?.setText(label)
+                        ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_walkthrough, null)
+                        ?.updateViews(false)
 
             }
             AnalyticsMode.SELECT_SCENARIO -> {
@@ -261,12 +280,21 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         ?.updateViews(false)
             }
             AnalyticsMode.SELECT_WALKTHROUGH-> {
-                mode = AnalyticsMode.SELECT_STAKEHOLDER
-                createStatistics()
+                mode = AnalyticsMode.SELECT_STATISTICS
+                createScenarioStatistics()
                 updateLabelWrapper(null,null,getString(R.string.analytics_statistics))
+                creationButton?.setButtonStates(true, true, true, true)
+                        ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_input, null)
+                        ?.setText(createButtonLabel(NumberHelper.nvl(scenarioAnalytics?.getStakeholderCount(),0), getString(R.string.literal_stakeholders)))
+                        ?.updateViews(false)
+            }
+            AnalyticsMode.SELECT_STATISTICS-> {
+                mode = AnalyticsMode.SELECT_COMMENTS
+                createStepStatistics()
+                updateLabelWrapper(null,null,getString(R.string.analytics_comments))
                 creationButton?.setButtonStates(true, true, true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_null, null)
-                        ?.setText(createButtonLabel(NumberHelper.nvl(scenarioAnalytics?.getStakeholderCount(),0), getString(R.string.literal_stakeholders)))
+                        ?.setText(createButtonLabel(NumberHelper.nvl(stepAnalytics?.getStepCount(),0), getString(R.string.literal_steps_with_comments)))
                         ?.updateViews(false)
             }
             else -> return
@@ -289,13 +317,13 @@ class AnalyticsActivity : AbstractManagementActivity() {
                 pointer = null
                 scenarioPointer = null
                 creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)
-                        ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
+                        ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_walkthrough, null)
                         ?.setText(createButtonLabel(activeScenarios, getString(R.string.literal_scenarios)))
                         ?.updateViews(false)
                 getContentHolderLayout().removeAllViews()
                 updateLabelWrapper(null,NONE)
             }
-            AnalyticsMode.SELECT_STAKEHOLDER -> {
+            AnalyticsMode.SELECT_STATISTICS -> {
                 mode = AnalyticsMode.SELECT_WALKTHROUGH
                 pointer = null
                 creationButton?.setButtonStates(true, true, true, true)
@@ -303,15 +331,30 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         ?.setText(createButtonLabel(activeWalkthroughs, getString(R.string.literal_walkthroughs)))
                         ?.updateViews(false)
                 getContentHolderLayout().removeAllViews()
-                updateLabelWrapper(null,null)
+                updateLabelWrapper(null,null,getString(R.string.analytics_walkthroughs))
+            }
+            AnalyticsMode.SELECT_COMMENTS -> {
+                mode = AnalyticsMode.SELECT_STATISTICS
+                pointer = null
+                creationButton?.setButtonStates(true, true, true, true)
+                        ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_input, null)
+                        ?.setText(createButtonLabel(activeWalkthroughs, getString(R.string.literal_walkthroughs)))
+                        ?.updateViews(false)
+                getContentHolderLayout().removeAllViews()
+                updateLabelWrapper(null,null,getString(R.string.analytics_statistics))
             }
             else -> return
         }
     }
 
-    private fun createStatistics() {
+    private fun createScenarioStatistics() {
         getContentHolderLayout().removeAllViews()
         scenarioAnalytics = ScenarioAnalyticLayout(applicationContext, *loadedWalkthroughs.toTypedArray())
+    }
+
+    private fun createStepStatistics() {
+        getContentHolderLayout().removeAllViews()
+        stepAnalytics = StepAnalyticsLayout(applicationContext, *loadedWalkthroughs.toTypedArray())
     }
 
     private val loadedWalkthroughs = ArrayList<Walkthrough>()
@@ -368,7 +411,11 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         DatabaseHelper.getInstance(applicationContext).delete((selectedList[pointer!!] as Walkthrough).id,Walkthrough::class)
                         loadedWalkthroughs.remove(selectedList[pointer!!] as Walkthrough)
                         selectedList.removeAt(pointer!!)
-                        execNext()
+                        if  (selectedList.isEmpty()){
+                            getContentHolderLayout().removeAllViews()
+                        }else{
+                            execNext()
+                        }
                         notify("Deleted")
                     })
                 }, 500)

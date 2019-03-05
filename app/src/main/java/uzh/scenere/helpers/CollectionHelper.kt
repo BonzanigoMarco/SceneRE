@@ -2,7 +2,7 @@ package uzh.scenere.helpers
 
 import java.lang.reflect.Array
 
-class CollectionsHelper private constructor() {
+class CollectionHelper private constructor() {
     companion object { //Static Reference
         fun <T : Any> oneOf(value: T?, vararg values: T): Boolean {
             if (value == null || values.isEmpty()){

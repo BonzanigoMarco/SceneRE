@@ -104,6 +104,7 @@ class GlossaryActivity: AbstractManagementActivity() {
         getInfoTitle().text = null
         getInfoContent().text = null
         execMorphInfoBar(InfoState.MINIMIZED)
+        resetToolbar()
     }
 
     override fun getIsFirstScrollUp(): Boolean {

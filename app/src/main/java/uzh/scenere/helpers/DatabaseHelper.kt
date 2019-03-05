@@ -431,7 +431,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Walkthrough::class == clz) {
                     database!!.deleteWalkthrough(key)
                 }
-                if (CollectionsHelper.oneOf(clz, Boolean::class, Short::class, Int::class, Long::class, Float::class, Double::class)) {
+                if (CollectionHelper.oneOf(clz, Boolean::class, Short::class, Int::class, Long::class, Float::class, Double::class)) {
                     database!!.deleteNumber(key)
                 }
                 if (String::class == clz) {

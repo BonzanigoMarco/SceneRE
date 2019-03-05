@@ -7,8 +7,6 @@ import android.graphics.Color
 import java.io.ByteArrayOutputStream
 import java.util.*
 import android.graphics.drawable.BitmapDrawable
-import android.content.res.AssetManager
-import android.graphics.drawable.Drawable
 import java.io.BufferedInputStream
 
 
@@ -73,7 +71,7 @@ class ImageHelper {
                     filteredColorList.add(i)
                 }
             }
-            return CollectionsHelper.subArray(Int::class.java, filteredColorList, 0, if (filteredColorList.size < nColors) filteredColorList.size else nColors)
+            return CollectionHelper.subArray(Int::class.java, filteredColorList, 0, if (filteredColorList.size < nColors) filteredColorList.size else nColors)
         }
 
         /**

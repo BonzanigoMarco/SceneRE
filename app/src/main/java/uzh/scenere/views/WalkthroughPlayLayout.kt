@@ -22,7 +22,7 @@ import uzh.scenere.helpers.StringHelper
 import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
-class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, private val stakeholder: Stakeholder, private val stopFunction: () -> Unit) : LinearLayout(context) {
+class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, private val stakeholder: Stakeholder, private val nextStepFunction: () -> Unit, private val stopFunction: () -> Unit) : LinearLayout(context) {
 
     private val stepLayout: RelativeLayout = RelativeLayout(context)
     private val triggerLayout: RelativeLayout = RelativeLayout(context)
@@ -32,7 +32,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     enum class WalkthroughState {
-        STARTED, PLAYING, INFO, FINISHED
+        STARTED, PLAYING, INFO, WHAT_IF, INPUT, FINISHED
     }
 
     //Statistics
@@ -42,20 +42,24 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
     private var startingTime: Long = System.currentTimeMillis()
     private fun getTime(): Long{
-        val time = System.currentTimeMillis() - startingTime
+        val time = (System.currentTimeMillis() - startingTime)/1000
         startingTime = System.currentTimeMillis()
         return time
     }
     private var infoTime: Long = 0
+    private var whatIfTime: Long = 0
+    private var inputTime: Long = 0
     //Play
     private var layer: Int = 0
     private val paths: HashMap<Int, Path>? = scenario.getAllPaths(stakeholder)
     private var first = paths?.get(layer)?.getStartingPoint()
     private var second = paths?.get(layer)?.getNextElement(first)
+    //Input
+    private val comments = ArrayList<String>()
     //State
     private val mode: WalkthroughPlayMode = if (first is AbstractStep) WalkthroughPlayMode.STEP_INDUCED else WalkthroughPlayMode.TRIGGER_INDUCED
-    private var state: WalkthroughState = WalkthroughState.STARTED
     private var backupState: WalkthroughState = WalkthroughState.STARTED
+    var state: WalkthroughState = WalkthroughState.STARTED
 
     init {
         prepareLayout()
@@ -89,12 +93,13 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private fun resolveIntro() {
         val text = generateText("Intro", scenario.intro, ArrayList(),arrayListOf("Intro"))
         val button = generateButton("Start Scenario")
-        button.setOnClickListener {
+        button.addExecutable {
             Walkthrough.WalkthroughProperty.INTRO_TIME.set(getTime())
             loadNextStep("Start Scenario")
         }
         stepLayout.addView(text)
         triggerLayout.addView(button)
+        nextStepFunction()
     }
 
 
@@ -111,7 +116,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                 when (second) {
                     is ButtonTrigger -> {
                         val button = generateButton((second as ButtonTrigger).buttonLabel)
-                        button.setOnClickListener {
+                        button.addExecutable {
                             loadNextStep("Button")
                         }
                         triggerLayout.addView(button)
@@ -131,7 +136,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                             id = View.generateViewId()
                             button.id = id
                             val optionLayer = (second as IfElseTrigger).getLayerForOption(optionId++)
-                            button.setOnClickListener {
+                            button.addExecutable {
                                 layer = optionLayer
                                 loadNextStep("Button: ${button.text}",optionLayer != 0)
                             }
@@ -142,7 +147,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                     else -> {
                         //FALLBACK FOR MISSING TRIGGER AT THE END
                         val button = generateButton(context.getString(R.string.walkthrough_complete))
-                        button.setOnClickListener {
+                        button.addExecutable {
                             loadNextStep("Automatic")
                         }
                         triggerLayout.addView(button)                        
@@ -160,7 +165,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         val cutHtml = StringHelper.cutHtmlAfter(content, 10, context.getString(R.string.walkthrough_see_more))
         val text = generateText("Outro", cutHtml, ArrayList(), arrayListOf("Outro","Statistics"))
         val button = generateButton("Finish Scenario")
-        button.setOnClickListener {
+        button.addExecutable {
             saveAndLoadNew()
         }
         stepLayout.addView(text)
@@ -190,12 +195,14 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private fun loadNextStep(info: String, pathSwitch: Boolean = false) {
         walkthrough.addTriggerInfo(getCurrentStep(),info,getCurrentTrigger())
         if (state != WalkthroughState.STARTED){
-            walkthrough.addStep(getCurrentStep()?.withTime(getTime()))
+            walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments))
+            comments.clear()
             first = if (pathSwitch) paths?.get(layer)?.getStartingPoint() else paths?.get(layer)?.getNextElement(second)
             second = paths?.get(layer)?.getNextElement(first)
         }
         state = WalkthroughState.PLAYING
         prepareLayout()
+        nextStepFunction()
     }
 
     private fun getCurrentTrigger(): AbstractTrigger? = if (first is AbstractTrigger) (first as AbstractTrigger) else if (second is AbstractTrigger) (second as AbstractTrigger) else null
@@ -206,19 +213,52 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         stopFunction()
     }
 
+
+    fun resetActiveness() {
+        when (state){
+            WalkthroughState.INFO -> {setInfoActive(false)}
+            WalkthroughState.WHAT_IF -> {setWhatIfActive(false)}
+            WalkthroughState.INPUT -> {setInputActive(false)}
+            else -> {
+            }
+        }
+    }
     fun setInfoActive(active: Boolean) {
         if (active){
             infoTime = System.currentTimeMillis()
             backupState = state
             state = WalkthroughState.INFO
         }else{
-            Walkthrough.WalkthroughProperty.INFO_TIME.set(Walkthrough.WalkthroughProperty.INFO_TIME.get(Long::class)+System.currentTimeMillis()-infoTime)
+            Walkthrough.WalkthroughProperty.INFO_TIME.set(Walkthrough.WalkthroughProperty.INFO_TIME.get(Long::class)+(System.currentTimeMillis()-infoTime)/1000)
             infoTime = 0
             state = backupState
 
         }
     }
+    fun setWhatIfActive(active: Boolean) {
+        if (active){
+            whatIfTime = System.currentTimeMillis()
+            backupState = state
+            state = WalkthroughState.WHAT_IF
+        }else{
+            Walkthrough.WalkthroughProperty.WHAT_IF_TIME.set(Walkthrough.WalkthroughProperty.WHAT_IF_TIME.get(Long::class)+(System.currentTimeMillis()-whatIfTime)/1000)
+            whatIfTime = 0
+            state = backupState
 
+        }
+    }
+    fun setInputActive(active: Boolean) {
+        if (active){
+            inputTime = System.currentTimeMillis()
+            backupState = state
+            state = WalkthroughState.INPUT
+        }else{
+            Walkthrough.WalkthroughProperty.INPUT_TIME.set(Walkthrough.WalkthroughProperty.INPUT_TIME.get(Long::class)+(System.currentTimeMillis()-inputTime)/1000)
+            inputTime = 0
+            state = backupState
+
+        }
+    }
     fun getContextObjects(): ArrayList<AbstractObject> {
         if (first is AbstractStep){
             return (first as AbstractStep).objects
@@ -237,5 +277,27 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
             }
         }
         return list.toTypedArray()
+    }
+
+    fun getActiveWhatIfs(): ArrayList<String> {
+        if (first is AbstractStep){
+            return (first as AbstractStep).whatIfs
+        }
+        if (second is AbstractStep){
+            return (second as AbstractStep).whatIfs
+        }
+        return ArrayList()
+    }
+
+    fun removeComment(comment: String) {
+        comments.remove(comment)
+    }
+
+    fun addComment(comment: String) {
+        comments.add(comment)
+    }
+
+    fun getComments(): Array<String>{
+        return comments.toTypedArray()
     }
 }

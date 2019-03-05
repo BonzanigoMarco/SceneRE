@@ -16,11 +16,10 @@ import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.NumberHelper
 import java.util.*
+import kotlin.collections.ArrayList
 
 @SuppressLint("ViewConstructor")
 class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
-
-    private val margin = 5f
 
     enum class ScenarioMode {
         STEPS, COMMENTS
@@ -129,7 +128,7 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                     addView(createLine("Transition #${step.key}", false, step.value.getStatistics()))
                     val times = stepTimes[entry.key]?.get(step.key)
                     if (times != null) {
-                        val avg = times.avg()?.div(1000)
+                        val avg = times.avg()
                         addView(createLine("Avg. Time", false, "$avg Seconds"))
                     }
                 }
@@ -173,6 +172,4 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         }
         return false
     }
-
-
 }

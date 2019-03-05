@@ -18,7 +18,9 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.NONE
 import uzh.scenere.datamodel.*
+import uzh.scenere.helpers.CollectionHelper
 import uzh.scenere.helpers.DatabaseHelper
+import uzh.scenere.helpers.ObjectHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.SreContextAwareTextView
 import uzh.scenere.views.SreTutorialLayoutDialog
@@ -29,15 +31,15 @@ import java.io.Serializable
 class WalkthroughActivity : AbstractManagementActivity() {
 
     override fun isInEditMode(): Boolean {
-        return mode == WalkthroughMode.INFO
+        return CollectionHelper.oneOf(mode,WalkthroughMode.INFO,WalkthroughMode.WHAT_IF,WalkthroughMode.INPUT)
     }
 
     override fun isInAddMode(): Boolean {
-        return mode == WalkthroughMode.INFO
+        return CollectionHelper.oneOf(mode,WalkthroughMode.INFO,WalkthroughMode.WHAT_IF,WalkthroughMode.INPUT)
     }
 
     override fun isInViewMode(): Boolean {
-        return mode != WalkthroughMode.INFO
+        return !CollectionHelper.oneOf(mode,WalkthroughMode.INFO,WalkthroughMode.WHAT_IF,WalkthroughMode.INPUT)
     }
 
     override fun resetEditMode() {
@@ -51,8 +53,8 @@ class WalkthroughActivity : AbstractManagementActivity() {
         selectedObject = null
         selectedAttribute = null
         getInfoContent().visibility = VISIBLE
+        activeWalkthrough?.resetActiveness()
         resetToolbar()
-        activeWalkthrough?.setInfoActive(false)
     }
 
     override fun createEntity() {
@@ -92,11 +94,19 @@ class WalkthroughActivity : AbstractManagementActivity() {
     }
 
     override fun resetToolbar() {
-        customizeToolbarId(R.string.icon_back, null, null, R.string.icon_info, null)
+        if (mode == WalkthroughMode.PLAY){
+            val value = ObjectHelper.nvl(activeWalkthrough?.state,WalkthroughPlayLayout.WalkthroughState.STARTED)
+            customizeToolbarId(R.string.icon_back,
+                    if (activeWalkthrough?.getActiveWhatIfs().isNullOrEmpty()) null else R.string.icon_what_if,
+                    if (CollectionHelper.oneOf(value,WalkthroughPlayLayout.WalkthroughState.STARTED,WalkthroughPlayLayout.WalkthroughState.FINISHED)) null else R.string.icon_input,
+                    if (value != WalkthroughPlayLayout.WalkthroughState.PLAYING) null else  R.string.icon_object, null)
+        }else{
+            customizeToolbarId(R.string.icon_back, null, null, R.string.icon_info, null)
+        }
     }
 
     enum class WalkthroughMode {
-        SELECT_PROJECT, SELECT_SCENARIO, SELECT_STAKEHOLDER, PLAY, INFO
+        SELECT_PROJECT, SELECT_SCENARIO, SELECT_STAKEHOLDER, PLAY, INFO, WHAT_IF, INPUT
     }
 
     private var mode: WalkthroughMode = WalkthroughMode.SELECT_PROJECT
@@ -293,7 +303,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         walkthrough_layout_selection_content.visibility = GONE
         walkthrough_layout_selection.visibility = GONE
         walkthrough_holder.visibility = VISIBLE
-        activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!]) { stop() }
+        activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!],{resetToolbar()}, {stop()})
         getContentHolderLayout().addView(activeWalkthrough)
     }
 
@@ -326,7 +336,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
             if (obj != null && obj != selectedObject) {
                 Walkthrough.WalkthroughProperty.INFO_OBJECT.set(objectName, String::class)
                 selectedObject = obj
-                attributeInfoSpinnerLayout = createLine(getString(R.string.literal_attribute), LineInputType.LOOKUP, null, obj.getAttributeNames("")) { attributeInfoSelected() }
+                attributeInfoSpinnerLayout = createLine(getString(R.string.literal_attribute), LineInputType.LOOKUP, null, obj.getAttributeNames(""), { attributeInfoSelected() })
                 getInfoContentWrap().addView(attributeInfoSpinnerLayout, 1)
             }
         }
@@ -349,17 +359,9 @@ class WalkthroughActivity : AbstractManagementActivity() {
         }
     }
 
-    override fun onToolbarLeftClicked() {
-        if (mode != WalkthroughMode.PLAY) {
-            super.onToolbarLeftClicked()
-        } else {
-            onBackPressed()
-        }
-    }
-
     private var awaitingBackConfirmation = false
     override fun onBackPressed() {
-        if (mode != WalkthroughMode.PLAY || awaitingBackConfirmation) {
+        if (!CollectionHelper.oneOf(mode,WalkthroughMode.PLAY,WalkthroughMode.INPUT,WalkthroughMode.INFO,WalkthroughMode.WHAT_IF) || awaitingBackConfirmation) {
             super.onBackPressed()
         } else {
             notify(getString(R.string.walkthrough_confirm))
@@ -368,8 +370,51 @@ class WalkthroughActivity : AbstractManagementActivity() {
         }
     }
 
+    override fun onToolbarLeftClicked() {
+        if (mode != WalkthroughMode.PLAY) {
+            super.onToolbarLeftClicked()
+        } else {
+            onBackPressed()
+        }
+    }
+
+    override fun onToolbarCenterLeftClicked() {
+        //WHAT IFS
+        if (CollectionHelper.oneOf(mode,WalkthroughMode.PLAY,WalkthroughMode.INPUT)) {
+            if (mode == WalkthroughMode.INPUT){
+                activeWalkthrough?.resetActiveness()
+            }
+            getInfoContent().visibility = GONE
+            getInfoTitle().text = "Browse available What-If Questions"
+            customizeToolbarId(null, null, R.string.icon_input, null, R.string.icon_cross)
+            execMorphInfoBar(InfoState.MAXIMIZED)
+            getInfoContentWrap().removeAllViews()
+            getInfoContentWrap().addView(createLine(getString(R.string.literal_what_if), LineInputType.MULTI_TEXT, "readOnly", activeWalkthrough?.getActiveWhatIfs()?.toTypedArray()))
+            activeWalkthrough?.setWhatIfActive(true)
+            mode = WalkthroughMode.WHAT_IF
+        }
+    }
+
+    override fun onToolbarCenterClicked() {
+        //INPUT
+        if (CollectionHelper.oneOf(mode,WalkthroughMode.PLAY,WalkthroughMode.WHAT_IF) &&
+                !(CollectionHelper.oneOf(activeWalkthrough?.state,WalkthroughPlayLayout.WalkthroughState.STARTED,WalkthroughPlayLayout.WalkthroughState.FINISHED))) {
+            if (mode == WalkthroughMode.WHAT_IF){
+                activeWalkthrough?.resetActiveness()
+            }
+            getInfoContent().visibility = GONE
+            getInfoTitle().text = "Write down your Comment and press \"Add\" to contribute it"
+            customizeToolbarId(null, if (activeWalkthrough?.getActiveWhatIfs().isNullOrEmpty()) null else R.string.icon_what_if, null, null, R.string.icon_cross)
+            execMorphInfoBar(InfoState.MAXIMIZED)
+            getInfoContentWrap().removeAllViews()
+            getInfoContentWrap().addView(createLine(getString(R.string.literal_comment), LineInputType.MULTI_TEXT, "noCompleteRemoval", activeWalkthrough?.getComments(), addComment,removeComment))
+            activeWalkthrough?.setInputActive(true)
+            mode = WalkthroughMode.INPUT
+        }
+    }
+
     override fun onToolbarCenterRightClicked() {
-        if (mode == WalkthroughMode.PLAY) {
+        if (mode == WalkthroughMode.PLAY && activeWalkthrough?.state == WalkthroughPlayLayout.WalkthroughState.PLAYING) {
             getInfoContent().visibility = GONE
             val objects = activeWalkthrough!!.getObjectNames("")
             val contextInfoAvailable = objects.size > 1
@@ -377,15 +422,28 @@ class WalkthroughActivity : AbstractManagementActivity() {
             customizeToolbarId(null, null, null, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
             if (contextInfoAvailable) {
-                objectInfoSpinnerLayout = createLine(getString(R.string.literal_object), LineInputType.LOOKUP, null, objects) { objectInfoSelected() }
+                getInfoContentWrap().removeAllViews()
+                objectInfoSpinnerLayout = createLine(getString(R.string.literal_object), LineInputType.LOOKUP, null, objects, { objectInfoSelected() })
                 getInfoContentWrap().addView(objectInfoSpinnerLayout, 0)
             }
             activeWalkthrough?.setInfoActive(true)
             mode = WalkthroughMode.INFO
-        } else {
+        } else if (CollectionHelper.oneOf(mode,WalkthroughMode.SELECT_STAKEHOLDER,WalkthroughMode.SELECT_PROJECT,WalkthroughMode.SELECT_SCENARIO)){
             val intent = Intent(this, GlossaryActivity::class.java)
             intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Walkthrough")
             startActivity(intent)
+        }
+    }
+
+    private val addComment: (String?) -> Unit = {
+        if (StringHelper.hasText(it)){
+            activeWalkthrough?.addComment(it!!)
+        }
+    }
+
+    private val removeComment: (String?) -> Unit = {
+        if (StringHelper.hasText(it)) {
+            activeWalkthrough?.removeComment(it!!)
         }
     }
 }

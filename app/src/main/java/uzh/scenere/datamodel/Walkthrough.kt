@@ -68,6 +68,8 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         COMPLETION_TIME("Completion Time", Long::class, 0L, true),
         TIMESTAMP("Timestamp", Long::class, 0L, true),
         INFO_TIME("Info Time", Long::class, 0L, true),
+        WHAT_IF_TIME("What-If Time", Long::class, 0L, true),
+        INPUT_TIME("Input Time", Long::class, 0L, true),
         INFO_OBJECT("Info Object(s)", String::class, "", true, true),
         INFO_ATTRIBUTE("Info Attribute(s)", String::class, "", true, true),
         STEP_ID_LIST("Step ID(s)", String::class, "", false, true);
@@ -76,10 +78,8 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         fun getDisplayText(): String {
             val value = get(type)
             when (this) {
-                INFO_TIME, INTRO_TIME, COMPLETION_TIME -> {
-                    if (value != valueIfNull) {
-                        return ((value as Long) / 1000).toString() + " Second(s)"
-                    }
+                INFO_TIME, INTRO_TIME, INPUT_TIME, WHAT_IF_TIME, COMPLETION_TIME -> {
+                    return ((value as Long) ).toString() + " Second(s)"
                 }
                 TIMESTAMP -> {
                     if (value != valueIfNull) {
@@ -175,8 +175,10 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         STEP_ID("Step-ID", String::class, "", false),
         STEP_TIME("Step Time", Long::class, 0L, true),
         STEP_NUMBER("Step Number", Int::class, 0, true),
+        STEP_TEXT("Step Text", String::class, "", true),
         STEP_TITLE("Step Title", String::class, "", true),
         STEP_TYPE("Step Type", String::class, "", true),
+        STEP_COMMENTS("Step Comments", String::class, "", true,true),
         TRIGGER_INFO("Trigger Info", String::class, "", true);
 
         @SuppressLint("SimpleDateFormat")
@@ -185,7 +187,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             when (this) {
                 STEP_TIME -> {
                     if (value != valueIfNull) {
-                        return ((value as Long) / 1000).toString() + " Second(s)"
+                        return ((value as Long) ).toString() + " Second(s)"
                     }
                 }
                 else -> return value.toString()
@@ -278,7 +280,11 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             STEP_TIME.set(step.id, step.time)
             STEP_NUMBER.set(step.id, STEP_ID_LIST.getAll(String::class).size)
             STEP_TITLE.set(step.id, step.title)
+            STEP_TEXT.set(step.id, step.text)
             STEP_TYPE.set(step.id, step.className())
+            for (comment in step.comments){
+                STEP_COMMENTS.set(step.id, comment)
+            }
         }
     }
 
@@ -293,14 +299,14 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         for (stepId in STEP_ID_LIST.getAll(String::class)) {
             total += STEP_TIME.get(stepId, Long::class)
         }
-        total /= 1000
         var text = "<br><b>Statistics</b><br>Your last Walkthrough took <b>$total</b> seconds to complete!<br>You spent "
         for (stepId in STEP_ID_LIST.getAll(String::class)) {
-            text += "<b>" + STEP_TIME.get(stepId, Long::class) / 1000 + "</b> seconds in \"" + STEP_TITLE.get(stepId, String::class) + "\", <br>"
+            text += "<b>" + STEP_TIME.get(stepId, Long::class) + "</b> seconds in \"" + STEP_TITLE.get(stepId, String::class) + "\", <br>"
         }
         text = text.substring(0, text.length - ", <br>".length).plus(".<br>")
-        text += "Additionally, you read the Introduction for <b>" + INTRO_TIME.get(Long::class) / 1000 + "</b> seconds and<br>"
-        text += "browsed the Information for an additional <b>" + INFO_TIME.get(Long::class) / 1000 + "</b> seconds."
+        text += "Additionally, you read the Introduction for <b>" + INTRO_TIME.get(Long::class)  + "</b> seconds and<br>"
+        text += "browsed the Information and What-Ifs for an additional <b>" + INFO_TIME.get(Long::class)  + "</b> and " + WHAT_IF_TIME.get(Long::class)  + " seconds.<br>" +
+                "Consulting the Comment Panel took you  <b>"+INPUT_TIME.get(Long::class) +"</b> seconds."
         return text
     }
 
