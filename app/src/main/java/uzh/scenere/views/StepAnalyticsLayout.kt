@@ -121,21 +121,21 @@ class StepAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthroug
         if (!wrapperList.isNullOrEmpty()){
             val commentWrapper = wrapperList.first()
             activeStepName = commentWrapper.title
-            addView(createLine("Step Number",false, stepPointer.toString()))
-            addView(createLine("Step Title",false, commentWrapper.title))
-            addView(createLine("Step Text",false, commentWrapper.text))
-            addView(createLine("Step Runs",false, wrapperList.size.toString()))
+            addView(createLine(context.getString(R.string.analytics_step_number),false, stepPointer.toString()))
+            addView(createLine(context.getString(R.string.analytics_step_title),false, commentWrapper.title))
+            addView(createLine(context.getString(R.string.analytics_step_text),false, commentWrapper.text))
+            addView(createLine(context.getString(R.string.analytics_step_runs),false, wrapperList.size.toString()))
             val times = StatisticArrayList<Long>()
             for (wrapper in wrapperList) {
                 times.add(wrapper.time)
             }
             val avg = times.avg()
-            addView(createLine("Avg. Time",false, "$avg Seconds"))
+            addView(createLine(context.getString(R.string.analytics_avg_time),false, context.getString(R.string.analytics_x_seconds,avg)))
             for (wrapper in wrapperList){
                 if (!wrapper.comments.isNullOrEmpty()){
                     val comments = StringHelper.concatList(NEW_LINE,wrapper.comments)
-                    addView(createLine("Comment of ${wrapper.author}",false, comments,SreTextView.TextStyle.MEDIUM))
-                    addView(createLine("Comment Timestamp",false, wrapper.timestamp))
+                    addView(createLine(context.getString(R.string.analytics_comment_of,wrapper.author),false, comments,SreTextView.TextStyle.MEDIUM))
+                    addView(createLine(context.getString(R.string.analytics_comment_timestamp),false, wrapper.timestamp))
                 }
             }
         }

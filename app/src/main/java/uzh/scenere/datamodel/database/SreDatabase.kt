@@ -8,21 +8,43 @@ import uzh.scenere.const.Constants.Companion.HASH_MAP_OPTIONS_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.INIT_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.MAX_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.MIN_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.TYPE_ACCELERATION_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_BLUETOOTH_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_BUTTON_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_CALL_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_GPS_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_GYROSCOPE_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_IF_ELSE_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_INPUT_STEP
+import uzh.scenere.const.Constants.Companion.TYPE_INPUT_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_LIGHT_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_LOOPBACK_STEP
+import uzh.scenere.const.Constants.Companion.TYPE_MAGNETOMETER_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_MERGE_STEP
+import uzh.scenere.const.Constants.Companion.TYPE_MOBILE_NETWORK_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_NFC_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_OBJECT
+import uzh.scenere.const.Constants.Companion.TYPE_RESOURCE_STEP
+import uzh.scenere.const.Constants.Companion.TYPE_SMS_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_SOUND_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_STAKEHOLDER_INTERACTION_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_STANDARD_STEP
+import uzh.scenere.const.Constants.Companion.TYPE_TIME_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_WIFI_TRIGGER
 import uzh.scenere.const.Constants.Companion.VERSIONING_IDENTIFIER
 import uzh.scenere.datamodel.*
-import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.datamodel.steps.StandardStep
+import uzh.scenere.datamodel.steps.*
 import uzh.scenere.datamodel.trigger.AbstractTrigger
-import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
-import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
+import uzh.scenere.datamodel.trigger.communication.*
+import uzh.scenere.datamodel.trigger.direct.*
+import uzh.scenere.datamodel.trigger.indirect.CallTrigger
+import uzh.scenere.datamodel.trigger.indirect.SmsTrigger
+import uzh.scenere.datamodel.trigger.indirect.SoundTrigger
+import uzh.scenere.datamodel.trigger.sensor.AccelerationTrigger
+import uzh.scenere.datamodel.trigger.sensor.GyroscopeTrigger
+import uzh.scenere.datamodel.trigger.sensor.LightTrigger
+import uzh.scenere.datamodel.trigger.sensor.MagnetometerTrigger
 import uzh.scenere.helpers.*
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class SreDatabase private constructor(context: Context) : AbstractSreDatabase() {
     private val dbHelper: DbHelper = DbHelper(context)
@@ -179,23 +201,51 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             addVersioning(element.id)
         }
         when (element) {
+            //STEPS
             is StandardStep -> {
                 for (obj in element.objects) {
                     writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
                 }
                 values.put(ElementTableEntry.TYPE, TYPE_STANDARD_STEP)
             }
+            is InputStep -> {/*TODO*/}
+            is LoopbackStep -> {/*TODO*/}
+            is MergeStep -> {/*TODO*/}
+            is ResourceStep -> {/*TODO*/}
+            //TRIGGERS
             is ButtonTrigger -> {
                 values.put(ElementTableEntry.TITLE, element.buttonLabel)
                 values.put(ElementTableEntry.TYPE, TYPE_BUTTON_TRIGGER)
             }
             is IfElseTrigger -> {
-                values.put(ElementTableEntry.TITLE, element.defaultOption)
+                values.put(ElementTableEntry.TITLE, element.defaultOption) //Carrier
                 values.put(ElementTableEntry.TEXT, element.text)
                 values.put(ElementTableEntry.TYPE, TYPE_IF_ELSE_TRIGGER)
                 writeByteArray(HASH_MAP_OPTIONS_IDENTIFIER.plus(element.getElementId()),DataHelper.toByteArray(element.pathOptions))
                 writeByteArray(HASH_MAP_LINK_IDENTIFIER.plus(element.getElementId()),DataHelper.toByteArray(element.optionLayerLink))
             }
+            is StakeholderInteractionTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.interactedStakeholderId) //Carrier
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_STAKEHOLDER_INTERACTION_TRIGGER)
+            }
+            is InputTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.input) //Carrier
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_INPUT_TRIGGER)}
+            is TimeTrigger -> {/*TODO*/}
+            is SoundTrigger -> {/*TODO*/}
+            is BluetoothTrigger -> {/*TODO*/}
+            is GpsTrigger -> {/*TODO*/}
+            is MobileNetworkTrigger -> {/*TODO*/}
+            is NfcTrigger -> {/*TODO*/}
+            is WifiTrigger -> {/*TODO*/}
+            is CallTrigger -> {/*TODO*/}
+            is SmsTrigger -> {/*TODO*/}
+            is AccelerationTrigger -> {/*TODO*/}
+            is GyroscopeTrigger -> {/*TODO*/}
+            is LightTrigger -> {/*TODO*/}
+            is MagnetometerTrigger -> {/*TODO*/}
         }
         return insert(ElementTableEntry.TABLE_NAME, ElementTableEntry.ID, element.getElementId(), values)
     }
@@ -583,6 +633,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                 val title = cursor.getString(3)
                 val text = cursor.getString(4)
                 when (type) {
+                    //STEPS
                     TYPE_STANDARD_STEP -> {
                         val step = StandardStep(id, prevId, path.id).withText(text).withTitle(title)
                         if (fullLoad) {
@@ -594,6 +645,11 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         readWhatIfs(id, step)
                         elements.add(step)
                     }
+                    TYPE_INPUT_STEP -> {/*TODO*/}
+                    TYPE_LOOPBACK_STEP -> {/*TODO*/}
+                    TYPE_MERGE_STEP -> {/*TODO*/}
+                    TYPE_RESOURCE_STEP -> {/*TODO*/}
+                    //TRIGGERS
                     TYPE_BUTTON_TRIGGER -> {
                         val trigger = ButtonTrigger(id, prevId, path.id).withButtonLabel(title)
                         trigger.changeTimeMs = readVersioning(id)
@@ -616,6 +672,24 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
+                    TYPE_STAKEHOLDER_INTERACTION_TRIGGER -> {
+                        elements.add(StakeholderInteractionTrigger(id, prevId, path.id).withText(text).withInteractedStakeholderId(title))
+                    }
+                    TYPE_INPUT_TRIGGER -> {
+                        elements.add(InputTrigger(id, prevId, path.id).withText(text).withInput(title))}
+                    TYPE_TIME_TRIGGER -> {/*TODO*/}
+                    TYPE_SOUND_TRIGGER -> {/*TODO*/}
+                    TYPE_BLUETOOTH_TRIGGER -> {/*TODO*/}
+                    TYPE_GPS_TRIGGER -> {/*TODO*/}
+                    TYPE_MOBILE_NETWORK_TRIGGER -> {/*TODO*/}
+                    TYPE_NFC_TRIGGER -> {/*TODO*/}
+                    TYPE_WIFI_TRIGGER -> {/*TODO*/}
+                    TYPE_CALL_TRIGGER -> {/*TODO*/}
+                    TYPE_SMS_TRIGGER -> {/*TODO*/}
+                    TYPE_ACCELERATION_TRIGGER -> {/*TODO*/}
+                    TYPE_GYROSCOPE_TRIGGER -> {/*TODO*/}
+                    TYPE_LIGHT_TRIGGER -> {/*TODO*/}
+                    TYPE_MAGNETOMETER_TRIGGER -> {/*TODO*/}
                     else -> {
                         deleteElement(id)
                     }

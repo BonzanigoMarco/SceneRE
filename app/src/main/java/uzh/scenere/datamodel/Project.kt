@@ -12,6 +12,13 @@ open class Project private constructor(val id: String, val creator: String, val 
     var scenarios: List<Scenario> = ArrayList()
     var stakeholders: List<Stakeholder> = ArrayList()
 
+    fun getStakeholderPositionById(id: String): Int{
+        for (stakeholder in 0 until stakeholders.size){
+            if (stakeholders[stakeholder].id == id) return stakeholder
+        }
+        return -1
+    }
+
     fun getNextStakeholder(stakeholder: Stakeholder? = null): Stakeholder?{
         if (stakeholders.isEmpty()){
             return null

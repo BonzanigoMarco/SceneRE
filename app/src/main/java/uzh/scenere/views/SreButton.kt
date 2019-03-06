@@ -33,6 +33,7 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
     private var parentLayout: ButtonParentLayout = if (parent is LinearLayout) LINEAR else if (parent is RelativeLayout) RELATIVE else UNKNOWN
     private lateinit var function: () -> Unit
     private var longClickOnly: Boolean = false
+    var data: Any? = null //Carrier Object
 
     private fun create(context: Context, parent: ViewGroup?, height: Int?, width: Int?) {
         id = View.generateViewId()

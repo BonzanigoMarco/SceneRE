@@ -16,13 +16,15 @@ import uzh.scenere.datamodel.steps.StandardStep
 import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
 import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
+import uzh.scenere.datamodel.trigger.direct.InputTrigger
+import uzh.scenere.datamodel.trigger.direct.StakeholderInteractionTrigger
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.StringHelper
 import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
-class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, private val stakeholder: Stakeholder, private val nextStepFunction: () -> Unit, private val stopFunction: () -> Unit) : LinearLayout(context) {
+class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, private val stakeholder: Stakeholder, private val nextStepFunction: () -> Unit, private val stopFunction: () -> Unit,  private val notify: ((String) -> Unit)) : LinearLayout(context) {
 
     private val stepLayout: RelativeLayout = RelativeLayout(context)
     private val triggerLayout: RelativeLayout = RelativeLayout(context)
@@ -144,6 +146,34 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         }
                         triggerLayout.addView(scroll)
                     }
+                    is StakeholderInteractionTrigger -> {
+                        val interactedStakeholder = DatabaseHelper.getInstance(context).read((second as StakeholderInteractionTrigger).interactedStakeholderId!!, Stakeholder::class)
+                        if (interactedStakeholder !is Stakeholder.NullStakeholder) {
+                            val title = (second as StakeholderInteractionTrigger).text!!
+                                    .plus("\nExchange your Interaction-Code with "+interactedStakeholder.name)
+                                    .plus("\nYour Code: "+stakeholder.id.substring(0,4))
+                            val titleText = generateText(null, title, ArrayList(), arrayListOf("Interaction-Code",stakeholder.id.substring(0,4)))
+                            val codeInput = generateEditText("Code", ArrayList(), arrayListOf(title))
+                            val button = generateButton("Check Code")
+                            button.addExecutable {
+                                if (codeInput.text.toString() == (interactedStakeholder.id.substring(0,4))){
+                                    loadNextStep("Button")
+                                    notify.invoke("Correct Code!")
+                                }else{
+                                    notify.invoke("Wrong Code!")
+                                    codeInput.text = null
+                                }
+                            }
+                            val scroll = SreScrollView(context,triggerLayout)
+                            scroll.addScrollElement(titleText)
+                            scroll.addScrollElement(codeInput)
+                            scroll.addScrollElement(button)
+                            triggerLayout.addView(scroll)
+                        }
+                    }
+                    is InputTrigger -> {
+
+                    }
                     else -> {
                         //FALLBACK FOR MISSING TRIGGER AT THE END
                         val button = generateButton(context.getString(R.string.walkthrough_complete))
@@ -180,8 +210,21 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private fun <T: Serializable> generateText(title: String?, content: String?, contextObjects: ArrayList<T>, boldWords: ArrayList<String>): SreTextView {
         val text = SreContextAwareTextView(context,stepLayout, boldWords,contextObjects)
         text.addRule(RelativeLayout.CENTER_IN_PARENT)
-        text.text = StringHelper.fromHtml("$title<br>$content")
+        if (title == null){
+            text.text = StringHelper.fromHtml(content)
+        }else if (content == null){
+            text.text = StringHelper.fromHtml(title)
+        }else{
+            text.text = StringHelper.fromHtml("$title<br>$content")
+        }
         text.setMargin(DipHelper.get(resources).dip10.toInt())
+        text.setPadding(DipHelper.get(resources).dip5.toInt())
+        return text
+    }
+
+    private fun <T: Serializable> generateEditText(title: String?, contextObjects: ArrayList<T>, boldWords: ArrayList<String>): SreEditText {
+        val text = SreEditText(context,stepLayout,null,title)
+        text.addRule(RelativeLayout.CENTER_IN_PARENT)
         text.setPadding(DipHelper.get(resources).dip5.toInt())
         return text
     }

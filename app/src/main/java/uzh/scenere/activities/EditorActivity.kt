@@ -14,17 +14,22 @@ import uzh.scenere.R
 import uzh.scenere.activities.EditorActivity.EditorState.*
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.SINGLE_SELECT
+import uzh.scenere.const.Constants.Companion.SINGLE_SELECT_WITH_PRESET_POSITION
 import uzh.scenere.datamodel.*
-import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.datamodel.steps.StandardStep
+import uzh.scenere.datamodel.steps.*
 import uzh.scenere.datamodel.trigger.AbstractTrigger
-import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
-import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
+import uzh.scenere.datamodel.trigger.communication.*
+import uzh.scenere.datamodel.trigger.direct.*
+import uzh.scenere.datamodel.trigger.indirect.CallTrigger
+import uzh.scenere.datamodel.trigger.indirect.SmsTrigger
+import uzh.scenere.datamodel.trigger.indirect.SoundTrigger
+import uzh.scenere.datamodel.trigger.sensor.AccelerationTrigger
+import uzh.scenere.datamodel.trigger.sensor.GyroscopeTrigger
+import uzh.scenere.datamodel.trigger.sensor.LightTrigger
+import uzh.scenere.datamodel.trigger.sensor.MagnetometerTrigger
 import uzh.scenere.helpers.*
-import uzh.scenere.views.Element
-import uzh.scenere.views.SreMultiAutoCompleteTextView
-import uzh.scenere.views.SreTutorialLayoutDialog
-import uzh.scenere.views.SwipeButton
+import uzh.scenere.views.*
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -112,6 +117,7 @@ class EditorActivity : AbstractManagementActivity() {
 
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         resetToolbar()
+        getInfoTitle().textSize = DipHelper.get(resources).dip2_5.toFloat()
         tutorialOpen = true
         visualizeActivePath()
         tutorialOpen = false
@@ -163,7 +169,23 @@ class EditorActivity : AbstractManagementActivity() {
         }else{
             tutorialDrawable = "info_element"
         }
-        val element = Element(applicationContext, iElement, previousAvailable, false, false, false).withLabel(StringHelper.fromHtml(title))
+        var right = false
+        var left = false
+        if (iElement is StakeholderInteractionTrigger){
+            var localStakeholder = 0
+            var foreignStakeholder = 0
+            for (s in 0 until projectContext!!.stakeholders.size){
+                if (projectContext!!.stakeholders[s] == activePath!!.stakeholder){
+                    localStakeholder = s
+                }
+                if (projectContext!!.stakeholders[s].id == iElement.interactedStakeholderId){
+                    foreignStakeholder = s
+                }
+            }
+            right = (localStakeholder<foreignStakeholder)
+            left = (localStakeholder>foreignStakeholder)
+        }
+        val element = Element(applicationContext, iElement, previousAvailable, left, right, false).withLabel(StringHelper.fromHtml(title))
         element.setEditExecutable { openInput(iElement) }
         element.setDeleteExecutable {
             DatabaseHelper.getInstance(applicationContext).delete(iElement.getElementId(),IElement::class)
@@ -371,6 +393,7 @@ class EditorActivity : AbstractManagementActivity() {
         UNSPECIFIED, ADD, REMOVE, WHAT_IF
     }
     private fun openInput(element: IElement? = null, inputMode: InputMode = InputMode.UNSPECIFIED) {
+        getInfoTitle().textSize = DipHelper.get(resources).dip3_5.toFloat()
         editorState = if (element == null) ADD else EDIT
         editor_spinner_selection?.visibility = View.GONE
         creationButton?.visibility = View.GONE
@@ -378,6 +401,7 @@ class EditorActivity : AbstractManagementActivity() {
             cleanInfoHolder("Edit " + element.readableClassName())
             editUnit = element
             when (element) {
+                //STEPS
                 is StandardStep -> {
                     creationUnitClass = StandardStep::class
                     if (inputMode == InputMode.WHAT_IF){
@@ -391,6 +415,11 @@ class EditorActivity : AbstractManagementActivity() {
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
+                is InputStep -> {/*TODO*/}
+                is LoopbackStep -> {/*TODO*/}
+                is MergeStep -> {/*TODO*/}
+                is ResourceStep -> {/*TODO*/}
+                //TRIGGERS
                 is ButtonTrigger -> {
                     creationUnitClass = ButtonTrigger::class
                     adaptAttributes("Button-Label")
@@ -421,19 +450,53 @@ class EditorActivity : AbstractManagementActivity() {
                         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth, tutorialDrawable).addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                     }
                 }
+                is StakeholderInteractionTrigger -> {
+                    creationUnitClass = StakeholderInteractionTrigger::class
+                    val stakeholderPositionById = projectContext!!.getStakeholderPositionById(element.interactedStakeholderId!!)+1
+                    var index = adaptAttributes("Instruction Text","Stakeholder")
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT_WITH_PRESET_POSITION.plus(stakeholderPositionById), addToArrayBefore(projectContext!!.stakeholders.toStringArray(),NOTHING)))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is InputTrigger -> {
+                    creationUnitClass = InputTrigger::class
+                    var index = adaptAttributes("Instruction Text", "Correct Answer")
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.input))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is TimeTrigger -> {/*TODO*/}
+                is SoundTrigger -> {/*TODO*/}
+                is BluetoothTrigger -> {/*TODO*/}
+                is GpsTrigger -> {/*TODO*/}
+                is MobileNetworkTrigger -> {/*TODO*/}
+                is NfcTrigger -> {/*TODO*/}
+                is WifiTrigger -> {/*TODO*/}
+                is CallTrigger -> {/*TODO*/}
+                is SmsTrigger -> {/*TODO*/}
+                is AccelerationTrigger -> {/*TODO*/}
+                is GyroscopeTrigger -> {/*TODO*/}
+                is LightTrigger -> {/*TODO*/}
+                is MagnetometerTrigger -> {/*TODO*/}
             }
         } else {//CREATE
             cleanInfoHolder("Add " + editor_spinner_selection.selectedItem)
             when ((editor_spinner_selection.selectedItem as String)) {
+                //STEP
                 resources.getString(R.string.step_standard) -> {
                     creationUnitClass = StandardStep::class
-                    var index = adaptAttributes("Title", "Instruction")
+                    var index = adaptAttributes("Title", "Instruction Text")
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
                     (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
+                resources.getString(R.string.step_input) -> {/*TODO*/ }
+                resources.getString(R.string.step_loopback) -> {/*TODO*/ }
+                resources.getString(R.string.step_merge) -> {/*TODO*/ }
+                resources.getString(R.string.step_resource) -> {/*TODO*/ }
+                //TRIGGER
                 resources.getString(R.string.trigger_button) -> {
                     creationUnitClass = ButtonTrigger::class
                     val index = adaptAttributes("Button-Label")
@@ -448,6 +511,32 @@ class EditorActivity : AbstractManagementActivity() {
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_if_else_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
+                resources.getString(R.string.trigger_stakeholder_interaction) -> {
+                    creationUnitClass = StakeholderInteractionTrigger::class
+                    var index = adaptAttributes("Instruction Text","Stakeholder")
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP,SINGLE_SELECT, addToArrayBefore(projectContext!!.stakeholders.toStringArray(),NOTHING)))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                resources.getString(R.string.trigger_input) -> {
+                    creationUnitClass = InputTrigger::class
+                    var index = adaptAttributes("Instruction Text", "Correct Answer")
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                resources.getString(R.string.trigger_timer) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_bt) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_gps) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_mobile) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_nfc) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_wifi) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_call) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_sms) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_sound) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_acceleration) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_light) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_magnetic) -> {/*TODO*/ }
             }
         }
     }
@@ -465,7 +554,7 @@ class EditorActivity : AbstractManagementActivity() {
                 list.add("${o.name} is unavailable during this action?")
             }
             //Attributes
-            //TODO
+            //TODO Attributes & Config
             //Stakeholders
             val stakeholderCount = NumberHelper.nvl(projectContext?.stakeholders?.size, 0)
             if (stakeholderCount > 1){
@@ -552,6 +641,10 @@ class EditorActivity : AbstractManagementActivity() {
                 val text = inputMap[elementAttributes[1]]!!.getStringValue()
                 addAndRenderElement(StandardStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTitle(title).withText(text).withObjects(objects!!).withWhatIfs((editUnit as AbstractStep?)?.whatIfs))
             }
+            InputStep::class -> {/*TODO*/}
+            LoopbackStep::class -> {/*TODO*/}
+            MergeStep::class -> {/*TODO*/}
+            ResourceStep::class -> {/*TODO*/}
             //Triggers
             ButtonTrigger::class -> {
                 val buttonLabel = inputMap[elementAttributes[0]]!!.getStringValue()
@@ -599,6 +692,34 @@ class EditorActivity : AbstractManagementActivity() {
                     addAndRenderElement(element)
                 }
             }
+            StakeholderInteractionTrigger::class -> {
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val textView = inputMap[elementAttributes[1]]
+                if (textView is SreButton){
+                    val stakeholder = textView.getStringValue()
+                    val stakeholderPos = (textView.data  as Int)-1
+                    val stakeholderId = projectContext!!.stakeholders[stakeholderPos].id
+                    addAndRenderElement(StakeholderInteractionTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withInteractedStakeholderId(stakeholderId))
+                }
+            }
+            InputTrigger::class -> {
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val input = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(InputTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withInput(input))
+            }
+            TimeTrigger::class -> {/*TODO*/}
+            SoundTrigger::class -> {/*TODO*/}
+            BluetoothTrigger::class -> {/*TODO*/}
+            GpsTrigger::class -> {/*TODO*/}
+            MobileNetworkTrigger::class -> {/*TODO*/}
+            NfcTrigger::class -> {/*TODO*/}
+            WifiTrigger::class -> {/*TODO*/}
+            CallTrigger::class -> {/*TODO*/}
+            SmsTrigger::class -> {/*TODO*/}
+            AccelerationTrigger::class -> {/*TODO*/}
+            GyroscopeTrigger::class -> {/*TODO*/}
+            LightTrigger::class -> {/*TODO*/}
+            MagnetometerTrigger::class -> {/*TODO*/}
         }
         editUnit = null
         creationUnitClass = null
@@ -628,6 +749,7 @@ class EditorActivity : AbstractManagementActivity() {
         multiInputMap.clear()
         creationUnitClass = null
         refreshState()
+        getInfoTitle().textSize = DipHelper.get(resources).dip2_5.toFloat()
     }
 
     private fun updateSpinner(arrayResource: Int) {

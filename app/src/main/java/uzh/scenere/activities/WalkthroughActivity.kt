@@ -16,7 +16,9 @@ import kotlinx.android.synthetic.main.activity_walkthrough.*
 import kotlinx.android.synthetic.main.holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED
 import uzh.scenere.const.Constants.Companion.NONE
+import uzh.scenere.const.Constants.Companion.READ_ONLY
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.CollectionHelper
 import uzh.scenere.helpers.DatabaseHelper
@@ -303,7 +305,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         walkthrough_layout_selection_content.visibility = GONE
         walkthrough_layout_selection.visibility = GONE
         walkthrough_holder.visibility = VISIBLE
-        activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!],{resetToolbar()}, {stop()})
+        activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!],{resetToolbar()}, {stop()},notifyExecutable)
         getContentHolderLayout().addView(activeWalkthrough)
     }
 
@@ -389,7 +391,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
             customizeToolbarId(null, null, R.string.icon_input, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
             getInfoContentWrap().removeAllViews()
-            getInfoContentWrap().addView(createLine(getString(R.string.literal_what_if), LineInputType.MULTI_TEXT, "readOnly", activeWalkthrough?.getActiveWhatIfs()?.toTypedArray()))
+            getInfoContentWrap().addView(createLine(getString(R.string.literal_what_if), LineInputType.MULTI_TEXT, READ_ONLY, activeWalkthrough?.getActiveWhatIfs()?.toTypedArray()))
             activeWalkthrough?.setWhatIfActive(true)
             mode = WalkthroughMode.WHAT_IF
         }
@@ -407,7 +409,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
             customizeToolbarId(null, if (activeWalkthrough?.getActiveWhatIfs().isNullOrEmpty()) null else R.string.icon_what_if, null, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
             getInfoContentWrap().removeAllViews()
-            getInfoContentWrap().addView(createLine(getString(R.string.literal_comment), LineInputType.MULTI_TEXT, "noCompleteRemoval", activeWalkthrough?.getComments(), addComment,removeComment))
+            getInfoContentWrap().addView(createLine(getString(R.string.literal_comment), LineInputType.MULTI_TEXT, COMPLETE_REMOVAL_DISABLED, activeWalkthrough?.getComments(), addComment,removeComment))
             activeWalkthrough?.setInputActive(true)
             mode = WalkthroughMode.INPUT
         }
@@ -445,6 +447,10 @@ class WalkthroughActivity : AbstractManagementActivity() {
         if (StringHelper.hasText(it)) {
             activeWalkthrough?.removeComment(it!!)
         }
+    }
+
+    private val notifyExecutable: (String) -> Unit = {
+        notify(it)
     }
 }
 

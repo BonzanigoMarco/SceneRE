@@ -89,6 +89,18 @@ class StringHelper{
             return split[split.size-1]
         }
 
+        fun styleString(stringId: Int, context: Context, appendBefore: ArrayList<String> = ArrayList(), appendAfter: ArrayList<String> = ArrayList()): SpannableString {
+            val builder = SpannableStringBuilder()
+            for (string in appendBefore){
+                builder.append(string)
+            }
+            builder.append(StringHelper.styleString(context.getText(stringId) as SpannedString, Typeface.createFromAsset(context.assets, "FontAwesome900.otf")))
+            for (string in appendAfter){
+                builder.append(string)
+            }
+            return SpannableString.valueOf(builder)
+        }
+
         fun styleString(spannedString: SpannedString, typeface: Typeface?): SpannableString {
             val annotations = spannedString.getSpans(0, spannedString.length, android.text.Annotation::class.java)
             val spannableString = SpannableString(spannedString)
@@ -105,6 +117,7 @@ class StringHelper{
             }
             return spannableString
         }
+
         class CustomTypefaceSpan(private val typeface: Typeface?) : MetricAffectingSpan() {
 
             override fun updateDrawState(drawState: TextPaint) {

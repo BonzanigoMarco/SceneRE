@@ -40,8 +40,12 @@ open class Stakeholder private constructor(val id: String,val projectId: String,
         return id.hashCode()
     }
 
+    override fun toString(): String {
+        return name
+    }
+
     class NullStakeholder(): Stakeholder("","","","") {}
-//    val id: String,val projectId: String,val name: String, val description: String
+
     companion object {
         val name__ = "Stakeholder"
         val id_ = "id"

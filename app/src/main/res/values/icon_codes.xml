@@ -52,6 +52,13 @@
     <string name="icon_trigger">&#xf2f5;</string>
     <string name="icon_what_if">&#xf128;</string>
     <string name="icon_input">&#xf304;</string>
+    <string name="icon_folder_minus">&#xf65d;</string>
+    <string name="icon_folder_plus">&#xf65e;</string>
+    <string name="icon_arrow_left">&#xf060;</string>
+    <string name="icon_arrow_right">&#xf061;</string>
+
+    <string name="connect_left"><annotation font="font_awesome">&#xf060;</annotation> </string>
+    <string name="connect_right"> <annotation font="font_awesome">&#xf061;</annotation></string>
 
     <string name="icon_explain_cockpit">
         <annotation font="font_awesome">&#xf04a;</annotation> Previous Section,
@@ -87,7 +94,10 @@
     <string name="icon_explain_editor">
         <annotation font="font_awesome">&#xf04a;</annotation>/
         <annotation font="font_awesome">&#xf04e;</annotation> Prev/Next Stakeholder,
-        <annotation font="font_awesome">&#xf067;</annotation> Add Step/Trigger</string>
+        <annotation font="font_awesome">&#xf067;</annotation> Add Step/Trigger,
+        <annotation font="font_awesome">&#xf044;</annotation> Edit,
+        <annotation font="font_awesome">&#xf2ed;</annotation> Delete,
+        <annotation font="font_awesome">&#xf128;</annotation> What-If</string>
     <string name="icon_explain_walkthrough">
         <annotation font="font_awesome">&#xf04a;</annotation>/
         <annotation font="font_awesome">&#xf04e;</annotation> Previous / Next,

@@ -125,16 +125,16 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
         setMargin(margin,margin,margin,margin)
     }
 
-    private fun setMargin(l: Int,r: Int,b: Int,t: Int){
+    fun setMargin(l: Int,r: Int,b: Int,t: Int){
         when (parentLayout){
             ParentLayout.LINEAR -> {
-                (layoutParams as LinearLayout.LayoutParams).setMargins(l,r,t,b)
+                (layoutParams as LinearLayout.LayoutParams).setMargins(l,t,r,b)
             }
             ParentLayout.RELATIVE -> {
-                (layoutParams as RelativeLayout.LayoutParams).setMargins(l,r,t,b)
+                (layoutParams as RelativeLayout.LayoutParams).setMargins(l,t,r,b)
             }
             ParentLayout.FRAME -> {
-                (layoutParams as FrameLayout.LayoutParams).setMargins(l,r,t,b)
+                (layoutParams as FrameLayout.LayoutParams).setMargins(l,t,r,b)
             }
             else -> {}
         }

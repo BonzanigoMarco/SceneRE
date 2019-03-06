@@ -91,6 +91,10 @@ open class SreEditText(context: Context, parent: ViewGroup?, text: String? = nul
         }
     }
 
+    fun setPadding(padding: Int){
+        setPadding(padding,padding,padding,padding)
+    }
+
     fun getMargin(): Int{
         when (parentLayout){
             ParentLayout.RELATIVE -> {

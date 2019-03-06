@@ -9,19 +9,19 @@ import uzh.scenere.const.Constants.Companion.REFLECTION
 import uzh.scenere.const.Constants.Companion.SPACE
 import kotlin.random.Random
 
-public inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int)->INNER): Array<Array<INNER>> = Array(sizeOuter) { Array<INNER>(sizeInner, innerInit) }
-public fun array2dOfInt(sizeOuter: Int, sizeInner: Int): Array<IntArray> = Array(sizeOuter) { IntArray(sizeInner) }
-public fun array2dOfFloat(sizeOuter: Int, sizeInner: Int): Array<FloatArray> = Array(sizeOuter) { FloatArray(sizeInner) }
-public fun array2dOfDouble(sizeOuter: Int, sizeInner: Int): Array<DoubleArray> = Array(sizeOuter) { DoubleArray(sizeInner) }
-public fun array2dOfLong(sizeOuter: Int, sizeInner: Int): Array<LongArray> = Array(sizeOuter) { LongArray(sizeInner) }
-public fun array2dOfByte(sizeOuter: Int, sizeInner: Int): Array<ByteArray> = Array(sizeOuter) { ByteArray(sizeInner) }
-public fun array2dOfChar(sizeOuter: Int, sizeInner: Int): Array<CharArray> = Array(sizeOuter) { CharArray(sizeInner) }
-public fun array2dOfBoolean(sizeOuter: Int, sizeInner: Int): Array<BooleanArray> = Array(sizeOuter) { BooleanArray(sizeInner) }
-public fun floor(value: Double, precision: Int):Double = Math.floor(precision*value)/precision.toDouble()
-public fun EditText.getStringValue(): String = text.toString()
-public fun TextView.getStringValue(): String = text.toString()
-public fun Random.nextSafeInt(range: Int): Int = if (range<=0) 0 else nextInt(range)
-public fun Any.className(): String {
+inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int)->INNER): Array<Array<INNER>> = Array(sizeOuter) { Array<INNER>(sizeInner, innerInit) }
+fun array2dOfInt(sizeOuter: Int, sizeInner: Int): Array<IntArray> = Array(sizeOuter) { IntArray(sizeInner) }
+fun array2dOfFloat(sizeOuter: Int, sizeInner: Int): Array<FloatArray> = Array(sizeOuter) { FloatArray(sizeInner) }
+fun array2dOfDouble(sizeOuter: Int, sizeInner: Int): Array<DoubleArray> = Array(sizeOuter) { DoubleArray(sizeInner) }
+fun array2dOfLong(sizeOuter: Int, sizeInner: Int): Array<LongArray> = Array(sizeOuter) { LongArray(sizeInner) }
+fun array2dOfByte(sizeOuter: Int, sizeInner: Int): Array<ByteArray> = Array(sizeOuter) { ByteArray(sizeInner) }
+fun array2dOfChar(sizeOuter: Int, sizeInner: Int): Array<CharArray> = Array(sizeOuter) { CharArray(sizeInner) }
+fun array2dOfBoolean(sizeOuter: Int, sizeInner: Int): Array<BooleanArray> = Array(sizeOuter) { BooleanArray(sizeInner) }
+fun floor(value: Double, precision: Int):Double = Math.floor(precision*value)/precision.toDouble()
+fun EditText.getStringValue(): String = text.toString()
+fun TextView.getStringValue(): String = text.toString()
+fun Random.nextSafeInt(range: Int): Int = if (range<=0) 0 else nextInt(range)
+fun Any.className(): String {
     val splits = this::class.toString().replace(REFLECTION,NOTHING).split(".")
     val s = splits[splits.size - 1]
     if (s.startsWith(NULL_CLASS) && !this::class.supertypes.isEmpty()){
@@ -29,7 +29,7 @@ public fun Any.className(): String {
     }
     return s
 }
-public fun Any.readableClassName(delimiter: String = SPACE): String {
+fun Any.readableClassName(delimiter: String = SPACE): String {
     val className = className()
     var readableClassName = ""
     for (c in 0 until className.length){
@@ -40,10 +40,10 @@ public fun Any.readableClassName(delimiter: String = SPACE): String {
     }
     return readableClassName
 }
-public fun Cursor.getBoolean(columnIndex: Int): Boolean{
+fun Cursor.getBoolean(columnIndex: Int): Boolean{
     return getInt(columnIndex) == 1
 }
-public fun countNonNull(vararg args: Any?):Int {
+fun countNonNull(vararg args: Any?):Int {
     var count = 0
     for (arg in args){
         if (arg != null){
@@ -54,7 +54,7 @@ public fun countNonNull(vararg args: Any?):Int {
 }
 
 @Suppress("UNCHECKED_CAST")
-public fun addToArrayBefore(array: Array<String>, vararg args: String): Array<String>{
+fun addToArrayBefore(array: Array<String>, vararg args: String): Array<String>{
     val newArray = arrayOfNulls<String?>(array.size+args.size)
     var i = 0
     for (t in args){
@@ -69,7 +69,7 @@ public fun addToArrayBefore(array: Array<String>, vararg args: String): Array<St
 }
 
 @Suppress("UNCHECKED_CAST")
-public fun <T: Any> addToArrayAfter(array: Array<T>, vararg args: T): Array<T>{
+fun <T: Any> addToArrayAfter(array: Array<T>, vararg args: T): Array<T>{
     val newArray: Array<T> = arrayOfNulls<Any>(array.size+args.size) as Array<T>
     var i = 0
     for (t in array){
@@ -81,4 +81,25 @@ public fun <T: Any> addToArrayAfter(array: Array<T>, vararg args: T): Array<T>{
         i++
     }
     return newArray
+}
+
+fun ArrayList<*>.toStringArray(): Array<String>{
+    val list = ArrayList<String>()
+    for (i in 0 until size){
+        list.add(get(i).toString())
+    }
+    return list.toTypedArray()
+}
+
+fun List<*>.toStringArray(): Array<String>{
+    val list = ArrayList<String>()
+    for (i in 0 until size){
+        list.add(get(i).toString())
+    }
+    return list.toTypedArray()
+}
+
+fun String.isContainedIn(str: String?):Boolean{
+    if (str == null) return false
+    return str.contains(this)
 }

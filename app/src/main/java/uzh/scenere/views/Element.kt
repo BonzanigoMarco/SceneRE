@@ -3,17 +3,24 @@ package uzh.scenere.views
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.SpannedString
 import android.util.TypedValue
 import android.view.View
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
+import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.datamodel.IElement
+import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
-import uzh.scenere.helpers.NumberHelper
+import uzh.scenere.datamodel.trigger.direct.StakeholderInteractionTrigger
+import uzh.scenere.helpers.*
 import uzh.scenere.views.SreTextView.TextStyle.DARK
 import uzh.scenere.views.SreTextView.TextStyle.LIGHT
 import java.io.Serializable
@@ -27,6 +34,7 @@ class Element (context: Context, private var element: IElement, private val top:
     var addButton: IconButton? = null
     var removeButton: IconButton? = null
     var whatIfButton: IconButton? = null
+    var interactionView: SreTextView? = null
     var pathSpinner: SreSpinner? = null
     private var connectionTop: TextView? = null
     private var connectionLeft: TextView? = null
@@ -37,9 +45,6 @@ class Element (context: Context, private var element: IElement, private val top:
     private var centerWrapper: RelativeLayout? = null
     private var bottomWrapper: RelativeLayout? = null
 
-    private var dpiPaddingSmall = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt()
-    private var dpiMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt()
-    private var dpiPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt()
     private var dpiConnectorWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt()
     private var dpiConnectorHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50f, resources.displayMetrics).toInt()
 
@@ -139,11 +144,28 @@ class Element (context: Context, private var element: IElement, private val top:
         // RIGHT
         when (element){
             is IfElseTrigger -> {
-                addButton = IconButton(context, bottomWrapper, R.string.icon_plus,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
+                addButton = IconButton(context, bottomWrapper, R.string.icon_folder_plus,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
                 addButton?.id = View.generateViewId()
-                removeButton = IconButton(context, bottomWrapper, R.string.icon_minus,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, addButton!!.id).addRule(CENTER_VERTICAL, TRUE)
+                removeButton = IconButton(context, bottomWrapper, R.string.icon_folder_minus,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, addButton!!.id).addRule(CENTER_VERTICAL, TRUE)
                 bottomWrapper?.addView(addButton)
                 bottomWrapper?.addView(removeButton)
+            }
+            is StakeholderInteractionTrigger -> {
+                val stakeholder = DatabaseHelper.getInstance(context).read((element as StakeholderInteractionTrigger).interactedStakeholderId!!, Stakeholder::class)
+                if (stakeholder !is Stakeholder.NullStakeholder) {
+                    interactionView = SreTextView(context, bottomWrapper, stakeholder.name)
+                    if (right) {
+                        interactionView?.text = StringHelper.styleString(R.string.connect_right,context, arrayListOf(stakeholder.name))
+                        interactionView?.addRule(RelativeLayout.ALIGN_PARENT_END, connectionBottom!!.id)
+                        interactionView?.setMargin(0,DipHelper.get(resources).dip3,0,0)
+                    }
+                    if (left) {
+                        interactionView?.text = StringHelper.styleString(R.string.connect_left,context, ArrayList(),arrayListOf(stakeholder.name))
+                        interactionView?.addRule(RelativeLayout.ALIGN_PARENT_START, connectionBottom!!.id)
+                        interactionView?.setMargin(DipHelper.get(resources).dip3,0,0,0)
+                    }
+                    bottomWrapper?.addView(interactionView?.addRule(CENTER_VERTICAL, TRUE))
+                }
             }
             is AbstractStep -> {
                 whatIfButton = IconButton(context, bottomWrapper, R.string.icon_question,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)

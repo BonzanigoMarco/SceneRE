@@ -16,7 +16,6 @@ import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.NumberHelper
 import java.util.*
-import kotlin.collections.ArrayList
 
 @SuppressLint("ViewConstructor")
 class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
@@ -121,22 +120,24 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         var pointer = 0
         for (entry in steps) { //Iterate Stakeholders
             if (pointer == stakeholderPointer){
-                addView(createLine("Stakeholder",false, entry.key.name))
+                addView(createLine(context.getString(R.string.literal_stakeholder),false, entry.key.name))
                 val walkthroughCount = walkthroughAmount[entry.key]
-                addView(createLine("Walkthroughs",false,"$walkthroughCount"))
+                addView(createLine(context.getString(R.string.literal_walkthroughs),false,"$walkthroughCount"))
                 for (step in entry.value.entries){
-                    addView(createLine("Transition #${step.key}", false, step.value.getStatistics()))
+                    addView(createLine(context.getString(R.string.analytics_transition_x,step.key), false, step.value.getStatistics()))
                     val times = stepTimes[entry.key]?.get(step.key)
                     if (times != null) {
                         val avg = times.avg()
-                        addView(createLine("Avg. Time", false, "$avg Seconds"))
+                        addView(createLine(context.getString(R.string.analytics_avg_time), false, context.getString(R.string.analytics_x_seconds,avg)))
                     }
                 }
                 val paths = paths[entry.key]
                 if (paths != null){
+                    var counter = 1
                     for (path in paths.getDesc()){
                         val percentage = NumberHelper.floor(paths.getPercentage(path), 2)
-                        addView(createLine("Path Version ($percentage%)", false, path))
+                        addView(createLine(context.getString(R.string.analytics_path_version_x,counter).plus("$percentage%"), false, path))
+                        counter++
                     }
                 }
             }

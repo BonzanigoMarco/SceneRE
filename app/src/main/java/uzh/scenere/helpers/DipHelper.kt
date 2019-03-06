@@ -12,6 +12,7 @@ class DipHelper private constructor(private val resources: Resources) {
     val dip0 = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0f, resources.displayMetrics).toInt()
     val dip1 = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt()
     val dip2 = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt()
+    val dip2_5 = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2.5f, resources.displayMetrics).toInt()
     val dip3 = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f, resources.displayMetrics).toInt()
     val dip3_5 = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3.5f, resources.displayMetrics).toInt() //Text
     val dip4 = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()

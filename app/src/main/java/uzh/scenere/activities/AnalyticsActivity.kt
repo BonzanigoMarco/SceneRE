@@ -82,6 +82,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
         creationButton?.setExecutable(createControlExecutable())
         analytics_layout_button_holder.addView(creationButton)
         customizeToolbarId(R.string.icon_back, null, null, null, null)
+        getInfoTitle().textSize = DipHelper.get(resources).dip2_5.toFloat()
         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_analytics").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         createOverviewLayout()
     }
@@ -404,7 +405,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                 creationButton?.setButtonStates(true, true, true, true)?.setText(text)?.updateViews(false)
             }
             is Walkthrough -> {
-                creationButton?.setButtonStates(true, true, true, true)?.setText("Walkthrough number "+(pointer!!+1))?.updateViews(false)
+                creationButton?.setButtonStates(true, true, true, true)?.setText(getString(R.string.analytics_walkthrough_x,(pointer!!+1)))?.updateViews(false)
                 Handler().postDelayed({
                     getContentHolderLayout().removeAllViews()
                     getContentHolderLayout().addView(WalkthroughAnalyticLayout(applicationContext, selectedList[pointer!!] as Walkthrough, true) {
@@ -416,7 +417,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         }else{
                             execNext()
                         }
-                        notify("Deleted")
+                        notify(getString(R.string.deleted))
                     })
                 }, 500)
             }

@@ -103,7 +103,7 @@ class DatabaseHelper private constructor(context: Context) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Serializable> read(key: String, clz: KClass<T>, valIfNull: T, internalMode: DataMode = mode): T {
+    fun <T : Serializable> read(key: String, clz: KClass<T>, valIfNull: T = NullHelper.get(clz), internalMode: DataMode = mode): T {
         try {
             when (internalMode) {
                 DataMode.PREFERENCES -> {

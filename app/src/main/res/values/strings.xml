@@ -14,6 +14,8 @@
         <item>@string/trigger_none</item>
         <item>@string/trigger_button</item>
         <item>@string/trigger_if_else</item>
+        <item>@string/trigger_stakeholder_interaction</item>
+        <item>@string/trigger_input</item>
     </string-array>
 
     <string name="spinner_none">[Select a Type first]</string>
@@ -30,6 +32,8 @@
     
     <string name="trigger_button">Button</string>
     <string name="trigger_if_else">If-Else</string>
+    <string name="trigger_stakeholder_interaction">Stakeholder Interaction</string>
+    <string name="trigger_input">Input</string>
     <string name="trigger_timer">Timer</string>
 
     <string name="trigger_bt">Bluetooth</string>
@@ -84,8 +88,9 @@
     <string name="empty" />
     <string name="label">%1$s:</string>
     <string name="input">Input %1$s</string>
-    <string name="deleted">%1$s Deleted!</string>
+    <string name="x_deleted">%1$s Deleted!</string>
     <string name="add">Add</string>
+    <string name="deleted">Deleted!</string>
     <string name="none">None</string>
     <string name="observing">Observing %1$s</string>
 
@@ -148,6 +153,7 @@
     <string name="literal_scenarios">Scenarios</string>
     <string name="literal_projects">Projects</string>
     <string name="literal_stakeholders">Stakeholders</string>
+    <string name="literal_stakeholder">Stakeholder</string>
     <string name="literal_steps_with_comments">Steps with Comments</string>
     <string name="literal_value">Value</string>
     <string name="literal_walkthroughs">Walkthroughs</string>
@@ -212,4 +218,16 @@
     <string name="analytics_statistics">Statistics</string>
     <string name="analytics_comments">Comments</string>
     <string name="analytics_walkthroughs">Walkthroughs</string>
+    <string name="warn_not_all_required_info_entered">Not all required information entered!</string>
+    <string name="analytics_avg_time">Avg. Time</string>
+    <string name="analytics_step_number">Step Number</string>
+    <string name="analytics_step_title">Step Title</string>
+    <string name="analytics_step_text">Step Text</string>
+    <string name="analytics_step_runs">Step Runs</string>
+    <string name="analytics_comment_timestamp">Comment Timestamp</string>
+    <string name="analytics_comment_of">Comment of %1$s</string>
+    <string name="analytics_x_seconds">%1$d Second(s)</string>
+    <string name="analytics_transition_x">Transition #%1$d</string>
+    <string name="analytics_path_version_x">Path Version %1$d</string>
+    <string name="analytics_walkthrough_x">Walkthrough number %1$d</string>
 </resources>
