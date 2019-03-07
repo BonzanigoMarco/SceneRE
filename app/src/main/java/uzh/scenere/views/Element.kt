@@ -95,7 +95,7 @@ class Element (context: Context, private var element: IElement, private val top:
         if (top) {
             connectionTop?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
         }
-        val centerParams = LayoutParams(dpiConnectorWidth, dpiConnectorHeight+NumberHelper.nvl(editButton?.getMargin(),0)*2)
+        val centerParams = LayoutParams(dpiConnectorWidth, dpiConnectorHeight+NumberHelper.nvl(editButton?.getTopMargin(),0)*2)
         centerParams.addRule(CENTER_HORIZONTAL, TRUE)
         connectionTop?.layoutParams = centerParams
         topWrapper?.addView(connectionTop)

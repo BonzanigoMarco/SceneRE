@@ -16,6 +16,19 @@ class CollectionHelper private constructor() {
             return false
         }
 
+
+        fun containsOneOf(value: String, vararg values: String): Boolean {
+            if (values.isEmpty()){
+                return false;
+            }
+            for (v in values){
+                if (value.contains(v)){
+                    return true
+                }
+            }
+            return false
+        }
+
         @Suppress("UNCHECKED_CAST")
         fun <T> subArray(clazz: Class<T>, source: List<T>, begin: Int, end: Int): kotlin.Array<T> {
             if (source.size < end || end <= begin) {

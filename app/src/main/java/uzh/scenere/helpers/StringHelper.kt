@@ -193,5 +193,15 @@ class StringHelper{
             }
             return html
         }
+
+        fun numberToPositionString(num: Int): String {
+            val i = num%10
+            return when (i){
+                1 -> num.toString().plus("st")
+                2 -> num.toString().plus("nd")
+                3 -> num.toString().plus("rd")
+                else -> num.toString().plus("th")
+            }
+        }
     }
 }

@@ -4,7 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.NEW_LINE_C
+import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.NOT_CONSULTED
 import uzh.scenere.const.Constants.Companion.NO_DATA
+import uzh.scenere.const.Constants.Companion.ZERO
+import uzh.scenere.const.Constants.Companion.ZERO_L
 import uzh.scenere.datamodel.Walkthrough.WalkthroughProperty.*
 import uzh.scenere.datamodel.Walkthrough.WalkthroughStepProperty.*
 import uzh.scenere.datamodel.steps.AbstractStep
@@ -60,19 +64,20 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
     //Data can be collected globally due to a single entry point
     @Suppress("UNCHECKED_CAST")
     enum class WalkthroughProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val isStatisticalValue: Boolean, val multivalued: Boolean = false) {
-        WT_ID("Walkthrough-ID", String::class, "", false),
-        WT_OWNER("User", String::class, "", true),
-        SCENARIO_ID("Scenario-ID", String::class, "", false),
-        STAKEHOLDER_ID("Stakeholder-ID", String::class, "", false),
-        INTRO_TIME("Intro Time", Long::class, 0L, true),
-        COMPLETION_TIME("Completion Time", Long::class, 0L, true),
-        TIMESTAMP("Timestamp", Long::class, 0L, true),
-        INFO_TIME("Info Time", Long::class, 0L, true),
-        WHAT_IF_TIME("What-If Time", Long::class, 0L, true),
-        INPUT_TIME("Input Time", Long::class, 0L, true),
-        INFO_OBJECT("Info Object(s)", String::class, "", true, true),
-        INFO_ATTRIBUTE("Info Attribute(s)", String::class, "", true, true),
-        STEP_ID_LIST("Step ID(s)", String::class, "", false, true);
+        WT_ID("Walkthrough-ID", String::class, NOTHING, false),
+        WT_OWNER("User", String::class, NOTHING, true),
+        SCENARIO_ID("Scenario-ID", String::class, NOTHING, false),
+        STAKEHOLDER_ID("Stakeholder-ID", String::class, NOTHING, false),
+        INTRO_TIME("Intro Time", Long::class, ZERO_L, true),
+        COMPLETION_TIME("Completion Time", Long::class, ZERO_L, true),
+        TIMESTAMP("Timestamp", Long::class, ZERO_L, true),
+        INFO_TIME("Info Time", Long::class, ZERO_L, true),
+        WHAT_IF_TIME("What-If Time", Long::class, ZERO_L, true),
+        INPUT_TIME("Input Time", Long::class, ZERO_L, true),
+        FINAL_STATE("Final State", String::class, NOTHING, true),
+        INFO_OBJECT("Info Object(s)", String::class, NOTHING, true, true),
+        INFO_ATTRIBUTE("Info Attribute(s)", String::class, NOTHING, true, true),
+        STEP_ID_LIST("Step ID(s)", String::class, NOTHING, false, true);
 
         @SuppressLint("SimpleDateFormat")
         fun getDisplayText(): String {
@@ -94,6 +99,8 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
                 INFO_OBJECT, INFO_ATTRIBUTE -> {
                     if (value != valueIfNull) {
                         return StringHelper.concatTokens(", ", getAll(type))
+                    }else{
+                        return NOT_CONSULTED
                     }
                 }
                 else -> return value.toString()
@@ -172,14 +179,14 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
 
     @Suppress("UNCHECKED_CAST")
     enum class WalkthroughStepProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val isStatisticalValue: Boolean, val multivalued: Boolean = false) {
-        STEP_ID("Step-ID", String::class, "", false),
-        STEP_TIME("Step Time", Long::class, 0L, true),
-        STEP_NUMBER("Step Number", Int::class, 0, true),
-        STEP_TEXT("Step Text", String::class, "", true),
-        STEP_TITLE("Step Title", String::class, "", true),
-        STEP_TYPE("Step Type", String::class, "", true),
-        STEP_COMMENTS("Step Comments", String::class, "", true,true),
-        TRIGGER_INFO("Trigger Info", String::class, "", true);
+        STEP_ID("Step-ID", String::class, NOTHING, false),
+        STEP_TIME("Step Time", Long::class, ZERO_L, true),
+        STEP_NUMBER("Step Number", Int::class, ZERO, true),
+        STEP_TEXT("Step Text", String::class, NOTHING, true),
+        STEP_TITLE("Step Title", String::class, NOTHING, true),
+        STEP_TYPE("Step Type", String::class, NOTHING, true),
+        STEP_COMMENTS("Step Comments", String::class, NOTHING, true,true),
+        TRIGGER_INFO("Trigger Info", String::class, NOTHING, true);
 
         @SuppressLint("SimpleDateFormat")
         fun getDisplayText(stepId: String): String {
@@ -187,7 +194,12 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             when (this) {
                 STEP_TIME -> {
                     if (value != valueIfNull) {
-                        return ((value as Long) ).toString() + " Second(s)"
+                        return value.toString() + " Second(s)"
+                    }
+                }
+                TRIGGER_INFO -> {
+                    if (value == valueIfNull) {
+                        return "Walkthrough cancelled"
                     }
                 }
                 else -> return value.toString()
@@ -382,12 +394,12 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             return
         }
         clearWalkthrough()
-        var stepId = ""
+        var stepId = NOTHING
         for (line in lines) {
             if (line.startsWith("<?")) {
                 continue;
             } else if (line.contains(" type=")) {
-                val enumString = line.substring(1, line.indexOf(" type=")).replace("[0-9]+".toRegex(), "")
+                val enumString = line.substring(1, line.indexOf(" type=")).replace("[0-9]+".toRegex(), NOTHING)
                 if (StringHelper.hasText(stepId)) {
                     var enum: WalkthroughStepProperty? = null
                     try {
@@ -395,8 +407,8 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
                     } catch (e: Exception) {
                     }
                     if (enum != null) {
-                        val value = line.replace("<(.*?)>".toRegex(), "")
-                        val type = line.replace("<(.*?)type=\"".toRegex(), "").replace("\">(.*?)>".toRegex(), "")
+                        val value = line.replace("<(.*?)>".toRegex(), NOTHING)
+                        val type = line.replace("<(.*?)type=\"".toRegex(), NOTHING).replace("\">(.*?)>".toRegex(), NOTHING)
                         enum.set(stepId, DataHelper.parseString(value, type))
                     }
                 } else {
@@ -406,18 +418,18 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
                     } catch (e: Exception) {
                     }
                     if (enum != null) {
-                        val value = line.replace("<(.*?)>".toRegex(), "")
-                        val type = line.replace("<(.*?)type=\"".toRegex(), "").replace("\">(.*?)>".toRegex(), "")
+                        val value = line.replace("<(.*?)>".toRegex(), NOTHING)
+                        val type = line.replace("<(.*?)type=\"".toRegex(), NOTHING).replace("\">(.*?)>".toRegex(), NOTHING)
                         enum.set(DataHelper.parseString(value, type))
                     }
                 }
             } else if (line.contains(" id=")) { //Step Begin
                 stepId = line.substring(line.indexOf(" id=") + " id=".length + 1, line.length - 2)
             } else if (line.startsWith("</ ")) { //Step End
-                stepId = ""
+                stepId = NOTHING
             }
         }
-        if (COMPLETION_TIME.get(Long::class) == 0L) {
+        if (COMPLETION_TIME.get(Long::class) == ZERO_L) {
             calculateCompletionTime()
         }
         copy()
@@ -428,5 +440,5 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         return xmlRepresentation
     }
 
-    class NullWalkthrough() : Walkthrough("", "", "", "") {}
+    class NullWalkthrough() : Walkthrough(NOTHING, NOTHING, NOTHING, NOTHING) {}
 }

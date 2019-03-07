@@ -62,7 +62,7 @@ class StartupActivity : AbstractBaseActivity() {
         low = if (low > returnChar.toInt()) returnChar.toInt() else low
         text.text = (low + Random.nextSafeInt(2*(returnChar.toInt()-low))).toChar().toString()
         val offsetNew = if (offset < 50 && Math.random()>0.5) (offset+1) else offset
-        Handler().postDelayed({morphRandom(text,returnChar, false, offsetNew)},(50L + Random.nextSafeInt((50-offsetNew))))
+        Handler().postDelayed({morphRandom(text,returnChar, false, offsetNew)},(0L + Random.nextSafeInt((50-offsetNew))))
     }
 
     private fun complete() {
@@ -77,7 +77,7 @@ class StartupActivity : AbstractBaseActivity() {
         interrupted = true
         startup_edit_name.isEnabled = true
         startup_button_continue.visibility = VISIBLE
-        startup_text_name.text = "Do you want to change your Name?"
+        startup_text_name.text = getString(R.string.startup_name_change)
         fadeIn()
     }
 
@@ -96,7 +96,7 @@ class StartupActivity : AbstractBaseActivity() {
             Handler().postDelayed({
                 fadeOut()
             },1000)
-            startup_text_name.text = "Welcome Back"
+            startup_text_name.text = getString(R.string.startup_welcome_back)
             startup_edit_name.setText(userName)
             startup_edit_name.isEnabled = false
             Handler().postDelayed({checkInputAndNext()},2000)
@@ -141,7 +141,7 @@ class StartupActivity : AbstractBaseActivity() {
             return
         }
         if (!StringHelper.hasText(startup_edit_name.text)) {
-            notify("Please enter a Name")
+            notify(getString(R.string.startup_name_enter))
             return
         }
         closing = true

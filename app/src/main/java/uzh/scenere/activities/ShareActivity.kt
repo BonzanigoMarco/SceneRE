@@ -103,10 +103,12 @@ class ShareActivity : AbstractManagementActivity() {
     private var controlInput: SreContextAwareTextView? = null
     private var cachedBinary: ByteArray? = null
     private val fileMap =  HashMap<File,LinearLayout>()
+    private var includeWalkthroughs = true
+    private var walkthroughSwitch: SreButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        creationButton = SwipeButton(this, "File Export Mode")
+        creationButton = SwipeButton(this, getString(R.string.share_mode_file_export))
                 .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_null, null)
@@ -147,11 +149,12 @@ class ShareActivity : AbstractManagementActivity() {
 
     private fun execLoadFileExport() {
         getContentHolderLayout().removeAllViews()
-        controlButton = SreButton(applicationContext, getContentHolderLayout(), "Collect your Data").addExecutable {
+        controlButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_collect_data)).addExecutable {
             cachedBinary = exportDatabaseToBinary()
             if (cachedBinary != null) {
                 val wrapper = createStatisticsFromCachedBinary(true)
                 if (wrapper.validationCode == VALIDATION_OK){
+                    getContentHolderLayout().removeView(walkthroughSwitch)
                     controlButton?.text = getString(R.string.share_export_data)
                     controlButton?.addExecutable {
                         val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + SRE_FILE
@@ -167,13 +170,20 @@ class ShareActivity : AbstractManagementActivity() {
                 }
             }
         }
+        includeWalkthroughs = true
+        walkthroughSwitch = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_include_walkthroughs))
+        walkthroughSwitch?.addExecutable {
+            includeWalkthroughs = !includeWalkthroughs
+            walkthroughSwitch?.text = if (includeWalkthroughs) getString(R.string.share_include_walkthroughs) else getString(R.string.share_exclude_walkthroughs)
+        }
         getContentHolderLayout().addView(controlButton)
+        getContentHolderLayout().addView(walkthroughSwitch)
         getInfoTitle().text = NOTHING
     }
 
     private fun createStatisticsFromCachedBinary(export: Boolean): ShareWrapper {
         val wrapper = analyzeBinary(cachedBinary!!, export)
-        val statistics = SreContextAwareTextView(applicationContext, getContentHolderLayout(), arrayListOf("Owner", "Size", "Creation Date", "Content", "File-Format", "Project(s)", "Stakeholder(s)", "Object(s)", "Attribute(s)", "Scenario(s)", "Path(s)", "Step(s)", "Trigger(s)", "Walkthrough(s)"), ArrayList())
+        val statistics = SreContextAwareTextView(applicationContext, getContentHolderLayout(), resources.getStringArray(R.array.share_keywords).toCollection(ArrayList()), ArrayList())
         when (wrapper.validationCode){
                 VALIDATION_OK -> {
                     statistics.text = wrapper.statistics
@@ -229,7 +239,7 @@ class ShareActivity : AbstractManagementActivity() {
                     val button = IconButton(applicationContext, buttonWrap, R.string.icon_file).addExecutable { execLoadFile(file) }
                     val textView = SreTextView(applicationContext, buttonWrap, file.name)
                     textView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT)
-                    textView.setMargin(button.getMargin())
+                    textView.setMargin(button.getTopMargin())
                     textView.setSingleLine(true)
                     textView.setWeight(4f)
                     buttonWrap.addView(button)
@@ -311,7 +321,7 @@ class ShareActivity : AbstractManagementActivity() {
         val userName = DatabaseHelper.getInstance(applicationContext).read(Constants.USER_NAME, String::class, NOTHING)
         shareWrapper.withOwner(userName)
         // Walkthroughs
-        val walkthroughs = DatabaseHelper.getInstance(applicationContext).readBulk(Walkthrough::class, null)
+        val walkthroughs = if (includeWalkthroughs) DatabaseHelper.getInstance(applicationContext).readBulk(Walkthrough::class, null) else ArrayList()
         shareWrapper.withWalkthroughs(walkthroughs.toTypedArray())
         return DataHelper.toByteArray(shareWrapper)
     }

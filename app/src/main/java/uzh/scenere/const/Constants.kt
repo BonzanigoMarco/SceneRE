@@ -12,10 +12,14 @@ class Constants {
         const val ANONYMOUS: String = "John Doe"
         //NUMBERS
         const val MILLION: Double = 1000000.0
+        const val FIVE_MIN_MS: Long = 300000
+        const val TEN_SEC_MS: Long = 10000
         const val THOUSAND: Double = 1000.0
         const val HUNDRED: Double = 100.0
         const val FRACTION: Float = 0.1f
-        const val ZERO: Float = 0.0f
+        const val ZERO_F: Float = 0.0f
+        const val ZERO_L: Long = 0
+        const val ZERO: Int = 0
         //PERMISSIONS
         const val PERMISSION_REQUEST_ALL: Int = 888
         const val PERMISSION_REQUEST_GPS: Int = 666
@@ -64,8 +68,10 @@ class Constants {
         const val SPACE: String = " "
         const val DOLLAR_STRING: Char = '$'
         const val NOTHING: String = ""
+        const val DASH: String = "-"
         const val NONE: String = "None"
         const val NO_DATA: String = "No Data"
+        const val NOT_CONSULTED: String = "Not consulted"
         //XML
         const val EMPTY_LIST: String = "EmptyList"
         const val NULL: String = "NULL"

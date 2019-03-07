@@ -2,11 +2,19 @@ package uzh.scenere.views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
+import android.os.Handler
+import android.support.v4.content.ContextCompat
 import android.view.View
-import android.widget.*
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
 import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.ANONYMOUS
+import uzh.scenere.const.Constants.Companion.DASH
+import uzh.scenere.const.Constants.Companion.FIVE_MIN_MS
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.TEN_SEC_MS
 import uzh.scenere.const.Constants.Companion.USER_NAME
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.ContextObject.NullContextObject
@@ -62,6 +70,8 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private val mode: WalkthroughPlayMode = if (first is AbstractStep) WalkthroughPlayMode.STEP_INDUCED else WalkthroughPlayMode.TRIGGER_INDUCED
     private var backupState: WalkthroughState = WalkthroughState.STARTED
     var state: WalkthroughState = WalkthroughState.STARTED
+    //Update
+    private var refresh = false
 
     init {
         prepareLayout()
@@ -93,11 +103,11 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     private fun resolveIntro() {
-        val text = generateText("Intro", scenario.intro, ArrayList(),arrayListOf("Intro"))
-        val button = generateButton("Start Scenario")
+        val text = generateText(context.getString(R.string.walkthrough_intro), scenario.intro, ArrayList(),arrayListOf("Intro"))
+        val button = generateButton(context.getString(R.string.walkthrough_start_scenario))
         button.addExecutable {
             Walkthrough.WalkthroughProperty.INTRO_TIME.set(getTime())
-            loadNextStep("Start Scenario")
+            loadNextStep(context.getString(R.string.walkthrough_start_scenario))
         }
         stepLayout.addView(text)
         triggerLayout.addView(button)
@@ -119,12 +129,12 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                     is ButtonTrigger -> {
                         val button = generateButton((second as ButtonTrigger).buttonLabel)
                         button.addExecutable {
-                            loadNextStep("Button")
+                            loadNextStep(context.getString(R.string.walkthrough_transition_button))
                         }
                         triggerLayout.addView(button)
                     }
                     is IfElseTrigger -> {
-                        val title = "Question [" + (second as IfElseTrigger).getOptions().size + " Option(s)]:"
+                        val title = context.getString(R.string.walkthrough_question_option,(second as IfElseTrigger).getOptions().size)
                         val questionText = generateText(title, (second as IfElseTrigger).text, ArrayList(), arrayListOf(title))
                         questionText.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE)
                         questionText.id = View.generateViewId()
@@ -140,7 +150,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                             val optionLayer = (second as IfElseTrigger).getLayerForOption(optionId++)
                             button.addExecutable {
                                 layer = optionLayer
-                                loadNextStep("Button: ${button.text}",optionLayer != 0)
+                                loadNextStep( context.getString(R.string.walkthrough_transition_button_x,button.text),optionLayer != 0)
                             }
                             scroll.addScrollElement(button)
                         }
@@ -149,18 +159,29 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                     is StakeholderInteractionTrigger -> {
                         val interactedStakeholder = DatabaseHelper.getInstance(context).read((second as StakeholderInteractionTrigger).interactedStakeholderId!!, Stakeholder::class)
                         if (interactedStakeholder !is Stakeholder.NullStakeholder) {
-                            val title = (second as StakeholderInteractionTrigger).text!!
-                                    .plus("\nExchange your Interaction-Code with "+interactedStakeholder.name)
-                                    .plus("\nYour Code: "+stakeholder.id.substring(0,4))
-                            val titleText = generateText(null, title, ArrayList(), arrayListOf("Interaction-Code",stakeholder.id.substring(0,4)))
-                            val codeInput = generateEditText("Code", ArrayList(), arrayListOf(title))
-                            val button = generateButton("Check Code")
+                            val text = (second as StakeholderInteractionTrigger).text!!
+                            val name = interactedStakeholder.name
+                            val code = generateCode(stakeholder)
+                            val title = context.getString(R.string.walkthrough_interaction_text,text,name,code)
+                            val titleText = generateText(null, title, ArrayList(), arrayListOf(context.getString(R.string.walkthrough_interaction_code),text, name, code))
+                            val codeInput = generateEditText(context.getString(R.string.walkthrough_input_code))
+                            codeInput.setMargin(DipHelper.get(resources).dip10)
+                            val button = generateButton(context.getString(R.string.walkthrough_check_code))
+                            refresh = true
+                            refresh({
+                                val t = (second as StakeholderInteractionTrigger).text!!
+                                val n = interactedStakeholder.name
+                                val c = generateCode(stakeholder)
+                                val txt = context.getString(R.string.walkthrough_interaction_text, t, n, c)
+                                titleText.setTextWithNewBoldWords(txt,c)
+                            })
                             button.addExecutable {
-                                if (codeInput.text.toString() == (interactedStakeholder.id.substring(0,4))){
-                                    loadNextStep("Button")
-                                    notify.invoke("Correct Code!")
+                                if (codeInput.text.toString() == generateCode(interactedStakeholder)){
+                                    loadNextStep(context.getString(R.string.walkthrough_transition_interaction))
+                                    refresh = false
+                                    notify.invoke(context.getString(R.string.walkthrough_correct_code))
                                 }else{
-                                    notify.invoke("Wrong Code!")
+                                    notify.invoke(context.getString(R.string.walkthrough_incorrect_code))
                                     codeInput.text = null
                                 }
                             }
@@ -172,13 +193,33 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         }
                     }
                     is InputTrigger -> {
-
+                        val text = (second as InputTrigger).text!!
+                        val input = (second as InputTrigger).input!!
+                        val titleText = generateText(null, context.getString(R.string.walkthrough_input_text,text), ArrayList(), arrayListOf(text))
+                        val inputField = generateEditText(context.getString(R.string.walkthrough_input_here))
+                        inputField.setMargin(DipHelper.get(resources).dip10)
+                        val button = generateButton(context.getString(R.string.walkthrough_check_input))
+                        button.addExecutable {
+                            if (inputField.text.toString() == input){
+                                loadNextStep(context.getString(R.string.walkthrough_transition_input))
+                                refresh = false
+                                notify.invoke(context.getString(R.string.walkthrough_input_correct))
+                            }else{
+                                notify.invoke(context.getString(R.string.walkthrough_input_incorrect))
+                                inputField.text = null
+                            }
+                        }
+                        val scroll = SreScrollView(context,triggerLayout)
+                        scroll.addScrollElement(titleText)
+                        scroll.addScrollElement(inputField)
+                        scroll.addScrollElement(button)
+                        triggerLayout.addView(scroll)
                     }
                     else -> {
                         //FALLBACK FOR MISSING TRIGGER AT THE END
                         val button = generateButton(context.getString(R.string.walkthrough_complete))
                         button.addExecutable {
-                            loadNextStep("Automatic")
+                            loadNextStep(context.getString(R.string.walkthrough_transition_automatic))
                         }
                         triggerLayout.addView(button)                        
                     }
@@ -190,11 +231,28 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         }
     }
 
+    private fun generateCode(stakeholder: Stakeholder): String {
+        val ms = System.currentTimeMillis().div(FIVE_MIN_MS).toString()
+        val minutePart = ms.substring(ms.length-2).toInt() // Changes all 5 Minutes, Max Val = 99
+        val offset = minutePart/4
+        val base = scenario.id.replace(DASH,NOTHING).substring(offset,offset+2).plus(stakeholder.id.replace(DASH,NOTHING).substring(offset, offset+2)) //ID Length = 32
+        return base.plus(minutePart)
+    }
+
+    private fun refresh(function: () -> Unit, refreshRate: Long = TEN_SEC_MS) {
+        Handler().postDelayed({
+            if (refresh) {
+                function()
+                Handler().postDelayed({refresh(function)},refreshRate)
+            }
+        }, refreshRate)
+    }
+
     private fun resolveOutro() {
-        val content = scenario.outro + "<br>" + walkthrough.printStatistics()
+        val content = context.getString(R.string.walkthrough_concat_br,scenario.outro,walkthrough.printStatistics())
         val cutHtml = StringHelper.cutHtmlAfter(content, 10, context.getString(R.string.walkthrough_see_more))
-        val text = generateText("Outro", cutHtml, ArrayList(), arrayListOf("Outro","Statistics"))
-        val button = generateButton("Finish Scenario")
+        val text = generateText(context.getString(R.string.walkthrough_outro), cutHtml, ArrayList(), arrayListOf(context.getString(R.string.walkthrough_outro),context.getString(R.string.walkthrough_statistics)))
+        val button = generateButton(context.getString(R.string.walkthrough_finish_scenario))
         button.addExecutable {
             saveAndLoadNew()
         }
@@ -202,12 +260,11 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         triggerLayout.addView(button)
     }
 
-
     private fun generateText(title: String?, content: String?): TextView {
         return generateText(title,content, ArrayList(), ArrayList())
     }
 
-    private fun <T: Serializable> generateText(title: String?, content: String?, contextObjects: ArrayList<T>, boldWords: ArrayList<String>): SreTextView {
+    private fun <T: Serializable> generateText(title: String?, content: String?, contextObjects: ArrayList<T>, boldWords: ArrayList<String>): SreContextAwareTextView {
         val text = SreContextAwareTextView(context,stepLayout, boldWords,contextObjects)
         text.addRule(RelativeLayout.CENTER_IN_PARENT)
         if (title == null){
@@ -215,17 +272,19 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         }else if (content == null){
             text.text = StringHelper.fromHtml(title)
         }else{
-            text.text = StringHelper.fromHtml("$title<br>$content")
+            text.text = StringHelper.fromHtml(context.getString(R.string.walkthrough_concat_br,title,content))
         }
-        text.setMargin(DipHelper.get(resources).dip10.toInt())
-        text.setPadding(DipHelper.get(resources).dip5.toInt())
+        text.setMargin(DipHelper.get(resources).dip10)
+        text.setPadding(DipHelper.get(resources).dip5)
         return text
     }
 
-    private fun <T: Serializable> generateEditText(title: String?, contextObjects: ArrayList<T>, boldWords: ArrayList<String>): SreEditText {
+    private fun generateEditText(title: String?): SreEditText {
         val text = SreEditText(context,stepLayout,null,title)
         text.addRule(RelativeLayout.CENTER_IN_PARENT)
-        text.setPadding(DipHelper.get(resources).dip5.toInt())
+        text.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(context,R.color.srePrimaryPastel)))
+        text.setPadding(DipHelper.get(resources).dip5)
+        text.setSingleLine(true)
         return text
     }
 
@@ -251,11 +310,16 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private fun getCurrentTrigger(): AbstractTrigger? = if (first is AbstractTrigger) (first as AbstractTrigger) else if (second is AbstractTrigger) (second as AbstractTrigger) else null
     private fun getCurrentStep(): AbstractStep? = if (first is AbstractStep) (first as AbstractStep) else if (second is AbstractStep) (second as AbstractStep) else null
 
-    private fun saveAndLoadNew() {
+    fun saveAndLoadNew(interrupted: Boolean = false) {
+        if (interrupted){
+            walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments))
+            Walkthrough.WalkthroughProperty.FINAL_STATE.set(context.getString(R.string.walkthrough_final_state_cancelled, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
+        }else{
+            Walkthrough.WalkthroughProperty.FINAL_STATE.set(context.getString(R.string.walkthrough_final_state_complete))
+        }
         walkthrough.toXml(context)
         stopFunction()
     }
-
 
     fun resetActiveness() {
         when (state){
@@ -266,6 +330,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
             }
         }
     }
+
     fun setInfoActive(active: Boolean) {
         if (active){
             infoTime = System.currentTimeMillis()
@@ -275,9 +340,9 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
             Walkthrough.WalkthroughProperty.INFO_TIME.set(Walkthrough.WalkthroughProperty.INFO_TIME.get(Long::class)+(System.currentTimeMillis()-infoTime)/1000)
             infoTime = 0
             state = backupState
-
         }
     }
+
     fun setWhatIfActive(active: Boolean) {
         if (active){
             whatIfTime = System.currentTimeMillis()
@@ -287,9 +352,9 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
             Walkthrough.WalkthroughProperty.WHAT_IF_TIME.set(Walkthrough.WalkthroughProperty.WHAT_IF_TIME.get(Long::class)+(System.currentTimeMillis()-whatIfTime)/1000)
             whatIfTime = 0
             state = backupState
-
         }
     }
+
     fun setInputActive(active: Boolean) {
         if (active){
             inputTime = System.currentTimeMillis()
@@ -302,6 +367,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
 
         }
     }
+
     fun getContextObjects(): ArrayList<AbstractObject> {
         if (first is AbstractStep){
             return (first as AbstractStep).objects

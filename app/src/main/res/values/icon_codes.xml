@@ -56,9 +56,20 @@
     <string name="icon_folder_plus">&#xf65e;</string>
     <string name="icon_arrow_left">&#xf060;</string>
     <string name="icon_arrow_right">&#xf061;</string>
+    <string name="icon_glossary">&#xf02d;</string>
+    <string name="icon_share">&#xf1e0;</string>
+    <string name="icon_analytics">&#xf002;</string>
 
     <string name="connect_left"><annotation font="font_awesome">&#xf060;</annotation> </string>
     <string name="connect_right"> <annotation font="font_awesome">&#xf061;</annotation></string>
+
+
+    <string name="projects_icon_label"><annotation font="font_awesome">&#xf573;</annotation> Projects <annotation font="font_awesome">&#xf573;</annotation></string>
+    <string name="walkthroughs_icon_label"><annotation font="font_awesome">&#xf008;</annotation> Walkthroughs <annotation font="font_awesome">&#xf008;</annotation></string>
+    <string name="analytics_icon_label"><annotation font="font_awesome">&#xf002;</annotation> Analytics <annotation font="font_awesome">&#xf002;</annotation></string>
+    <string name="share_icon_label"><annotation font="font_awesome">&#xf1e0;</annotation> Share <annotation font="font_awesome">&#xf1e0;</annotation></string>
+    <string name="cockpit_icon_label"><annotation font="font_awesome">&#xf085;</annotation> Cockpit <annotation font="font_awesome">&#xf085;</annotation></string>
+    <string name="glossary_icon_label"><annotation font="font_awesome">&#xf02d;</annotation> Glossary <annotation font="font_awesome">&#xf02d;</annotation></string>
 
     <string name="icon_explain_cockpit">
         <annotation font="font_awesome">&#xf04a;</annotation> Previous Section,
@@ -146,6 +157,5 @@
     <string name="icon_chip">&#xf2db;</string>
 
     <string name="icon_sms">&#xf199;</string>
-    <string name="icon_search">&#xf002;</string>
     <string name="icon_image">&#xf03e;</string>
 </resources>

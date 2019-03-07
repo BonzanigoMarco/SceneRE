@@ -11,10 +11,7 @@ import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.datamodel.StatisticArrayList
 import uzh.scenere.datamodel.Walkthrough
-import uzh.scenere.helpers.DatabaseHelper
-import uzh.scenere.helpers.DipHelper
-import uzh.scenere.helpers.NullHelper
-import uzh.scenere.helpers.NumberHelper
+import uzh.scenere.helpers.*
 import java.util.*
 
 @SuppressLint("ViewConstructor")
@@ -100,7 +97,10 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                 }
                 val stepTitle = Walkthrough.WalkthroughStepProperty.STEP_TITLE.get(stepId, String::class)
                 val stepTime = Walkthrough.WalkthroughStepProperty.STEP_TIME.get(stepId, Long::class)
-                val triggerInfo = Walkthrough.WalkthroughStepProperty.TRIGGER_INFO.get(stepId, String::class)
+                var triggerInfo = Walkthrough.WalkthroughStepProperty.TRIGGER_INFO.get(stepId, String::class)
+                if (!StringHelper.hasText(triggerInfo)){
+                    triggerInfo = context.getString(R.string.analytics_walkthrough_cancelled)
+                }
                 steps[stakeholder]!![stepNumber]!!.add(triggerInfo)
                 stepTimes[stakeholder]!![stepNumber]!!.add(stepTime)
                 pathSteps.put(stepNumber,stepTitle)
@@ -136,7 +136,7 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                     var counter = 1
                     for (path in paths.getDesc()){
                         val percentage = NumberHelper.floor(paths.getPercentage(path), 2)
-                        addView(createLine(context.getString(R.string.analytics_path_version_x,counter).plus("$percentage%"), false, path))
+                        addView(createLine(context.getString(R.string.analytics_path_version_x,counter).plus(", $percentage%"), false, path))
                         counter++
                     }
                 }

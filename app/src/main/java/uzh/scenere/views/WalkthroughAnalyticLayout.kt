@@ -9,10 +9,7 @@ import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.datamodel.Walkthrough
-import uzh.scenere.helpers.DatabaseHelper
-import uzh.scenere.helpers.DipHelper
-import uzh.scenere.helpers.NullHelper
-import uzh.scenere.helpers.className
+import uzh.scenere.helpers.*
 
 @SuppressLint("ViewConstructor")
 class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, private val topLayer: Boolean, private val function: () -> Unit) : LinearLayout(context) {
@@ -30,9 +27,9 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
         val scenario = DatabaseHelper.getInstance(context).read(walkthrough.scenarioId, Scenario::class, NullHelper.get(Scenario::class))
         val project = DatabaseHelper.getInstance(context).read(scenario.projectId, Project::class, NullHelper.get(Project::class))
         if (stakeholder is Stakeholder.NullStakeholder){
-            addView(createLine(stakeholder.className(),false,"Unknown"))
-            addView(createLine(scenario.className(),false,"Unknown"))
-            addView(createLine(project.className(),false,"Unknown"))
+            addView(createLine(stakeholder.className(),false,context.getString(R.string.analytics_unknown)))
+            addView(createLine(scenario.className(),false,context.getString(R.string.analytics_unknown)))
+            addView(createLine(project.className(),false,context.getString(R.string.analytics_unknown)))
         }else{
             addView(createLine(stakeholder.className(),false,stakeholder.name))
             addView(createLine(scenario.className(),false,scenario.title))
@@ -42,7 +39,7 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
         if (topLayer){
             for (property in Walkthrough.WalkthroughProperty.values()) {
                 if (property.isStatisticalValue){
-                    addView(createLine(property.label,false,property.getDisplayText()))
+                    addView(createLine(property.label,false,property.getDisplayText(),CollectionHelper.containsOneOf(property.getDisplayText(),context.getString(R.string.walkthrough_final_state_cancelled_check))))
                 }
             }
         }else{
@@ -57,7 +54,7 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
         addView(createDeleteLine())
     }
 
-    private fun createLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null): View? {
+    private fun createLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null, attention: Boolean = false): View? {
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         val wrapper = LinearLayout(context)
         wrapper.layoutParams = layoutParams
@@ -67,7 +64,7 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
         val weightedParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
         weightedParams.weight = 1f
         label.setWeight(weightedParams)
-        val text = SreTextView(context,wrapper,presetValue,SreTextView.TextStyle.DARK)
+        val text = SreTextView(context,wrapper,presetValue,if (attention) SreTextView.TextStyle.ATTENTION else SreTextView.TextStyle.DARK)
         text.setWeight(1f)
         text.textAlignment = if (multiLine) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
         text.setSingleLine(multiLine)

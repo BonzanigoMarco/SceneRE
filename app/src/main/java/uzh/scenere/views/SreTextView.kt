@@ -15,9 +15,15 @@ import uzh.scenere.helpers.DipHelper
 import uzh.scenere.views.SreTextView.TextStyle.*
 
 @SuppressLint("ViewConstructor")
-open class SreTextView(context: Context, parent: ViewGroup?, label: String? = null, val style: TextStyle = LIGHT): TextView(context) {
+open class SreTextView(context: Context, parent: ViewGroup?, label: String? = null, val style: TextStyle = LIGHT): TextView(context), ISreView {
 
     constructor(context: Context, parent: ViewGroup?, stringId: Int, TextStyle: TextStyle = LIGHT): this(context,parent,context.getString(stringId),TextStyle)
+
+    override var parentLayout = ISreView.ParentLayout.UNKNOWN
+
+    override fun getView(): View {
+        return this
+    }
 
     init {
         text = label
@@ -25,15 +31,11 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
     }
 
     enum class TextStyle{
-        DARK,LIGHT,MEDIUM,BORDERLESS_DARK, BORDERLESS_LIGHT
+        DARK,LIGHT,MEDIUM,ATTENTION,BORDERLESS_DARK, BORDERLESS_LIGHT
     }
-    enum class ParentLayout{
-        RELATIVE,LINEAR,FRAME,UNKNOWN
-    }
-
-    private var parentLayout: ParentLayout = if (parent is LinearLayout) ParentLayout.LINEAR else if (parent is RelativeLayout) ParentLayout.RELATIVE else if (parent is FrameLayout) ParentLayout.FRAME else ParentLayout.UNKNOWN
 
     private fun create(context: Context, parent: ViewGroup?) {
+        resolveParent(parent)
         id = View.generateViewId()
         gravity = Gravity.CENTER
         when (style){
@@ -49,111 +51,35 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
                 background = context.getDrawable(R.drawable.sre_text_view_medium)
                 setTextColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
             }
+            ATTENTION -> {
+                background = context.getDrawable(R.drawable.sre_text_view_attention)
+                setTextColor(ContextCompat.getColor(context,R.color.sreBlack))
+            }
         }
         val padding = DipHelper.get(resources).dip15.toInt()
         val margin = DipHelper.get(resources).dip0.toInt()
         setPadding(padding,padding,padding,padding)
-        when (parent) {
-            is LinearLayout -> {
-                val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,  LinearLayout.LayoutParams.WRAP_CONTENT)
-                params.setMargins(margin,margin,margin,margin)
-                layoutParams = params
-            }
-            is RelativeLayout -> {
+        when (parentLayout) {
+            ISreView.ParentLayout.RELATIVE -> {
                 val params = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT)
                 params.setMargins(margin,margin,margin,margin)
                 layoutParams = params
             }
-            is FrameLayout -> {
+            ISreView.ParentLayout.LINEAR -> {
+                val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,  LinearLayout.LayoutParams.WRAP_CONTENT)
+                params.setMargins(margin,margin,margin,margin)
+                layoutParams = params
+            }
+            ISreView.ParentLayout.FRAME -> {
                 val params = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT)
                 params.setMargins(margin,margin,margin,margin)
                 layoutParams = params
             }
+            ISreView.ParentLayout.UNKNOWN -> {}
         }
     }
 
-    open fun addRule(verb: Int, subject: Int? = null): SreTextView {
-        when (parentLayout){
-            ParentLayout.RELATIVE -> {
-                if (subject == null){
-                    (layoutParams as RelativeLayout.LayoutParams).addRule(verb)
-                }else{
-                    (layoutParams as RelativeLayout.LayoutParams).addRule(verb,subject)
-                }
-            }
-            else -> {}
-        }
-        return this
-    }
-
-    fun setWeight(weight: Float, horizontal: Boolean = true){
-        when (parentLayout){
-            ParentLayout.LINEAR -> {
-                val params = LinearLayout.LayoutParams(if (horizontal) LinearLayout.LayoutParams.MATCH_PARENT else LinearLayout.LayoutParams.WRAP_CONTENT,
-                        if (horizontal) LinearLayout.LayoutParams.WRAP_CONTENT else LinearLayout.LayoutParams.MATCH_PARENT)
-                params.weight = weight
-                layoutParams = params
-            }
-            else -> {}
-        }
-    }
-
-    fun setWeight(layoutParamsWithWeight: LinearLayout.LayoutParams){
-        when (parentLayout){
-            ParentLayout.LINEAR -> {
-                layoutParams = layoutParamsWithWeight
-            }
-            else -> {}
-        }
-    }
-
-    fun setSize(height: Int,width: Int){
-        when (parentLayout){
-            ParentLayout.LINEAR -> {
-                (layoutParams as LinearLayout.LayoutParams).height = height
-                (layoutParams as LinearLayout.LayoutParams).width = width
-            }
-            ParentLayout.RELATIVE -> {
-                (layoutParams as RelativeLayout.LayoutParams).height = height
-                (layoutParams as RelativeLayout.LayoutParams).width = width
-            }
-            else -> {}
-        }
-    }
-
-    fun setMargin(margin: Int){
-        setMargin(margin,margin,margin,margin)
-    }
-
-    fun setMargin(l: Int,r: Int,b: Int,t: Int){
-        when (parentLayout){
-            ParentLayout.LINEAR -> {
-                (layoutParams as LinearLayout.LayoutParams).setMargins(l,t,r,b)
-            }
-            ParentLayout.RELATIVE -> {
-                (layoutParams as RelativeLayout.LayoutParams).setMargins(l,t,r,b)
-            }
-            ParentLayout.FRAME -> {
-                (layoutParams as FrameLayout.LayoutParams).setMargins(l,t,r,b)
-            }
-            else -> {}
-        }
-    }
-
-    fun setPadding(padding: Int){
-        setPadding(padding,padding,padding,padding)
-    }
-
-    fun getMargin(): Int{
-        when (parentLayout){
-            ParentLayout.RELATIVE -> {
-                return (layoutParams as RelativeLayout.LayoutParams).leftMargin
-            }
-            ParentLayout.LINEAR -> {
-                return (layoutParams as LinearLayout.LayoutParams).leftMargin
-            }
-            else -> {}
-        }
-        return 0
+    override fun addRule(verb: Int, subject: Int?): SreTextView {
+        return super.addRule(verb, subject) as SreTextView
     }
 }

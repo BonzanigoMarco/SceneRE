@@ -216,7 +216,9 @@ class WalkthroughActivity : AbstractManagementActivity() {
                 projectPointer = pointer
                 pointer = null
                 projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(Constants.SPACE).plus(loadedProjects[projectPointer!!].title)
-                creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)?.setText(createButtonLabel(loadedScenarios, "Scenarios"))?.updateViews(false)
+                creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)
+                        ?.setText(createButtonLabel(loadedScenarios, "Scenarios"))
+                        ?.updateViews(false)
             }
             WalkthroughMode.SELECT_SCENARIO -> {
                 mode = WalkthroughMode.SELECT_STAKEHOLDER
@@ -364,6 +366,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
     private var awaitingBackConfirmation = false
     override fun onBackPressed() {
         if (!CollectionHelper.oneOf(mode,WalkthroughMode.PLAY,WalkthroughMode.INPUT,WalkthroughMode.INFO,WalkthroughMode.WHAT_IF) || awaitingBackConfirmation) {
+            activeWalkthrough?.saveAndLoadNew(true)
             super.onBackPressed()
         } else {
             notify(getString(R.string.walkthrough_confirm))
@@ -387,7 +390,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
                 activeWalkthrough?.resetActiveness()
             }
             getInfoContent().visibility = GONE
-            getInfoTitle().text = "Browse available What-If Questions"
+            getInfoTitle().text = getString(R.string.walkthrough_what_if_browse)
             customizeToolbarId(null, null, R.string.icon_input, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
             getInfoContentWrap().removeAllViews()
@@ -405,7 +408,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
                 activeWalkthrough?.resetActiveness()
             }
             getInfoContent().visibility = GONE
-            getInfoTitle().text = "Write down your Comment and press \"Add\" to contribute it"
+            getInfoTitle().text = getString(R.string.walkthrough_contribute_comments)
             customizeToolbarId(null, if (activeWalkthrough?.getActiveWhatIfs().isNullOrEmpty()) null else R.string.icon_what_if, null, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
             getInfoContentWrap().removeAllViews()
@@ -432,7 +435,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
             mode = WalkthroughMode.INFO
         } else if (CollectionHelper.oneOf(mode,WalkthroughMode.SELECT_STAKEHOLDER,WalkthroughMode.SELECT_PROJECT,WalkthroughMode.SELECT_SCENARIO)){
             val intent = Intent(this, GlossaryActivity::class.java)
-            intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Walkthrough")
+            intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, getText(R.string.literal_walkthrough))
             startActivity(intent)
         }
     }

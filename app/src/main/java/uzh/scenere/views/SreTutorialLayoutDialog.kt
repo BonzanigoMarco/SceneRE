@@ -41,7 +41,7 @@ class SreTutorialLayoutDialog(context: Context, private val screenWidth: Int, va
             imageView.layoutParams = params
             closeButton.addRule(RelativeLayout.ALIGN_PARENT_END, TRUE)
             closeButton.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, TRUE)
-            closeButton.translationY = -closeButton.getMargin().toFloat()
+            closeButton.translationY = -closeButton.getTopMargin().toFloat()
             addView(imageView)
             addView(closeButton)
             closeButton.setOnClickListener { execTutorialButtonClicked() }

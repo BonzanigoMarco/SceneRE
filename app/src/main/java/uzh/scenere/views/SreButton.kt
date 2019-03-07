@@ -1,5 +1,6 @@
 package uzh.scenere.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.view.Gravity
@@ -10,50 +11,58 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import uzh.scenere.R
-import uzh.scenere.views.SreButton.ButtonParentLayout.*
 
-open class SreButton(context: Context, parent: ViewGroup?, label: String?, height: Int? = null, width: Int? = null, val style: ButtonStyle = ButtonStyle.LIGHT): Button(context) {
+@SuppressLint("ViewConstructor")
+open class SreButton(context: Context, parent: ViewGroup?, label: String?, height: Int? = null, width: Int? = null, val style: ButtonStyle = ButtonStyle.LIGHT): Button(context), ISreView {
 
     constructor(context: Context, parent: ViewGroup?, stringId: Int, height: Int? = null, width: Int? = null): this(context,parent,context.getString(stringId),height,width)
+
+    override var parentLayout = ISreView.ParentLayout.UNKNOWN
+
+    override fun getView(): View {
+        return this
+    }
 
     init {
         text = label
         create(context, parent, height, width)
     }
 
-    enum class ButtonParentLayout {
-        RELATIVE, LINEAR, UNKNOWN
-    }
-
     enum class ButtonStyle{
         LIGHT, DARK, ATTENTION, WARN, TUTORIAL
     }
 
-
-    private var parentLayout: ButtonParentLayout = if (parent is LinearLayout) LINEAR else if (parent is RelativeLayout) RELATIVE else UNKNOWN
     private lateinit var function: () -> Unit
     private var longClickOnly: Boolean = false
     var data: Any? = null //Carrier Object
 
     private fun create(context: Context, parent: ViewGroup?, height: Int?, width: Int?) {
+        resolveParent(parent)
+        setAllCaps(false)
         id = View.generateViewId()
         gravity = Gravity.CENTER
         resolveStyle(true)
         val padding = context.resources.getDimension(R.dimen.dpi5).toInt()
         val margin = context.resources.getDimension(R.dimen.dpi5).toInt()
         setPadding(padding, padding, padding, padding)
-        if (parent is LinearLayout) {
-            val params = LinearLayout.LayoutParams(width
-                    ?: LinearLayout.LayoutParams.WRAP_CONTENT, height
-                    ?: LinearLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(margin, margin, margin, margin)
-            layoutParams = params
-        } else if (parent is RelativeLayout) {
-            val params = RelativeLayout.LayoutParams(width
-                    ?: RelativeLayout.LayoutParams.WRAP_CONTENT, height
-                    ?: RelativeLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(margin, margin, margin, margin)
-            layoutParams = params
+        when (parentLayout){
+
+            ISreView.ParentLayout.RELATIVE -> {
+                val params = RelativeLayout.LayoutParams(width
+                        ?: RelativeLayout.LayoutParams.WRAP_CONTENT, height
+                        ?: RelativeLayout.LayoutParams.WRAP_CONTENT)
+                params.setMargins(margin, margin, margin, margin)
+                layoutParams = params
+            }
+            ISreView.ParentLayout.LINEAR -> {
+                val params = LinearLayout.LayoutParams(width
+                        ?: LinearLayout.LayoutParams.WRAP_CONTENT, height
+                        ?: LinearLayout.LayoutParams.WRAP_CONTENT)
+                params.setMargins(margin, margin, margin, margin)
+                layoutParams = params
+            }
+            ISreView.ParentLayout.FRAME -> {}
+            ISreView.ParentLayout.UNKNOWN -> {}
         }
         setOnTouchListener { _, event ->
             when (event?.action) {
@@ -101,44 +110,6 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         }
     }
 
-    fun setWeight(weight: Float){
-        when (parentLayout){
-            LINEAR -> {
-                (layoutParams as LinearLayout.LayoutParams).weight = weight
-            }
-            else -> {}
-        }
-    }
-
-    fun setSize(height: Int,width: Int){
-        when (parentLayout){
-            LINEAR -> {
-                (layoutParams as LinearLayout.LayoutParams).height = height
-                (layoutParams as LinearLayout.LayoutParams).width = width
-            }
-            RELATIVE -> {
-                (layoutParams as RelativeLayout.LayoutParams).height = height
-                (layoutParams as RelativeLayout.LayoutParams).width = width
-            }
-            else -> {}
-        }
-    }
-
-    open fun addRule(verb: Int, subject: Int? = null): SreButton {
-        when (parentLayout) {
-            RELATIVE -> {
-                if (subject == null) {
-                    (layoutParams as RelativeLayout.LayoutParams).addRule(verb)
-                } else {
-                    (layoutParams as RelativeLayout.LayoutParams).addRule(verb, subject)
-                }
-            }
-            else -> {
-            }
-        }
-        return this
-    }
-
     fun addExecutable(function: () -> Unit): SreButton {
         this.function = function
         return this
@@ -159,20 +130,6 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         }
     }
 
-    fun getMargin(): Int {
-        when (parentLayout) {
-            RELATIVE -> {
-                return (layoutParams as RelativeLayout.LayoutParams).leftMargin
-            }
-            LINEAR -> {
-                return (layoutParams as LinearLayout.LayoutParams).leftMargin
-            }
-            else -> {
-            }
-        }
-        return 0
-    }
-
     override fun showContextMenu(): Boolean {
         //NOP
         return false
@@ -182,14 +139,13 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         //NOP
         return false
     }
-//
-//    override fun performLongClick(): Boolean {
-//        //NOP
-//        return false
-//    }
 
     override fun setEnabled(enabled: Boolean) {
         resolveStyle(enabled)
         super.setEnabled(enabled)
+    }
+
+    override fun addRule(verb: Int, subject: Int?): SreButton {
+        return super.addRule(verb, subject) as SreButton
     }
 }

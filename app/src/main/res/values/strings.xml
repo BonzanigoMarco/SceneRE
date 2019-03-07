@@ -18,6 +18,23 @@
         <item>@string/trigger_input</item>
     </string-array>
 
+    <string-array name="share_keywords">
+        <item>Owner</item>
+        <item>Size</item>
+        <item>Creation Date</item>
+        <item>Content</item>
+        <item>File-Format</item>
+        <item>Project(s)</item>
+        <item>Stakeholder(s)</item>
+        <item>Object(s)</item>
+        <item>Attribute(s)</item>
+        <item>Scenario(s)</item>
+        <item>Path(s)</item>
+        <item>Step(s)</item>
+        <item>Trigger(s)</item>
+        <item>Walkthrough(s)</item>
+    </string-array>
+
     <string name="spinner_none">[Select a Type first]</string>
     <!--Steps-->
     <string name="step_none">[Select a Step]</string>
@@ -146,6 +163,29 @@
     <string name="walkthrough_confirm">Press the Back Button again to cancel the Walkthrough</string>
     <string name="walkthrough_confirm_button">Confirm Deletion</string>
     <string name="walkthrough_delete">Delete Walkthrough</string>
+    <string name="walkthrough_correct_code">Correct Code!</string>
+    <string name="walkthrough_incorrect_code">Wrong Code!</string>
+    <string name="walkthrough_check_code">Check Code</string>
+    <string name="walkthrough_input_code">Input Code here</string>
+    <string name="walkthrough_interaction_text">%1$s<![CDATA[<br>]]>Exchange your Interaction-Code with %2$s!<![CDATA[<br>]]>Your Code: %3$s</string>
+    <string name="walkthrough_input_text">%1$s<![CDATA[<br>]]>Insert the required Input in the Field below and check it to continue.</string>
+    <string name="walkthrough_interaction_code">Interaction-Code</string>
+    <string name="walkthrough_start_scenario">Start Scenario</string>
+    <string name="walkthrough_intro">Intro</string>
+    <string name="walkthrough_question_option">Question [%1$d Option(s)]:</string>
+    <string name="walkthrough_outro">Outro</string>
+    <string name="walkthrough_statistics">Statistics</string>
+    <string name="walkthrough_finish_scenario">Finish Scenario</string>
+    <string name="walkthrough_concat_br">%1$s<![CDATA[<br>]]>%2$s</string>
+    <string name="walkthrough_input_here">Write Input here</string>
+    <string name="walkthrough_check_input">Check Input</string>
+    <string name="walkthrough_input_correct">Correct Input</string>
+    <string name="walkthrough_input_incorrect">Wrong Input</string>
+    <string name="walkthrough_transition_button_x">Button: %1$s</string>
+    <string name="walkthrough_transition_button">Button</string>
+    <string name="walkthrough_transition_automatic">Automatic</string>
+    <string name="walkthrough_transition_input">Input entered correctly</string>
+    <string name="walkthrough_transition_interaction">Entered Interaction-Code</string>
 
     <!--Literal and related-->
     <string name="literal_object">Object</string>
@@ -157,6 +197,7 @@
     <string name="literal_steps_with_comments">Steps with Comments</string>
     <string name="literal_value">Value</string>
     <string name="literal_walkthroughs">Walkthroughs</string>
+    <string name="literal_walkthrough">Walkthrough</string>
     <string name="literal_what_if">What-If</string>
     <string name="literal_remove_all">Remove All</string>
     <string name="literal_comment">Comment</string>
@@ -201,7 +242,7 @@
     <string name="share_error_no_data">No Data created yet!</string>
     <string name="share_location">Locate File in Import-Folder</string>
     <string name="share_no_folder">No Folder selected</string>
-    <string name="share_too_many_files">More than 100 Files in current Folder... remove some!</string>
+    <string name="share_too_many_files">More than 100 Files in current Folder… remove some!</string>
     <string name="share_too_many_files_title">Too many Files</string>
     <string name="share_return">Return</string>
     <string name="share_import_newer">Import Newer</string>
@@ -220,7 +261,7 @@
     <string name="analytics_walkthroughs">Walkthroughs</string>
     <string name="warn_not_all_required_info_entered">Not all required information entered!</string>
     <string name="analytics_avg_time">Avg. Time</string>
-    <string name="analytics_step_number">Step Number</string>
+    <string name="analytics_step_number">Step #</string>
     <string name="analytics_step_title">Step Title</string>
     <string name="analytics_step_text">Step Text</string>
     <string name="analytics_step_runs">Step Runs</string>
@@ -229,5 +270,19 @@
     <string name="analytics_x_seconds">%1$d Second(s)</string>
     <string name="analytics_transition_x">Transition #%1$d</string>
     <string name="analytics_path_version_x">Path Version %1$d</string>
-    <string name="analytics_walkthrough_x">Walkthrough number %1$d</string>
+    <string name="analytics_walkthrough_x">Walkthrough #%1$d</string>
+    <string name="walkthrough_what_if_browse">Browse available What-If Questions</string>
+    <string name="walkthrough_contribute_comments">Write down your Comment and press "Add" to contribute it</string>
+    <string name="walkthrough_final_state_cancelled">Cancelled on the %1$s Step, \"%2$s\"</string>
+    <string name="walkthrough_final_state_cancelled_check">Cancelled on the "</string>
+    <string name="walkthrough_final_state_complete">Walkthrough completed successfully</string>
+    <string name="analytics_walkthrough_cancelled">Cancelled</string>
+    <string name="analytics_unknown">Unknown</string>
+    <string name="share_mode_file_export">File Export Mode</string>
+    <string name="share_collect_data">Collect your Data</string>
+    <string name="share_include_walkthroughs">Include Walkthroughs</string>
+    <string name="share_exclude_walkthroughs">Exclude Walkthroughs</string>
+    <string name="startup_name_change">Do you want to change your Name?</string>
+    <string name="startup_welcome_back">Welcome Back</string>
+    <string name="startup_name_enter">Please enter a Name</string>
 </resources>

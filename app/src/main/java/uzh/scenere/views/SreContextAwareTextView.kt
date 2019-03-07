@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
 
 
 @SuppressLint("ViewConstructor")
-class SreContextAwareTextView(context: Context, parent: ViewGroup?,val boldWords: ArrayList<String>, val objects: ArrayList<out Serializable>) : SreTextView(context,parent) {
+class SreContextAwareTextView(context: Context, parent: ViewGroup?,var boldWords: ArrayList<String>, val objects: ArrayList<out Serializable>) : SreTextView(context,parent) {
     private val colorArray = if (style == TextStyle.DARK)
         arrayOf(MATERIAL_100_RED, MATERIAL_100_VIOLET, MATERIAL_100_BLUE, MATERIAL_100_TURQUOISE, MATERIAL_100_GREEN, MATERIAL_100_LIME, MATERIAL_100_YELLOW, MATERIAL_100_ORANGE) else
         arrayOf(MATERIAL_700_RED, MATERIAL_700_VIOLET, MATERIAL_700_BLUE, MATERIAL_700_TURQUOISE, MATERIAL_700_GREEN, MATERIAL_700_LIME, MATERIAL_700_YELLOW, MATERIAL_700_ORANGE)
@@ -58,6 +58,18 @@ class SreContextAwareTextView(context: Context, parent: ViewGroup?,val boldWords
 
     private fun initHighlighting() {
         addTextChangedListener(SreContentAwareTextWatcher(this))
+    }
+
+    fun setTextWithNewBoldWords(text: String, vararg newBoldWords: String){
+        val list = ArrayList<String>()
+        for (word in newBoldWords){
+            if (!boldWords.contains(word)){
+                list.add(word)
+            }
+        }
+        list.addAll(boldWords)
+        boldWords = list
+        setText(text)
     }
 
     fun <T: Serializable>addObjects(objects: ArrayList<T>): SreContextAwareTextView {
@@ -133,5 +145,9 @@ class SreContextAwareTextView(context: Context, parent: ViewGroup?,val boldWords
         override fun afterTextChanged(s: Editable?) {
             //NOP
         }
+    }
+
+    override fun addRule(verb: Int, subject: Int?): SreContextAwareTextView {
+        return super.addRule(verb, subject) as SreContextAwareTextView
     }
 }

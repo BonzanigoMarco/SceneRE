@@ -116,6 +116,9 @@ class StepAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthroug
 
     private fun visualizeOverview() {
         removeAllViews()
+        if (sortedStepList.isEmpty()){
+            return
+        }
         val stepId = sortedStepList[stepPointer]
         val wrapperList = comments[stepId]
         if (!wrapperList.isNullOrEmpty()){
