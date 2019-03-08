@@ -275,7 +275,7 @@ class ShareActivity : AbstractManagementActivity() {
                     buttonWrap.addView(importNewerButton)
                 }
                 if (wrapper.oldItems > 0){
-                    val importAllButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.totalItems > wrapper.oldItems) getString(R.string.share_import_all_1,wrapper.oldItems) else getString(R.string.share_import_all_2),null,null,SreButton.ButtonStyle.WARN).addExecutable {
+                    val importAllButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.totalItems > wrapper.oldItems) getString(R.string.share_import_all_1,(wrapper.totalItems-wrapper.oldItems)) else getString(R.string.share_import_all_2),null,null,SreButton.ButtonStyle.WARN).addExecutable {
                         importBinaryToDatabase(wrapper,false)
                         notify(getString(R.string.share_import_finished),getString(R.string.share_import_number_successful,wrapper.totalItems))
                         execLoadFileImport()

@@ -172,22 +172,7 @@ class EditorActivity : AbstractManagementActivity() {
         }else{
             tutorialDrawable = "info_element"
         }
-        var right = false
-        var left = false
-        if (iElement is StakeholderInteractionTrigger){
-            var localStakeholder = 0
-            var foreignStakeholder = 0
-            for (s in 0 until projectContext!!.stakeholders.size){
-                if (projectContext!!.stakeholders[s] == activePath!!.stakeholder){
-                    localStakeholder = s
-                }
-                if (projectContext!!.stakeholders[s].id == iElement.interactedStakeholderId){
-                    foreignStakeholder = s
-                }
-            }
-            right = (localStakeholder<foreignStakeholder)
-            left = (localStakeholder>foreignStakeholder)
-        }
+        val (right, left) = resolveLeftRight(iElement)
         val element = Element(applicationContext, iElement, previousAvailable, left, right, false).withLabel(StringHelper.fromHtml(title))
         element.setEditExecutable { openInput(iElement) }
         element.setDeleteExecutable {
@@ -230,6 +215,26 @@ class EditorActivity : AbstractManagementActivity() {
         if (tutorialDrawable != null){
             tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,tutorialDrawable).addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }
+    }
+
+    private fun resolveLeftRight(iElement: IElement): Pair<Boolean, Boolean> {
+        var right = false
+        var left = false
+        if (iElement is StakeholderInteractionTrigger) {
+            var localStakeholder = 0
+            var foreignStakeholder = 0
+            for (s in 0 until projectContext!!.stakeholders.size) {
+                if (projectContext!!.stakeholders[s] == activePath!!.stakeholder) {
+                    localStakeholder = s
+                }
+                if (projectContext!!.stakeholders[s].id == iElement.interactedStakeholderId) {
+                    foreignStakeholder = s
+                }
+            }
+            right = (localStakeholder < foreignStakeholder)
+            left = (localStakeholder > foreignStakeholder)
+        }
+        return Pair(right, left)
     }
 
     private fun onPathAdded(iElement: IElement?) {
@@ -308,6 +313,13 @@ class EditorActivity : AbstractManagementActivity() {
                                 .setOnPathIndexSelectedExecutable(onPathSelected)
                                 .setAddExecutable {onPathAdded(iElement)}
                                 .setRemoveExecutable {onPathRemoved(iElement)}
+                    }
+                    is StakeholderInteractionTrigger -> {
+                        val (right, left) = resolveLeftRight(iElement)
+                        (getContentHolderLayout().getChildAt(v) as Element).updateElement(iElement)
+                                .updateRight(right)
+                                .updateLeft(left)
+                                .updateInteraction(iElement.interactedStakeholderId!!)
                     }
                 }
             }
@@ -455,10 +467,10 @@ class EditorActivity : AbstractManagementActivity() {
                 }
                 is StakeholderInteractionTrigger -> {
                     creationUnitClass = StakeholderInteractionTrigger::class
-                    val stakeholderPositionById = projectContext!!.getStakeholderPositionById(element.interactedStakeholderId!!)+1
+                    val stakeholderPositionById = projectContext!!.getStakeholderPositionById(element.interactedStakeholderId!!,activePath!!.stakeholder!!)+1
                     var index = adaptAttributes("Instruction Text","Stakeholder")
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT_WITH_PRESET_POSITION.plus(stakeholderPositionById), addToArrayBefore(projectContext!!.stakeholders.toStringArray(),NOTHING)))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT_WITH_PRESET_POSITION.plus(stakeholderPositionById), addToArrayBefore(projectContext!!.getStakeholdersExcept(activePath!!.stakeholder).toStringArray(),NOTHING)))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is InputTrigger -> {
@@ -518,7 +530,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = StakeholderInteractionTrigger::class
                     var index = adaptAttributes("Instruction Text","Stakeholder")
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP,SINGLE_SELECT, addToArrayBefore(projectContext!!.stakeholders.toStringArray(),NOTHING)))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP,SINGLE_SELECT, addToArrayBefore(projectContext!!.getStakeholdersExcept(activePath!!.stakeholder).toStringArray(),NOTHING)))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_input) -> {
@@ -701,7 +713,7 @@ class EditorActivity : AbstractManagementActivity() {
                 if (textView is SreButton){
                     val stakeholder = textView.getStringValue()
                     val stakeholderPos = (textView.data  as Int)-1
-                    val stakeholderId = projectContext!!.stakeholders[stakeholderPos].id
+                    val stakeholderId = projectContext!!.getStakeholdersExcept(activePath!!.stakeholder)[stakeholderPos].id
                     addAndRenderElement(StakeholderInteractionTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withInteractedStakeholderId(stakeholderId))
                 }
             }

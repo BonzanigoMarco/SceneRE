@@ -27,7 +27,7 @@ import java.io.Serializable
 
 
 @SuppressLint("ViewConstructor")
-class Element (context: Context, private var element: IElement, private val top: Boolean, private  val left: Boolean, private  val right: Boolean, private  val bottom: Boolean) : RelativeLayout(context), Serializable {
+class Element (context: Context, private var element: IElement, private val top: Boolean, private  var left: Boolean, private  var right: Boolean, private  val bottom: Boolean) : RelativeLayout(context), Serializable {
 
     var editButton: IconButton? = null
     var deleteButton: IconButton? = null
@@ -110,18 +110,14 @@ class Element (context: Context, private var element: IElement, private val top:
         centerElement?.addRule(CENTER_IN_PARENT, TRUE)
         centerWrapper?.addView(centerElement)
         // LEFT
-        if (left) {
-            connectionLeft?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
-        }
+        updateLeft()
         val leftParams = LayoutParams(dpiConnectorHeight, dpiConnectorWidth)
         leftParams.addRule(START_OF, NumberHelper.nvl(centerElement?.id, 0))
         leftParams.addRule(ALIGN_PARENT_START, TRUE)
         leftParams.addRule(CENTER_VERTICAL, TRUE)
         centerWrapper?.addView(connectionLeft, leftParams)
         // RIGHT
-        if (right) {
-            connectionRight?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
-        }
+        updateRight()
         val rightParams = LayoutParams(dpiConnectorHeight, dpiConnectorWidth)
         rightParams.addRule(END_OF, NumberHelper.nvl(centerElement?.id, 0))
         rightParams.addRule(ALIGN_PARENT_END, TRUE)
@@ -151,27 +147,56 @@ class Element (context: Context, private var element: IElement, private val top:
                 bottomWrapper?.addView(removeButton)
             }
             is StakeholderInteractionTrigger -> {
-                val stakeholder = DatabaseHelper.getInstance(context).read((element as StakeholderInteractionTrigger).interactedStakeholderId!!, Stakeholder::class)
-                if (stakeholder !is Stakeholder.NullStakeholder) {
-                    interactionView = SreTextView(context, bottomWrapper, stakeholder.name)
-                    if (right) {
-                        interactionView?.text = StringHelper.styleString(R.string.connect_right,context, arrayListOf(stakeholder.name))
-                        interactionView?.addRule(RelativeLayout.ALIGN_PARENT_END, connectionBottom!!.id)
-                        interactionView?.setMargin(0,DipHelper.get(resources).dip3,0,0)
-                    }
-                    if (left) {
-                        interactionView?.text = StringHelper.styleString(R.string.connect_left,context, ArrayList(),arrayListOf(stakeholder.name))
-                        interactionView?.addRule(RelativeLayout.ALIGN_PARENT_START, connectionBottom!!.id)
-                        interactionView?.setMargin(DipHelper.get(resources).dip3,0,0,0)
-                    }
-                    bottomWrapper?.addView(interactionView?.addRule(CENTER_VERTICAL, TRUE))
-                }
+                updateInteraction((element as StakeholderInteractionTrigger).interactedStakeholderId!!)
             }
             is AbstractStep -> {
                 whatIfButton = IconButton(context, bottomWrapper, R.string.icon_question,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
                 bottomWrapper?.addView(whatIfButton)
             }
         }
+    }
+
+
+    fun updateLeft(l: Boolean = left): Element {
+        left = l
+        if (left) {
+            connectionLeft?.setBackgroundColor(ContextCompat.getColor(context, R.color.sreBlack))
+        } else {
+            connectionLeft?.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
+        }
+        return this
+    }
+
+    fun updateRight(r: Boolean = right): Element {
+        right = r
+        if (right) {
+            connectionRight?.setBackgroundColor(ContextCompat.getColor(context, R.color.sreBlack))
+        } else {
+            connectionRight?.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
+        }
+        return this
+    }
+
+    fun updateInteraction(stakeholderId: String): Element {
+        val stakeholder = DatabaseHelper.getInstance(context).read(stakeholderId, Stakeholder::class)
+        if (stakeholder !is Stakeholder.NullStakeholder) {
+            if (interactionView != null) {
+                bottomWrapper?.removeView(interactionView)
+            }
+            interactionView = SreTextView(context, bottomWrapper, stakeholder.name)
+            if (right) {
+                interactionView?.text = StringHelper.styleString(R.string.connect_right, context, arrayListOf(stakeholder.name))
+                interactionView?.addRule(ALIGN_PARENT_END, connectionBottom!!.id)
+                interactionView?.setMargin(0, DipHelper.get(resources).dip3, 0, 0)
+            }
+            if (left) {
+                interactionView?.text = StringHelper.styleString(R.string.connect_left, context, ArrayList(), arrayListOf(stakeholder.name))
+                interactionView?.addRule(ALIGN_PARENT_START, connectionBottom!!.id)
+                interactionView?.setMargin(DipHelper.get(resources).dip3, 0, 0, 0)
+            }
+            bottomWrapper?.addView(interactionView?.addRule(CENTER_VERTICAL, TRUE))
+        }
+        return this
     }
 
     fun connectToNext(){

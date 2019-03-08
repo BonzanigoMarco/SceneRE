@@ -12,11 +12,25 @@ open class Project private constructor(val id: String, val creator: String, val 
     var scenarios: List<Scenario> = ArrayList()
     var stakeholders: List<Stakeholder> = ArrayList()
 
-    fun getStakeholderPositionById(id: String): Int{
-        for (stakeholder in 0 until stakeholders.size){
-            if (stakeholders[stakeholder].id == id) return stakeholder
+    fun getStakeholderPositionById(id: String, ignoredStakeholder: Stakeholder): Int{
+        var pointer = 0
+        for (stakeholder in stakeholders){
+            if (stakeholder.id == id) return pointer
+            if (stakeholder != ignoredStakeholder){
+                pointer++
+            }
         }
         return -1
+    }
+
+    fun getStakeholdersExcept(stakeholder: Stakeholder): ArrayList<Stakeholder> {
+        val list = ArrayList<Stakeholder>()
+        for (s in stakeholders){
+            if (s != stakeholder){
+                list.add(s)
+            }
+        }
+        return list
     }
 
     fun getNextStakeholder(stakeholder: Stakeholder? = null): Stakeholder?{

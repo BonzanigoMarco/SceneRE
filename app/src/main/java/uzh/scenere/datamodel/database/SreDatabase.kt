@@ -673,10 +673,15 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         elements.add(trigger)
                     }
                     TYPE_STAKEHOLDER_INTERACTION_TRIGGER -> {
-                        elements.add(StakeholderInteractionTrigger(id, prevId, path.id).withText(text).withInteractedStakeholderId(title))
+                        val trigger = StakeholderInteractionTrigger(id, prevId, path.id).withText(text).withInteractedStakeholderId(title)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)
                     }
                     TYPE_INPUT_TRIGGER -> {
-                        elements.add(InputTrigger(id, prevId, path.id).withText(text).withInput(title))}
+                        val trigger = InputTrigger(id, prevId, path.id).withText(text).withInput(title)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)
+                    }
                     TYPE_TIME_TRIGGER -> {/*TODO*/}
                     TYPE_SOUND_TRIGGER -> {/*TODO*/}
                     TYPE_BLUETOOTH_TRIGGER -> {/*TODO*/}
