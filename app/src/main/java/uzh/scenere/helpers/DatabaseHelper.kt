@@ -49,7 +49,12 @@ class DatabaseHelper private constructor(context: Context) {
 
         fun getInstance(context: Context): DatabaseHelper {
             return when {
-                instance != null -> instance!!
+                instance != null -> {
+                    if ((instance!!.mode == DataMode.PREFERENCES && PermissionHelper.check(context,PermissionHelper.Companion.PermissionGroups.STORAGE))){
+                        instance = DatabaseHelper(context) // If permissions are granted, start over
+                    }
+                    instance!!
+                }
                 else -> synchronized(this) {
                     if (instance == null) {
                         instance = DatabaseHelper(context)

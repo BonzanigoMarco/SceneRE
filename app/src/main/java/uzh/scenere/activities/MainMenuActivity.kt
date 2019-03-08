@@ -19,59 +19,75 @@ class MainMenuActivity : AbstractBaseActivity() {
         return R.layout.activity_main_menu
     }
 
+    var projectsButton:SreButton? = null
+    var walkthroughButton:SreButton? = null
+    var analyticsButton:SreButton? = null
+    var shareButton:SreButton? = null
+    var cockpitButton:SreButton? = null
+    var glossaryButton:SreButton? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        val projectsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, R.id.main_menu_text_label).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, ProjectsActivity::class.java)) }
-        val walkthroughButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, projectsButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, WalkthroughActivity::class.java)) }
-        val analyticsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, walkthroughButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, AnalyticsActivity::class.java)) }
-        val shareButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, analyticsButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, ShareActivity::class.java)) }
-        val cockpitButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, shareButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, CockpitActivity::class.java)) }
-        val glossaryButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addRule(RelativeLayout.BELOW, cockpitButton.id).addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE).addExecutable { startActivity(Intent(this, GlossaryActivity::class.java)) }
+        projectsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, ProjectsActivity::class.java)) }
+        walkthroughButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, WalkthroughActivity::class.java)) }
+        analyticsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, AnalyticsActivity::class.java)) }
+        shareButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, ShareActivity::class.java)) }
+        cockpitButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, CockpitActivity::class.java)) }
+        glossaryButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, GlossaryActivity::class.java)) }
 
-        projectsButton.textSize = DipHelper.get(resources).dip6.toFloat()
-        walkthroughButton.textSize = DipHelper.get(resources).dip6.toFloat()
-        analyticsButton.textSize = DipHelper.get(resources).dip6.toFloat()
-        shareButton.textSize = DipHelper.get(resources).dip6.toFloat()
-        cockpitButton.textSize = DipHelper.get(resources).dip6.toFloat()
-        glossaryButton.textSize = DipHelper.get(resources).dip6.toFloat()
+        prepareButton(
+                arrayOf(R.string.projects_icon_label,
+                R.string.walkthroughs_icon_label,
+                R.string.analytics_icon_label,
+                R.string.share_icon_label,
+                R.string.glossary_icon_label,
+                R.string.cockpit_icon_label),
+                arrayOf(projectsButton!!,
+                        walkthroughButton!!,
+                        analyticsButton!!,
+                        shareButton!!,
+                        glossaryButton!!,
+                        cockpitButton!!
+                        ))
+    }
 
-        projectsButton.setWeight(1f,false, LinearLayout.LayoutParams.MATCH_PARENT)
-        walkthroughButton.setWeight(1f,false, LinearLayout.LayoutParams.MATCH_PARENT)
-        analyticsButton.setWeight(1f,false, LinearLayout.LayoutParams.MATCH_PARENT)
-        shareButton.setWeight(1f,false, LinearLayout.LayoutParams.MATCH_PARENT)
-        cockpitButton.setWeight(1f,false, LinearLayout.LayoutParams.MATCH_PARENT)
-        glossaryButton.setWeight(1f,false, LinearLayout.LayoutParams.MATCH_PARENT)
-        
-        projectsButton.setMargin(DipHelper.get(resources).dip6)
-        walkthroughButton.setMargin(DipHelper.get(resources).dip6)
-        analyticsButton.setMargin(DipHelper.get(resources).dip6)
-        shareButton.setMargin(DipHelper.get(resources).dip6)
-        cockpitButton.setMargin(DipHelper.get(resources).dip6)
-        glossaryButton.setMargin(DipHelper.get(resources).dip6)
-        
-        projectsButton.text = StringHelper.styleString(R.string.projects_icon_label,applicationContext)
-        walkthroughButton.text = StringHelper.styleString(R.string.walkthroughs_icon_label,applicationContext)
-        analyticsButton.text = StringHelper.styleString(R.string.analytics_icon_label,applicationContext)
-        shareButton.text = StringHelper.styleString(R.string.share_icon_label,applicationContext)
-        cockpitButton.text = StringHelper.styleString(R.string.cockpit_icon_label,applicationContext)
-        glossaryButton.text = StringHelper.styleString(R.string.glossary_icon_label,applicationContext)
+    override fun onResume() {
+        super.onResume()
+        setButtonStates(arrayOf(projectsButton!!,
+                walkthroughButton!!,
+                analyticsButton!!,
+                shareButton!!,
+                glossaryButton!!
+        ))
+    }
 
-        main_menu_layout_button_holder.addView(projectsButton)
-        main_menu_layout_button_holder.addView(walkthroughButton)
-        main_menu_layout_button_holder.addView(analyticsButton)
-        main_menu_layout_button_holder.addView(shareButton)
-        main_menu_layout_button_holder.addView(cockpitButton)
-        main_menu_layout_button_holder.addView(glossaryButton)
-        if (!PermissionHelper.check(applicationContext,PermissionHelper.Companion.PermissionGroups.STORAGE)){
-            projectsButton.isEnabled = false
-            walkthroughButton.isEnabled = false
-            analyticsButton.isEnabled = false
-            shareButton.isEnabled = false
-            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_cockpit").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+    private fun prepareButton(textIds: Array<Int>, buttons: Array<SreButton>){
+        if (textIds.size != buttons.size){
+            return
+        }
+        for (b in 0 until textIds.size) {
+            buttons[b].textSize = DipHelper.get(resources).dip6.toFloat()
+            buttons[b].setWeight(1f, false, LinearLayout.LayoutParams.MATCH_PARENT)
+            buttons[b].setMargin(DipHelper.get(resources).dip6)
+            buttons[b].text = StringHelper.styleString(textIds[b],applicationContext)
+            main_menu_layout_button_holder.addView(buttons[b])
         }
     }
 
+    fun setButtonStates(buttons: Array<SreButton>){
+        if (!PermissionHelper.check(applicationContext,PermissionHelper.Companion.PermissionGroups.STORAGE)){
+            for (button in buttons){
+                button.isEnabled = false
+            }
+            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_cockpit").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        }else{
+            for (button in buttons){
+                button.isEnabled = true
+            }
+        }
+    }
+    
     override fun onBackPressed() {
         this.finishAffinity();
     }

@@ -309,6 +309,8 @@ class WalkthroughActivity : AbstractManagementActivity() {
         walkthrough_holder.visibility = VISIBLE
         activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!],{resetToolbar()}, {stop()},notifyExecutable)
         getContentHolderLayout().addView(activeWalkthrough)
+        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_walkthrough_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+
     }
 
     private fun stop() {

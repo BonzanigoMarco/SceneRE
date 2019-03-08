@@ -185,3 +185,55 @@ see Inputs that were given through
 the course of the Walkthrough
 or delete Walkthroughs entirely.
 
+
+Analytics Type
+
+After drilling down, you can switch
+between Walkthroughs (   ),
+Statistics (   ) and Comments(   ).
+Doing so, lets you investigate
+single Walkthroughs, Steps and
+Scenarios or Comments.
+
+
+Lookup
+
+This Input contains a Lookup.
+Lookups are Elements with preset
+Values to select. There are three
+types, Single-Select, Multi-Select
+and Single-Value. The first two
+add their selected Element below
+which can be removed again by
+long-clicking on it.
+
+
+Multitext
+
+This Input contains a Multitext.
+You can add your own Text by
+writing in the Text-Field and
+click "Add". Removing added
+Elements can be done by long-
+clicking on them.
+
+
+What-If
+
+By clicking on the ?-Button,
+you can add What-Ifs to a Step.
+These are questions to inspire
+Input during a Walkthrough. When
+opening the this Configuration
+without having specified any What-
+Ifs prior, some are generated.
+
+
+First Walkthrough
+
+Welcome to your first Walkthrough. While you proceed through one,
+you will sometimes get to access different Menus on the top.
+What-Ifs (      ) are Questions to inspire Comments, which can be
+given by using the     -Menu (at any Time). Colored words in
+the text can have associated Information which may be looked up
+in the menu associated to the      -Icon.

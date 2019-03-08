@@ -8,6 +8,7 @@ import android.widget.Spinner
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.BUNDLE_SCENARIO
+import uzh.scenere.const.Constants.Companion.SIMPLE_LOOKUP
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.ObjectHelper
@@ -155,7 +156,7 @@ class ObjectsActivity : AbstractManagementActivity() {
             ObjectMode.EDIT, ObjectMode.CREATE -> {
                 cleanInfoHolder(if (activeObject==null) getString(R.string.objects_create) else getString(R.string.objects_edit))
                 getInfoContentWrap().addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, obj?.name))
-                isResourceSpinner = createLine(inputLabelResource, LineInputType.LOOKUP, null, if (ObjectHelper.nvl(obj?.isResource,false)) arrayOf("True", "False") else arrayOf("False", "True")) { execResourceStateChanged() }
+                isResourceSpinner = createLine(inputLabelResource, LineInputType.LOOKUP, SIMPLE_LOOKUP, if (ObjectHelper.nvl(obj?.isResource,false)) arrayOf("True", "False") else arrayOf("False", "True"), { execResourceStateChanged() })
                 getInfoContentWrap().addView(isResourceSpinner)
                 getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, obj?.description))
             }

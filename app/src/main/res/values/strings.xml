@@ -291,7 +291,7 @@
     <string name="startup_name_change">Do you want to change your Name?</string>
     <string name="startup_welcome_back">Welcome Back</string>
     <string name="startup_name_enter">Please enter a Name</string>
-    <string name="startup_enter_name">Enter your Name...</string>
+    <string name="startup_enter_name">Name</string>
     <string name="startup_enter_name_title">Enter your Name</string>
     <string name="startup_confirm">Confirm</string>
 </resources>

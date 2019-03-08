@@ -45,8 +45,8 @@ class StartupActivity : AbstractBaseActivity() {
         morphRandom(startup_text_7 as TextView,'R')
         morphRandom(startup_text_8 as TextView,'E')
 
-        userName = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_NAME, String::class, NOTHING)
-        userId = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_ID, String::class, NOTHING)
+        userName = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_NAME, String::class, NOTHING, false)
+        userId = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_ID, String::class, NOTHING, false)
         if (!StringHelper.hasText(userId)){
             userId = UUID.randomUUID().toString()
             DatabaseHelper.getInstance(applicationContext).write(Constants.USER_ID, userId)

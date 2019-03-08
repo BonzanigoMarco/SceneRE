@@ -1,62 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!--APPLICATION LIGHT-->
-    <!--<color name="srePrimaryDisabled">#dddddd</color>-->
-    <!--<color name="srePrimaryDisabledDark">#bbbbbb</color>-->
-    <!--<color name="srePrimaryPastel">#c5cae9</color>  &lt;!&ndash; 100 indigo &ndash;&gt;-->
-    <!--<color name="srePrimaryLight">#7986cb</color>  &lt;!&ndash; 300 indigo &ndash;&gt;-->
-    <!--<color name="srePrimary">#3F51B5</color>  &lt;!&ndash; 500 indigo &ndash;&gt;-->
-    <!--<color name="srePrimaryDark">#303F9F</color>  &lt;!&ndash; 700 indigo &ndash;&gt;-->
-    <!--<color name="srePrimaryAccent">#1E88E5</color>  &lt;!&ndash; 500 blue  &ndash;&gt;-->
-    <!--<color name="srePrimaryNeon">#64B5F6</color>  &lt;!&ndash; 300 blue  &ndash;&gt;-->
-    <!--<color name="srePrimaryWarn">@color/material_700_red</color>-->
-    <!--<color name="srePrimaryAttention">@color/material_700_yellow</color>-->
-    <!--<color name="sreBlack">#000000</color>-->
-    <!--<color name="sreWhite">#FFFFFF</color>-->
-    <!--<color name="sreTutorial">#FB8C00</color>  &lt;!&ndash; 600 orange  &ndash;&gt;-->
-    <!--<color name="sreSecondaryLight">#ff80ab</color>  &lt;!&ndash; 100 pink  &ndash;&gt;-->
-    <!--<color name="sreSecondary">#FF4081</color>  &lt;!&ndash; 200 pink  &ndash;&gt;-->
-    <!--<color name="sreSecondaryDark">#f50057</color>  &lt;!&ndash; 400 pink  &ndash;&gt;-->
-
-    <!--APPLICATION INVERSE-->
-    <!--<color name="srePrimaryDisabled">#dddddd</color>-->
-    <!--<color name="srePrimaryDisabledDark">#bbbbbb</color>-->
-    <!--<color name="srePrimaryPastel">#DDDDDD</color>  &lt;!&ndash; 100 indigo &ndash;&gt;-->
-    <!--<color name="srePrimaryLight">#AAAAAA</color>  &lt;!&ndash; 300 indigo &ndash;&gt;-->
-    <!--<color name="srePrimary">#777777</color>  &lt;!&ndash; 500 indigo &ndash;&gt;-->
-    <!--<color name="srePrimaryDark">#333333</color>  &lt;!&ndash; 700 indigo &ndash;&gt;-->
-    <!--<color name="srePrimaryAccent">#FFC107</color>  &lt;!&ndash; 500 blue  &ndash;&gt;-->
-    <!--<color name="srePrimaryNeon">#FFD54F</color>  &lt;!&ndash; 300 blue  &ndash;&gt;-->
-    <!--<color name="srePrimaryWarn">@color/material_700_red</color>-->
-    <!--<color name="srePrimaryAttention">@color/material_700_yellow</color>-->
-    <!--<color name="sreWhite">#000000</color>-->
-    <!--<color name="sreBlack">#FFFFFF</color>-->
-    <!--<color name="sreTutorial">#FB8C00</color>  &lt;!&ndash; 600 orange  &ndash;&gt;-->
-    <!--<color name="sreSecondaryLight">#ff80ab</color>  &lt;!&ndash; 100 pink  &ndash;&gt;-->
-    <!--<color name="sreSecondary">#FF4081</color>  &lt;!&ndash; 200 pink  &ndash;&gt;-->
-    <!--<color name="sreSecondaryDark">#f50057</color>  &lt;!&ndash; 400 pink  &ndash;&gt;-->
-
-    <!--APPLICATION NIGHTMODE-->
-    <!--<color name="srePrimaryDisabled">#dddddd</color>-->
-    <!--<color name="srePrimaryDisabledDark">#bbbbbb</color>-->
-    <!--<color name="srePrimaryPastel">#333333</color>  &lt;!&ndash; 100 indigo &ndash;&gt;-->
-    <!--<color name="srePrimaryLight">#555555</color>  &lt;!&ndash; 300 indigo &ndash;&gt;-->
-    <!--<color name="srePrimary">#777777</color>  &lt;!&ndash; 500 indigo &ndash;&gt;-->
-    <!--<color name="srePrimaryDark">#999999</color>  &lt;!&ndash; 700 indigo &ndash;&gt;-->
-    <!--<color name="srePrimaryAccent">#FFC107</color>  &lt;!&ndash; 500 blue  &ndash;&gt;-->
-    <!--<color name="srePrimaryNeon">#FFD54F</color>  &lt;!&ndash; 300 blue  &ndash;&gt;-->
-    <!--<color name="srePrimaryWarn">@color/material_700_red</color>-->
-    <!--<color name="srePrimaryAttention">@color/material_700_yellow</color>-->
-    <!--<color name="sreWhite">#000000</color>-->
-    <!--<color name="sreBlack">#FFFFFF</color>-->
-    <!--<color name="sreTutorial">#FB8C00</color>  &lt;!&ndash; 600 orange  &ndash;&gt;-->
-    <!--<color name="sreSecondaryLight">#ff80ab</color>  &lt;!&ndash; 100 pink  &ndash;&gt;-->
-    <!--<color name="sreSecondary">#FF4081</color>  &lt;!&ndash; 200 pink  &ndash;&gt;-->
-    <!--<color name="sreSecondaryDark">#f50057</color>  &lt;!&ndash; 400 pink  &ndash;&gt;-->
-
-    <!--APPLICATION LIGHT-->
+    <!--APPLICATION-->
     <color name="srePrimaryDisabled">#999999</color>
+    <color name="srePrimaryDisabledText">#dddddd</color>
     <color name="srePrimaryPastel">#B2DFDB</color>  <!-- 100 teal -->
     <color name="srePrimaryLight">#4DB6AC</color>  <!-- 300 teal -->
     <color name="srePrimary">#009688</color>  <!-- 500 teal -->

@@ -160,10 +160,13 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun renderElement(iElement: IElement) {
         var title: String? = null
-        if (iElement is StandardStep) title = "<b>" + iElement.readableClassName() + "</b><br>" + iElement.title
+        var tutorialDrawable: String? = null
+        if (iElement is StandardStep) {
+            title = "<b>" + iElement.readableClassName() + "</b><br>" + iElement.title
+            tutorialDrawable = "info_what_if"
+        }
         if (iElement is AbstractTrigger) title = "<b>" + iElement.readableClassName() + "</b>"
         val previousAvailable = getContentHolderLayout().childCount != 0
-        var tutorialDrawable: String? = null
         if (previousAvailable) {
             connectPreviousToNext()
         }else{

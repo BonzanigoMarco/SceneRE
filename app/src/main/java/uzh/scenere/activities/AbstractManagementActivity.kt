@@ -17,6 +17,7 @@ import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.READ_ONLY
+import uzh.scenere.const.Constants.Companion.SIMPLE_LOOKUP
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT_WITH_PRESET_POSITION
 import uzh.scenere.datamodel.*
@@ -25,6 +26,7 @@ import uzh.scenere.views.*
 import uzh.scenere.views.SreTextView.TextStyle.BORDERLESS_DARK
 import uzh.scenere.views.SreTextView.TextStyle.MEDIUM
 import java.util.*
+import android.content.res.Configuration
 
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
@@ -189,10 +191,11 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         val singleSelect = SINGLE_SELECT == presetValue || SINGLE_SELECT_WITH_PRESET_POSITION.isContainedIn(presetValue)
         val readOnly = READ_ONLY == presetValue
         val noCompleteRemoval = COMPLETE_REMOVAL_DISABLED == presetValue
+        val simpleLookup = SIMPLE_LOOKUP == presetValue
         var realPresetValue: String? = presetValue
         if (singleSelect && SINGLE_SELECT_WITH_PRESET_POSITION.length < presetValue!!.length){
             realPresetValue = presetValue.replace(SINGLE_SELECT_WITH_PRESET_POSITION,NOTHING)
-        }else if (singleSelect || readOnly || noCompleteRemoval){
+        }else if (singleSelect || readOnly || noCompleteRemoval || simpleLookup){
             realPresetValue = null
         }
         if (CollectionHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT, LineInputType.NUMBER_EDIT)) {
@@ -301,10 +304,12 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                                 return // Item already selected
                             }
                         }
-                        val selection = addSelection(spinnerText, selectionCarrier, labelText, spinner, null, singleSelect)
-                        selection.data = position
-                        if (singleSelect){
-                            inputMap[labelText] = selection
+                        if (!simpleLookup){
+                            val selection = addSelection(spinnerText, selectionCarrier, labelText, spinner, null, singleSelect)
+                            selection.data = position
+                            if (singleSelect){
+                                inputMap[labelText] = selection
+                            }
                         }
                     }
                 }
@@ -333,6 +338,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                     }
                 }
             }
+            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,if (isLandscapeOrientation()) "info_lookup_landscape" else "info_lookup").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             return outerWrapper
         } else if (inputType == LineInputType.MULTI_TEXT){
             val wrapperParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
@@ -403,9 +409,15 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             if (!readOnly && !noCompleteRemoval){
                 addClearSelectionButton(getString(R.string.literal_remove_all), selectionCarrier, labelText)
             }
+            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,if (isLandscapeOrientation()) "info_multitext_landscape" else "info_multitext").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             return outerWrapper
         }
         return null
+    }
+
+    fun isLandscapeOrientation(): Boolean{
+        val orientation = resources.configuration.orientation
+        return orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 
     @SuppressLint("ClickableViewAccessibility")
