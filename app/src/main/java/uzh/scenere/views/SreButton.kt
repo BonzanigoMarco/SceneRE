@@ -106,7 +106,7 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
             }
         }else{
             background = context.getDrawable(R.drawable.sre_button_disabled)
-            setTextColor(ContextCompat.getColor(context,R.color.srePrimaryDisabledDark))
+            setTextColor(ContextCompat.getColor(context,R.color.srePrimaryDisabled))
         }
     }
 

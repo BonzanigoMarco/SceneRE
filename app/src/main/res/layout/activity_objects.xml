@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="gravity"
-        android:textColor="@color/sreWhite"
+        android:textColor="@color/srePrimaryPastel"
         android:background="@color/srePrimary"
         android:text="@string/objects_title"
         android:layout_below="@id/objects_toolbar"/>

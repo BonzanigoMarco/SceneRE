@@ -14,7 +14,7 @@
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:scrollbarSize="@dimen/dpi15"
         android:fadeScrollbars="false"
-        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:scrollbarThumbVertical="@drawable/sre_scrollbar"
         android:orientation="vertical"
         android:layout_weight="7"/>
 
@@ -32,7 +32,7 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:textColor="@color/sreWhite"
+            android:textColor="@color/srePrimaryPastel"
             android:background="@color/srePrimary"
             android:layout_marginTop="@dimen/dpi5"
             android:layout_marginLeft="@dimen/dpi5"
@@ -54,7 +54,7 @@
                 android:layout_weight="3"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:textColor="@color/sreWhite"
+                android:textColor="@color/srePrimaryPastel"
                 android:background="@color/srePrimary"
                 android:layout_marginTop="@dimen/dpi2_5"
                 android:layout_marginLeft="@dimen/dpi5"

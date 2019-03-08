@@ -117,5 +117,25 @@ class NumberHelper{
             }
             return max
         }
+
+        fun capAt(i: Int, low: Int, high: Int): Int {
+            return when {
+                i<low -> low
+                i > high -> high
+                else -> i
+            }
+        }
+        fun capAtHigh(i: Int, high: Int): Int {
+            return when {
+                i > high -> high
+                else -> i
+            }
+        }
+        fun capAtLow(i: Int, low: Int): Int {
+            return when {
+                i < low -> low
+                else -> i
+            }
+        }
     }
 }

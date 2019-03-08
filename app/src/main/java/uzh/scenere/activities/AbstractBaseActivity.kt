@@ -138,7 +138,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
                 1 -> layoutParams.setMargins(margin, margin, margin, margin / 2)
                 2 -> layoutParams.setMargins(margin, margin / 2, margin, margin)
             }
-            textView.gravity = Gravity.CENTER//TODO: Remove if not necesssary anymore (Gravity.CENTER or Gravity.TOP)
+            textView.gravity = Gravity.CENTER
             textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
             textView.layoutParams = layoutParams
         }
@@ -152,7 +152,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         titleText.textAlignment = View.TEXT_ALIGNMENT_CENTER
         titleText.gravity = Gravity.CENTER
         titleText.text = title
-        titleText.setTextColor(ContextCompat.getColor(applicationContext,R.color.sreBlack))
+        titleText.setTextColor(ContextCompat.getColor(applicationContext,R.color.srePrimaryDark))
         holder.addView(titleText)
     }
 

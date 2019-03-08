@@ -56,15 +56,16 @@
     <!--<color name="sreSecondaryDark">#f50057</color>  &lt;!&ndash; 400 pink  &ndash;&gt;-->
 
     <!--APPLICATION LIGHT-->
-    <color name="srePrimaryDisabled">#dddddd</color>
-    <color name="srePrimaryDisabledDark">#bbbbbb</color>
-    <color name="srePrimaryPastel">#B2DFDB</color>  <!-- 100 indigo -->
-    <color name="srePrimaryLight">#4DB6AC</color>  <!-- 300 indigo -->
-    <color name="srePrimary">#009688</color>  <!-- 500 indigo -->
-    <color name="srePrimaryDark">#00796B</color>  <!-- 700 indigo -->
-    <color name="srePrimaryAccent">#4CAF50</color>  <!-- 500 blue  -->
-    <color name="srePrimaryNeon">#81C784</color>  <!-- 300 blue  -->
+    <color name="srePrimaryDisabled">#999999</color>
+    <color name="srePrimaryPastel">#B2DFDB</color>  <!-- 100 teal -->
+    <color name="srePrimaryLight">#4DB6AC</color>  <!-- 300 teal -->
+    <color name="srePrimary">#009688</color>  <!-- 500 teal -->
+    <color name="srePrimaryDark">#00796B</color>  <!-- 700 teal -->
+    <color name="srePrimaryDeepDark">#004d40</color>  <!-- 900 teal -->
+    <color name="srePrimaryAccent">#00bfa5</color>  <!-- 500 blue  -->
+    <color name="srePrimaryNeon">#1de9b6</color>  <!-- 300 blue  -->
     <color name="srePrimaryWarn">@color/material_700_red</color>
+    <color name="srePrimarySafe">@color/material_700_green</color>
     <color name="srePrimaryAttention">@color/material_700_orange</color>
     <color name="sreBlack">#000000</color>
     <color name="sreWhite">#FFFFFF</color>
@@ -147,7 +148,7 @@
     <color name="material_700_violet">#7B1FA2</color>
     <color name="material_700_blue">#303F9F</color>
     <color name="material_700_turquoise">#0097A7</color>
-    <color name="material_700_green">#388E3C</color>
+    <color name="material_700_green">#689F38</color>
     <color name="material_700_lime">#AFB42B</color>
     <color name="material_700_yellow">#FBC02D</color>
     <color name="material_700_orange">#F57C00</color>

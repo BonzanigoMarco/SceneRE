@@ -1,10 +1,8 @@
 package uzh.scenere.activities
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
-import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.datamodel.Attribute
@@ -55,7 +53,7 @@ class AttributesActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this, "Create New Attribute")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
+                        .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false, true, false, false)
                         .setButtonIcons(R.string.icon_null, R.string.icon_edit, null, null, R.string.icon_attributes)
                         .setFirstPosition()
@@ -72,7 +70,7 @@ class AttributesActivity : AbstractManagementActivity() {
 
     private fun addAttributeToList(attribute: Attribute) {
         val swipeButton = SwipeButton(this, attribute.key)
-                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
+                .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit,null,null, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, false, false)

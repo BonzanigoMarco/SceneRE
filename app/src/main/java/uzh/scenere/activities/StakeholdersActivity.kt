@@ -1,12 +1,8 @@
 package uzh.scenere.activities
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
-import android.view.View
-import android.view.ViewGroup
-import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.BUNDLE_PROJECT
@@ -59,7 +55,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this,"Create New Stakeholder")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
+                        .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false,true,false,false)
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_stakeholder)
                         .setFirstPosition()
@@ -76,7 +72,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
 
     private fun addStakeholderToList(stakeholder: Stakeholder) {
         val swipeButton = SwipeButton(this, stakeholder.name)
-                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
+                .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit, null, null, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, false, false)

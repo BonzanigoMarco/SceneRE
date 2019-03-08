@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SceneRE</string>
+    <string name="app_name">Scene-RE</string>
     <!--Spinner-->
     <string-array name="spinner_empty">
         <item>@string/spinner_none</item>
@@ -110,6 +110,8 @@
     <string name="deleted">Deleted!</string>
     <string name="none">None</string>
     <string name="observing">Observing %1$s</string>
+    <string name="pound">#</string>
+    <string name="color_alpha_rgb">#%1$s%2$s</string>
 
     <!--Info-->
     <string name="projects_create">Creating a new Project</string>
@@ -133,9 +135,10 @@
     <string name="editor_title"><b>Editor</b></string>
     <string name="walkthrough_title">Walkthrough</string>
     <string name="analytics_title">Analytics</string>
-    <string name="main_menu_title">Main-Menu</string>
+    <string name="main_menu_title">Main Menu</string>
     <string name="glossary_title">Glossary</string>
-    <string name="title_share">Share</string>
+    <string name="share_title">Share</string>
+    <string name="startup_title">Startup</string>
 
     <!--Explanations-->
     <string name="explanation_steps_title">Steps</string>
@@ -186,6 +189,11 @@
     <string name="walkthrough_transition_automatic">Automatic</string>
     <string name="walkthrough_transition_input">Input entered correctly</string>
     <string name="walkthrough_transition_interaction">Entered Interaction-Code</string>
+    <string name="walkthrough_what_if_browse">Browse available What-If Questions</string>
+    <string name="walkthrough_contribute_comments">Write down your Comment and press "Add" to contribute it</string>
+    <string name="walkthrough_final_state_cancelled">Cancelled on the %1$s Step, \"%2$s\"</string>
+    <string name="walkthrough_final_state_cancelled_check">Cancelled on the "</string>
+    <string name="walkthrough_final_state_complete">Walkthrough completed successfully</string>
 
     <!--Literal and related-->
     <string name="literal_object">Object</string>
@@ -253,6 +261,10 @@
     <string name="share_import_number_successful">All %1$d Items imported successfully.</string>
     <string name="share_click_to_import">Select one of the %1$d Files to analyze it</string>
     <string name="share_folder">Folder: %1$s</string>
+    <string name="share_mode_file_export">File Export Mode</string>
+    <string name="share_collect_data">Collect your Data</string>
+    <string name="share_include_walkthroughs">Include Walkthroughs</string>
+    <string name="share_exclude_walkthroughs">Exclude Walkthroughs</string>
 
 
     <!--Analytics-->
@@ -271,18 +283,15 @@
     <string name="analytics_transition_x">Transition #%1$d</string>
     <string name="analytics_path_version_x">Path Version %1$d</string>
     <string name="analytics_walkthrough_x">Walkthrough #%1$d</string>
-    <string name="walkthrough_what_if_browse">Browse available What-If Questions</string>
-    <string name="walkthrough_contribute_comments">Write down your Comment and press "Add" to contribute it</string>
-    <string name="walkthrough_final_state_cancelled">Cancelled on the %1$s Step, \"%2$s\"</string>
-    <string name="walkthrough_final_state_cancelled_check">Cancelled on the "</string>
-    <string name="walkthrough_final_state_complete">Walkthrough completed successfully</string>
     <string name="analytics_walkthrough_cancelled">Cancelled</string>
     <string name="analytics_unknown">Unknown</string>
-    <string name="share_mode_file_export">File Export Mode</string>
-    <string name="share_collect_data">Collect your Data</string>
-    <string name="share_include_walkthroughs">Include Walkthroughs</string>
-    <string name="share_exclude_walkthroughs">Exclude Walkthroughs</string>
+
+
+    <!--Startup-->
     <string name="startup_name_change">Do you want to change your Name?</string>
     <string name="startup_welcome_back">Welcome Back</string>
     <string name="startup_name_enter">Please enter a Name</string>
+    <string name="startup_enter_name">Enter your Name...</string>
+    <string name="startup_enter_name_title">Enter your Name</string>
+    <string name="startup_confirm">Confirm</string>
 </resources>

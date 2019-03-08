@@ -65,7 +65,7 @@
 
 
     <string name="projects_icon_label"><annotation font="font_awesome">&#xf573;</annotation> Projects <annotation font="font_awesome">&#xf573;</annotation></string>
-    <string name="walkthroughs_icon_label"><annotation font="font_awesome">&#xf008;</annotation> Walkthroughs <annotation font="font_awesome">&#xf008;</annotation></string>
+    <string name="walkthroughs_icon_label"><annotation font="font_awesome">&#xf008;</annotation> Walkthrough <annotation font="font_awesome">&#xf008;</annotation></string>
     <string name="analytics_icon_label"><annotation font="font_awesome">&#xf002;</annotation> Analytics <annotation font="font_awesome">&#xf002;</annotation></string>
     <string name="share_icon_label"><annotation font="font_awesome">&#xf1e0;</annotation> Share <annotation font="font_awesome">&#xf1e0;</annotation></string>
     <string name="cockpit_icon_label"><annotation font="font_awesome">&#xf085;</annotation> Cockpit <annotation font="font_awesome">&#xf085;</annotation></string>

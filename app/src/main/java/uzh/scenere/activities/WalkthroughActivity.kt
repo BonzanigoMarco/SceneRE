@@ -138,7 +138,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         loadedProjects.clear()
         loadedProjects.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Project::class, null))
         creationButton = SwipeButton(this, createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
-                .setColors(ContextCompat.getColor(applicationContext, R.color.sreWhite), ContextCompat.getColor(applicationContext, R.color.srePrimaryDisabledDark))
+                .setColors(ContextCompat.getColor(applicationContext, R.color.sreWhite), ContextCompat.getColor(applicationContext, R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                 .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)

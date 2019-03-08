@@ -25,7 +25,7 @@
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
             android:textSize="@dimen/sp25"
-            android:textColor="@color/sreWhite"
+            android:textColor="@color/srePrimaryPastel"
             tools:ignore="OnClick" />
 
         <Button
@@ -38,7 +38,7 @@
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
             android:textSize="@dimen/sp25"
-            android:textColor="@color/sreWhite"
+            android:textColor="@color/srePrimaryPastel"
             tools:ignore="OnClick" />
 
         <Button
@@ -52,7 +52,7 @@
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
             android:textSize="@dimen/sp25"
-            android:textColor="@color/sreWhite"
+            android:textColor="@color/srePrimaryPastel"
             tools:ignore="OnClick" />
 
         <Button
@@ -65,7 +65,7 @@
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
             android:textSize="@dimen/sp25"
-            android:textColor="@color/sreWhite"
+            android:textColor="@color/srePrimaryPastel"
             tools:ignore="OnClick" />
 
         <Button
@@ -78,7 +78,7 @@
             android:fontFamily="@font/font_awesome_900"
             android:onClick="onToolbarClicked"
             android:textSize="@dimen/sp25"
-            android:textColor="@color/sreWhite"
+            android:textColor="@color/srePrimaryPastel"
             tools:ignore="OnClick" />
     </LinearLayout>
 </android.support.v7.widget.Toolbar>

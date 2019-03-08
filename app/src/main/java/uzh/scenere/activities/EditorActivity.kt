@@ -104,7 +104,7 @@ class EditorActivity : AbstractManagementActivity() {
 
         creationButton = SwipeButton(this, stakeholder?.name
                 ?: "No Stakeholders, Path cannot be built.")
-                .setColors(ContextCompat.getColor(applicationContext,R.color.sreWhite), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabledDark))
+                .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
                 .setButtonStates(true, true, false, false)

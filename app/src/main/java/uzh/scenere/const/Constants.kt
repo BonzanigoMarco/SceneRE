@@ -8,6 +8,7 @@ class Constants {
         //Storage
         const val SHARED_PREFERENCES: String = "scenereSharedPreferences"
         const val USER_NAME: String = "scenereUserName"
+        const val USER_ID: String = "scenereUserId"
         const val IMPORT_FOLDER: String = "scenereImportFolder"
         const val ANONYMOUS: String = "John Doe"
         //NUMBERS

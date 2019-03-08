@@ -4,7 +4,7 @@
     <style name="SceneReToolbarTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
-        <item name="android:colorBackground">@color/sreWhite</item>
+        <item name="android:colorBackground">@color/srePrimaryPastel</item>
         <item name="colorPrimary">@color/srePrimary</item>
         <item name="colorPrimaryDark">@color/srePrimaryDark</item>
         <item name="colorAccent">@color/srePrimaryAccent</item>
@@ -22,8 +22,7 @@
     </style>
 
     <style name="SpinnerStyle">
-        <!--<item name="android:fontFamily">@font/font_awesome_900</item>-->
-        <item name="android:textColor">@color/sreWhite</item>
+        <item name="android:textColor">@color/srePrimaryPastel</item>
         <item name="android:colorBackground">@color/srePrimaryDark</item>
     </style>
 

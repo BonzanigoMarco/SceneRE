@@ -18,7 +18,7 @@
         android:background="@color/srePrimary"
         android:gravity="center_horizontal"
         android:text="@string/walkthrough_title"
-        android:textColor="@color/sreWhite" />
+        android:textColor="@color/srePrimaryPastel" />
 
     <include
         android:id="@+id/walkthrough_holder"
@@ -70,7 +70,7 @@
                 android:layout_marginBottom="@dimen/dpi5"
                 android:background="@color/srePrimary"
                 android:textAlignment="center"
-                android:textColor="@color/sreWhite" />
+                android:textColor="@color/srePrimaryPastel" />
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

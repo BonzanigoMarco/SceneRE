@@ -60,11 +60,11 @@ interface ISreView {
     }
 
 
-    fun setWeight(weight: Float,  horizontal: Boolean = true){
+    fun setWeight(weight: Float,  horizontal: Boolean = true, alternateProportion: Int = LinearLayout.LayoutParams.WRAP_CONTENT){
         when (parentLayout){
             LINEAR -> {
-                val params = LinearLayout.LayoutParams(if (horizontal) LinearLayout.LayoutParams.MATCH_PARENT else LinearLayout.LayoutParams.WRAP_CONTENT,
-                        if (horizontal) LinearLayout.LayoutParams.WRAP_CONTENT else LinearLayout.LayoutParams.MATCH_PARENT)
+                val params = LinearLayout.LayoutParams(if (horizontal) LinearLayout.LayoutParams.MATCH_PARENT else alternateProportion,
+                        if (horizontal) alternateProportion else LinearLayout.LayoutParams.MATCH_PARENT)
                 params.weight = weight
                 getView().layoutParams = params
             }

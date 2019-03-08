@@ -192,7 +192,7 @@ class DatabaseHelper private constructor(context: Context) {
         return null
     }
 
-    fun <T : Serializable> readAndMigrate(key: String, clz: KClass<T>, valIfNull: T, deleteInPrefs: Boolean = true): T? {
+    fun <T : Serializable> readAndMigrate(key: String, clz: KClass<T>, valIfNull: T, deleteInPrefs: Boolean = true): T {
         when (mode) {
             DataMode.PREFERENCES -> {
                 return read(key, clz, valIfNull)

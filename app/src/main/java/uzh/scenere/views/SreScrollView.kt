@@ -60,7 +60,7 @@ class SreScrollView(context: Context, parent: ViewGroup): ScrollView(context) {
             val scrollBar = scrollBarField.get(mScrollCache)
             val method = scrollBar.javaClass.getDeclaredMethod("setVerticalThumbDrawable", Drawable::class.java)
             method.isAccessible = true
-            method.invoke(scrollBar, ContextCompat.getDrawable(context,R.drawable.scrollbar))
+            method.invoke(scrollBar, ContextCompat.getDrawable(context,R.drawable.sre_scrollbar))
             method.isAccessible = false
             isScrollbarFadingEnabled = false
         } catch (e: Exception) {

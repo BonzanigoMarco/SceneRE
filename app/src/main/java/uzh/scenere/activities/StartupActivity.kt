@@ -2,7 +2,6 @@ package uzh.scenere.activities
 
 import android.content.Intent
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
@@ -13,10 +12,13 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_startup.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.helpers.DatabaseHelper
+import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.helpers.nextSafeInt
 import uzh.scenere.views.WeightAnimator
+import java.util.*
 import kotlin.random.Random
 
 class StartupActivity : AbstractBaseActivity() {
@@ -27,6 +29,7 @@ class StartupActivity : AbstractBaseActivity() {
     private var complete = 0
     private var total = 0
     private var userName: String? = null
+    private var userId: String = NOTHING
     private var interrupted: Boolean = false
     private var closing: Boolean = false
 
@@ -42,8 +45,12 @@ class StartupActivity : AbstractBaseActivity() {
         morphRandom(startup_text_7 as TextView,'R')
         morphRandom(startup_text_8 as TextView,'E')
 
-        userName = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_NAME, String::class, "")
-
+        userName = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_NAME, String::class, NOTHING)
+        userId = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_ID, String::class, NOTHING)
+        if (!StringHelper.hasText(userId)){
+            userId = UUID.randomUUID().toString()
+            DatabaseHelper.getInstance(applicationContext).write(Constants.USER_ID, userId)
+        }
         //TODO, load and cleanup in the background
     }
 
@@ -53,16 +60,20 @@ class StartupActivity : AbstractBaseActivity() {
         if (StringHelper.hasText(text.text)){
             character = text.text[0]
         }
-        val dist = Math.abs(returnChar.toInt()-character.toInt())*5
-        text.setTextColor(Color.rgb(dist,dist,dist))
+        val dist = 255-NumberHelper.capAt(Math.abs(returnChar.toInt()-character.toInt())*5,0,239)
+        val colorString = getString(R.string.color_alpha_rgb, dist.toString(16), "004d40")
+        val color = Color.parseColor(colorString)
+        text.setTextColor(color)
         if (character == returnChar){
             return complete()
         }
-        var low = if ((returnChar.toInt() - (50-offset)) < 32) 32 else (returnChar.toInt() - (50-offset))
-        low = if (low > returnChar.toInt()) returnChar.toInt() else low
+        val charDistance = 40
+        val chanceOfNewCharacter = 0.85
+        val lowerBound = 32
+        val low = NumberHelper.capAt((returnChar.toInt() - (charDistance-offset)),lowerBound,returnChar.toInt())
         text.text = (low + Random.nextSafeInt(2*(returnChar.toInt()-low))).toChar().toString()
-        val offsetNew = if (offset < 50 && Math.random()>0.5) (offset+1) else offset
-        Handler().postDelayed({morphRandom(text,returnChar, false, offsetNew)},(0L + Random.nextSafeInt((50-offsetNew))))
+        val offsetNew = if (offset < charDistance && Math.random()< chanceOfNewCharacter) (offset+1) else offset
+        Handler().postDelayed({morphRandom(text,returnChar, false, offsetNew)},(0L + Random.nextSafeInt((charDistance-offsetNew))))
     }
 
     private fun complete() {
@@ -82,8 +93,8 @@ class StartupActivity : AbstractBaseActivity() {
     }
 
     private fun logoDisplayFinished() {
-        val primary = ContextCompat.getColor(this, R.color.srePrimaryDark)
-        val secondary = ContextCompat.getColor(this, R.color.sreSecondaryDark)
+        val primary = ContextCompat.getColor(this, R.color.srePrimaryDeepDark)
+        val secondary = ContextCompat.getColor(this, R.color.srePrimaryLight)
         (startup_text_1 as TextView).setTextColor(primary)
         (startup_text_2 as TextView).setTextColor(primary)
         (startup_text_3 as TextView).setTextColor(primary)

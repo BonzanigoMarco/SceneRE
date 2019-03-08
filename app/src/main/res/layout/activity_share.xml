@@ -17,8 +17,8 @@
         android:layout_below="@id/share_toolbar"
         android:background="@color/srePrimary"
         android:gravity="center_horizontal"
-        android:text="@string/title_share"
-        android:textColor="@color/sreWhite" />
+        android:text="@string/share_title"
+        android:textColor="@color/srePrimaryPastel" />
 
 
     <LinearLayout
