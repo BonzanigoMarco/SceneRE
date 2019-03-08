@@ -234,8 +234,8 @@
     <string name="glossary_scenario">Scenarios consist of a continuous sequence of Steps and Triggers for each Stakeholder and can be seen as Theater Scripts. Together they build a Path which will be played while conducting a Walkthrough. The main-Path can branch out in different Paths by including If-Else Triggers.</string>
     <string name="glossary_walkthrough">Walkthroughs are the actual conduction of playing through a Scenario and can be seen as Theater Performance. While playing through Scenarios,  What-If Questions  and contextual Information about Objects are sometimes available. Since the Walkthroughs should spark ideas, Input can be added at any given point.</string>
     <string name="glossary_step">Steps are Elements that make up a Path in a Scenario. They guide the Stakeholder through the Walkthrough and provide Information.</string>
-    <string name="glossary_trigger">Trigger get combined with Steps and decide when the Walkthrough continues with the next step and which step this will be.</string>
-    <string name="glossary_editor">The Editor provides the Tools to put together the Paths contained in a Scenario</string>
+    <string name="glossary_trigger">Trigger get combined with Steps and decide when the Walkthrough continues with the next step and which step this will be.\n\nButton Trigger: Trigger with simple Button to click.\nIf-Else Trigger: Trigger with multiple Buttons to create alternate Paths.\nStakeholder Interaction Trigger: Requires an interaction of the involved Stakeholders to continue.\nInput Trigger: Trigger with Passphrase, required to continue.</string>
+    <string name="glossary_editor">The Editor provides the Tools to put together the Paths contained in a Scenario.\n\nStandard Step: Step with Title- and Content-Text.</string>
 
     <!--Share-->
     <string name="share_import_folder">Select a Folder for Import</string>
