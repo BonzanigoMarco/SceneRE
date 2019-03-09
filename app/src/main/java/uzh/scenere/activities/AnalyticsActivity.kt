@@ -70,7 +70,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
         super.onCreate(savedInstanceState)
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         loadData()
-        creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) "No Walkthroughs found" else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
+        creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) getString(R.string.analytics_no_walkthrough) else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
                 .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
@@ -293,9 +293,10 @@ class AnalyticsActivity : AbstractManagementActivity() {
                 mode = AnalyticsMode.SELECT_COMMENTS
                 createStepStatistics()
                 updateLabelWrapper(null,null,getString(R.string.analytics_comments))
-                creationButton?.setButtonStates(true, true, true, false)
+                val commentCount = NumberHelper.nvl(stepAnalytics?.getStepCount(), 0)
+                creationButton?.setButtonStates(commentCount > 0, commentCount > 0, true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_null, null)
-                        ?.setText(createButtonLabel(NumberHelper.nvl(stepAnalytics?.getStepCount(),0), getString(R.string.literal_steps_with_comments)))
+                        ?.setText(createButtonLabel(commentCount, getString(R.string.literal_steps_with_comments)))
                         ?.updateViews(false)
             }
             else -> return
@@ -350,12 +351,12 @@ class AnalyticsActivity : AbstractManagementActivity() {
 
     private fun createScenarioStatistics() {
         getContentHolderLayout().removeAllViews()
-        scenarioAnalytics = ScenarioAnalyticLayout(applicationContext, *loadedWalkthroughs.toTypedArray())
+        scenarioAnalytics = ScenarioAnalyticLayout(applicationContext, *activeWalkthroughs.toTypedArray())
     }
 
     private fun createStepStatistics() {
         getContentHolderLayout().removeAllViews()
-        stepAnalytics = StepAnalyticsLayout(applicationContext, *loadedWalkthroughs.toTypedArray())
+        stepAnalytics = StepAnalyticsLayout(applicationContext, *activeWalkthroughs.toTypedArray())
     }
 
     private val loadedWalkthroughs = ArrayList<Walkthrough>()

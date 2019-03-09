@@ -483,17 +483,19 @@ class DatabaseHelper private constructor(context: Context) {
     }
 
     fun dropAndRecreateAll(){
-        database!!.dropAndRecreateTable("ATTRIBUTE_TABLE")
-        database!!.dropAndRecreateTable("PATH_TABLE")
-        database!!.dropAndRecreateTable("ELEMENT_TABLE")
-        database!!.dropAndRecreateTable("OBJECT_TABLE")
-        database!!.dropAndRecreateTable("PROJECT_TABLE")
-        database!!.dropAndRecreateTable("SCENARIO_TABLE")
-        database!!.dropAndRecreateTable("STAKEHOLDER_TABLE")
-        database!!.dropAndRecreateTable("WALKTHROUGH_TABLE")
-        database!!.dropAndRecreateTable("NUMBER_TABLE")
-        database!!.dropAndRecreateTable("DATA_TABLE")
-        database!!.dropAndRecreateTable("TEXT_TABLE")
+        if (mode == DataMode.DATABASE) {
+            database!!.dropAndRecreateTable("ATTRIBUTE_TABLE")
+            database!!.dropAndRecreateTable("PATH_TABLE")
+            database!!.dropAndRecreateTable("ELEMENT_TABLE")
+            database!!.dropAndRecreateTable("OBJECT_TABLE")
+            database!!.dropAndRecreateTable("PROJECT_TABLE")
+            database!!.dropAndRecreateTable("SCENARIO_TABLE")
+            database!!.dropAndRecreateTable("STAKEHOLDER_TABLE")
+            database!!.dropAndRecreateTable("WALKTHROUGH_TABLE")
+            database!!.dropAndRecreateTable("NUMBER_TABLE")
+            database!!.dropAndRecreateTable("DATA_TABLE")
+            database!!.dropAndRecreateTable("TEXT_TABLE")
+        }
         for (pref in sharedPreferences.all){
             sharedPreferences.edit().remove(pref.key).apply()
         }

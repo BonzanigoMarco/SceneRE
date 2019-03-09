@@ -106,8 +106,21 @@ class ShareActivity : AbstractManagementActivity() {
     private var includeWalkthroughs = true
     private var walkthroughSwitch: SreButton? = null
 
+    private var openFileUri: Uri? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!PermissionHelper.check(applicationContext,PermissionHelper.Companion.PermissionGroups.STORAGE)){
+            startActivity(Intent(this, StartupActivity::class.java))
+        }
+        if (CollectionHelper.oneOf(intent.action,"android.intent.action.VIEW") &&  intent.data is Uri){
+            if (intent.data.path.contains("/root")){
+                val path = intent.data.path.replace("/root", NOTHING)
+                openFileUri = Uri.parse(path)
+            }else{
+                openFileUri = intent.data
+            }
+        }
         creationButton = SwipeButton(this, getString(R.string.share_mode_file_export))
                 .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
@@ -130,20 +143,38 @@ class ShareActivity : AbstractManagementActivity() {
         importFolder = DatabaseHelper.getInstance(applicationContext).read(IMPORT_FOLDER,String::class, NOTHING)
         resetToolbar()
         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_share").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        if (openFileUri != null){
+            if (StringHelper.nvl(openFileUri!!.authority,NOTHING).contains("dropbox")){
+                notify(getString(R.string.share_no_dropbox))
+            }else{
+                setMode(ShareMode.FILE_IMPORT)
+                execLoadFile(File(openFileUri!!.path))
+            }
+        }
     }
 
     private fun swapMode(forward: Boolean){
         mode = if (forward) mode.next() else mode.previous()
+        sawpModeInternal()
+    }
+    private fun setMode(newMode: ShareMode){
+        mode = newMode
+        sawpModeInternal()
+    }
+
+    private fun sawpModeInternal() {
         creationButton?.setText(mode.label)
-        when (mode){
+        when (mode) {
             ShareMode.FILE_EXPORT -> {
                 execLoadFileExport()
             }
             ShareMode.FILE_IMPORT -> {
                 execLoadFileImport()
             }
-            ShareMode.NFC_EXPORT -> {}
-            ShareMode.NFC_IMPORT -> {}
+            ShareMode.NFC_EXPORT -> {
+            }
+            ShareMode.NFC_IMPORT -> {
+            }
         }
     }
 
@@ -158,11 +189,14 @@ class ShareActivity : AbstractManagementActivity() {
                     controlButton?.text = getString(R.string.share_export_data)
                     controlButton?.addExecutable {
                         val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + SRE_FILE
-                        val destination = FileHelper.writeFile(applicationContext, cachedBinary!!, fileName)
+                        val destinationFile = FileHelper.writeFile(applicationContext, cachedBinary!!, fileName)
                         notify(getString(R.string.share_export_finished))
                         controlButton?.text = getString(R.string.share_export_location)
                         controlButton?.addExecutable {
-                            FileHelper.openFolder(applicationContext, destination)
+                            val success = FileHelper.openFolder(applicationContext, destinationFile.replace("/$fileName",""))
+                            if (!success){
+                                FileHelper.openFile(applicationContext, destinationFile)
+                            }
                         }
                     }
                 }else{
@@ -490,5 +524,9 @@ class ShareActivity : AbstractManagementActivity() {
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
     }
 }

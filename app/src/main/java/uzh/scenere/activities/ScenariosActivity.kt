@@ -122,7 +122,7 @@ class ScenariosActivity : AbstractManagementActivity() {
     override fun createEntity() {
         val title = inputMap[inputLabelTitle]!!.getStringValue()
         val intro = inputMap[inputLabelIntro]!!.getStringValue()
-        val outro = inputMap[inputLabelIntro]!!.getStringValue()
+        val outro = inputMap[inputLabelOutro]!!.getStringValue()
         val scenarioBuilder = Scenario.ScenarioBuilder(activeProject!!, title, intro, outro)
         if (activeScenario != null) {
             removeScenario(activeScenario!!)

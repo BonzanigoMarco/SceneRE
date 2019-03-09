@@ -97,7 +97,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     override fun onBackPressed() {
-        if (getIsFirstScrollUp() && getContentWrapperLayout() is SwipeButtonScrollView &&
+        if (isInputOpen()){
+            onToolbarRightClicked()
+        }else if (getIsFirstScrollUp() && getContentWrapperLayout() is SwipeButtonScrollView &&
                 (getContentWrapperLayout() as SwipeButtonScrollView).scrollY > 0){
             execFullScrollUp()
         }else{

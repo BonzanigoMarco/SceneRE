@@ -241,7 +241,7 @@
     <string name="share_import_folder">Select a Folder for Import</string>
     <string name="share_import_file">Select a File for Import</string>
     <string name="share_export_data">Export Data</string>
-    <string name="share_export_location">Open Export Location</string>
+    <string name="share_export_location">Open Export-Location or File</string>
     <string name="share_export_finished">Export finished</string>
     <string name="share_export_file_prefix">Export_</string>
     <string name="share_error_empty">Wrong File-Format or Content is missing!</string>
@@ -285,7 +285,7 @@
     <string name="analytics_walkthrough_x">Walkthrough #%1$d</string>
     <string name="analytics_walkthrough_cancelled">Cancelled</string>
     <string name="analytics_unknown">Unknown</string>
-
+    <string name="analytics_no_walkthrough">No Walkthroughs found</string>
 
     <!--Startup-->
     <string name="startup_name_change">Do you want to change your Name?</string>
@@ -294,4 +294,5 @@
     <string name="startup_enter_name">Name</string>
     <string name="startup_enter_name_title">Enter your Name</string>
     <string name="startup_confirm">Confirm</string>
+    <string name="share_no_dropbox">Dropbox not supported yet!</string>
 </resources>

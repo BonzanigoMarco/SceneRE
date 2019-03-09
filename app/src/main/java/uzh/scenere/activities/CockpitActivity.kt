@@ -124,6 +124,9 @@ class CockpitActivity : AbstractManagementActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Persist Username on granting Permission
+        DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_NAME, String::class, NOTHING, false)
+        DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_ID, String::class, NOTHING, false)
         recreateViews()
     }
 
@@ -153,11 +156,11 @@ class CockpitActivity : AbstractManagementActivity() {
         when (this.mode) {
             CockpitMode.PERMISSIONS -> {
                 for (permission in PermissionHelper.getRequiredPermissions(this)) {
-                    val granted = PermissionHelper.check(this, permission)
                     val swipeButton = SwipeButton(applicationContext, permission.label)
                             .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                             .setButtonIcons(R.string.icon_null,R.string.icon_check, null, null, null)
                             .setButtonStates(true, true, false, false)
+                            .setAutoCollapse(true)
                             .updateViews(true)
                     swipeButton.dataObject = permission
                     swipeButton.outputObject = getInfoContent()
@@ -174,6 +177,7 @@ class CockpitActivity : AbstractManagementActivity() {
                             .setIndividualButtonColors(if (granted) ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (granted) ContextCompat.getColor(applicationContext,R.color.srePrimarySafe) else ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                             .setButtonIcons(R.string.icon_cross, R.string.icon_check, null, null, null)
                             .setButtonStates(true, true, false, false)
+                            .setAutoCollapse(true)
                             .updateViews(true)
                     swipeButton.dataObject = communication
                     swipeButton.outputObject = getInfoContent()
@@ -190,6 +194,7 @@ class CockpitActivity : AbstractManagementActivity() {
                             .setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                             .setButtonIcons(R.string.icon_eye_closed, R.string.icon_eye, null, null, null)
                             .setButtonStates(true, true, false, false)
+                            .setAutoCollapse(true)
                             .updateViews(true)
                     swipeButton.dataObject = sensor
                     swipeButton.outputObject = getInfoContent()
@@ -255,8 +260,6 @@ class CockpitActivity : AbstractManagementActivity() {
                 if (!PermissionHelper.check(this@CockpitActivity, permission)) {
                     PermissionHelper.request(this@CockpitActivity, permission)
                     activeButton = button
-                } else {
-                    Handler().postDelayed({ button.collapse() }, 500)
                 }
             }
             override fun execLeft() {
@@ -274,9 +277,6 @@ class CockpitActivity : AbstractManagementActivity() {
                 if (!CommunicationHelper.check(this@CockpitActivity, communication)) {
                     val active = CommunicationHelper.toggle(this@CockpitActivity, communication)
                     button.setIndividualButtonColors(if (active) ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (active) ContextCompat.getColor(applicationContext,R.color.srePrimarySafe) else ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled)).updateViews(false)
-                    Handler().postDelayed({ button.collapse() }, 500)
-                } else {
-                    Handler().postDelayed({ button.collapse() }, 500)
                 }
             }
 
@@ -284,9 +284,6 @@ class CockpitActivity : AbstractManagementActivity() {
                 if (CommunicationHelper.check(this@CockpitActivity, communication)) {
                     val active = CommunicationHelper.toggle(this@CockpitActivity, communication)
                     button.setIndividualButtonColors(if (active) ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (active) ContextCompat.getColor(applicationContext,R.color.srePrimarySafe) else ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled)).updateViews(false)
-                    Handler().postDelayed({ button.collapse() }, 500)
-                } else {
-                    Handler().postDelayed({ button.collapse() }, 500)
                 }
             }
 
@@ -300,13 +297,11 @@ class CockpitActivity : AbstractManagementActivity() {
         return object : SwipeButton.SwipeButtonExecution {
             override fun execRight() {
                 SensorHelper.getInstance(applicationContext).registerTextGraphListener(sensor, getInfoContent())
-                Handler().postDelayed({ button.collapse() }, 500)
                 getInfoTitle().text = resources.getString(R.string.observing,SensorHelper.getInstance(applicationContext).getTypeName(sensor.name))
             }
 
             override fun execLeft() {
                 SensorHelper.getInstance(applicationContext).unregisterTextGraphListener()
-                Handler().postDelayed({ button.collapse() }, 500)
                 getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
             }
 

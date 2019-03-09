@@ -70,6 +70,7 @@ class Constants {
         const val DOLLAR_STRING: Char = '$'
         const val NOTHING: String = ""
         const val DASH: String = "-"
+        const val SLASH: String = "/"
         const val NONE: String = "None"
         const val NO_DATA: String = "No Data"
         const val NOT_CONSULTED: String = "Not consulted"

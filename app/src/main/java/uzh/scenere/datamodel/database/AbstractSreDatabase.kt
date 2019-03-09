@@ -312,7 +312,7 @@ abstract class AbstractSreDatabase {
                                    private val DATABASE_VERSION: Int = 1,
                                    private val DATABASE_NAME: String = "SreDatabase",
                                    private val DATABASE_ENDING: String = ".db",
-                                   private val FILE_DIR: String = "SRE"
+                                   private val FILE_DIR: String = "SceneRE/Database"
     ) : SQLiteOpenHelper(context, Environment.getExternalStorageDirectory().toString() + File.separator + FILE_DIR + File.separator + DATABASE_NAME + DATABASE_ENDING, null, DATABASE_VERSION) {
 
         init {
