@@ -1,5 +1,6 @@
 package uzh.scenere.helpers
 
+import android.app.Activity
 import android.database.Cursor
 import android.widget.EditText
 import android.widget.TextView
@@ -107,4 +108,19 @@ fun String.isContainedIn(str: String?):Boolean{
 fun File.isFileType(type: String): Boolean{
     if (isDirectory) return false
     return name.endsWith(type)
+}
+
+
+fun Activity.getIdByString(str: String, type: String = "string") = resources.getIdentifier(str, type, packageName)
+
+fun Activity.getStringByString(str: String, vararg formatArgs: String):String {
+    var txt = getString(getIdByString(str))
+    for (id in 0 until formatArgs.size){
+        txt = txt.replace("%${id+1}\$s",formatArgs[id])
+    }
+    return txt
+}
+
+fun Activity.getGenericStringWithIdAndTemplate(id: Int, templateId: Int, vararg formatArgs: String):String {
+    return getStringByString(getString(templateId,id),*formatArgs)
 }

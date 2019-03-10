@@ -1,8 +1,10 @@
 package uzh.scenere.activities
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
+import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.view.View
@@ -13,6 +15,10 @@ import kotlinx.android.synthetic.main.activity_editor.*
 import uzh.scenere.R
 import uzh.scenere.activities.EditorActivity.EditorState.*
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.ARROW_RIGHT
+import uzh.scenere.const.Constants.Companion.BOLD_END
+import uzh.scenere.const.Constants.Companion.BOLD_START
+import uzh.scenere.const.Constants.Companion.BREAK
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT_WITH_PRESET_POSITION
@@ -62,6 +68,10 @@ class EditorActivity : AbstractManagementActivity() {
         customizeToolbarId(R.string.icon_back,null,null,R.string.icon_info,null)
     }
 
+    override fun isUsingNfc(): Boolean {
+        return true
+    }
+
     private val explanationMap: HashMap<Int, Map.Entry<Int, Int>> = HashMap<Int, Map.Entry<Int, Int>>()
 
     enum class EditorState {
@@ -69,7 +79,7 @@ class EditorActivity : AbstractManagementActivity() {
     }
 
     private var editorState: EditorState = EditorState.INIT
-    private val elementAttributes: Array<String> = arrayOf("", "", "", "", "", "", "", "", "", "")
+    private val elementAttributes: Array<String> = arrayOf(NOTHING, NOTHING, NOTHING, NOTHING, NOTHING, NOTHING, NOTHING, NOTHING, NOTHING, NOTHING)
     private var creationUnitClass: KClass<out IElement>? = null
     private var editUnit: IElement? = null
     //Context
@@ -103,7 +113,7 @@ class EditorActivity : AbstractManagementActivity() {
         refreshState()
 
         creationButton = SwipeButton(this, stakeholder?.name
-                ?: "No Stakeholders, Path cannot be built.")
+                ?: getString(R.string.editor_no_stakeholder))
                 .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
@@ -162,10 +172,10 @@ class EditorActivity : AbstractManagementActivity() {
         var title: String? = null
         var tutorialDrawable: String? = null
         if (iElement is StandardStep) {
-            title = "<b>" + iElement.readableClassName() + "</b><br>" + iElement.title
+            title = BOLD_START + iElement.readableClassName() + BOLD_END+ BREAK + iElement.title
             tutorialDrawable = "info_what_if"
         }
-        if (iElement is AbstractTrigger) title = "<b>" + iElement.readableClassName() + "</b>"
+        if (iElement is AbstractTrigger) title = BOLD_START + iElement.readableClassName() + BOLD_END
         val previousAvailable = getContentHolderLayout().childCount != 0
         if (previousAvailable) {
             connectPreviousToNext()
@@ -290,19 +300,19 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun renderAndNotifyPath(alternativePath: Boolean) {
         if (pathNameList.isEmpty()){
-            notify("Currently on the main-Path")
+            notify(getString(R.string.editor_main_path))
             creationButton?.setText(activePath!!.stakeholder.name)?.updateViews(true)
         }else{
-            val pathName = StringHelper.concatListWithoutIdBrackets("->",pathNameList)
-            notify(if (alternativePath) "Currently on an alternative-Path: $pathName" else "Currently on the main-Path: $pathName" )
+            val pathName = StringHelper.concatListWithoutIdBrackets(ARROW_RIGHT,pathNameList)
+            notify(if (alternativePath) getString(R.string.editor_alternative_path_x,pathName) else getString(R.string.editor_main_path_x,pathName))
             creationButton?.setText(activePath!!.stakeholder.name + " [$pathName]")?.updateViews(true)
         }
     }
 
     private fun updateRenderedElement(iElement: IElement) {
         var title: String? = null
-        if (iElement is StandardStep) title = "<b>" + iElement.readableClassName() + "</b><br>" + iElement.title
-        if (iElement is AbstractTrigger) title = "<b>" + iElement.readableClassName() + "</b>"
+        if (iElement is StandardStep) title = BOLD_START + iElement.readableClassName() + BOLD_END+BREAK + iElement.title
+        if (iElement is AbstractTrigger) title = BOLD_START + iElement.readableClassName() + BOLD_END
         for (v in 0 until getContentHolderLayout().childCount){
             if (getContentHolderLayout().getChildAt(v) is Element && (getContentHolderLayout().getChildAt(v) as Element).containsElement(iElement)){
                 (getContentHolderLayout().getChildAt(v) as Element).withLabel(StringHelper.fromHtml(title)).updateElement(iElement).setEditExecutable { openInput(iElement) }
@@ -423,7 +433,7 @@ class EditorActivity : AbstractManagementActivity() {
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, createWhatIfs(element)))
                     }else{
-                        var pointer = adaptAttributes("Title", "Text")
+                        var pointer = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_standard))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text))
                         (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
@@ -437,7 +447,7 @@ class EditorActivity : AbstractManagementActivity() {
                 //TRIGGERS
                 is ButtonTrigger -> {
                     creationUnitClass = ButtonTrigger::class
-                    adaptAttributes("Button-Label")
+                    adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_button))
                     getInfoContentWrap().addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, element.buttonLabel))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
@@ -445,12 +455,12 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = IfElseTrigger::class
                     var tutorialDrawable: String? = null
                     if (inputMode == InputMode.REMOVE){
-                        val index = adaptAttributes("Remove Options")
+                        val index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_if_else_removal))
                         getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP,null, addToArrayBefore(element.getDeletableIndexedOptions(),"")))
                         tutorialDrawable = "info_option_removal"
                     }else {
                         pathNameList.remove(pathNameList.last())
-                        var index = adaptAttributes("Question","Default Option","Option 1","Option 2","Option 3","Option 4","Option 5")
+                        var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_if_else))
                         getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
                         for (string in element.getOptions()){
                             getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, string))
@@ -468,14 +478,14 @@ class EditorActivity : AbstractManagementActivity() {
                 is StakeholderInteractionTrigger -> {
                     creationUnitClass = StakeholderInteractionTrigger::class
                     val stakeholderPositionById = projectContext!!.getStakeholderPositionById(element.interactedStakeholderId!!,activePath!!.stakeholder!!)+1
-                    var index = adaptAttributes("Instruction Text","Stakeholder")
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_stakeholder_interaction))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT_WITH_PRESET_POSITION.plus(stakeholderPositionById), addToArrayBefore(projectContext!!.getStakeholdersExcept(activePath!!.stakeholder).toStringArray(),NOTHING)))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is InputTrigger -> {
                     creationUnitClass = InputTrigger::class
-                    var index = adaptAttributes("Instruction Text", "Correct Answer")
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_input))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.input))
                     execMorphInfoBar(InfoState.MAXIMIZED)
@@ -500,7 +510,7 @@ class EditorActivity : AbstractManagementActivity() {
                 //STEP
                 resources.getString(R.string.step_standard) -> {
                     creationUnitClass = StandardStep::class
-                    var index = adaptAttributes("Title", "Instruction Text")
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_standard))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
                     (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
@@ -514,13 +524,13 @@ class EditorActivity : AbstractManagementActivity() {
                 //TRIGGER
                 resources.getString(R.string.trigger_button) -> {
                     creationUnitClass = ButtonTrigger::class
-                    val index = adaptAttributes("Button-Label")
+                    val index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_button))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_if_else) -> {
                     creationUnitClass = IfElseTrigger::class
-                    var index = adaptAttributes("Question","Default Option")
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_if_else_init))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
                     execMorphInfoBar(InfoState.MAXIMIZED)
@@ -528,14 +538,14 @@ class EditorActivity : AbstractManagementActivity() {
                 }
                 resources.getString(R.string.trigger_stakeholder_interaction) -> {
                     creationUnitClass = StakeholderInteractionTrigger::class
-                    var index = adaptAttributes("Instruction Text","Stakeholder")
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_stakeholder_interaction))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP,SINGLE_SELECT, addToArrayBefore(projectContext!!.getStakeholdersExcept(activePath!!.stakeholder).toStringArray(),NOTHING)))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_input) -> {
                     creationUnitClass = InputTrigger::class
-                    var index = adaptAttributes("Instruction Text", "Correct Answer")
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_input))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
                     execMorphInfoBar(InfoState.MAXIMIZED)
@@ -563,10 +573,9 @@ class EditorActivity : AbstractManagementActivity() {
             val list = ArrayList<String>()
             //Variable
             for (o in element.objects){
-                list.add("${o.name} cannot participate during this action?")
-                list.add("${o.name} is functioning incorrectly during this action?")
-                list.add("${o.name} is not functioning during this action?")
-                list.add("${o.name} is unavailable during this action?")
+                for (i in 1 .. 4){
+                    list.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_object_0,o.name))
+                }
             }
             //Attributes
             //TODO Attributes & Config
@@ -575,36 +584,20 @@ class EditorActivity : AbstractManagementActivity() {
             if (stakeholderCount > 1){
                 for (s in 0 until stakeholderCount){
                     stakeholder2 = projectContext!!.stakeholders[s].name
-                    if (stakeholder2 != stakeholder1)
-                    list.add("$stakeholder1 and $stakeholder2 are the same instance of an agent?")
-                    list.add("$stakeholder1 and $stakeholder2 fulfil the same roles during this action?")
-                    list.add("The roles that are fulfilled by $stakeholder1 and $stakeholder2 are fulfilled by the same agent?")
+                    if (stakeholder2 != stakeholder1) {
+                        for (i in 1 .. 3){
+                            list.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_2_0,stakeholder1, stakeholder2))
+                        }
+                    }
                 }
             }
-            list.add("$stakeholder1 is unavailable during this action?")
+            for (i in 1 .. 1){
+                list.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_1_0,stakeholder1))
+            }
             //Fixed
-            list.add("A different event occurs instead of this event in the scenario?")
-            list.add("An unexpected intrusion occurs into the system during this event?")
-            list.add("the end of this action is delayed?")
-            list.add("The information manipulated in this action is incorrect in some way?")
-            list.add("The information manipulated in this action is out-of-date?")
-            list.add("The information manipulated in this action is too detailed for the task?")
-            list.add("The information manipulated in this action is too general for the task?")
-            list.add("The information manipulated in this action is unreliable in some way?")
-            list.add("The information manipulated in this action represents a deliberate lie?")
-            list.add("The information manipulated is inappropriate to this task?")
-            list.add("There is insufficient information available to complete the action?")
-            list.add("This action does not complete?")
-            list.add("This action ends before it is planned to?")
-            list.add("This event and the previous one are the same event?")
-            list.add("This event and the previous one occur in the wrong order in the scenario?")
-            list.add("This event does not occur in this scenario?")
-            list.add("This event occurs earlier in time than expected in the scenario?")
-            list.add("This event occurs later in time than expected in the scenario?")
-            list.add("This event occurs less frequently than expected in the scenario?")
-            list.add("This event occurs more than once in the scenario?")
-            list.add("This event occurs more than once in this scenario?")
-            list.add("This event repeats at a later time in this scenario?")
+            for (i in 1 .. 22){
+                list.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_0))
+            }
             return list.toTypedArray()
         }
         return element.whatIfs.toTypedArray()

@@ -20,6 +20,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
+    <uses-feature android:name="android.hardware.nfc" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -33,11 +35,15 @@
         android:screenOrientation="portrait"
         android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.StartupActivity"
+        <activity android:name=".activities.EditorActivity"
             android:theme="@style/SceneReToolbarTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity android:name=".activities.AnalyticsActivity"
@@ -158,10 +164,15 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.EditorActivity"
+        <activity android:name=".activities.StartupActivity"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/SceneReToolbarTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity android:name=".activities.StakeholdersActivity"
             android:windowSoftInputMode="adjustPan"

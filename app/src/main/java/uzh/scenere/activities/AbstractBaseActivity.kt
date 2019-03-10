@@ -3,10 +3,16 @@ package uzh.scenere.activities
 import android.app.Activity
 import android.app.Notification
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
 import android.graphics.Typeface
+import android.nfc.NdefMessage
+import android.nfc.NdefRecord
+import android.nfc.NfcAdapter
+import android.nfc.Tag
+import android.nfc.tech.Ndef
+import android.nfc.tech.NdefFormatable
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
@@ -31,6 +37,8 @@ import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
+import java.io.IOException
+import java.lang.Exception
 import kotlin.reflect.KClass
 
 
@@ -43,11 +51,162 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     protected var screenWidth = 0
     protected var screenHeight = 0
     protected var tutorialOpen = false
+    //NFC
+    private var nfcAdapter: NfcAdapter? = null
+    private var pendingIntent: PendingIntent? = null
+    private var nfcReady = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(getConfiguredLayout())
         readVariables()
+        initNfc()
+    }
+
+    open fun isUsingNfc():Boolean{
+        return false
+    }
+
+    protected fun isNfcReady(): Boolean{
+        return nfcReady
+    }
+
+    private fun initNfc() {
+        if (isUsingNfc()) {
+            nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+            if (nfcAdapter != null) {
+                pendingIntent = PendingIntent.getActivity(this, 0, Intent(this,
+                        javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0)
+
+            }
+            nfcReady = true
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (nfcAdapter != null && pendingIntent != null){
+            nfcAdapter!!.enableForegroundDispatch(this, pendingIntent, null, null)
+        }
+    }
+
+    override fun onPause() {
+        if (nfcAdapter != null) {
+            nfcAdapter!!.disableForegroundDispatch(this)
+        }
+        super.onPause()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (nfcReady && intent != null){
+            getNfcTagInfo(intent)
+        }
+    }
+
+    private var nfcDataWrite: String? = null
+    private var nfcDataRead: String? = null
+
+    fun setDataToWrite(data: String){
+        nfcDataWrite = data
+    }
+
+    fun getDataToRead(): String?{
+        return nfcDataRead
+    }
+
+    open fun execUseNfcData(data: String){
+        //NOP
+    }
+
+    private fun getNfcTagInfo(intent: Intent) {
+        val tag: Tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
+        if (nfcDataWrite != null){
+            writeDataToTag(tag,nfcDataWrite!!)
+            nfcDataWrite = null
+        }else{
+            nfcDataRead = getDataFromTag(tag,intent)
+            if (nfcDataRead != null){
+                execUseNfcData(nfcDataRead!!)
+            }
+        }
+    }
+
+    private fun getDataFromTag(tag: Tag, intent: Intent): String? {
+        val ndef = Ndef.get(tag)
+        try {
+            ndef.connect()
+            val messages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
+
+            if (messages != null) {
+                val ndefMessages = ArrayList<NdefMessage>()
+                for (i in 0 until messages.size) {
+                    ndefMessages.add(messages[i] as NdefMessage)
+                }
+                val record = ndefMessages[0].records[0]
+
+                val payload = record.payload
+                val text = String(payload)
+                ndef.close()
+                return text
+            }
+        } catch (e: Exception) {
+            //NOP
+        }
+        return null
+    }
+
+    private fun writeDataToTag(tag: Tag, message: String): Boolean{
+        val nDefTag = Ndef.get(tag)
+        val ndefMessage = dataToNdefMessage(message)
+        try {
+
+            nDefTag?.let {
+                it.connect()
+                if (it.maxSize < ndefMessage.toByteArray().size) {
+                    notify(getString(R.string.nfc_too_large))
+                    return false
+                }
+                return if (it.isWritable) {
+                    it.writeNdefMessage(ndefMessage)
+                    it.close()
+                    notify(getString(R.string.nfc_success))
+                    true
+                } else {
+                    notify(getString(R.string.nfc_write_not_supported))
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            //Possible unformatted Tag, try to format
+            try{
+                val nDefFormatableTag = NdefFormatable.get(tag)
+
+                nDefFormatableTag?.let {
+                    return try {
+                        it.connect()
+                        it.format(ndefMessage)
+                        it.close()
+                        notify(getString(R.string.nfc_success))
+                        true
+                    } catch (e: IOException) {
+                        notify(getString(R.string.nfc_no_init))
+                        false
+                    }
+                }
+                return false
+            }catch(e: Exception){
+                notify(getString(R.string.nfc_write_not_supported))
+            }
+        }
+        return false
+    }
+
+    private fun dataToNdefMessage(data: String): NdefMessage{
+        val pathPrefix = Constants.APPLICATION_ID
+        val nfcRecord = NdefRecord(NdefRecord.TNF_EXTERNAL_TYPE, pathPrefix.toByteArray(), ByteArray(0), data.toByteArray())
+        return NdefMessage(arrayOf(nfcRecord))
     }
 
     private fun readVariables() {
@@ -160,6 +319,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         Toast.makeText(this, toast, Toast.LENGTH_SHORT).show()
     }
 
+    //TODO queue
     fun notify(title: String? = null, content: String? = null){
         val notification = NotificationCompat.Builder(applicationContext, Constants.APPLICATION_ID)
                 .setSmallIcon(android.R.drawable.btn_star)

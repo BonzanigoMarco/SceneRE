@@ -35,6 +35,44 @@
         <item>Walkthrough(s)</item>
     </string-array>
 
+    <string-array name="editor_attributes_step_standard">
+        <item>Title</item>
+        <item>Instruction Text</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_button">
+        <item>Button-Label</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_if_else">
+        <item>Question</item>
+        <item>Default Option</item>
+        <item>Option 1</item>
+        <item>Option 2</item>
+        <item>Option 3</item>
+        <item>Option 4</item>
+        <item>Option 5</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_if_else_init">
+        <item>Question</item>
+        <item>Default Option</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_if_else_removal">
+        <item>Remove Options</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_stakeholder_interaction">
+        <item>Instruction Text</item>
+        <item>Stakeholder</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_input">
+        <item>Instruction Text</item>
+        <item>Correct Answer</item>
+    </string-array>
+
     <string name="spinner_none">[Select a Type first]</string>
     <!--Steps-->
     <string name="step_none">[Select a Step]</string>
@@ -296,4 +334,12 @@
     <string name="startup_enter_name_title">Enter your Name</string>
     <string name="startup_confirm">Confirm</string>
     <string name="share_no_dropbox">Dropbox not supported yet!</string>
+    <string name="editor_no_stakeholder">No Stakeholders, Path cannot be built.</string>
+    <string name="editor_main_path">Currently on the main-Path</string>
+    <string name="editor_alternative_path_x">Currently on an alternative-Path: %1$s</string>
+    <string name="editor_main_path_x">Currently on the main-Path: %1$s</string>
+    <string name="nfc_too_large">Data too large for NFC-Tag</string>
+    <string name="nfc_success">Data write successful</string>
+    <string name="nfc_write_not_supported">Writing to NFC-Tag not supported</string>
+    <string name="nfc_no_init">Could not initialize NFC-Tag</string>
 </resources>
