@@ -142,7 +142,6 @@ class ShareActivity : AbstractManagementActivity() {
         swapMode(true)
         importFolder = DatabaseHelper.getInstance(applicationContext).read(IMPORT_FOLDER,String::class, NOTHING)
         resetToolbar()
-        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_share").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         if (openFileUri != null){
             if (StringHelper.nvl(openFileUri!!.authority,NOTHING).contains("dropbox")){
                 notify(getString(R.string.share_no_dropbox))
@@ -213,6 +212,7 @@ class ShareActivity : AbstractManagementActivity() {
         getContentHolderLayout().addView(controlButton)
         getContentHolderLayout().addView(walkthroughSwitch)
         getInfoTitle().text = NOTHING
+        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_share","info_export").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun createStatisticsFromCachedBinary(export: Boolean): ShareWrapper {
@@ -251,12 +251,22 @@ class ShareActivity : AbstractManagementActivity() {
         getContentHolderLayout().addView(controlInput)
         val files = loadImportFolder()
         getInfoTitle().text = if (files == 0) NOTHING else getString(R.string.share_click_to_import,files)
+        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_share","info_import").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun loadImportFolder(): Int{
         var files: Int = 0
         if (StringHelper.hasText(importFolder)){
-            val filesInFolder = FileHelper.getFilesInFolder(importFolder)
+            var filesInFolder: Array<out File>? = null
+            try {
+                filesInFolder = FileHelper.getFilesInFolder(importFolder, ".sre")
+            }catch(e: java.lang.Exception){
+
+            }
+            if (filesInFolder == null){
+                notify(getString(R.string.share_too_many_files_title),getString(R.string.share_too_many_files_failed))
+                return 0
+            }
             var upperLimit = filesInFolder.size
             if (upperLimit > 100){
                 notify(getString(R.string.share_too_many_files_title),getString(R.string.share_too_many_files))

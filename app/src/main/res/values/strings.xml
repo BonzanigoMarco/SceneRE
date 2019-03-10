@@ -251,6 +251,7 @@
     <string name="share_location">Locate File in Import-Folder</string>
     <string name="share_no_folder">No Folder selected</string>
     <string name="share_too_many_files">More than 100 Files in current Folder… remove some!</string>
+    <string name="share_too_many_files_failed">The Folder could not be read correctly!</string>
     <string name="share_too_many_files_title">Too many Files</string>
     <string name="share_return">Return</string>
     <string name="share_import_newer">Import Newer</string>

@@ -7,6 +7,7 @@ import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NULL_CLASS
 import uzh.scenere.const.Constants.Companion.REFLECTION
 import uzh.scenere.const.Constants.Companion.SPACE
+import java.io.File
 import kotlin.random.Random
 
 inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int)->INNER): Array<Array<INNER>> = Array(sizeOuter) { Array<INNER>(sizeInner, innerInit) }
@@ -102,4 +103,8 @@ fun List<*>.toStringArray(): Array<String>{
 fun String.isContainedIn(str: String?):Boolean{
     if (str == null) return false
     return str.contains(this)
+}
+fun File.isFileType(type: String): Boolean{
+    if (isDirectory) return false
+    return name.endsWith(type)
 }

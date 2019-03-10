@@ -237,3 +237,23 @@ What-Ifs (      ) are Questions to inspire Comments, which can be
 given by using the     -Menu (at any Time). Colored words in
 the text can have associated Information which may be looked up
 in the menu associated to the      -Icon.
+
+
+Share Export
+
+You can share your Data with Others
+by exporting it. This generates an
+sre-File, which can be directly
+opened and imported again. In order
+to browse your Folder, you need an
+external File-Manager App.
+
+
+Share Import
+
+By either opening an sre-File
+directly in an external File-Manager
+App or selecting an Import-Folder
+via the internal option, you get
+to analyze and then import
+shared Data to your Application.

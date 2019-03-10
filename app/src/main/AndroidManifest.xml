@@ -81,9 +81,21 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <category android:name="android.intent.category.TYPED_OPENABLE" />
+                <category android:name="android.intent.category.ALTERNATIVE" />
+                <category android:name="android.intent.category.APP_BROWSER" />
+                <category android:name="android.intent.category.SELECTED_ALTERNATIVE" />
+                <category android:name="android.intent.category.INFO" />
+
+                <!--
+                    Intent Filter does not work for WhatsApp due to required whitelisting
+                -->
 
                 <data android:scheme="file" />
                 <data android:scheme="content" />
+                <data android:scheme="http" />
+                <data android:scheme="*" />
             </intent-filter>
             <intent-filter
                 android:icon="@mipmap/ic_launcher"
@@ -93,8 +105,17 @@
 
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <category android:name="android.intent.category.TYPED_OPENABLE" />
+                <category android:name="android.intent.category.ALTERNATIVE" />
+                <category android:name="android.intent.category.APP_BROWSER" />
+                <category android:name="android.intent.category.SELECTED_ALTERNATIVE" />
+                <category android:name="android.intent.category.INFO" />
 
                 <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:scheme="http" />
+                <data android:scheme="*" />
                 <data android:host="*" />
 
                 <data android:pathPattern=".*\\.sre" />
@@ -104,7 +125,6 @@
                 <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.sre" />
                 <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.sre" />
                 <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.sre" />
             </intent-filter>
             <intent-filter
                 android:icon="@mipmap/ic_launcher"
@@ -114,61 +134,17 @@
 
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="file" />
-                <data android:host="*" />
-                <data android:mimeType="*/*" />
-
-                <data android:pathPattern=".*\\.sre" />
-                <data android:pathPattern=".*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.sre" />
-            </intent-filter>
-            <intent-filter
-                android:icon="@mipmap/ic_launcher"
-                android:label="@string/app_name"
-                android:priority="1" >
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <category android:name="android.intent.category.TYPED_OPENABLE" />
+                <category android:name="android.intent.category.ALTERNATIVE" />
+                <category android:name="android.intent.category.APP_BROWSER" />
+                <category android:name="android.intent.category.SELECTED_ALTERNATIVE" />
+                <category android:name="android.intent.category.INFO" />
 
                 <data android:scheme="file" />
                 <data android:scheme="content" />
-            </intent-filter>
-            <intent-filter
-                android:icon="@mipmap/ic_launcher"
-                android:label="@string/app_name"
-                android:priority="1" >
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="content" />
-                <data android:host="*" />
-
-                <data android:pathPattern=".*\\.sre" />
-                <data android:pathPattern=".*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.sre" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.sre" />
-            </intent-filter>
-            <intent-filter
-                android:icon="@mipmap/ic_launcher"
-                android:label="@string/app_name"
-                android:priority="1" >
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="content" />
+                <data android:scheme="http" />
+                <data android:scheme="*" />
                 <data android:host="*" />
                 <data android:mimeType="*/*" />
 

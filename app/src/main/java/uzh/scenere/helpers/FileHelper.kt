@@ -123,10 +123,16 @@ class FileHelper {
             context.startActivity(Intent.createChooser(emailIntent, "Send as Mail..."))
         }
 
-        fun getFilesInFolder(folderPath: String): Array<out File> {
+        fun getFilesInFolder(folderPath: String, fileType: String): Array<out File> {
             val folder = File(folderPath)
+            val list = ArrayList<File>()
             if (folder.isDirectory){
-                return folder.listFiles()
+                for (file in folder.listFiles()){
+                    if (file.isFileType(fileType)){
+                        list.add(file)
+                    }
+                }
+                return list.toTypedArray()
             }
             return emptyArray()
         }
