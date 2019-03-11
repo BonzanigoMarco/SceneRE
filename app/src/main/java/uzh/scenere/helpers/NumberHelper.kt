@@ -1,5 +1,7 @@
 package uzh.scenere.helpers
 
+import kotlin.random.Random
+
 class NumberHelper{
     companion object { //Static Reference
         fun <T : Number> nvl(value: T?, valueIfNull: T): T {
@@ -27,24 +29,6 @@ class NumberHelper{
 
         private fun multiply(a: Long, b: Double): Long {
             return (a * b).toLong()
-        }
-
-        fun randomPosition(array: Array<Any>?): Int {
-            if (array == null) {
-                throw ArrayIndexOutOfBoundsException("Array is null")
-            }
-            return randomInt(0, array.size - 1)
-        }
-
-        fun randomInt(min: Int, max: Int): Int {
-            if (max < min) {
-                return 0
-            }
-            val diff = max - min + 1
-            val random = multiply(diff, Math.random())
-            return if (diff == random) {
-                randomInt(min, max)
-            } else min + random
         }
 
         fun randomLong(): Long {
@@ -136,6 +120,18 @@ class NumberHelper{
                 i < low -> low
                 else -> i
             }
+        }
+
+        fun safeToNumber(numberString: String?, returnIfFailed: Long): Long {
+            if (numberString != null){
+                return try{
+                    val long = numberString.toLong()
+                    long
+                }catch (e: Exception){
+                    returnIfFailed
+                }
+            }
+            return returnIfFailed
         }
     }
 }

@@ -11,6 +11,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.views.SreEditText.EditStyle.DARK
 import uzh.scenere.views.SreEditText.EditStyle.LIGHT
@@ -26,7 +27,7 @@ open class SreEditText(context: Context, parent: ViewGroup?, text: String? = nul
     }
 
     init {
-        setHint(hint)
+        setHint(hint?.replace(context.getString(R.string.input_optional), Constants.NOTHING)?.replace(context.getString(R.string.regex_possible), Constants.NOTHING))
         setText(text)
         create(context, parent)
     }

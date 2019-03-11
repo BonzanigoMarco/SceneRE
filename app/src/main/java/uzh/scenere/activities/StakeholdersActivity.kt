@@ -128,8 +128,8 @@ class StakeholdersActivity : AbstractManagementActivity() {
         cleanInfoHolder(if (activeStakeholder==null) getString(R.string.stakeholders_create) else getString(R.string.stakeholders_edit))
         when(stakeholdersMode){
             StakeholderMode.EDIT_CREATE -> {
-                getInfoContentWrap().addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, stakeholder?.name))
-                getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, stakeholder?.description))
+                getInfoContentWrap().addView(createLine(inputLabelName, LineInputType.SINGLE_LINE_EDIT, stakeholder?.name, false, -1))
+                getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, stakeholder?.description, false, -1))
             }
         }
 

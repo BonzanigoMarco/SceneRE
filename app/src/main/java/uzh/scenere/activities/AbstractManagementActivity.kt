@@ -13,7 +13,6 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import kotlinx.android.synthetic.main.scroll_holder.*
 import uzh.scenere.R
-import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.READ_ONLY
@@ -27,6 +26,7 @@ import uzh.scenere.views.SreTextView.TextStyle.BORDERLESS_DARK
 import uzh.scenere.views.SreTextView.TextStyle.MEDIUM
 import java.util.*
 import android.content.res.Configuration
+import android.text.InputFilter
 
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
@@ -40,6 +40,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     protected val inputMap: HashMap<String, TextView> = HashMap()
+    protected val uncheckedMap: HashMap<String, TextView> = HashMap()
     protected val multiInputMap: HashMap<String, ArrayList<TextView>> = HashMap()
     protected var lockState: LockState = LockState.LOCKED
     protected var creationButton: SwipeButton? = null
@@ -188,7 +189,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     @Suppress("UNCHECKED_CAST")
-    protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, data: Any? = null, addExecutable: ((String?) -> Unit)? = null, removalExecutable: ((String?) -> Unit)? = null): View? {
+    protected fun createLine(labelText: String, inputType: LineInputType, presetValue: String? = null, unchecked: Boolean, limit: Int, data: Any? = null, addExecutable: ((String?) -> Unit)? = null, removalExecutable: ((String?) -> Unit)? = null): View? {
         //Codes
         val singleSelect = SINGLE_SELECT == presetValue || SINGLE_SELECT_WITH_PRESET_POSITION.isContainedIn(presetValue)
         val readOnly = READ_ONLY == presetValue
@@ -219,9 +220,16 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.setWeight(1f)
             input.setSize(MATCH_PARENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else 0)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
+            if (limit > 0){
+                input.filters = arrayOf(InputFilter.LengthFilter(limit))
+            }
             wrapper.addView(label)
             wrapper.addView(input)
-            inputMap[labelText] = input
+            if (unchecked){
+                uncheckedMap[labelText] = input
+            }else{
+                inputMap[labelText] = input
+            }
             return wrapper
         } else if (CollectionHelper.oneOf(inputType, LineInputType.SINGLE_LINE_CONTEXT_EDIT, LineInputType.MULTI_LINE_CONTEXT_EDIT)) {
             val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -241,7 +249,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             input.layoutParams = childParams
             input.textSize = textSize!!
-            input.hint = labelText
+            input.hint = labelText.replace(getString(R.string.input_optional), NOTHING)
             input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             input.setText(realPresetValue)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_CONTEXT_EDIT))
@@ -381,7 +389,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.setWeight(1f)
             input.setSize(MATCH_PARENT, MATCH_PARENT)
             input.setSingleLine(false)
-            addButton.addExecutable {
+            addButton.setExecutable {
                 val text = input.text.toString()
                 if (StringHelper.hasText(text)){
                     addSelection(text, selectionCarrier, labelText, null, removalExecutable)
@@ -404,7 +412,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 for (option in data as Array<String>){
                     val addSelection = addSelection(option, selectionCarrier, labelText,null, removalExecutable)
                     if (readOnly) {
-                        addSelection.addExecutable {  } //Override
+                        addSelection.setExecutable {  } //Override
                     }
                 }
             }
@@ -431,7 +439,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         textButton.text = text
         textButton.textAlignment = View.TEXT_ALIGNMENT_CENTER
         textButton.setAllCaps(false)
-        textButton.addExecutable {
+        textButton.setExecutable {
             selectionCarrier.removeView(textButton)
             multiInputMap[labelText]?.remove(textButton)
             removalExecutable?.invoke(text)
@@ -460,7 +468,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         removalButton.text = text
         removalButton.textAlignment = View.TEXT_ALIGNMENT_CENTER
         removalButton.setAllCaps(false)
-        removalButton.addExecutable {
+        removalButton.setExecutable {
             selectionCarrier.removeAllViews()
             multiInputMap[labelText]?.clear()
             selectionCarrier.addView(removalButton)
@@ -506,6 +514,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         getInfoContent().visibility = View.GONE
         removeExcept(getInfoContentWrap(), getInfoContent())
         inputMap.clear()
+        uncheckedMap.clear()
+        multiInputMap.clear()
         getInfoContentWrap().orientation = LinearLayout.VERTICAL
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         getInfoContentWrap().layoutParams = layoutParams

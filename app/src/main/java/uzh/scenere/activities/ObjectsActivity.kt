@@ -155,10 +155,10 @@ class ObjectsActivity : AbstractManagementActivity() {
             ObjectMode.VIEW -> {}//NOP
             ObjectMode.EDIT, ObjectMode.CREATE -> {
                 cleanInfoHolder(if (activeObject==null) getString(R.string.objects_create) else getString(R.string.objects_edit))
-                getInfoContentWrap().addView(createLine(inputLabelName,LineInputType.SINGLE_LINE_EDIT, obj?.name))
-                isResourceSpinner = createLine(inputLabelResource, LineInputType.LOOKUP, SIMPLE_LOOKUP, if (ObjectHelper.nvl(obj?.isResource,false)) arrayOf("True", "False") else arrayOf("False", "True"), { execResourceStateChanged() })
+                getInfoContentWrap().addView(createLine(inputLabelName, LineInputType.SINGLE_LINE_EDIT, obj?.name, false, -1))
+                isResourceSpinner = createLine(inputLabelResource, LineInputType.LOOKUP, SIMPLE_LOOKUP, false, -1, if (ObjectHelper.nvl(obj?.isResource,false)) arrayOf("True", "False") else arrayOf("False", "True"), { execResourceStateChanged() })
                 getInfoContentWrap().addView(isResourceSpinner)
-                getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, obj?.description))
+                getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, obj?.description, false, -1))
             }
             ObjectMode.ATTRIBUTES -> {
                 val intent = Intent(this, AttributesActivity::class.java)
@@ -184,9 +184,9 @@ class ObjectsActivity : AbstractManagementActivity() {
         }
         if (isResource){
             val resource: Resource? = if (activeObject is Resource) activeObject as Resource else null
-            minResourceLayout = createLine(min, LineInputType.NUMBER_EDIT,if (resource?.min == null) null else resource.min.toString())
-            maxResourceLayout = createLine(max, LineInputType.NUMBER_EDIT,if (resource?.max == null) null else resource.max.toString())
-            initResourceLayout = createLine(init, LineInputType.NUMBER_EDIT,if (resource?.init == null) null else resource.init.toString())
+            minResourceLayout = createLine(min, LineInputType.NUMBER_EDIT, if (resource?.min == null) null else resource.min.toString(), false, -1)
+            maxResourceLayout = createLine(max, LineInputType.NUMBER_EDIT, if (resource?.max == null) null else resource.max.toString(), false, -1)
+            initResourceLayout = createLine(init, LineInputType.NUMBER_EDIT, if (resource?.init == null) null else resource.init.toString(), false, -1)
             getInfoContentWrap().addView(minResourceLayout,getInfoContentWrap().childCount-1)
             getInfoContentWrap().addView(maxResourceLayout,getInfoContentWrap().childCount-1)
             getInfoContentWrap().addView(initResourceLayout,getInfoContentWrap().childCount-1)

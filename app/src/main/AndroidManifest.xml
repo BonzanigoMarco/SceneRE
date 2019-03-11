@@ -35,7 +35,7 @@
         android:screenOrientation="portrait"
         android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.EditorActivity"
+        <activity android:name=".activities.MainMenuActivity"
             android:theme="@style/SceneReToolbarTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,7 +51,7 @@
             android:theme="@style/SceneReToolbarTheme"
             android:screenOrientation="portrait"/>
 
-        <activity android:name=".activities.MainMenuActivity"
+        <activity android:name=".activities.StartupActivity"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/SceneReToolbarTheme"
             android:screenOrientation="portrait"/>
@@ -100,8 +100,6 @@
 
                 <data android:scheme="file" />
                 <data android:scheme="content" />
-                <data android:scheme="http" />
-                <data android:scheme="*" />
             </intent-filter>
             <intent-filter
                 android:icon="@mipmap/ic_launcher"
@@ -120,8 +118,6 @@
 
                 <data android:scheme="file" />
                 <data android:scheme="content" />
-                <data android:scheme="http" />
-                <data android:scheme="*" />
                 <data android:host="*" />
 
                 <data android:pathPattern=".*\\.sre" />
@@ -149,8 +145,6 @@
 
                 <data android:scheme="file" />
                 <data android:scheme="content" />
-                <data android:scheme="http" />
-                <data android:scheme="*" />
                 <data android:host="*" />
                 <data android:mimeType="*/*" />
 
@@ -164,7 +158,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.StartupActivity"
+        <activity android:name=".activities.EditorActivity"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/SceneReToolbarTheme"
             android:screenOrientation="portrait">

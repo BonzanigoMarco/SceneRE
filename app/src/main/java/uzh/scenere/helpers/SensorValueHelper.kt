@@ -2,7 +2,7 @@ package uzh.scenere.helpers
 
 import android.hardware.SensorEvent
 import uzh.scenere.const.Constants.Companion.HUNDRED
-import uzh.scenere.const.Constants.Companion.MILLION
+import uzh.scenere.const.Constants.Companion.MILLION_D
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -29,7 +29,7 @@ class SensorValueHelper private constructor () {
             if (gridPointer > gridSize) {
                 var text = event.sensor.name + " Values:\n"
                 for (value in values) text +=  value.toString() + "\n"
-                return text + floor(((System.nanoTime() - time).toDouble()/MILLION),roundingPrecision).toString() + " ms."
+                return text + floor(((System.nanoTime() - time).toDouble()/MILLION_D),roundingPrecision).toString() + " ms."
             }
             return "Gathering Data... ("+floor((HUNDRED/gridSize.toDouble()*gridPointer),roundingPrecision)+"%)"
         }

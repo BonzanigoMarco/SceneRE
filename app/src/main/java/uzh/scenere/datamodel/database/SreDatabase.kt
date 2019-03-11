@@ -232,16 +232,48 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             is InputTrigger -> {
                 values.put(ElementTableEntry.TITLE, element.input) //Carrier
                 values.put(ElementTableEntry.TEXT, element.text)
-                values.put(ElementTableEntry.TYPE, TYPE_INPUT_TRIGGER)}
-            is TimeTrigger -> {/*TODO*/}
-            is SoundTrigger -> {/*TODO*/}
-            is BluetoothTrigger -> {/*TODO*/}
-            is GpsTrigger -> {/*TODO*/}
-            is MobileNetworkTrigger -> {/*TODO*/}
-            is NfcTrigger -> {/*TODO*/}
-            is WifiTrigger -> {/*TODO*/}
-            is CallTrigger -> {/*TODO*/}
-            is SmsTrigger -> {/*TODO*/}
+                values.put(ElementTableEntry.TYPE, TYPE_INPUT_TRIGGER)
+            }
+            is TimeTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.timeMs.toString()) //Carrier
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_SOUND_TRIGGER)
+            }
+            is SoundTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.dB.toString()) //Carrier
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_SOUND_TRIGGER)
+            }
+            is BluetoothTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.deviceId) //Carrier
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_BLUETOOTH_TRIGGER)
+            }
+            is GpsTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.gpsData) //Carrier
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_GPS_TRIGGER)
+            }
+            is NfcTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.message)
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_NFC_TRIGGER)
+            }
+            is WifiTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.ssid) //Carrier
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_WIFI_TRIGGER)
+            }
+            is CallTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.telephoneNr) //Carrier
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_CALL_TRIGGER)
+            }
+            is SmsTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.telephoneNr) //Carrier
+                values.put(ElementTableEntry.TEXT, element.text)
+                values.put(ElementTableEntry.TYPE, TYPE_SMS_TRIGGER)
+            }
             is AccelerationTrigger -> {/*TODO*/}
             is GyroscopeTrigger -> {/*TODO*/}
             is LightTrigger -> {/*TODO*/}
@@ -630,12 +662,12 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                 val id = cursor.getString(0)
                 val prevId = cursor.getString(1)
                 val type = cursor.getString(2)
-                val title = cursor.getString(3)
+                val additionalInfo = cursor.getString(3)
                 val text = cursor.getString(4)
                 when (type) {
                     //STEPS
                     TYPE_STANDARD_STEP -> {
-                        val step = StandardStep(id, prevId, path.id).withText(text).withTitle(title)
+                        val step = StandardStep(id, prevId, path.id).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
                                 step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
@@ -651,12 +683,12 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                     TYPE_RESOURCE_STEP -> {/*TODO*/}
                     //TRIGGERS
                     TYPE_BUTTON_TRIGGER -> {
-                        val trigger = ButtonTrigger(id, prevId, path.id).withButtonLabel(title)
+                        val trigger = ButtonTrigger(id, prevId, path.id).withButtonLabel(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_IF_ELSE_TRIGGER -> {
-                        val trigger = IfElseTrigger(id, prevId, path.id,text,title)
+                        val trigger = IfElseTrigger(id, prevId, path.id,text,additionalInfo)
                         var readByteArray = readByteArray(HASH_MAP_OPTIONS_IDENTIFIER.plus(id), byteArrayOf())
                         if (!readByteArray.isEmpty()){
                             trigger.withPathOptions(
@@ -673,24 +705,52 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         elements.add(trigger)
                     }
                     TYPE_STAKEHOLDER_INTERACTION_TRIGGER -> {
-                        val trigger = StakeholderInteractionTrigger(id, prevId, path.id).withText(text).withInteractedStakeholderId(title)
+                        val trigger = StakeholderInteractionTrigger(id, prevId, path.id).withText(text).withInteractedStakeholderId(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_INPUT_TRIGGER -> {
-                        val trigger = InputTrigger(id, prevId, path.id).withText(text).withInput(title)
+                        val trigger = InputTrigger(id, prevId, path.id).withText(text).withInput(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
-                    TYPE_TIME_TRIGGER -> {/*TODO*/}
-                    TYPE_SOUND_TRIGGER -> {/*TODO*/}
+                    TYPE_TIME_TRIGGER -> {
+                        val trigger = TimeTrigger(id, prevId, path.id).withText(text).withTimeMillisecondSecond(additionalInfo)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)
+                    }
+                    TYPE_SOUND_TRIGGER -> {
+                        val trigger = SoundTrigger(id, prevId, path.id).withText(text).withDb(additionalInfo)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)
+                    }
                     TYPE_BLUETOOTH_TRIGGER -> {/*TODO*/}
-                    TYPE_GPS_TRIGGER -> {/*TODO*/}
+                    TYPE_GPS_TRIGGER -> {
+                        val trigger = GpsTrigger(id, prevId, path.id).withText(text).withGpsData(additionalInfo)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)
+                    }
                     TYPE_MOBILE_NETWORK_TRIGGER -> {/*TODO*/}
-                    TYPE_NFC_TRIGGER -> {/*TODO*/}
-                    TYPE_WIFI_TRIGGER -> {/*TODO*/}
-                    TYPE_CALL_TRIGGER -> {/*TODO*/}
-                    TYPE_SMS_TRIGGER -> {/*TODO*/}
+                    TYPE_NFC_TRIGGER -> {
+                        val trigger = NfcTrigger(id, prevId, path.id).withText(text).withMessage(additionalInfo)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)
+                    }
+                    TYPE_WIFI_TRIGGER -> {
+                        val trigger = WifiTrigger(id, prevId, path.id).withText(text).withSsid(additionalInfo)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)
+                    }
+                    TYPE_CALL_TRIGGER -> {
+                        val trigger = CallTrigger(id, prevId, path.id).withText(text).withTelephoneNr(additionalInfo)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)
+                    }
+                    TYPE_SMS_TRIGGER -> {
+                        val trigger = SmsTrigger(id, prevId, path.id).withText(text).withTelephoneNr(additionalInfo)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)
+                    }
                     TYPE_ACCELERATION_TRIGGER -> {/*TODO*/}
                     TYPE_GYROSCOPE_TRIGGER -> {/*TODO*/}
                     TYPE_LIGHT_TRIGGER -> {/*TODO*/}

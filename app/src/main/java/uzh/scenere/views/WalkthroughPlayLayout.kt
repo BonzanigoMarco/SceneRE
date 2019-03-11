@@ -22,10 +22,15 @@ import uzh.scenere.datamodel.Resource.NullResource
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.StandardStep
 import uzh.scenere.datamodel.trigger.AbstractTrigger
-import uzh.scenere.datamodel.trigger.direct.ButtonTrigger
-import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
-import uzh.scenere.datamodel.trigger.direct.InputTrigger
-import uzh.scenere.datamodel.trigger.direct.StakeholderInteractionTrigger
+import uzh.scenere.datamodel.trigger.communication.BluetoothTrigger
+import uzh.scenere.datamodel.trigger.communication.GpsTrigger
+import uzh.scenere.datamodel.trigger.communication.NfcTrigger
+import uzh.scenere.datamodel.trigger.communication.WifiTrigger
+import uzh.scenere.datamodel.trigger.direct.*
+import uzh.scenere.datamodel.trigger.indirect.CallTrigger
+import uzh.scenere.datamodel.trigger.indirect.SmsTrigger
+import uzh.scenere.datamodel.trigger.indirect.SoundTrigger
+import uzh.scenere.helpers.CommunicationHelper
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.StringHelper
@@ -105,7 +110,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private fun resolveIntro() {
         val text = generateText(context.getString(R.string.walkthrough_intro), scenario.intro, ArrayList(),arrayListOf("Intro"))
         val button = generateButton(context.getString(R.string.walkthrough_start_scenario))
-        button.addExecutable {
+        button.setExecutable {
             Walkthrough.WalkthroughProperty.INTRO_TIME.set(getTime())
             loadNextStep(context.getString(R.string.walkthrough_start_scenario))
         }
@@ -115,7 +120,8 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
 
-    private fun resolveStepAndTrigger() {
+    fun resolveStepAndTrigger() {
+        triggerLayout.removeAllViews()
         when (mode) {
             WalkthroughPlayMode.STEP_INDUCED -> {
                 when (first) {
@@ -128,7 +134,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                 when (second) {
                     is ButtonTrigger -> {
                         val button = generateButton((second as ButtonTrigger).buttonLabel)
-                        button.addExecutable {
+                        button.setExecutable {
                             loadNextStep(context.getString(R.string.walkthrough_transition_button))
                         }
                         triggerLayout.addView(button)
@@ -148,7 +154,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                             id = View.generateViewId()
                             button.id = id
                             val optionLayer = (second as IfElseTrigger).getLayerForOption(optionId++)
-                            button.addExecutable {
+                            button.setExecutable {
                                 layer = optionLayer
                                 loadNextStep( context.getString(R.string.walkthrough_transition_button_x,button.text),optionLayer != 0)
                             }
@@ -175,7 +181,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                                 val txt = context.getString(R.string.walkthrough_interaction_text, t, n, c)
                                 titleText.setTextWithNewBoldWords(txt,c)
                             })
-                            button.addExecutable {
+                            button.setExecutable {
                                 if (codeInput.text.toString() == generateCode(interactedStakeholder)){
                                     loadNextStep(context.getString(R.string.walkthrough_transition_interaction))
                                     refresh = false
@@ -199,7 +205,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         val inputField = generateEditText(context.getString(R.string.walkthrough_input_here))
                         inputField.setMargin(DipHelper.get(resources).dip10)
                         val button = generateButton(context.getString(R.string.walkthrough_check_input))
-                        button.addExecutable {
+                        button.setExecutable {
                             if (inputField.text.toString() == input){
                                 loadNextStep(context.getString(R.string.walkthrough_transition_input))
                                 refresh = false
@@ -215,13 +221,54 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         scroll.addScrollElement(button)
                         triggerLayout.addView(scroll)
                     }
-                    else -> {
-                        //FALLBACK FOR MISSING TRIGGER AT THE END
-                        val button = generateButton(context.getString(R.string.walkthrough_complete))
-                        button.addExecutable {
-                            loadNextStep(context.getString(R.string.walkthrough_transition_automatic))
+                    is NfcTrigger -> {
+                        val text = (second as NfcTrigger).text!!
+                        val titleText = generateText(null, context.getString(R.string.walkthrough_nfc_text,text), ArrayList(), arrayListOf(text))
+                        val nfcSupported = CommunicationHelper.supports(context, CommunicationHelper.Companion.Communications.NFC)
+                        val nfcOn = CommunicationHelper.check(context, CommunicationHelper.Companion.Communications.NFC)
+                        val scroll = SreScrollView(context,triggerLayout)
+                        scroll.addScrollElement(titleText)
+                        if (!nfcSupported || !nfcOn){
+                            val state = if (!nfcSupported) context.getString(R.string.x_not_supported) else context.getString(R.string.x_disabled)
+                            val alertText = generateText(null, "NFC $state!",arrayListOf(state),ArrayList())
+                            val button = generateButton(context.getString(if (!nfcSupported) R.string.walkthrough_end_scenario else R.string.walkthrough_enable_nfc))
+                            button.setExecutable {
+                                if (!nfcSupported){
+                                    saveAndLoadNew(true,context.getString(R.string.walkthrough_final_state_cancelled_nfc, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
+                                }else{
+                                    CommunicationHelper.toggle(context, CommunicationHelper.Companion.Communications.NFC)
+                                }
+                            }
+                            scroll.addScrollElement(alertText)
+                            scroll.addScrollElement(button)
                         }
-                        triggerLayout.addView(button)                        
+                        triggerLayout.addView(scroll)
+                    }
+                    is TimeTrigger -> {/*TODO*/
+                    }
+                    is SoundTrigger -> {/*TODO*/
+                    }
+                    is BluetoothTrigger -> {/*TODO*/
+                    }
+                    is WifiTrigger -> {/*TODO*/
+                    }
+                    is GpsTrigger -> {/*TODO*/
+                    }
+                    is CallTrigger -> {/*TODO*/
+                    }
+                    is SmsTrigger -> {/*TODO*/
+                    }
+                    else -> {
+                        //FALLBACK
+                        if (first != null){
+                            val button = generateButton(context.getString(R.string.walkthrough_complete))
+                            button.setExecutable {
+                                loadNextStep(context.getString(R.string.walkthrough_transition_automatic))
+                            }
+                            triggerLayout.addView(button)
+                        }else{
+                            resolveOutro()
+                        }
                     }
                 }
             }
@@ -253,7 +300,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         val cutHtml = StringHelper.cutHtmlAfter(content, 10, context.getString(R.string.walkthrough_see_more))
         val text = generateText(context.getString(R.string.walkthrough_outro), cutHtml, ArrayList(), arrayListOf(context.getString(R.string.walkthrough_outro),context.getString(R.string.walkthrough_statistics)))
         val button = generateButton(context.getString(R.string.walkthrough_finish_scenario))
-        button.addExecutable {
+        button.setExecutable {
             saveAndLoadNew()
         }
         stepLayout.addView(text)
@@ -310,10 +357,20 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private fun getCurrentTrigger(): AbstractTrigger? = if (first is AbstractTrigger) (first as AbstractTrigger) else if (second is AbstractTrigger) (second as AbstractTrigger) else null
     private fun getCurrentStep(): AbstractStep? = if (first is AbstractStep) (first as AbstractStep) else if (second is AbstractStep) (second as AbstractStep) else null
 
-    fun saveAndLoadNew(interrupted: Boolean = false) {
+    fun execUseNfcData(data: String): String?{
+        if (data == getCurrentTrigger()?.id){
+            val message = (getCurrentTrigger() as NfcTrigger).message
+            loadNextStep(context.getString(R.string.walkthrough_transition_nfc_scanned))
+            return message
+        }
+        return context.getString(R.string.walkthrough_nfc_tag_wrong)
+    }
+
+
+    fun saveAndLoadNew(interrupted: Boolean = false, reason: String? = null) {
         if (interrupted){
             walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments))
-            Walkthrough.WalkthroughProperty.FINAL_STATE.set(context.getString(R.string.walkthrough_final_state_cancelled, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
+            Walkthrough.WalkthroughProperty.FINAL_STATE.set(reason?: context.getString(R.string.walkthrough_final_state_cancelled, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
         }else{
             Walkthrough.WalkthroughProperty.FINAL_STATE.set(context.getString(R.string.walkthrough_final_state_complete))
         }

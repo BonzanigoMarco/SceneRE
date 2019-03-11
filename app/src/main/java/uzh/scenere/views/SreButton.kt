@@ -110,7 +110,7 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         }
     }
 
-    fun addExecutable(function: () -> Unit): SreButton {
+    fun setExecutable(function: () -> Unit): SreButton {
         this.function = function
         return this
     }

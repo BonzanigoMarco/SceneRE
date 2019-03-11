@@ -1,6 +1,7 @@
 package uzh.scenere.datamodel
 
 import uzh.scenere.const.Constants.Companion.STARTING_POINT
+import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.helpers.NullHelper
 import java.io.Serializable
 import java.util.*
@@ -49,6 +50,16 @@ open class Path private constructor(val id: String, val scenarioId: String, val 
         }else{
             previousElements[element.getPreviousElementId()!!] = element
         }
+    }
+
+    fun countIfElse(addOne: Boolean): Int{
+        var isIfElse = 0
+        for (element in elements){
+            if (element.value is IfElseTrigger){
+                isIfElse++
+            }
+        }
+        return isIfElse + if (addOne) 1 else 0
     }
 
     class PathBuilder(private val scenarioId: String, private val stakeholder: Stakeholder, private val layer: Int) {

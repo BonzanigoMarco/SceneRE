@@ -4,9 +4,14 @@ import android.app.Activity
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Typeface
+import android.net.wifi.ScanResult
+import android.net.wifi.WifiManager
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
@@ -33,12 +38,16 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.MILLION
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.ZERO
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.removeFirst
 import java.io.IOException
 import java.lang.Exception
+import kotlin.random.Random
 import kotlin.reflect.KClass
 
 
@@ -55,6 +64,8 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     private var nfcAdapter: NfcAdapter? = null
     private var pendingIntent: PendingIntent? = null
     private var nfcReady = false
+    //WiFi
+    private var wifiManager: WifiManager? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +73,21 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         setContentView(getConfiguredLayout())
         readVariables()
         initNfc()
+        initWifi()
     }
+
+    private fun readVariables() {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        screenHeight = displayMetrics.heightPixels
+        screenWidth = displayMetrics.widthPixels
+        marginSmall = DipHelper.get(resources).dip5
+        marginHuge = DipHelper.get(resources).dip50
+        textSize = DipHelper.get(resources).dip3_5.toFloat()
+        fontAwesome = Typeface.createFromAsset(applicationContext.assets, "FontAwesome900.otf")
+    }
+
+    //NFC
 
     open fun isUsingNfc():Boolean{
         return false
@@ -108,7 +133,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     private var nfcDataWrite: String? = null
     private var nfcDataRead: String? = null
 
-    fun setDataToWrite(data: String){
+    fun setDataToWrite(data: String?){
         nfcDataWrite = data
     }
 
@@ -120,15 +145,25 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         //NOP
     }
 
+    open fun execNoDataRead(){
+        //NOP
+    }
+
+    open fun onDataWriteExecuted(returnValues: Pair<Boolean, String>){
+        notify(getString(R.string.nfc),returnValues.second)
+    }
+
     private fun getNfcTagInfo(intent: Intent) {
         val tag: Tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
         if (nfcDataWrite != null){
-            writeDataToTag(tag,nfcDataWrite!!)
+            onDataWriteExecuted(writeDataToTag(tag,nfcDataWrite!!))
             nfcDataWrite = null
         }else{
             nfcDataRead = getDataFromTag(tag,intent)
             if (nfcDataRead != null){
                 execUseNfcData(nfcDataRead!!)
+            }else{
+                execNoDataRead()
             }
         }
     }
@@ -157,7 +192,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         return null
     }
 
-    private fun writeDataToTag(tag: Tag, message: String): Boolean{
+    private fun writeDataToTag(tag: Tag, message: String): Pair<Boolean,String>{
         val nDefTag = Ndef.get(tag)
         val ndefMessage = dataToNdefMessage(message)
         try {
@@ -165,17 +200,14 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             nDefTag?.let {
                 it.connect()
                 if (it.maxSize < ndefMessage.toByteArray().size) {
-                    notify(getString(R.string.nfc_too_large))
-                    return false
+                    return Pair(false,getString(R.string.nfc_too_large))
                 }
                 return if (it.isWritable) {
                     it.writeNdefMessage(ndefMessage)
                     it.close()
-                    notify(getString(R.string.nfc_success))
-                    true
+                    Pair(true,getString(R.string.nfc_success))
                 } else {
-                    notify(getString(R.string.nfc_write_not_supported))
-                    false
+                    Pair(false,getString(R.string.nfc_write_not_supported))
                 }
             }
         } catch (e: Exception) {
@@ -188,19 +220,17 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
                         it.connect()
                         it.format(ndefMessage)
                         it.close()
-                        notify(getString(R.string.nfc_success))
-                        true
+                        Pair(true,getString(R.string.nfc_success))
                     } catch (e: IOException) {
-                        notify(getString(R.string.nfc_no_init))
-                        false
+                        Pair(false,getString(R.string.nfc_no_init))
                     }
                 }
-                return false
+                return Pair(false,getString(R.string.nfc_write_not_supported))
             }catch(e: Exception){
-                notify(getString(R.string.nfc_write_not_supported))
+                //NOP
             }
         }
-        return false
+        return Pair(false,getString(R.string.nfc_write_not_supported))
     }
 
     private fun dataToNdefMessage(data: String): NdefMessage{
@@ -209,15 +239,54 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         return NdefMessage(arrayOf(nfcRecord))
     }
 
-    private fun readVariables() {
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        screenHeight = displayMetrics.heightPixels
-        screenWidth = displayMetrics.widthPixels
-        marginSmall = DipHelper.get(resources).dip5
-        marginHuge = DipHelper.get(resources).dip50
-        textSize = DipHelper.get(resources).dip3_5.toFloat()
-        fontAwesome = Typeface.createFromAsset(applicationContext.assets, "FontAwesome900.otf")
+    // WiFi
+
+    open fun isUsingWifi(): Boolean{
+        return false
+    }
+
+    private fun initWifi(){
+        if (isUsingWifi()) {
+            wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val wifiReceiver = WifiBroadcastReceiver(wifiManager, onWifiDiscoveredExecutable)
+            registerReceiver(wifiReceiver, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
+        }
+    }
+
+    var scanningWifi: Boolean = false
+
+    protected fun startWifiScan(){
+        scanningWifi = true
+        wifiManager?.startScan()
+    }
+
+    protected fun stopWifiScan(){
+        scanningWifi = false
+    }
+
+    private val onWifiDiscoveredExecutable: (List<ScanResult>?) -> Unit = {
+        if (!it.isNullOrEmpty()) {
+            for (scanResult in it){
+                execUseWifiScanResult(scanResult)
+            }
+        }
+        if (scanningWifi){
+            Handler().postDelayed({
+                wifiManager?.startScan()
+            },5000)
+        }
+    }
+
+    open fun execUseWifiScanResult(scanResult: ScanResult) {
+        //NOP
+    }
+
+    private class WifiBroadcastReceiver(val wifiManager: WifiManager?,val onWifiDiscoveredExecutable: (List<ScanResult>?) -> Unit) : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == WifiManager.SCAN_RESULTS_AVAILABLE_ACTION) {
+                onWifiDiscoveredExecutable.invoke(wifiManager?.scanResults)
+            }
+        }
     }
 
     abstract fun getConfiguredLayout(): Int
@@ -319,11 +388,24 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         Toast.makeText(this, toast, Toast.LENGTH_SHORT).show()
     }
 
-    //TODO queue
-    fun notify(title: String? = null, content: String? = null){
+    private val notificationQueue = ArrayList<Pair<String?,String?>>()
+    fun notify(title: String? = null, content: String? = null, clearNotificationId: Int? = null){
+        val notificationManager = NotificationManagerCompat.from(this)
+        if (clearNotificationId == null){
+            notificationQueue.add(Pair(title,content))
+            if (notificationQueue.size > 1){
+                return // let the notifications in the queue call themselves
+            }
+        }else{
+            notificationQueue.removeFirst()
+            notificationManager.cancel(clearNotificationId)
+        }
+        if (notificationQueue.isEmpty()){
+            return
+        }
         val notification = NotificationCompat.Builder(applicationContext, Constants.APPLICATION_ID)
                 .setSmallIcon(android.R.drawable.btn_star)
-                .setContentTitle(title)
+                .setContentTitle(notificationQueue.first().first)
                 .setColor(ContextCompat.getColor(this,R.color.srePrimary))
                 .setColorized(true)
                 .setDefaults(Notification.DEFAULT_ALL)
@@ -332,13 +414,17 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         }else{
             notification.priority = Notification.PRIORITY_MAX
         }
-        if (content != null){
-            notification.setContentText(content)
+        if (notificationQueue.first().second != null){
+            notification.setContentText(notificationQueue.first().second)
         }
-        val text = StringHelper.nvl(title,NOTHING).plus(StringHelper.nvl(content,NOTHING))
-        val notificationManager = NotificationManagerCompat.from(this)
-        notificationManager.notify(0, notification.build())
-        Handler().postDelayed( {notificationManager.cancel(0) },2000L+(50*text.length))
+        val text = StringHelper.nvl(notificationQueue.first().first,NOTHING).plus(StringHelper.nvl(notificationQueue.first().second,NOTHING))
+        val id = Random(System.currentTimeMillis()).nextInt(ZERO, MILLION)
+        Handler().postDelayed( {
+            notificationManager.notify(id, notification.build())
+        },100)
+        Handler().postDelayed( {
+            notify(null,null,id)
+        },2000L+(50*text.length))
     }
 
     protected fun execMinimizeKeyboard(){

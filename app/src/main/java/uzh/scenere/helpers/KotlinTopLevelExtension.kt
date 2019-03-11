@@ -124,3 +124,9 @@ fun Activity.getStringByString(str: String, vararg formatArgs: String):String {
 fun Activity.getGenericStringWithIdAndTemplate(id: Int, templateId: Int, vararg formatArgs: String):String {
     return getStringByString(getString(templateId,id),*formatArgs)
 }
+
+fun ArrayList<*>.removeFirst(){
+    if (!isNullOrEmpty()){
+        removeAt(0)
+    }
+}

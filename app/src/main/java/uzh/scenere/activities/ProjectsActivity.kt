@@ -141,8 +141,8 @@ class ProjectsActivity : AbstractManagementActivity() {
             ProjectsMode.VIEW -> {}//NOP
             ProjectsMode.EDIT_CREATE -> {
                 cleanInfoHolder(if (activeProject==null) getString(R.string.projects_create) else getString(R.string.projects_edit))
-                getInfoContentWrap().addView(createLine(inputLabelTitle,LineInputType.SINGLE_LINE_EDIT, project?.title))
-                getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, project?.description))
+                getInfoContentWrap().addView(createLine(inputLabelTitle, LineInputType.SINGLE_LINE_EDIT, project?.title, false, -1))
+                getInfoContentWrap().addView(createLine(inputLabelDescription, LineInputType.MULTI_LINE_EDIT, project?.description, false, -1))
             }
             ProjectsMode.SCENARIO -> {
                 val intent = Intent(this,ScenariosActivity::class.java)

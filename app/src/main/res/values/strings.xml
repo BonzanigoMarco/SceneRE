@@ -16,6 +16,13 @@
         <item>@string/trigger_if_else</item>
         <item>@string/trigger_stakeholder_interaction</item>
         <item>@string/trigger_input</item>
+        <item>@string/trigger_nfc</item>
+        <item>@string/trigger_wifi</item>
+        <item>@string/trigger_gps</item>
+        <item>@string/trigger_call</item>
+        <item>@string/trigger_sms</item>
+        <item>@string/trigger_timer</item>
+        <item>@string/trigger_sound</item>
     </string-array>
 
     <string-array name="share_keywords">
@@ -71,6 +78,49 @@
     <string-array name="editor_attributes_trigger_input">
         <item>Instruction Text</item>
         <item>Correct Answer</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_nfc">
+        <item>Instruction Text</item>
+        <item>Message on Scan (Optional)</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_time">
+        <item>Instruction Text</item>
+        <item>Time (s)</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_sound">
+        <item>Instruction Text</item>
+        <item>Sound-Barrier (dB)</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_gps">
+        <item>Instruction Text</item>
+        <item>Radius (m)</item>
+        <item>Latitude</item>
+        <item>Longitude</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_wifi">
+        <item>Instruction Text</item>
+        <item>SSID (Regex possible)</item>
+    </string-array>
+
+
+    <string-array name="editor_attributes_trigger_bt">
+        <item>Instruction Text</item>
+        <item>Device-Id (Regex possible)</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_call">
+        <item>Instruction Text</item>
+        <item>Telephone-Nr.</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_sms">
+        <item>Instruction Text</item>
+        <item>Telephone-Nr.</item>
     </string-array>
 
     <string name="spinner_none">[Select a Type first]</string>
@@ -210,6 +260,7 @@
     <string name="walkthrough_input_code">Input Code here</string>
     <string name="walkthrough_interaction_text">%1$s<![CDATA[<br>]]>Exchange your Interaction-Code with %2$s!<![CDATA[<br>]]>Your Code: %3$s</string>
     <string name="walkthrough_input_text">%1$s<![CDATA[<br>]]>Insert the required Input in the Field below and check it to continue.</string>
+    <string name="walkthrough_nfc_text">%1$s<![CDATA[<br>]]>Scan the corresponding NFC-Tag to continue.</string>
     <string name="walkthrough_interaction_code">Interaction-Code</string>
     <string name="walkthrough_start_scenario">Start Scenario</string>
     <string name="walkthrough_intro">Intro</string>
@@ -220,6 +271,8 @@
     <string name="walkthrough_concat_br">%1$s<![CDATA[<br>]]>%2$s</string>
     <string name="walkthrough_input_here">Write Input here</string>
     <string name="walkthrough_check_input">Check Input</string>
+    <string name="walkthrough_enable_nfc">Enable NFC</string>
+    <string name="walkthrough_end_scenario">End Scenario</string>
     <string name="walkthrough_input_correct">Correct Input</string>
     <string name="walkthrough_input_incorrect">Wrong Input</string>
     <string name="walkthrough_transition_button_x">Button: %1$s</string>
@@ -227,8 +280,10 @@
     <string name="walkthrough_transition_automatic">Automatic</string>
     <string name="walkthrough_transition_input">Input entered correctly</string>
     <string name="walkthrough_transition_interaction">Entered Interaction-Code</string>
+    <string name="walkthrough_transition_nfc_scanned">NFC-Tag Scanned</string>
     <string name="walkthrough_what_if_browse">Browse available What-If Questions</string>
     <string name="walkthrough_contribute_comments">Write down your Comment and press "Add" to contribute it</string>
+    <string name="walkthrough_final_state_cancelled_nfc">Cancelled on the %1$s Step, \"%2$s\" (NFC not supported)</string>
     <string name="walkthrough_final_state_cancelled">Cancelled on the %1$s Step, \"%2$s\"</string>
     <string name="walkthrough_final_state_cancelled_check">Cancelled on the "</string>
     <string name="walkthrough_final_state_complete">Walkthrough completed successfully</string>
@@ -245,8 +300,8 @@
     <string name="literal_walkthroughs">Walkthroughs</string>
     <string name="literal_walkthrough">Walkthrough</string>
     <string name="literal_what_if">What-If</string>
-    <string name="literal_remove_all">Remove All</string>
     <string name="literal_comment">Comment</string>
+    <string name="literal_remove_all">Remove All</string>
     <string name="project_anonymous">Anonymous Project</string>
     <string name="scenario_anonymous">Anonymous Scenario</string>
     <string name="objects_similar_alert">An AbstractObject with similar Name already exists.</string>
@@ -333,13 +388,27 @@
     <string name="startup_enter_name">Name</string>
     <string name="startup_enter_name_title">Enter your Name</string>
     <string name="startup_confirm">Confirm</string>
+
     <string name="share_no_dropbox">Dropbox not supported yet!</string>
+
     <string name="editor_no_stakeholder">No Stakeholders, Path cannot be built.</string>
     <string name="editor_main_path">Currently on the main-Path</string>
-    <string name="editor_alternative_path_x">Currently on an alternative-Path: %1$s</string>
-    <string name="editor_main_path_x">Currently on the main-Path: %1$s</string>
-    <string name="nfc_too_large">Data too large for NFC-Tag</string>
-    <string name="nfc_success">Data write successful</string>
-    <string name="nfc_write_not_supported">Writing to NFC-Tag not supported</string>
-    <string name="nfc_no_init">Could not initialize NFC-Tag</string>
+    <string name="editor_alternative_path">Currently on an alternative-Path</string>
+
+    <string name="nfc">NFC</string>
+    <string name="nfc_too_large">Data too large for NFC-Tag!</string>
+    <string name="nfc_success">Data write successful!</string>
+    <string name="nfc_write_not_supported">Writing to NFC-Tag not supported!</string>
+    <string name="nfc_no_init">Could not initialize NFC-Tag!</string>
+    <string name="nfc_no_data">No data on the NFC-Tag!</string>
+
+    <string name="input_optional">(Optional)</string>
+    <string name="regex_possible">(Regex possible)</string>
+
+    <string name="editor_nfc_data">NFC Data</string>
+    <string name="editor_nfc_loaded">Loaded, place your Phone on the Tag!</string>
+    <string name="editor_nfc_cleared">NFC Data cleared!</string>
+    <string name="walkthrough_nfc_tag_wrong">Wrong NFC-Tag scanned!</string>
+    <string name="x_not_supported"> not supported</string>
+    <string name="x_disabled"> disabled</string>
 </resources>

@@ -4,8 +4,7 @@ import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.IDirectTrigger
 import java.util.*
 
-class InputTrigger(id: String?, previousId: String?, pathId: String) : AbstractTrigger(id
-        ?: UUID.randomUUID().toString(), previousId, pathId), IDirectTrigger {
+class InputTrigger(id: String?, previousId: String?, pathId: String) : AbstractTrigger(id?: UUID.randomUUID().toString(), previousId, pathId), IDirectTrigger {
     var text: String? = null
     var input: String? = null
 

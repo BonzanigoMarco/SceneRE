@@ -59,6 +59,7 @@
     <string name="icon_glossary">&#xf02d;</string>
     <string name="icon_share">&#xf1e0;</string>
     <string name="icon_analytics">&#xf002;</string>
+    <string name="icon_nfc">&#xf09e;</string>
 
     <string name="connect_left"><annotation font="font_awesome">&#xf060;</annotation> </string>
     <string name="connect_right"> <annotation font="font_awesome">&#xf061;</annotation></string>
@@ -143,7 +144,6 @@
     <string name="icon_marker">&#xf3c5;</string>
     <string name="icon_pin">&#xf276;</string>
     <string name="icon_bluetooth">&#xf293;</string>
-    <string name="icon_nfc">&#xf09e;</string>
     <string name="icon_phone">&#xf095;</string>
     <string name="icon_qr">&#xf029;</string>
     <string name="icon_sim">&#xf7c4;</string>

@@ -3,21 +3,17 @@ package uzh.scenere.views
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
-import android.text.SpannableString
-import android.text.SpannableStringBuilder
 import android.text.Spanned
-import android.text.SpannedString
 import android.util.TypedValue
 import android.view.View
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
-import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.datamodel.IElement
 import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.datamodel.steps.AbstractStep
+import uzh.scenere.datamodel.trigger.communication.NfcTrigger
 import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.datamodel.trigger.direct.StakeholderInteractionTrigger
 import uzh.scenere.helpers.*
@@ -34,6 +30,7 @@ class Element (context: Context, private var element: IElement, private val top:
     var addButton: IconButton? = null
     var removeButton: IconButton? = null
     var whatIfButton: IconButton? = null
+    var nfcButton: IconButton? = null
     var interactionView: SreTextView? = null
     var pathSpinner: SreSpinner? = null
     private var connectionTop: TextView? = null
@@ -149,13 +146,16 @@ class Element (context: Context, private var element: IElement, private val top:
             is StakeholderInteractionTrigger -> {
                 updateInteraction((element as StakeholderInteractionTrigger).interactedStakeholderId!!)
             }
+            is NfcTrigger -> {
+                nfcButton = IconButton(context, bottomWrapper, R.string.icon_nfc,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
+                bottomWrapper?.addView(nfcButton)
+            }
             is AbstractStep -> {
                 whatIfButton = IconButton(context, bottomWrapper, R.string.icon_question,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
                 bottomWrapper?.addView(whatIfButton)
             }
         }
     }
-
 
     fun updateLeft(l: Boolean = left): Element {
         left = l
@@ -228,31 +228,6 @@ class Element (context: Context, private var element: IElement, private val top:
         return element is AbstractStep
     }
 
-    fun setEditExecutable(function: () -> Unit): Element {
-        editButton?.addExecutable(function)
-        return this
-    }
-
-    fun setDeleteExecutable(function: () -> Unit): Element {
-        deleteButton?.addExecutable(function)
-        deleteButton?.setLongClickOnly(true)
-        return this
-    }
-
-    fun setAddExecutable(function: () -> Unit): Element {
-        addButton?.addExecutable(function)
-        return this
-    }
-
-    fun setWhatIfExecutable(function: () -> Unit): Element {
-        whatIfButton?.addExecutable(function)
-        return this
-    }
-
-    fun setRemoveExecutable(function: () -> Unit): Element {
-        removeButton?.addExecutable(function)
-        return this
-    }
 
     fun containsElement(element: IElement): Boolean {
         return this.element.getElementId() == element.getElementId()
@@ -260,6 +235,32 @@ class Element (context: Context, private var element: IElement, private val top:
 
     fun setPathData(lookupData: Array<String>): Element{
         pathSpinner?.updateLookupData(lookupData)
+        return this
+    }
+
+    fun setEditExecutable(function: () -> Unit): Element {
+        editButton?.setExecutable(function)
+        return this
+    }
+
+    fun setDeleteExecutable(function: () -> Unit): Element {
+        deleteButton?.setExecutable(function)
+        deleteButton?.setLongClickOnly(true)
+        return this
+    }
+
+    fun setAddExecutable(function: () -> Unit): Element {
+        addButton?.setExecutable(function)
+        return this
+    }
+
+    fun setWhatIfExecutable(function: () -> Unit): Element {
+        whatIfButton?.setExecutable(function)
+        return this
+    }
+
+    fun setRemoveExecutable(function: () -> Unit): Element {
+        removeButton?.setExecutable(function)
         return this
     }
 
@@ -283,6 +284,19 @@ class Element (context: Context, private var element: IElement, private val top:
     fun setNothingSelectedExecutable(executable: ()-> Unit): Element{
         pathSpinner?.setNothingSelectedExecutable(executable)
         return this
+    }
+
+    fun setNfcExecutable(executable: ()-> Unit): Element{
+        nfcButton?.setExecutable(executable)
+        return this
+    }
+
+    fun setNfcLoaded(loaded: Boolean) {
+        if (loaded){
+            nfcButton?.setTextColor(ContextCompat.getColor(context, R.color.srePrimaryAttention))
+        }else{
+            nfcButton?.setTextColor(ContextCompat.getColor(context, R.color.srePrimaryPastel))
+        }
     }
 
     fun resetSelectCount(): Element{

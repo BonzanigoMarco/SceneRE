@@ -40,6 +40,15 @@ class CommunicationHelper private constructor () {
         private const val listenerTag: String = "SRE-GPS-Listener"
 
         fun check(context: Activity, communications: Communications): Boolean{
+            return when (communications){
+                Communications.GPS -> {
+                    checkGpsInternal(context, false)
+                }
+                else -> check(context.applicationContext,communications)
+            }
+        }
+
+        fun check(context: Context, communications: Communications): Boolean{
             when (communications){
                 Communications.NETWORK -> {
                     val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -64,9 +73,17 @@ class CommunicationHelper private constructor () {
                     val nfcAdapter = NfcAdapter.getDefaultAdapter(context)
                     return nfcAdapter?.isEnabled ?: false
                 }
-                Communications.GPS -> {
-                    return checkGpsInternal(context, false)
+                else -> return false
+            }
+        }
+
+        fun supports(context: Context, communications: Communications): Boolean{
+            return when (communications){
+                Communications.NFC -> {
+                    val nfcAdapter = NfcAdapter.getDefaultAdapter(context)
+                    nfcAdapter != null
                 }
+                else -> true
             }
         }
 
@@ -83,20 +100,6 @@ class CommunicationHelper private constructor () {
         private fun enable(context: Activity, communications: Communications): Boolean{
             if (check(context,communications)) return true
             when (communications){
-                Communications.NETWORK -> {
-                    context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
-                }
-                Communications.WIFI -> {
-                    val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-                    wifiManager.isWifiEnabled = true
-                }
-                Communications.BLUETOOTH -> {
-                    val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter() ?: return false
-                    bluetoothAdapter.enable()
-                }
-                Communications.NFC -> {
-                    context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
-                }
                 Communications.GPS -> {
                     if (checkGpsInternal(context,true)){
                         registerGpsListener(context)
@@ -123,11 +126,45 @@ class CommunicationHelper private constructor () {
                         }
                     }
                 }
+                else -> return enable(context.applicationContext,communications)
             }
             return true
         }
 
         private fun disable(context: Activity, communications: Communications): Boolean{
+            if (!check(context,communications)) return false
+            when (communications){
+                Communications.GPS -> {
+                    unregisterGpsListener(context)
+                }
+                else -> return disable(context.applicationContext,communications)
+            }
+            return false
+        }
+
+        private fun enable(context: Context, communications: Communications): Boolean{
+            if (check(context,communications)) return true
+            when (communications){
+                Communications.NETWORK -> {
+                    context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                }
+                Communications.WIFI -> {
+                    val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                    wifiManager.isWifiEnabled = true
+                }
+                Communications.BLUETOOTH -> {
+                    val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter() ?: return false
+                    bluetoothAdapter.enable()
+                }
+                Communications.NFC -> {
+                    context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                }
+                else -> return true
+            }
+            return true
+        }
+
+        private fun disable(context: Context, communications: Communications): Boolean{
             if (!check(context,communications)) return false
             when (communications){
                 Communications.NETWORK -> {
@@ -144,14 +181,17 @@ class CommunicationHelper private constructor () {
                 Communications.NFC -> {
                     context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
                 }
-                Communications.GPS -> {
-                    unregisterGpsListener(context)
-                }
+                else -> return false
             }
             return false
         }
 
+
         fun toggle(context: Activity, communications: Communications): Boolean{
+            return if (check(context,communications)) disable(context, communications) else enable(context,communications)
+        }
+
+        fun toggle(context: Context, communications: Communications): Boolean{
             return if (check(context,communications)) disable(context, communications) else enable(context,communications)
         }
 

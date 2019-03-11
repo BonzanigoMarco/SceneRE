@@ -179,19 +179,19 @@ class ShareActivity : AbstractManagementActivity() {
 
     private fun execLoadFileExport() {
         getContentHolderLayout().removeAllViews()
-        controlButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_collect_data)).addExecutable {
+        controlButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_collect_data)).setExecutable {
             cachedBinary = exportDatabaseToBinary()
             if (cachedBinary != null) {
                 val wrapper = createStatisticsFromCachedBinary(true)
                 if (wrapper.validationCode == VALIDATION_OK){
                     getContentHolderLayout().removeView(walkthroughSwitch)
                     controlButton?.text = getString(R.string.share_export_data)
-                    controlButton?.addExecutable {
+                    controlButton?.setExecutable {
                         val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + SRE_FILE
                         val destinationFile = FileHelper.writeFile(applicationContext, cachedBinary!!, fileName)
                         notify(getString(R.string.share_export_finished))
                         controlButton?.text = getString(R.string.share_export_location)
-                        controlButton?.addExecutable {
+                        controlButton?.setExecutable {
                             val success = FileHelper.openFolder(applicationContext, destinationFile.replace("/$fileName",""))
                             if (!success){
                                 FileHelper.openFile(applicationContext, destinationFile)
@@ -199,13 +199,13 @@ class ShareActivity : AbstractManagementActivity() {
                         }
                     }
                 }else{
-                    controlButton?.addExecutable {}
+                    controlButton?.setExecutable {}
                 }
             }
         }
         includeWalkthroughs = true
         walkthroughSwitch = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_include_walkthroughs))
-        walkthroughSwitch?.addExecutable {
+        walkthroughSwitch?.setExecutable {
             includeWalkthroughs = !includeWalkthroughs
             walkthroughSwitch?.text = if (includeWalkthroughs) getString(R.string.share_include_walkthroughs) else getString(R.string.share_exclude_walkthroughs)
         }
@@ -243,7 +243,7 @@ class ShareActivity : AbstractManagementActivity() {
 
     private fun execLoadFileImport() {
         getContentHolderLayout().removeAllViews()
-        controlButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_location)).addExecutable { openFileInput() }
+        controlButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_location)).setExecutable { openFileInput() }
         val sreContextAwareTextView = SreContextAwareTextView(applicationContext, getContentHolderLayout(), arrayListOf("Folder"), ArrayList())
         sreContextAwareTextView.text = if (StringHelper.hasText(importFolder)) application.getString(R.string.share_folder,importFolder) else getString(R.string.share_no_folder)
         controlInput = sreContextAwareTextView
@@ -280,7 +280,7 @@ class ShareActivity : AbstractManagementActivity() {
                     buttonWrap.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT)
                     buttonWrap.orientation = LinearLayout.HORIZONTAL
                     buttonWrap.gravity = Gravity.CENTER
-                    val button = IconButton(applicationContext, buttonWrap, R.string.icon_file).addExecutable { execLoadFile(file) }
+                    val button = IconButton(applicationContext, buttonWrap, R.string.icon_file).setExecutable { execLoadFile(file) }
                     val textView = SreTextView(applicationContext, buttonWrap, file.name)
                     textView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT)
                     textView.setMargin(button.getTopMargin())
@@ -305,13 +305,13 @@ class ShareActivity : AbstractManagementActivity() {
         buttonWrap.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT)
         buttonWrap.orientation = LinearLayout.HORIZONTAL
         buttonWrap.gravity = Gravity.CENTER
-        val backButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_return)).addExecutable { execLoadFileImport() }
+        val backButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_return)).setExecutable { execLoadFileImport() }
         buttonWrap.addView(backButton)
         if (cachedBinary != null){
             val wrapper = createStatisticsFromCachedBinary(false)
             if (wrapper.validationCode == VALIDATION_OK){
                 if (wrapper.totalItems > wrapper.oldItems) {
-                    val importNewerButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.oldItems == 0) getString(R.string.share_import) else getString(R.string.share_import_newer)).addExecutable {
+                    val importNewerButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.oldItems == 0) getString(R.string.share_import) else getString(R.string.share_import_newer)).setExecutable {
                         importBinaryToDatabase(wrapper, true)
                         notify(getString(R.string.share_import_finished), getString(R.string.share_import_number_successful,(wrapper.totalItems - wrapper.oldItems)))
                         execLoadFileImport()
@@ -319,7 +319,7 @@ class ShareActivity : AbstractManagementActivity() {
                     buttonWrap.addView(importNewerButton)
                 }
                 if (wrapper.oldItems > 0){
-                    val importAllButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.totalItems > wrapper.oldItems) getString(R.string.share_import_all_1,(wrapper.totalItems-wrapper.oldItems)) else getString(R.string.share_import_all_2),null,null,SreButton.ButtonStyle.WARN).addExecutable {
+                    val importAllButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.totalItems > wrapper.oldItems) getString(R.string.share_import_all_1,(wrapper.totalItems-wrapper.oldItems)) else getString(R.string.share_import_all_2),null,null,SreButton.ButtonStyle.WARN).setExecutable {
                         importBinaryToDatabase(wrapper,false)
                         notify(getString(R.string.share_import_finished),getString(R.string.share_import_number_successful,wrapper.totalItems))
                         execLoadFileImport()

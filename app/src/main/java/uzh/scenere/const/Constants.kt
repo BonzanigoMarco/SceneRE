@@ -12,7 +12,8 @@ class Constants {
         const val IMPORT_FOLDER: String = "scenereImportFolder"
         const val ANONYMOUS: String = "John Doe"
         //NUMBERS
-        const val MILLION: Double = 1000000.0
+        const val MILLION_D: Double = 1000000.0
+        const val MILLION: Int = 1000000
         const val FIVE_MIN_MS: Long = 300000
         const val TEN_SEC_MS: Long = 10000
         const val THOUSAND: Double = 1000.0

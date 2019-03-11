@@ -2,6 +2,7 @@ package uzh.scenere.activities
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.net.wifi.ScanResult
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -29,12 +30,12 @@ class MainMenuActivity : AbstractBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        projectsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, ProjectsActivity::class.java)) }
-        walkthroughButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, WalkthroughActivity::class.java)) }
-        analyticsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, AnalyticsActivity::class.java)) }
-        shareButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, ShareActivity::class.java)) }
-        cockpitButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, CockpitActivity::class.java)) }
-        glossaryButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).addExecutable { startActivity(Intent(this, GlossaryActivity::class.java)) }
+        projectsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).setExecutable { startActivity(Intent(this, ProjectsActivity::class.java)) }
+        walkthroughButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).setExecutable { startActivity(Intent(this, WalkthroughActivity::class.java)) }
+        analyticsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).setExecutable { startActivity(Intent(this, AnalyticsActivity::class.java)) }
+        shareButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).setExecutable { startActivity(Intent(this, ShareActivity::class.java)) }
+        cockpitButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).setExecutable { startActivity(Intent(this, CockpitActivity::class.java)) }
+        glossaryButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).setExecutable { startActivity(Intent(this, GlossaryActivity::class.java)) }
 
         prepareButton(
                 arrayOf(R.string.projects_icon_label,

@@ -1,10 +1,8 @@
 package uzh.scenere.activities
 
-import android.app.PendingIntent
 import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
-import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.view.View
@@ -19,9 +17,11 @@ import uzh.scenere.const.Constants.Companion.ARROW_RIGHT
 import uzh.scenere.const.Constants.Companion.BOLD_END
 import uzh.scenere.const.Constants.Companion.BOLD_START
 import uzh.scenere.const.Constants.Companion.BREAK
+import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT_WITH_PRESET_POSITION
+import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.*
 import uzh.scenere.datamodel.trigger.AbstractTrigger
@@ -216,6 +216,9 @@ class EditorActivity : AbstractManagementActivity() {
                         .setRemoveExecutable {onPathRemoved(iElement)}
                 tutorialDrawable = "info_if_else_config"
             }
+            is NfcTrigger -> {
+                element.setNfcExecutable { toggleNfcData(iElement,element) }
+            }
             is AbstractStep -> {
                 element.setWhatIfExecutable { openWhatIfCreation(iElement) }
             }
@@ -265,6 +268,28 @@ class EditorActivity : AbstractManagementActivity() {
         }
     }
 
+    private var nfcLoaded = false
+    private var activeNfcTriggerElement: Element? = null
+    private fun toggleNfcData(nfcTrigger: NfcTrigger, element: Element) {
+        activeNfcTriggerElement = element
+        nfcLoaded = if (nfcLoaded) {
+            setDataToWrite(null)
+            element.setNfcLoaded(false)
+            false
+        } else {
+            setDataToWrite(nfcTrigger.id)
+            element.setNfcLoaded(true)
+            true
+        }
+        notify(getString(R.string.editor_nfc_data),if (nfcLoaded) getString(R.string.editor_nfc_loaded) else getString(R.string.editor_nfc_cleared))
+    }
+
+    override fun onDataWriteExecuted(returnValues: Pair<Boolean, String>){
+        super.onDataWriteExecuted(returnValues)
+        activeNfcTriggerElement?.setNfcLoaded(false)
+        nfcLoaded = false
+    }
+
     private val onPathSelectionInit: (String) -> Unit = {
         if (activePath != null){
             val layer = activePath!!.layer
@@ -298,13 +323,23 @@ class EditorActivity : AbstractManagementActivity() {
         }
     }
 
-    private fun renderAndNotifyPath(alternativePath: Boolean) {
+    private var callCount = 0
+    private var ifElseCount = -1
+    private fun renderAndNotifyPath(alternativePath: Boolean, init: Boolean = false) {
         if (pathNameList.isEmpty()){
             notify(getString(R.string.editor_main_path))
             creationButton?.setText(activePath!!.stakeholder.name)?.updateViews(true)
         }else{
-            val pathName = StringHelper.concatListWithoutIdBrackets(ARROW_RIGHT,pathNameList)
-            notify(if (alternativePath) getString(R.string.editor_alternative_path_x,pathName) else getString(R.string.editor_main_path_x,pathName))
+            if (ifElseCount == -1){
+                ifElseCount = activePath!!.countIfElse(alternativePath)
+            }
+            callCount++
+            val pathName = StringHelper.concatListWithoutIdBrackets(ARROW_RIGHT, pathNameList)
+            if (callCount == ifElseCount) {
+                notify(if (alternativePath) getString(R.string.editor_alternative_path) else getString(R.string.editor_main_path),pathName)
+                callCount = 0
+                ifElseCount = -1
+            }
             creationButton?.setText(activePath!!.stakeholder.name + " [$pathName]")?.updateViews(true)
         }
     }
@@ -431,11 +466,11 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = StandardStep::class
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
-                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, createWhatIfs(element)))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
                     }else{
                         var pointer = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_standard))
-                        getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title))
-                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title, false, -1))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text, false, -1))
                         (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
@@ -448,7 +483,7 @@ class EditorActivity : AbstractManagementActivity() {
                 is ButtonTrigger -> {
                     creationUnitClass = ButtonTrigger::class
                     adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_button))
-                    getInfoContentWrap().addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, element.buttonLabel))
+                    getInfoContentWrap().addView(createLine(elementAttributes[0], LineInputType.SINGLE_LINE_EDIT, element.buttonLabel, false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is IfElseTrigger -> {
@@ -456,17 +491,17 @@ class EditorActivity : AbstractManagementActivity() {
                     var tutorialDrawable: String? = null
                     if (inputMode == InputMode.REMOVE){
                         val index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_if_else_removal))
-                        getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP,null, addToArrayBefore(element.getDeletableIndexedOptions(),"")))
+                        getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, null, false, -1, addToArrayBefore(element.getDeletableIndexedOptions(),"")))
                         tutorialDrawable = "info_option_removal"
                     }else {
                         pathNameList.remove(pathNameList.last())
                         var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_if_else))
-                        getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
+                        getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
                         for (string in element.getOptions()){
-                            getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, string))
+                            getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, string, false, -1))
                         }
                         if (inputMode == InputMode.ADD){
-                            getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                            getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                             tutorialDrawable = "info_option_add"
                         }
                     }
@@ -479,26 +514,75 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = StakeholderInteractionTrigger::class
                     val stakeholderPositionById = projectContext!!.getStakeholderPositionById(element.interactedStakeholderId!!,activePath!!.stakeholder!!)+1
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_stakeholder_interaction))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT_WITH_PRESET_POSITION.plus(stakeholderPositionById), addToArrayBefore(projectContext!!.getStakeholdersExcept(activePath!!.stakeholder).toStringArray(),NOTHING)))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT_WITH_PRESET_POSITION.plus(stakeholderPositionById), false, -1, addToArrayBefore(projectContext!!.getStakeholdersExcept(activePath!!.stakeholder).toStringArray(),NOTHING)))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is InputTrigger -> {
                     creationUnitClass = InputTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_input))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.input))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.input, false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
-                is TimeTrigger -> {/*TODO*/}
-                is SoundTrigger -> {/*TODO*/}
-                is BluetoothTrigger -> {/*TODO*/}
-                is GpsTrigger -> {/*TODO*/}
-                is MobileNetworkTrigger -> {/*TODO*/}
-                is NfcTrigger -> {/*TODO*/}
-                is WifiTrigger -> {/*TODO*/}
-                is CallTrigger -> {/*TODO*/}
-                is SmsTrigger -> {/*TODO*/}
+                is TimeTrigger -> {/*TODO*/
+                    creationUnitClass = TimeTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_time))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, NumberHelper.nvl(element.timeMs,0).toString(), false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is SoundTrigger -> {/*TODO*/
+                    creationUnitClass = SoundTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_sound))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, NumberHelper.nvl(element.dB,0).toString(), false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is BluetoothTrigger -> {/*TODO*/
+                    creationUnitClass = BluetoothTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_bt))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.deviceId, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is GpsTrigger -> {/*TODO*/
+                    creationUnitClass = BluetoothTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_gps))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.getLatitude(), false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.getLongitude(), false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, element.getRadius().toString(), false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is NfcTrigger -> {
+                    creationUnitClass = NfcTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_nfc))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_EDIT, element.message, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is WifiTrigger -> {/*TODO*/
+                    creationUnitClass = WifiTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_wifi))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.ssid, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is CallTrigger -> {/*TODO*/
+                    creationUnitClass = CallTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_call))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.telephoneNr, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is SmsTrigger -> {/*TODO*/
+                    creationUnitClass = SmsTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_sms))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.telephoneNr, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
                 is AccelerationTrigger -> {/*TODO*/}
                 is GyroscopeTrigger -> {/*TODO*/}
                 is LightTrigger -> {/*TODO*/}
@@ -511,8 +595,8 @@ class EditorActivity : AbstractManagementActivity() {
                 resources.getString(R.string.step_standard) -> {
                     creationUnitClass = StandardStep::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_standard))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
                     (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
@@ -525,40 +609,88 @@ class EditorActivity : AbstractManagementActivity() {
                 resources.getString(R.string.trigger_button) -> {
                     creationUnitClass = ButtonTrigger::class
                     val index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_button))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_if_else) -> {
                     creationUnitClass = IfElseTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_if_else_init))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_if_else_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
                 resources.getString(R.string.trigger_stakeholder_interaction) -> {
                     creationUnitClass = StakeholderInteractionTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_stakeholder_interaction))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP,SINGLE_SELECT, addToArrayBefore(projectContext!!.getStakeholdersExcept(activePath!!.stakeholder).toStringArray(),NOTHING)))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT, false, -1, addToArrayBefore(projectContext!!.getStakeholdersExcept(activePath!!.stakeholder).toStringArray(),NOTHING)))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_input) -> {
                     creationUnitClass = InputTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_input))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
-                resources.getString(R.string.trigger_timer) -> {/*TODO*/ }
-                resources.getString(R.string.trigger_bt) -> {/*TODO*/ }
-                resources.getString(R.string.trigger_gps) -> {/*TODO*/ }
-                resources.getString(R.string.trigger_mobile) -> {/*TODO*/ }
-                resources.getString(R.string.trigger_nfc) -> {/*TODO*/ }
-                resources.getString(R.string.trigger_wifi) -> {/*TODO*/ }
-                resources.getString(R.string.trigger_call) -> {/*TODO*/ }
-                resources.getString(R.string.trigger_sms) -> {/*TODO*/ }
-                resources.getString(R.string.trigger_sound) -> {/*TODO*/ }
+                resources.getString(R.string.trigger_timer) -> {/*TODO*/
+                    creationUnitClass = TimeTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_time))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, null, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                resources.getString(R.string.trigger_bt) -> {/*TODO*/
+                    creationUnitClass = BluetoothTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_bt))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                resources.getString(R.string.trigger_gps) -> {/*TODO*/
+                    creationUnitClass = GpsTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_gps))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, null, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED) }
+                resources.getString(R.string.trigger_nfc) -> {
+                    creationUnitClass = NfcTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_nfc))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_EDIT, null, true, 25))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                resources.getString(R.string.trigger_wifi) -> {/*TODO*/
+                    creationUnitClass = WifiTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_wifi))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                resources.getString(R.string.trigger_call) -> {/*TODO*/
+                    creationUnitClass = CallTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_call))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                resources.getString(R.string.trigger_sms) -> {/*TODO*/
+                    creationUnitClass = SmsTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_sms))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                resources.getString(R.string.trigger_sound) -> {/*TODO*/
+                    creationUnitClass = SoundTrigger::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_sound))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
                 resources.getString(R.string.trigger_acceleration) -> {/*TODO*/ }
                 resources.getString(R.string.trigger_light) -> {/*TODO*/ }
                 resources.getString(R.string.trigger_magnetic) -> {/*TODO*/ }
@@ -634,8 +766,8 @@ class EditorActivity : AbstractManagementActivity() {
             DatabaseHelper.getInstance(applicationContext).delete(editUnit!!.getElementId(),IElement::class)
             activePath?.remove(editUnit!!)
         }
-        if ((!whatIfs.isEmpty() && editUnit is AbstractStep ) || //Add new What-Ifs
-                (whatIfs.isEmpty() && inputMap[elementAttributes[0]] == null)){ //Clear What-Ifs
+        if ( editUnit is AbstractStep && (!whatIfs.isEmpty() || //Add new What-Ifs
+                (whatIfs.isEmpty() && inputMap[elementAttributes[0]] == null))){ //Clear What-Ifs
             DatabaseHelper.getInstance(applicationContext).write(editUnit!!.getElementId(),(editUnit as AbstractStep).withWhatIfs(whatIfs))
             return
         }
@@ -715,15 +847,48 @@ class EditorActivity : AbstractManagementActivity() {
                 val input = inputMap[elementAttributes[1]]!!.getStringValue()
                 addAndRenderElement(InputTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withInput(input))
             }
-            TimeTrigger::class -> {/*TODO*/}
-            SoundTrigger::class -> {/*TODO*/}
-            BluetoothTrigger::class -> {/*TODO*/}
-            GpsTrigger::class -> {/*TODO*/}
-            MobileNetworkTrigger::class -> {/*TODO*/}
-            NfcTrigger::class -> {/*TODO*/}
-            WifiTrigger::class -> {/*TODO*/}
-            CallTrigger::class -> {/*TODO*/}
-            SmsTrigger::class -> {/*TODO*/}
+            TimeTrigger::class -> {/*TODO*/
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val timeSecond = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(TimeTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withTimeSecond(timeSecond))
+            }
+            SoundTrigger::class -> {/*TODO*/
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val dB = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(SoundTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withDb(dB))
+            }
+            BluetoothTrigger::class -> {/*TODO*/
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val ssid = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(BluetoothTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withDeviceId(ssid))
+            }
+            GpsTrigger::class -> {/*TODO*/
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val radius = inputMap[elementAttributes[1]]!!.getStringValue()
+                val latitude = inputMap[elementAttributes[2]]!!.getStringValue()
+                val longitude = inputMap[elementAttributes[3]]!!.getStringValue()
+                addAndRenderElement(GpsTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withGpsData(radius,latitude,longitude))
+            }
+            NfcTrigger::class -> {
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val message = uncheckedMap[elementAttributes[1]]!!.getStringValue().replace(NEW_LINE, SPACE)
+                addAndRenderElement(NfcTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withMessage(message))
+            }
+            WifiTrigger::class -> {/*TODO*/
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val ssid = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(WifiTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withSsid(ssid))
+            }
+            CallTrigger::class -> {/*TODO*/
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val telephoneNr = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(CallTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withTelephoneNr(telephoneNr))
+            }
+            SmsTrigger::class -> {/*TODO*/
+                val text = inputMap[elementAttributes[0]]!!.getStringValue()
+                val telephoneNr = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(SmsTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withTelephoneNr(telephoneNr))
+            }
             AccelerationTrigger::class -> {/*TODO*/}
             GyroscopeTrigger::class -> {/*TODO*/}
             LightTrigger::class -> {/*TODO*/}

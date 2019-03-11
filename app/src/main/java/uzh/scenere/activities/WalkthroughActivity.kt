@@ -2,6 +2,7 @@ package uzh.scenere.activities
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.net.wifi.ScanResult
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
@@ -95,6 +96,14 @@ class WalkthroughActivity : AbstractManagementActivity() {
         return holder_text_info_content
     }
 
+    override fun isUsingNfc(): Boolean {
+        return true
+    }
+
+    override fun isUsingWifi(): Boolean {
+        return true
+    }
+
     override fun resetToolbar() {
         if (mode == WalkthroughMode.PLAY){
             val value = ObjectHelper.nvl(activeWalkthrough?.state,WalkthroughPlayLayout.WalkthroughState.STARTED)
@@ -160,6 +169,11 @@ class WalkthroughActivity : AbstractManagementActivity() {
         walkthrough_layout_selection_orientation.addView(projectLabel)
         walkthrough_layout_selection_orientation.addView(scenarioLabel)
         tutorialOpen = SreTutorialLayoutDialog(this, screenWidth, "info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activeWalkthrough?.resolveStepAndTrigger()
     }
 
     private fun <T : Serializable> createButtonLabel(selectedList: ArrayList<T>, label: String): String {
@@ -342,7 +356,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
             if (obj != null && obj != selectedObject) {
                 Walkthrough.WalkthroughProperty.INFO_OBJECT.set(objectName, String::class)
                 selectedObject = obj
-                attributeInfoSpinnerLayout = createLine(getString(R.string.literal_attribute), LineInputType.LOOKUP, null, obj.getAttributeNames(""), { attributeInfoSelected() })
+                attributeInfoSpinnerLayout = createLine(getString(R.string.literal_attribute), LineInputType.LOOKUP, null, false, -1, obj.getAttributeNames(""), { attributeInfoSelected() })
                 getInfoContentWrap().addView(attributeInfoSpinnerLayout, 1)
             }
         }
@@ -359,11 +373,21 @@ class WalkthroughActivity : AbstractManagementActivity() {
             if (attr != null && attr != selectedAttribute) {
                 Walkthrough.WalkthroughProperty.INFO_ATTRIBUTE.set(attributeName, String::class)
                 selectedAttribute = attr
-                selectedAttributeInfoLayout = createLine(getString(R.string.literal_value), LineInputType.MULTI_LINE_TEXT, attr.value)
+                selectedAttributeInfoLayout = createLine(getString(R.string.literal_value), LineInputType.MULTI_LINE_TEXT, attr.value, false, -1)
                 getInfoContentWrap().addView(selectedAttributeInfoLayout, 2)
             }
         }
     }
+
+    override fun execUseNfcData(data: String) {
+        val message = activeWalkthrough?.execUseNfcData(data)
+        notify(message)
+    }
+
+    override fun execNoDataRead() {
+        notify(applicationContext.getString(R.string.nfc_no_data))
+    }
+
 
     private var awaitingBackConfirmation = false
     override fun onBackPressed() {
@@ -396,7 +420,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
             customizeToolbarId(null, null, R.string.icon_input, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
             getInfoContentWrap().removeAllViews()
-            getInfoContentWrap().addView(createLine(getString(R.string.literal_what_if), LineInputType.MULTI_TEXT, READ_ONLY, activeWalkthrough?.getActiveWhatIfs()?.toTypedArray()))
+            getInfoContentWrap().addView(createLine(getString(R.string.literal_what_if), LineInputType.MULTI_TEXT, READ_ONLY, false, -1, activeWalkthrough?.getActiveWhatIfs()?.toTypedArray()))
             activeWalkthrough?.setWhatIfActive(true)
             mode = WalkthroughMode.WHAT_IF
         }
@@ -414,7 +438,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
             customizeToolbarId(null, if (activeWalkthrough?.getActiveWhatIfs().isNullOrEmpty()) null else R.string.icon_what_if, null, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
             getInfoContentWrap().removeAllViews()
-            getInfoContentWrap().addView(createLine(getString(R.string.literal_comment), LineInputType.MULTI_TEXT, COMPLETE_REMOVAL_DISABLED, activeWalkthrough?.getComments(), addComment,removeComment))
+            getInfoContentWrap().addView(createLine(getString(R.string.literal_comment), LineInputType.MULTI_TEXT, COMPLETE_REMOVAL_DISABLED, false, -1, activeWalkthrough?.getComments(), addComment, removeComment))
             activeWalkthrough?.setInputActive(true)
             mode = WalkthroughMode.INPUT
         }
@@ -430,7 +454,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
             execMorphInfoBar(InfoState.MAXIMIZED)
             if (contextInfoAvailable) {
                 getInfoContentWrap().removeAllViews()
-                objectInfoSpinnerLayout = createLine(getString(R.string.literal_object), LineInputType.LOOKUP, null, objects, { objectInfoSelected() })
+                objectInfoSpinnerLayout = createLine(getString(R.string.literal_object), LineInputType.LOOKUP, null, false, -1, objects, { objectInfoSelected() })
                 getInfoContentWrap().addView(objectInfoSpinnerLayout, 0)
             }
             activeWalkthrough?.setInfoActive(true)
@@ -456,6 +480,12 @@ class WalkthroughActivity : AbstractManagementActivity() {
 
     private val notifyExecutable: (String) -> Unit = {
         notify(it)
+    }
+
+    override fun execUseWifiScanResult(scanResult: ScanResult) {
+        if (scanResult.SSID == "Saphira" || scanResult.SSID.matches("Saphira(.?)*".toRegex())){
+            notify("${scanResult.SSID} discovered!")
+        }
     }
 }
 
