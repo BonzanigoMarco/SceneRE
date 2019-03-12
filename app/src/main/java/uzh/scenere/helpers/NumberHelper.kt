@@ -1,8 +1,9 @@
 package uzh.scenere.helpers
 
-import kotlin.random.Random
+import uzh.scenere.const.Constants.Companion.EARTH_RADIUS_M
+import kotlin.math.PI
 
-class NumberHelper{
+class NumberHelper {
     companion object { //Static Reference
         fun <T : Number> nvl(value: T?, valueIfNull: T): T {
             return value ?: valueIfNull; // Elvis Expression of Java number==null?valueIfNull:number
@@ -35,20 +36,20 @@ class NumberHelper{
             return multiply(java.lang.Long.MAX_VALUE, Math.random())
         }
 
-        fun floor(num: Double, digits: Int): Double{
-            return Math.floor(num*digits)/digits
+        fun floor(num: Double, digits: Int): Double {
+            return Math.floor(num * digits) / digits
         }
 
-        fun ceil(num: Double, digits: Int): Double{
-            return Math.ceil(num*digits)/digits
+        fun ceil(num: Double, digits: Int): Double {
+            return Math.ceil(num * digits) / digits
         }
 
-        fun floor(num: Float, digits: Int): Float{
-            return (Math.floor((num*digits).toDouble())/digits).toFloat()
+        fun floor(num: Float, digits: Int): Float {
+            return (Math.floor((num * digits).toDouble()) / digits).toFloat()
         }
 
-        fun ceil(num: Float, digits: Int): Float{
-            return (Math.ceil((num*digits).toDouble())/digits).toFloat()
+        fun ceil(num: Float, digits: Int): Float {
+            return (Math.ceil((num * digits).toDouble()) / digits).toFloat()
         }
 
         fun createApplicationIdFromString(applicationString: String?): Long {
@@ -102,19 +103,30 @@ class NumberHelper{
             return max
         }
 
-        fun capAt(i: Int, low: Int, high: Int): Int {
+        fun capAt(i: Float, low: Float, high: Float): Float {
             return when {
-                i<low -> low
+                i < low -> low
                 i > high -> high
                 else -> i
             }
         }
+
+
+        fun capAt(i: Int, low: Int, high: Int): Int {
+            return when {
+                i < low -> low
+                i > high -> high
+                else -> i
+            }
+        }
+
         fun capAtHigh(i: Int, high: Int): Int {
             return when {
                 i > high -> high
                 else -> i
             }
         }
+
         fun capAtLow(i: Int, low: Int): Int {
             return when {
                 i < low -> low
@@ -123,15 +135,30 @@ class NumberHelper{
         }
 
         fun safeToNumber(numberString: String?, returnIfFailed: Long): Long {
-            if (numberString != null){
-                return try{
+            if (numberString != null) {
+                return try {
                     val long = numberString.toLong()
                     long
-                }catch (e: Exception){
+                } catch (e: Exception) {
                     returnIfFailed
                 }
             }
             return returnIfFailed
+        }
+
+        fun getDistanceInMeter(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+            val degreeRadianFraction = PI / 180.0
+            val distanceLatitude = degreeRadianFraction.times(lat2 - lat1)
+            val distanceLongitude = degreeRadianFraction.times(lon2 - lon1)
+
+            val radianLatitude1 = degreeRadianFraction.times(lat1)
+            val radianLatitude2 = degreeRadianFraction.times(lat2)
+
+            val part = Math.sin(distanceLatitude / 2) * Math.sin(distanceLatitude / 2) +
+                    Math.sin(distanceLongitude / 2) * Math.sin(distanceLongitude / 2) *
+                    Math.cos(radianLatitude1) * Math.cos(radianLatitude2)
+            val meterFraction = 2 * Math.atan2(Math.sqrt(part), Math.sqrt(1 - part))
+            return floor(EARTH_RADIUS_M * meterFraction,2)
         }
     }
 }

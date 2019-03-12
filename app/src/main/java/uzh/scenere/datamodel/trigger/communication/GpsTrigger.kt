@@ -58,4 +58,16 @@ class GpsTrigger(id: String?, previousId: String?, pathId: String): AbstractTrig
         return NOTHING
     }
 
+    fun getLatitudeDouble(): Double{
+        return getLatitude().toDouble()
+    }
+
+    fun getLongitudeDouble(): Double{
+        return getLongitude().toDouble()
+    }
+
+    fun getLatitudeLongitude(): String{
+        return "${getLatitude()},${getLongitude()}"
+    }
+
 }

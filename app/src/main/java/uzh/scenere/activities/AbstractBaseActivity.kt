@@ -255,12 +255,12 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
 
     var scanningWifi: Boolean = false
 
-    protected fun startWifiScan(){
+    fun startWifiScan(){
         scanningWifi = true
         wifiManager?.startScan()
     }
 
-    protected fun stopWifiScan(){
+    fun stopWifiScan(){
         scanningWifi = false
     }
 
@@ -273,7 +273,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         if (scanningWifi){
             Handler().postDelayed({
                 wifiManager?.startScan()
-            },5000)
+            },2000)
         }
     }
 

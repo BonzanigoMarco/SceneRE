@@ -22,8 +22,7 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import uzh.scenere.const.Constants
 import android.support.v4.content.ContextCompat.startActivity
-
-
+import uzh.scenere.const.Constants.Companion.TWO_SEC_MS
 
 
 class CommunicationHelper private constructor () {
@@ -94,7 +93,7 @@ class CommunicationHelper private constructor () {
             } catch (e: SettingNotFoundException) {
                 return false
             }
-            return if (locationMode != Settings.Secure.LOCATION_MODE_HIGH_ACCURACY) unregisterGpsListener(context) else (ignoreListener || SreLocationListener.exists())
+            return if (locationMode != Settings.Secure.LOCATION_MODE_HIGH_ACCURACY) unregisterGpsListener(context) else (ignoreListener || registerGpsListener(context))
         }
 
         private fun enable(context: Activity, communications: Communications): Boolean{
@@ -199,6 +198,34 @@ class CommunicationHelper private constructor () {
             return Communications.values()
         }
 
+
+        enum class WiFiStrength(val strength: Int) {
+            EXCELLENT(5),GOOD(4),FAIR(3),WEAK(2),FAINT(1);
+
+            companion object {
+                fun getStringValues(): ArrayList<String>{
+                    val list = ArrayList<String>()
+                    for (value in values()){
+                        list.add(value.toString())
+                    }
+                    return list
+                }
+            }
+        }
+
+        fun getWifiStrength(dB: Int): WiFiStrength{
+            return if (dB >= -50){
+                WiFiStrength.EXCELLENT
+            }else if (dB < -50 && dB >= -60){
+                WiFiStrength.GOOD
+            }else if (dB < -60 && dB >= -70){
+                WiFiStrength.FAIR
+            }else if (dB < -70 && dB >= -80){
+                WiFiStrength.WEAK
+            }else
+                WiFiStrength.FAINT
+        }
+
         @SuppressLint("ObsoleteSdkInt")
         fun isInAirplaneMode(context: Context): Boolean{
             return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -222,11 +249,12 @@ class CommunicationHelper private constructor () {
                 return true
             }
             val locationManager = activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000L, 2f, SreLocationListener.get()) //5s, 2m, parametrize -> TODO
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, SreLocationListener.get())
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0f, SreLocationListener.get())
             return true
         }
 
-        private fun unregisterGpsListener(activity: Activity): Boolean{
+        fun unregisterGpsListener(activity: Activity): Boolean{
             if (SreLocationListener.exists()){
                 val locationManager = activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
                 locationManager.removeUpdates(SreLocationListener.get())
@@ -241,11 +269,18 @@ class CommunicationHelper private constructor () {
             }
             return SreLocationListener.get().getMapIntent()
         }
+        fun getMapIntent(lat: Double, lon: Double): Intent{
+            return Intent(Intent.ACTION_VIEW, Uri.parse("https://maps.google.com/?q=$lat,$lon"))
+        }
 
         class SreLocationListener private constructor(): LocationListener {
+            private var longitude: Double? = null
+            private var latitude: Double? = null
+
+            fun getLatitudeLongitude(): Pair<Double?, Double?> {
+                return Pair(latitude, longitude)
+            }
             companion object {
-                private var longitude: Double? = null
-                private var latitude: Double? = null
 
                 // Volatile: writes to this field are immediately made visible to other threads.
                 @Volatile private var instance : SreLocationListener? = null

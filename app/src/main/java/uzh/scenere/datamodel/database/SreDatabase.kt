@@ -260,7 +260,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                 values.put(ElementTableEntry.TYPE, TYPE_NFC_TRIGGER)
             }
             is WifiTrigger -> {
-                values.put(ElementTableEntry.TITLE, element.ssid) //Carrier
+                values.put(ElementTableEntry.TITLE, element.ssidAndStrength) //Carrier
                 values.put(ElementTableEntry.TEXT, element.text)
                 values.put(ElementTableEntry.TYPE, TYPE_WIFI_TRIGGER)
             }
@@ -724,7 +724,10 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
-                    TYPE_BLUETOOTH_TRIGGER -> {/*TODO*/}
+                    TYPE_BLUETOOTH_TRIGGER -> {
+                        val trigger = BluetoothTrigger(id, prevId, path.id).withText(text).withDeviceId(additionalInfo)
+                        trigger.changeTimeMs = readVersioning(id)
+                        elements.add(trigger)}
                     TYPE_GPS_TRIGGER -> {
                         val trigger = GpsTrigger(id, prevId, path.id).withText(text).withGpsData(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
@@ -737,7 +740,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         elements.add(trigger)
                     }
                     TYPE_WIFI_TRIGGER -> {
-                        val trigger = WifiTrigger(id, prevId, path.id).withText(text).withSsid(additionalInfo)
+                        val trigger = WifiTrigger(id, prevId, path.id).withText(text).withSsidAndStrength(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }

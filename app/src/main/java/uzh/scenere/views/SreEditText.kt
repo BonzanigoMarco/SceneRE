@@ -27,7 +27,9 @@ open class SreEditText(context: Context, parent: ViewGroup?, text: String? = nul
     }
 
     init {
-        setHint(hint?.replace(context.getString(R.string.input_optional), Constants.NOTHING)?.replace(context.getString(R.string.regex_possible), Constants.NOTHING))
+        setHint(hint?.replace(context.getString(R.string.input_optional), Constants.NOTHING)
+                ?.replace(context.getString(R.string.regex_possible), Constants.NOTHING)
+                ?.replace(context.getString(R.string.editor_gps_warning_replace), context.getString(R.string.editor_gps_formatting)))
         setText(text)
         create(context, parent)
     }

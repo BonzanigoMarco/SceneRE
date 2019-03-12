@@ -17,6 +17,8 @@ import uzh.scenere.const.Constants.Companion.ARROW_RIGHT
 import uzh.scenere.const.Constants.Companion.BOLD_END
 import uzh.scenere.const.Constants.Companion.BOLD_START
 import uzh.scenere.const.Constants.Companion.BREAK
+import uzh.scenere.const.Constants.Companion.COMMA
+import uzh.scenere.const.Constants.Companion.COORDINATES_PATTERN
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT
@@ -547,12 +549,11 @@ class EditorActivity : AbstractManagementActivity() {
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is GpsTrigger -> {/*TODO*/
-                    creationUnitClass = BluetoothTrigger::class
+                    creationUnitClass = GpsTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_gps))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.getLatitude(), false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.getLongitude(), false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, element.getRadius().toString(), false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.NUMBER_EDIT, element.getRadius().toString(), false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.getLatitudeLongitude(), false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is NfcTrigger -> {
@@ -566,7 +567,16 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = WifiTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_wifi))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.ssid, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.getSsid(), false, -1))
+                    val array = addToArrayBefore(CommunicationHelper.Companion.WiFiStrength.getStringValues().toTypedArray(),NOTHING)
+                    var position = 0
+                    val strength = element.getStrength()
+                    for (p in array.indices){
+                        if (array[p] == strength){
+                            position = p
+                        }
+                    }
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT_WITH_PRESET_POSITION.plus(position), false, -1, array))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is CallTrigger -> {/*TODO*/
@@ -652,9 +662,8 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = GpsTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_gps))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.NUMBER_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED) }
                 resources.getString(R.string.trigger_nfc) -> {
                     creationUnitClass = NfcTrigger::class
@@ -668,6 +677,8 @@ class EditorActivity : AbstractManagementActivity() {
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_wifi))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    val array = addToArrayBefore(CommunicationHelper.Companion.WiFiStrength.getStringValues().toTypedArray(),NOTHING)
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT, false, -1, array))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_call) -> {/*TODO*/
@@ -865,9 +876,15 @@ class EditorActivity : AbstractManagementActivity() {
             GpsTrigger::class -> {/*TODO*/
                 val text = inputMap[elementAttributes[0]]!!.getStringValue()
                 val radius = inputMap[elementAttributes[1]]!!.getStringValue()
-                val latitude = inputMap[elementAttributes[2]]!!.getStringValue()
-                val longitude = inputMap[elementAttributes[3]]!!.getStringValue()
-                addAndRenderElement(GpsTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withGpsData(radius,latitude,longitude))
+                val latitudeLongitude = inputMap[elementAttributes[2]]!!.getStringValue()
+                if (!latitudeLongitude.matches(COORDINATES_PATTERN)){
+                    notify(getString(R.string.editor_gps_warning),getString(R.string.editor_gps_warning_text))
+                }else{
+                    val split = latitudeLongitude.split(COMMA)
+                    val latitude = split[0]
+                    val longitude = split[1]
+                    addAndRenderElement(GpsTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withGpsData(radius,latitude,longitude))
+                }
             }
             NfcTrigger::class -> {
                 val text = inputMap[elementAttributes[0]]!!.getStringValue()
@@ -877,7 +894,8 @@ class EditorActivity : AbstractManagementActivity() {
             WifiTrigger::class -> {/*TODO*/
                 val text = inputMap[elementAttributes[0]]!!.getStringValue()
                 val ssid = inputMap[elementAttributes[1]]!!.getStringValue()
-                addAndRenderElement(WifiTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withSsid(ssid))
+                val strength = inputMap[elementAttributes[2]]!!.getStringValue()
+                addAndRenderElement(WifiTrigger(editUnit?.getElementId(), endPoint, activePath!!.id).withText(text).withSsidAndStrength(ssid,strength))
             }
             CallTrigger::class -> {/*TODO*/
                 val text = inputMap[elementAttributes[0]]!!.getStringValue()

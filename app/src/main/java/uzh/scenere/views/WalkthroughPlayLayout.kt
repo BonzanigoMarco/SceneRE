@@ -3,6 +3,7 @@ package uzh.scenere.views
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
+import android.net.wifi.ScanResult
 import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.view.View
@@ -10,11 +11,13 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
+import uzh.scenere.activities.WalkthroughActivity
 import uzh.scenere.const.Constants.Companion.ANONYMOUS
 import uzh.scenere.const.Constants.Companion.DASH
 import uzh.scenere.const.Constants.Companion.FIVE_MIN_MS
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.TEN_SEC_MS
+import uzh.scenere.const.Constants.Companion.TWO_SEC_MS
 import uzh.scenere.const.Constants.Companion.USER_NAME
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.ContextObject.NullContextObject
@@ -30,10 +33,7 @@ import uzh.scenere.datamodel.trigger.direct.*
 import uzh.scenere.datamodel.trigger.indirect.CallTrigger
 import uzh.scenere.datamodel.trigger.indirect.SmsTrigger
 import uzh.scenere.datamodel.trigger.indirect.SoundTrigger
-import uzh.scenere.helpers.CommunicationHelper
-import uzh.scenere.helpers.DatabaseHelper
-import uzh.scenere.helpers.DipHelper
-import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.*
 import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
@@ -77,6 +77,11 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     var state: WalkthroughState = WalkthroughState.STARTED
     //Update
     private var refresh = false
+    private var wifiDiscovered = false
+    //Link
+    private lateinit var activityLink: WalkthroughActivity
+    //Progress
+    private var loadingBar: SreLoadingBar? = null
 
     init {
         prepareLayout()
@@ -184,7 +189,6 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                             button.setExecutable {
                                 if (codeInput.text.toString() == generateCode(interactedStakeholder)){
                                     loadNextStep(context.getString(R.string.walkthrough_transition_interaction))
-                                    refresh = false
                                     notify.invoke(context.getString(R.string.walkthrough_correct_code))
                                 }else{
                                     notify.invoke(context.getString(R.string.walkthrough_incorrect_code))
@@ -208,7 +212,6 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         button.setExecutable {
                             if (inputField.text.toString() == input){
                                 loadNextStep(context.getString(R.string.walkthrough_transition_input))
-                                refresh = false
                                 notify.invoke(context.getString(R.string.walkthrough_input_correct))
                             }else{
                                 notify.invoke(context.getString(R.string.walkthrough_input_incorrect))
@@ -251,8 +254,78 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                     is BluetoothTrigger -> {/*TODO*/
                     }
                     is WifiTrigger -> {/*TODO*/
+                        val text = (second as WifiTrigger).text!!
+                        val ssid = (second as WifiTrigger).ssidAndStrength!!
+                        val titleText = generateText(null, context.getString(R.string.walkthrough_wifi_text,text), ArrayList(), arrayListOf(text,ssid))
+                        val wifiOn = CommunicationHelper.check(context, CommunicationHelper.Companion.Communications.WIFI)
+                        val scroll = SreScrollView(context,triggerLayout)
+                        scroll.addScrollElement(titleText)
+                        if (!wifiOn){
+                            val state = context.getString(R.string.x_disabled)
+                            val alertText = generateText(null, "Wi-Fi $state!",arrayListOf(state),ArrayList())
+                            val button = generateButton(context.getString(R.string.walkthrough_enable_wifi))
+                            button.setExecutable {
+                                CommunicationHelper.toggle(context, CommunicationHelper.Companion.Communications.WIFI)
+                            }
+                            scroll.addScrollElement(alertText)
+                            scroll.addScrollElement(button)
+                        }
+                        loadingBar = SreLoadingBar(context,scroll)
+                        scroll.addScrollElement(loadingBar!!)
+                        triggerLayout.addView(scroll)
+                        wifiDiscovered = false
+                        activityLink.startWifiScan()
                     }
                     is GpsTrigger -> {/*TODO*/
+                        val text = (second as GpsTrigger).text!!
+                        var state = context.getString(R.string.walkthrough_gps_evaluation)
+                        val range = (second as GpsTrigger).getRadius()
+                        val latitude = (second as GpsTrigger).getLatitudeDouble()
+                        val longitude = (second as GpsTrigger).getLongitudeDouble()
+                        var dots = "."
+                        val titleText = generateText(null, context.getString(R.string.walkthrough_gps_text,text,range,state,dots), ArrayList(), arrayListOf(text,"$range m",state))
+                        val gpsOn = CommunicationHelper.check(activityLink, CommunicationHelper.Companion.Communications.GPS)
+                        val scroll = SreScrollView(context,triggerLayout)
+                        refresh = true
+                        refresh({
+                            val latitudeLongitude = CommunicationHelper.Companion.SreLocationListener.get().getLatitudeLongitude()
+                            val newText = (second as GpsTrigger).text!!
+                            val boldWords = arrayListOf(newText, "$range m")
+                            dots = if (dots.length == 3) "." else "$dots."
+                            if (latitudeLongitude.first != null){
+                                val distanceInMeter = NumberHelper.getDistanceInMeter(latitude, longitude, latitudeLongitude.first!!, latitudeLongitude.second!!)
+                                state = context.getString(R.string.walkthrough_gps_distance,distanceInMeter.toString())
+                                if (distanceInMeter <= range){
+                                    CommunicationHelper.unregisterGpsListener(activityLink)
+                                    notify(context.getString(R.string.walkthrough_gps_destination_reached))
+                                    loadNextStep(context.getString(R.string.walkthrough_gps_destination_reached))
+                                }
+                            }
+                            boldWords.add(state)
+                            titleText.setTextWithNewBoldWords(context.getString(R.string.walkthrough_gps_text,newText,range,state,dots),*boldWords.toTypedArray())
+                        },TWO_SEC_MS)
+                        scroll.addScrollElement(titleText)
+                        if (!gpsOn){
+                            val gpsState = context.getString(R.string.x_disabled)
+                            val alertText = generateText(null, "GPS $gpsState!",arrayListOf(gpsState),ArrayList())
+                            val button = generateButton(context.getString(R.string.walkthrough_enable_gps))
+                            button.setExecutable {
+                                val toggle = CommunicationHelper.toggle(activityLink, CommunicationHelper.Companion.Communications.GPS)
+                                if (toggle){
+                                    scroll.removeScrollElement(button)
+                                }
+                            }
+                            scroll.addScrollElement(alertText)
+                            scroll.addScrollElement(button)
+                        }
+                        val openButton = generateButton(context.getString(R.string.walkthrough_open_location))
+                        openButton.setExecutable {
+                            context.startActivity(CommunicationHelper.getMapIntent(latitude,longitude))
+                        }
+                        scroll.addScrollElement(openButton)
+                        triggerLayout.addView(scroll)
+                        wifiDiscovered = false
+                        activityLink.startWifiScan()
                     }
                     is CallTrigger -> {/*TODO*/
                     }
@@ -287,12 +360,10 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     private fun refresh(function: () -> Unit, refreshRate: Long = TEN_SEC_MS) {
-        Handler().postDelayed({
             if (refresh) {
                 function()
-                Handler().postDelayed({refresh(function)},refreshRate)
+                Handler().postDelayed({refresh(function,refreshRate)},refreshRate)
             }
-        }, refreshRate)
     }
 
     private fun resolveOutro() {
@@ -342,6 +413,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     private fun loadNextStep(info: String, pathSwitch: Boolean = false) {
+        onPause()
         walkthrough.addTriggerInfo(getCurrentStep(),info,getCurrentTrigger())
         if (state != WalkthroughState.STARTED){
             walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments))
@@ -358,22 +430,48 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private fun getCurrentStep(): AbstractStep? = if (first is AbstractStep) (first as AbstractStep) else if (second is AbstractStep) (second as AbstractStep) else null
 
     fun execUseNfcData(data: String): String?{
-        if (data == getCurrentTrigger()?.id){
-            val message = (getCurrentTrigger() as NfcTrigger).message
-            loadNextStep(context.getString(R.string.walkthrough_transition_nfc_scanned))
-            return message
+        if (getCurrentTrigger() is NfcTrigger){
+            if (data == getCurrentTrigger()?.id){
+                val message = (getCurrentTrigger() as NfcTrigger).message
+                loadNextStep(context.getString(R.string.walkthrough_transition_nfc_scanned))
+                return message
+            }
+            return context.getString(R.string.walkthrough_nfc_tag_wrong)
         }
-        return context.getString(R.string.walkthrough_nfc_tag_wrong)
+        return NOTHING
+    }
+
+    fun execUseWifiData(data: ScanResult){
+        val step = getCurrentTrigger()
+        if (step is WifiTrigger){
+            val ssid = StringHelper.nvl(step.getSsid(),NOTHING)
+            if (!wifiDiscovered && (data.SSID == ssid || data.SSID.matches(ssid.toRegex()))){
+                val wifiStrength = CommunicationHelper.getWifiStrength(data.level).strength
+                val targetStrength = CommunicationHelper.Companion.WiFiStrength.valueOf(step.getStrength()).strength
+                loadingBar?.setProgress(100f/ targetStrength *wifiStrength)
+                if (wifiStrength >= targetStrength) {
+                    notify("${data.SSID} discovered!")
+                    wifiDiscovered = true
+                    loadingBar = null
+                    activityLink.stopWifiScan()
+                    loadNextStep(context.getString(R.string.walkthrough_transition_wifi_discovered))
+                }
+            }
+        }else{
+            activityLink.stopWifiScan()
+        }
     }
 
 
     fun saveAndLoadNew(interrupted: Boolean = false, reason: String? = null) {
+        onPause()
         if (interrupted){
             walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments))
             Walkthrough.WalkthroughProperty.FINAL_STATE.set(reason?: context.getString(R.string.walkthrough_final_state_cancelled, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
         }else{
             Walkthrough.WalkthroughProperty.FINAL_STATE.set(context.getString(R.string.walkthrough_final_state_complete))
         }
+        CommunicationHelper.unregisterGpsListener(activityLink)
         walkthrough.toXml(context)
         stopFunction()
     }
@@ -465,5 +563,16 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
 
     fun getComments(): Array<String>{
         return comments.toTypedArray()
+    }
+
+    fun connectActivity(walkthroughActivity: WalkthroughActivity) {
+        this.activityLink = walkthroughActivity
+    }
+
+    fun onPause() {
+        wifiDiscovered = false
+        refresh = false
+        activityLink.stopWifiScan()
+        CommunicationHelper.unregisterGpsListener(activityLink)
     }
 }

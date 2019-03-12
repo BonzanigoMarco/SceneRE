@@ -85,4 +85,8 @@ class SreScrollView(context: Context, parent: ViewGroup): ScrollView(context) {
     fun addScrollElement(view: View){
         contentHolder.addView(view)
     }
+
+    fun removeScrollElement(view: View){
+        contentHolder.removeView(view)
+    }
 }

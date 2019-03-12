@@ -21,10 +21,7 @@ import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED
 import uzh.scenere.const.Constants.Companion.NONE
 import uzh.scenere.const.Constants.Companion.READ_ONLY
 import uzh.scenere.datamodel.*
-import uzh.scenere.helpers.CollectionHelper
-import uzh.scenere.helpers.DatabaseHelper
-import uzh.scenere.helpers.ObjectHelper
-import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.*
 import uzh.scenere.views.SreContextAwareTextView
 import uzh.scenere.views.SreTutorialLayoutDialog
 import uzh.scenere.views.SwipeButton
@@ -169,6 +166,11 @@ class WalkthroughActivity : AbstractManagementActivity() {
         walkthrough_layout_selection_orientation.addView(projectLabel)
         walkthrough_layout_selection_orientation.addView(scenarioLabel)
         tutorialOpen = SreTutorialLayoutDialog(this, screenWidth, "info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+    }
+
+    override fun onPause() {
+        activeWalkthrough?.onPause()
+        super.onPause()
     }
 
     override fun onResume() {
@@ -322,9 +324,9 @@ class WalkthroughActivity : AbstractManagementActivity() {
         walkthrough_layout_selection.visibility = GONE
         walkthrough_holder.visibility = VISIBLE
         activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!],{resetToolbar()}, {stop()},notifyExecutable)
+        activeWalkthrough?.connectActivity(this)
         getContentHolderLayout().addView(activeWalkthrough)
         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_walkthrough_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
-
     }
 
     private fun stop() {
@@ -379,15 +381,22 @@ class WalkthroughActivity : AbstractManagementActivity() {
         }
     }
 
+    // DATA LINK
+    // - NFC
     override fun execUseNfcData(data: String) {
         val message = activeWalkthrough?.execUseNfcData(data)
-        notify(message)
+        if (StringHelper.hasText(message)){
+            notify(message)
+        }
     }
-
     override fun execNoDataRead() {
         notify(applicationContext.getString(R.string.nfc_no_data))
     }
 
+    // - WiFi
+    override fun execUseWifiScanResult(scanResult: ScanResult) {
+        activeWalkthrough?.execUseWifiData(scanResult)
+    }
 
     private var awaitingBackConfirmation = false
     override fun onBackPressed() {
@@ -480,12 +489,6 @@ class WalkthroughActivity : AbstractManagementActivity() {
 
     private val notifyExecutable: (String) -> Unit = {
         notify(it)
-    }
-
-    override fun execUseWifiScanResult(scanResult: ScanResult) {
-        if (scanResult.SSID == "Saphira" || scanResult.SSID.matches("Saphira(.?)*".toRegex())){
-            notify("${scanResult.SSID} discovered!")
-        }
     }
 }
 

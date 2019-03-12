@@ -98,13 +98,13 @@
     <string-array name="editor_attributes_trigger_gps">
         <item>Instruction Text</item>
         <item>Radius (m)</item>
-        <item>Latitude</item>
-        <item>Longitude</item>
+        <item>Latitude/Longitude</item>
     </string-array>
 
     <string-array name="editor_attributes_trigger_wifi">
         <item>Instruction Text</item>
         <item>SSID (Regex possible)</item>
+        <item>Signal Strength</item>
     </string-array>
 
 
@@ -261,6 +261,8 @@
     <string name="walkthrough_interaction_text">%1$s<![CDATA[<br>]]>Exchange your Interaction-Code with %2$s!<![CDATA[<br>]]>Your Code: %3$s</string>
     <string name="walkthrough_input_text">%1$s<![CDATA[<br>]]>Insert the required Input in the Field below and check it to continue.</string>
     <string name="walkthrough_nfc_text">%1$s<![CDATA[<br>]]>Scan the corresponding NFC-Tag to continue.</string>
+    <string name="walkthrough_wifi_text">%1$s<![CDATA[<br>]]>Get in reach of the Wi-Fi-Access Point to continue.<![CDATA[<br>]]>The Progress-Bar shows your proximity.</string>
+    <string name="walkthrough_gps_text">%1$s<![CDATA[<br>]]>Get in %2$d m reach of the Location to continue.<![CDATA[<br>]]>Your proximity is shown below.<![CDATA[<br>]]>%3$s%4$s</string>
     <string name="walkthrough_interaction_code">Interaction-Code</string>
     <string name="walkthrough_start_scenario">Start Scenario</string>
     <string name="walkthrough_intro">Intro</string>
@@ -272,6 +274,9 @@
     <string name="walkthrough_input_here">Write Input here</string>
     <string name="walkthrough_check_input">Check Input</string>
     <string name="walkthrough_enable_nfc">Enable NFC</string>
+    <string name="walkthrough_enable_wifi">Enable Wi-Fi</string>
+    <string name="walkthrough_enable_gps">Enable GPS</string>
+    <string name="walkthrough_open_location">Open Location</string>
     <string name="walkthrough_end_scenario">End Scenario</string>
     <string name="walkthrough_input_correct">Correct Input</string>
     <string name="walkthrough_input_incorrect">Wrong Input</string>
@@ -284,6 +289,7 @@
     <string name="walkthrough_what_if_browse">Browse available What-If Questions</string>
     <string name="walkthrough_contribute_comments">Write down your Comment and press "Add" to contribute it</string>
     <string name="walkthrough_final_state_cancelled_nfc">Cancelled on the %1$s Step, \"%2$s\" (NFC not supported)</string>
+    <string name="walkthrough_final_state_cancelled_gps">Cancelled on the %1$s Step, \"%2$s\" (GPS not supported)</string>
     <string name="walkthrough_final_state_cancelled">Cancelled on the %1$s Step, \"%2$s\"</string>
     <string name="walkthrough_final_state_cancelled_check">Cancelled on the "</string>
     <string name="walkthrough_final_state_complete">Walkthrough completed successfully</string>
@@ -409,6 +415,14 @@
     <string name="editor_nfc_loaded">Loaded, place your Phone on the Tag!</string>
     <string name="editor_nfc_cleared">NFC Data cleared!</string>
     <string name="walkthrough_nfc_tag_wrong">Wrong NFC-Tag scanned!</string>
-    <string name="x_not_supported"> not supported</string>
-    <string name="x_disabled"> disabled</string>
+    <string name="x_not_supported">not supported</string>
+    <string name="x_disabled">disabled</string>
+    <string name="walkthrough_transition_wifi_discovered">Wi-Fi discovered</string>
+    <string name="editor_gps_warning">Latitude/Longitude</string>
+    <string name="editor_gps_warning_replace">Input Latitude/Longitude</string>
+    <string name="editor_gps_formatting">e.g. 47.123456,8.123456</string>
+    <string name="editor_gps_warning_text">Wrong format. Expected: "47.123456,8.123456"</string>
+    <string name="walkthrough_gps_destination_reached">Destination reached!</string>
+    <string name="walkthrough_gps_evaluation">Evaluating Distance</string>
+    <string name="walkthrough_gps_distance">Distance: %1$s m</string>
 </resources>
