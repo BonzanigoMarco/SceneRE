@@ -19,10 +19,11 @@ import android.provider.Settings.SettingNotFoundException
 import android.util.Log
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsStatusCodes
 import uzh.scenere.const.Constants
-import android.support.v4.content.ContextCompat.startActivity
-import uzh.scenere.const.Constants.Companion.TWO_SEC_MS
 
 
 class CommunicationHelper private constructor () {
@@ -38,30 +39,24 @@ class CommunicationHelper private constructor () {
 
         private const val listenerTag: String = "SRE-GPS-Listener"
 
-        fun check(context: Activity, communications: Communications): Boolean{
-            return when (communications){
-                Communications.GPS -> {
-                    checkGpsInternal(context, false)
-                }
-                else -> check(context.applicationContext,communications)
-            }
-        }
-
-        fun check(context: Context, communications: Communications): Boolean{
+        fun check(activity: Activity, communications: Communications): Boolean{
             when (communications){
+                Communications.GPS -> {
+                    return checkGpsState(activity)
+                }
                 Communications.NETWORK -> {
-                    val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val cm = activity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                     return try {
                         val cmClass = Class.forName(cm.javaClass.name)
                         val method = cmClass.getDeclaredMethod("getMobileDataEnabled")
                         method.isAccessible = true
-                        !isInAirplaneMode(context) && method.invoke(cm) as Boolean
+                        !isInAirplaneMode(activity) && method.invoke(cm) as Boolean
                     } catch (e: Exception) {
                         false
                     }
                 }
                 Communications.WIFI -> {
-                    val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                    val wifiManager = activity.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
                     return wifiManager.isWifiEnabled
                 }
                 Communications.BLUETOOTH -> {
@@ -69,7 +64,7 @@ class CommunicationHelper private constructor () {
                     return bluetoothAdapter?.isEnabled ?: false
                 }
                 Communications.NFC -> {
-                    val nfcAdapter = NfcAdapter.getDefaultAdapter(context)
+                    val nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
                     return nfcAdapter?.isEnabled ?: false
                 }
                 else -> return false
@@ -86,69 +81,56 @@ class CommunicationHelper private constructor () {
             }
         }
 
-        private fun checkGpsInternal(context: Activity, ignoreListener: Boolean = false): Boolean {
+        private fun checkGpsState(activity: Activity): Boolean {
+            if (!PermissionHelper.check(activity,PermissionHelper.Companion.PermissionGroups.GPS)){
+                return false
+            }
             var locationMode = 0
             try {
-                locationMode = Settings.Secure.getInt(context.contentResolver, Settings.Secure.LOCATION_MODE)
+                locationMode = Settings.Secure.getInt(activity.contentResolver, Settings.Secure.LOCATION_MODE)
             } catch (e: SettingNotFoundException) {
                 return false
             }
-            return if (locationMode != Settings.Secure.LOCATION_MODE_HIGH_ACCURACY) unregisterGpsListener(context) else (ignoreListener || registerGpsListener(context))
-        }
-
-        private fun enable(context: Activity, communications: Communications): Boolean{
-            if (check(context,communications)) return true
-            when (communications){
-                Communications.GPS -> {
-                    if (checkGpsInternal(context,true)){
-                        registerGpsListener(context)
-                        return true
-                    }
-                    val locationRequest = LocationRequest.create()
-                    locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                    locationRequest.interval = 30 * 1000
-                    locationRequest.fastestInterval = 5 * 1000
-                    val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest).setAlwaysShow(true)
-                    val locationSettingsResponse = LocationServices.getSettingsClient(context).checkLocationSettings(builder.build())
-                    locationSettingsResponse.addOnCompleteListener { task ->
-                        try {
-                            task.getResult(ApiException::class.java)
-                        } catch (exception: ApiException) {
-                            when (exception.statusCode) {
-                                LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> try {
-                                    val resolvable = exception as ResolvableApiException
-                                    resolvable.startResolutionForResult(context, Constants.PERMISSION_REQUEST_GPS)
-                                } catch (e: java.lang.Exception){
-                                    //NOP
-                                }
-                            }
+            if (locationMode == Settings.Secure.LOCATION_MODE_OFF){
+                return true
+            }
+            val locationRequest = LocationRequest.create()
+            locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            locationRequest.interval = 30 * 1000
+            locationRequest.fastestInterval = 5 * 1000
+            val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest).setAlwaysShow(true)
+            val locationSettingsResponse = LocationServices.getSettingsClient(activity).checkLocationSettings(builder.build())
+            locationSettingsResponse.addOnCompleteListener { task ->
+                try {
+                    task.getResult(ApiException::class.java)
+                } catch (exception: ApiException) {
+                    when (exception.statusCode) {
+                        LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> try {
+                            val resolvable = exception as ResolvableApiException
+                            resolvable.startResolutionForResult(activity, Constants.PERMISSION_REQUEST_GPS)
+                        } catch (e: java.lang.Exception){
+                            //NOP
                         }
                     }
                 }
-                else -> return enable(context.applicationContext,communications)
             }
             return true
         }
 
-        private fun disable(context: Activity, communications: Communications): Boolean{
-            if (!check(context,communications)) return false
+        private fun enable(activity: Activity, communications: Communications): Boolean{
+            if (check(activity,communications)) return true
             when (communications){
                 Communications.GPS -> {
-                    unregisterGpsListener(context)
+                    if (checkGpsState(activity)){
+                        registerGpsListener(activity)
+                        return true
+                    }
                 }
-                else -> return disable(context.applicationContext,communications)
-            }
-            return false
-        }
-
-        private fun enable(context: Context, communications: Communications): Boolean{
-            if (check(context,communications)) return true
-            when (communications){
                 Communications.NETWORK -> {
-                    context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                    activity.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
                 }
                 Communications.WIFI -> {
-                    val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                    val wifiManager = activity.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
                     wifiManager.isWifiEnabled = true
                 }
                 Communications.BLUETOOTH -> {
@@ -156,21 +138,23 @@ class CommunicationHelper private constructor () {
                     bluetoothAdapter.enable()
                 }
                 Communications.NFC -> {
-                    context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                    activity.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
                 }
-                else -> return true
             }
             return true
         }
 
-        private fun disable(context: Context, communications: Communications): Boolean{
-            if (!check(context,communications)) return false
+        private fun disable(activity: Activity, communications: Communications): Boolean{
+            if (!check(activity,communications)) return false
             when (communications){
+                Communications.GPS -> {
+                    unregisterGpsListener(activity)
+                }
                 Communications.NETWORK -> {
-                    context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                    activity.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
                 }
                 Communications.WIFI -> {
-                    val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                    val wifiManager = activity.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
                     wifiManager.isWifiEnabled = false
                 }
                 Communications.BLUETOOTH -> {
@@ -178,9 +162,8 @@ class CommunicationHelper private constructor () {
                     bluetoothAdapter?.disable()
                 }
                 Communications.NFC -> {
-                    context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                    activity.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
                 }
-                else -> return false
             }
             return false
         }
@@ -190,14 +173,9 @@ class CommunicationHelper private constructor () {
             return if (check(context,communications)) disable(context, communications) else enable(context,communications)
         }
 
-        fun toggle(context: Context, communications: Communications): Boolean{
-            return if (check(context,communications)) disable(context, communications) else enable(context,communications)
-        }
-
         fun getCommunications(): Array<Communications> {
             return Communications.values()
         }
-
 
         enum class WiFiStrength(val strength: Int) {
             EXCELLENT(5),GOOD(4),FAIR(3),WEAK(2),FAINT(1);
@@ -242,15 +220,19 @@ class CommunicationHelper private constructor () {
             if (!PermissionHelper.check(activity,PermissionHelper.Companion.PermissionGroups.GPS)){
                 return false
             }
-            if (!checkGpsInternal(activity,true)){
+            if (!checkGpsState(activity)){
                 return false
             }
             if (SreLocationListener.exists()){
-                return true
+                if (SreLocationListener.get().isBoundToThisActivity(activity)){
+                    return true
+                }else{
+                    SreLocationListener.get().unbind()
+                }
             }
             val locationManager = activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, SreLocationListener.get())
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0f, SreLocationListener.get())
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, SreLocationListener.get().setActivity(activity))
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0f, SreLocationListener.get().setActivity(activity))
             return true
         }
 
@@ -276,10 +258,31 @@ class CommunicationHelper private constructor () {
         class SreLocationListener private constructor(): LocationListener {
             private var longitude: Double? = null
             private var latitude: Double? = null
+            private var activity: Activity? = null
 
             fun getLatitudeLongitude(): Pair<Double?, Double?> {
                 return Pair(latitude, longitude)
             }
+
+            fun setActivity(activity: Activity): SreLocationListener {
+                this.activity = activity
+                return this
+            }
+
+            fun isBoundToThisActivity(activity: Activity): Boolean {
+                if (this.activity != null && this.activity == activity){
+                    return true
+                }
+                return false
+            }
+
+            fun unbind(){
+                if (activity != null){
+                    unregisterGpsListener(activity!!)
+                }
+                activity = null
+            }
+
             companion object {
 
                 // Volatile: writes to this field are immediately made visible to other threads.

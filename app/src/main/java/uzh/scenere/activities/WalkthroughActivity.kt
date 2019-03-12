@@ -178,6 +178,11 @@ class WalkthroughActivity : AbstractManagementActivity() {
         activeWalkthrough?.resolveStepAndTrigger()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        activeWalkthrough?.resolveStepAndTrigger()
+    }
+
     private fun <T : Serializable> createButtonLabel(selectedList: ArrayList<T>, label: String): String {
         if (selectedList.isEmpty()) {
             return getString(R.string.walkthrough_button_label_failure, label)

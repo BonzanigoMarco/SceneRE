@@ -228,7 +228,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         val text = (second as NfcTrigger).text!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_nfc_text,text), ArrayList(), arrayListOf(text))
                         val nfcSupported = CommunicationHelper.supports(context, CommunicationHelper.Companion.Communications.NFC)
-                        val nfcOn = CommunicationHelper.check(context, CommunicationHelper.Companion.Communications.NFC)
+                        val nfcOn = CommunicationHelper.check(activityLink, CommunicationHelper.Companion.Communications.NFC)
                         val scroll = SreScrollView(context,triggerLayout)
                         scroll.addScrollElement(titleText)
                         if (!nfcSupported || !nfcOn){
@@ -239,7 +239,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                                 if (!nfcSupported){
                                     saveAndLoadNew(true,context.getString(R.string.walkthrough_final_state_cancelled_nfc, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
                                 }else{
-                                    CommunicationHelper.toggle(context, CommunicationHelper.Companion.Communications.NFC)
+                                    CommunicationHelper.toggle(activityLink, CommunicationHelper.Companion.Communications.NFC)
                                 }
                             }
                             scroll.addScrollElement(alertText)
@@ -257,7 +257,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         val text = (second as WifiTrigger).text!!
                         val ssid = (second as WifiTrigger).ssidAndStrength!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_wifi_text,text), ArrayList(), arrayListOf(text,ssid))
-                        val wifiOn = CommunicationHelper.check(context, CommunicationHelper.Companion.Communications.WIFI)
+                        val wifiOn = CommunicationHelper.check(activityLink, CommunicationHelper.Companion.Communications.WIFI)
                         val scroll = SreScrollView(context,triggerLayout)
                         scroll.addScrollElement(titleText)
                         if (!wifiOn){
@@ -265,7 +265,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                             val alertText = generateText(null, "Wi-Fi $state!",arrayListOf(state),ArrayList())
                             val button = generateButton(context.getString(R.string.walkthrough_enable_wifi))
                             button.setExecutable {
-                                CommunicationHelper.toggle(context, CommunicationHelper.Companion.Communications.WIFI)
+                                CommunicationHelper.toggle(activityLink, CommunicationHelper.Companion.Communications.WIFI)
                             }
                             scroll.addScrollElement(alertText)
                             scroll.addScrollElement(button)
@@ -284,7 +284,8 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         val longitude = (second as GpsTrigger).getLongitudeDouble()
                         var dots = "."
                         val titleText = generateText(null, context.getString(R.string.walkthrough_gps_text,text,range,state,dots), ArrayList(), arrayListOf(text,"$range m",state))
-                        val gpsOn = CommunicationHelper.check(activityLink, CommunicationHelper.Companion.Communications.GPS)
+                        val gpsOn = CommunicationHelper.registerGpsListener(activityLink)
+                        val gpsAllowed = PermissionHelper.check(context,PermissionHelper.Companion.PermissionGroups.GPS)
                         val scroll = SreScrollView(context,triggerLayout)
                         refresh = true
                         refresh({
@@ -310,9 +311,13 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                             val alertText = generateText(null, "GPS $gpsState!",arrayListOf(gpsState),ArrayList())
                             val button = generateButton(context.getString(R.string.walkthrough_enable_gps))
                             button.setExecutable {
-                                val toggle = CommunicationHelper.toggle(activityLink, CommunicationHelper.Companion.Communications.GPS)
-                                if (toggle){
-                                    scroll.removeScrollElement(button)
+                                if (gpsAllowed) {
+                                    val toggle = CommunicationHelper.toggle(activityLink, CommunicationHelper.Companion.Communications.GPS)
+                                    if (toggle) {
+                                        scroll.removeScrollElement(button)
+                                    }
+                                }else{
+                                    PermissionHelper.request(activityLink, PermissionHelper.Companion.PermissionGroups.GPS)
                                 }
                             }
                             scroll.addScrollElement(alertText)

@@ -171,19 +171,21 @@ class CockpitActivity : AbstractManagementActivity() {
             }
             CockpitMode.COMMUNICATIONS -> {
                 for (communication in CommunicationHelper.getCommunications()) {
-                    val granted = CommunicationHelper.check(this, communication)
-                    val swipeButton = SwipeButton(this, communication.label)
-                            .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                            .setIndividualButtonColors(if (granted) ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (granted) ContextCompat.getColor(applicationContext,R.color.srePrimarySafe) else ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
-                            .setButtonIcons(R.string.icon_cross, R.string.icon_check, null, null, null)
-                            .setButtonStates(true, true, false, false)
-                            .setAutoCollapse(true)
-                            .updateViews(true)
-                    swipeButton.dataObject = communication
-                    swipeButton.outputObject = getInfoContent()
-                    swipeButton.setExecutable(generateCommunicationExecutable(communication, swipeButton))
-                    getContentHolderLayout().addView(swipeButton)
-                    createTitle("",getContentHolderLayout()) //Spacer
+                    if (communication != CommunicationHelper.Companion.Communications.GPS){
+                        val granted = CommunicationHelper.check(this, communication)
+                        val swipeButton = SwipeButton(this, communication.label)
+                                .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                                .setIndividualButtonColors(if (granted) ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (granted) ContextCompat.getColor(applicationContext,R.color.srePrimarySafe) else ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                                .setButtonIcons(R.string.icon_cross, R.string.icon_check, null, null, null)
+                                .setButtonStates(true, true, false, false)
+                                .setAutoCollapse(true)
+                                .updateViews(true)
+                        swipeButton.dataObject = communication
+                        swipeButton.outputObject = getInfoContent()
+                        swipeButton.setExecutable(generateCommunicationExecutable(communication, swipeButton))
+                        getContentHolderLayout().addView(swipeButton)
+                        createTitle("",getContentHolderLayout()) //Spacer
+                    }
                 }
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_communications").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
