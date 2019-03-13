@@ -13,9 +13,10 @@ import android.widget.TextView
 import uzh.scenere.R
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.views.SreTextView.TextStyle.*
+import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
-open class SreTextView(context: Context, parent: ViewGroup?, label: String? = null, val style: TextStyle = LIGHT): TextView(context), ISreView {
+open class SreTextView(context: Context, parent: ViewGroup?, label: String? = null, val style: TextStyle = LIGHT): TextView(context), ISreView, Serializable {
 
     constructor(context: Context, parent: ViewGroup?, stringId: Int, TextStyle: TextStyle = LIGHT): this(context,parent,context.getString(stringId),TextStyle)
 

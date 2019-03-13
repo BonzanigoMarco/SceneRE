@@ -22,7 +22,8 @@ class PermissionHelper private constructor () {
             WIFI("Wi-Fi", R.string.permission_description_wifi_title,R.string.permission_description_wifi),
             NFC("NFC", R.string.permission_description_nfc_title,R.string.permission_description_nfc),
             SMS("SMS", R.string.permission_description_sms_title,R.string.permission_description_sms),
-            GPS("GPS", R.string.permission_description_gps_title,R.string.permission_description_gps);
+            GPS("GPS", R.string.permission_description_gps_title,R.string.permission_description_gps),
+            TELEPHONY("TELEPHONY", R.string.permission_description_telephony_title,R.string.permission_description_telephony);
 
             fun getDescription(context: Context): String {
                 return context.getString(description)
@@ -39,7 +40,8 @@ class PermissionHelper private constructor () {
                 WIFI to arrayOf(Manifest.permission.ACCESS_WIFI_STATE,Manifest.permission.CHANGE_WIFI_STATE),
                 NFC to arrayOf(Manifest.permission.NFC),
                 SMS to arrayOf(Manifest.permission.SEND_SMS,Manifest.permission.RECEIVE_SMS,Manifest.permission.READ_SMS),
-                GPS to arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION)
+                GPS to arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION),
+                TELEPHONY to arrayOf(Manifest.permission.READ_PHONE_STATE,Manifest.permission.CALL_PHONE)
         )
         fun getRequiredPermissions(context: Context): ArrayList<PermissionGroups>{
             val permissions = ArrayList<PermissionGroups>()

@@ -9,7 +9,6 @@ import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.TextView
 import uzh.scenere.R
 import uzh.scenere.activities.WalkthroughActivity
 import uzh.scenere.const.Constants.Companion.ANONYMOUS
@@ -37,10 +36,57 @@ import uzh.scenere.helpers.*
 import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
-class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, private val stakeholder: Stakeholder, private val nextStepFunction: () -> Unit, private val stopFunction: () -> Unit,  private val notify: ((String) -> Unit)) : LinearLayout(context) {
+class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, private var stakeholder: Stakeholder, private var nextStepFunction: () -> Unit, private var stopFunction: () -> Unit,  private var notify: ((String) -> Unit)) : LinearLayout(context), Serializable {
 
-    private val stepLayout: RelativeLayout = RelativeLayout(context)
-    private val triggerLayout: RelativeLayout = RelativeLayout(context)
+
+    companion object {
+        fun saveState(play: WalkthroughPlayLayout): PlayState {
+            return PlayState(
+                    play.scenario,
+                    play.stakeholder,
+//                    play.nextStepFunction,
+//                    play.stopFunction,
+//                    play.notify,
+                    play.walkthrough,
+                    play.startingTime,
+                    play.infoTime,
+                    play.whatIfTime,
+                    play.inputTime,
+                    play.layer,
+                    play.paths,
+                    play.first,
+                    play.second,
+                    play.comments,
+                    play.mode,
+                    play.backupState,
+                    play.state,
+                    play.refresh,
+                    play.wifiDiscovered)
+        }
+
+        fun loadState(play: WalkthroughPlayLayout, playState: PlayState){
+            play.scenario = playState.scenario
+            play.stakeholder = playState.stakeholder
+            play.walkthrough = playState.walkthrough
+            play.startingTime = playState.startingTime
+            play.infoTime = playState.infoTime
+            play.whatIfTime = playState.whatIfTime
+            play.inputTime = playState.inputTime
+            play.layer = playState.layer
+            play.paths = playState.paths
+            play.first = playState.first
+            play.second = playState.second
+            play.comments = playState.comments
+            play.mode = playState.mode
+            play.backupState = playState.backupState
+            play.state = playState.state
+            play.refresh = playState.refresh
+            play.wifiDiscovered = playState.wifiDiscovered
+        }
+    }
+
+    private val stepLayout: RelativeLayout = SreRelativeLayout(context)
+    private val triggerLayout: RelativeLayout = SreRelativeLayout(context)
 
     enum class WalkthroughPlayMode {
         STEP_INDUCED, TRIGGER_INDUCED
@@ -51,7 +97,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     }
 
     //Statistics
-    private val walkthrough: Walkthrough = Walkthrough.WalkthroughBuilder(DatabaseHelper.getInstance(context).read(USER_NAME,String::class, ANONYMOUS), scenario.id, stakeholder.id).build()
+    private var walkthrough: Walkthrough = Walkthrough.WalkthroughBuilder(DatabaseHelper.getInstance(context).read(USER_NAME,String::class, ANONYMOUS), scenario.id, stakeholder.id).build()
     fun getWalkthrough(): Walkthrough{
         return walkthrough
     }
@@ -66,13 +112,13 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     private var inputTime: Long = 0
     //Play
     private var layer: Int = 0
-    private val paths: HashMap<Int, Path>? = scenario.getAllPaths(stakeholder)
+    private var paths: HashMap<Int, Path>? = scenario.getAllPaths(stakeholder)
     private var first = paths?.get(layer)?.getStartingPoint()
     private var second = paths?.get(layer)?.getNextElement(first)
     //Input
-    private val comments = ArrayList<String>()
+    private var comments = ArrayList<String>()
     //State
-    private val mode: WalkthroughPlayMode = if (first is AbstractStep) WalkthroughPlayMode.STEP_INDUCED else WalkthroughPlayMode.TRIGGER_INDUCED
+    private var mode: WalkthroughPlayMode = if (first is AbstractStep) WalkthroughPlayMode.STEP_INDUCED else WalkthroughPlayMode.TRIGGER_INDUCED
     private var backupState: WalkthroughState = WalkthroughState.STARTED
     var state: WalkthroughState = WalkthroughState.STARTED
     //Update
@@ -83,11 +129,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
     //Progress
     private var loadingBar: SreLoadingBar? = null
 
-    init {
-        prepareLayout()
-    }
-
-    private fun prepareLayout() {
+    fun prepareLayout(): WalkthroughPlayLayout {
         removeAllViews()
         stepLayout.removeAllViews()
         triggerLayout.removeAllViews()
@@ -110,10 +152,12 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
             WalkthroughState.FINISHED -> resolveOutro()
             else -> {}
         }
+        return this
     }
 
     private fun resolveIntro() {
-        val text = generateText(context.getString(R.string.walkthrough_intro), scenario.intro, ArrayList(),arrayListOf("Intro"))
+        val text = generateText(context.getString(R.string.walkthrough_initiation),context.getString(R.string.walkthrough_intro_text,stakeholder.name,stakeholder.description,scenario.intro),
+                ArrayList(),arrayListOf(stakeholder.name,context.getString(R.string.walkthrough_initiation),context.getString(R.string.walkthrough_description),context.getString(R.string.walkthrough_introduction)))
         val button = generateButton(context.getString(R.string.walkthrough_start_scenario))
         button.setExecutable {
             Walkthrough.WalkthroughProperty.INTRO_TIME.set(getTime())
@@ -329,12 +373,46 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
                         }
                         scroll.addScrollElement(openButton)
                         triggerLayout.addView(scroll)
-                        wifiDiscovered = false
-                        activityLink.startWifiScan()
                     }
                     is CallTrigger -> {/*TODO*/
+                        val text = (second as CallTrigger).text!!
+                        val telephoneNr = (second as CallTrigger).telephoneNr!!
+                        val titleText = generateText(null, context.getString(R.string.walkthrough_telephone_text,text,telephoneNr), ArrayList(), arrayListOf(text,telephoneNr))
+                        val telephonyPossible = PermissionHelper.check(activityLink, PermissionHelper.Companion.PermissionGroups.TELEPHONY)
+                        val scroll = SreScrollView(context,triggerLayout)
+                        scroll.addScrollElement(titleText)
+                        if (!telephonyPossible){
+                            val state = context.getString(R.string.x_not_granted)
+                            val alertText = generateText(null, "Telephony-Permissions $state!",arrayListOf(state),ArrayList())
+                            val button = generateButton(context.getString(R.string.walkthrough_grant_permission))
+                            button.setExecutable {
+                                PermissionHelper.request(activityLink, PermissionHelper.Companion.PermissionGroups.TELEPHONY)
+                            }
+                            scroll.addScrollElement(alertText)
+                            scroll.addScrollElement(button)
+                        }
+                        triggerLayout.addView(scroll)
+                        activityLink.registerPhoneCallListener()
                     }
                     is SmsTrigger -> {/*TODO*/
+                        val text = (second as SmsTrigger).text!!
+                        val telephoneNr = (second as SmsTrigger).telephoneNr!!
+                        val titleText = generateText(null, context.getString(R.string.walkthrough_sms_text,text,telephoneNr), ArrayList(), arrayListOf(text,telephoneNr))
+                        val smsPossible = PermissionHelper.check(activityLink, PermissionHelper.Companion.PermissionGroups.SMS)
+                        val scroll = SreScrollView(context,triggerLayout)
+                        scroll.addScrollElement(titleText)
+                        if (!smsPossible){
+                            val state = context.getString(R.string.x_not_granted)
+                            val alertText = generateText(null, "SMS-Permissions $state!",arrayListOf(state),ArrayList())
+                            val button = generateButton(context.getString(R.string.walkthrough_grant_permission))
+                            button.setExecutable {
+                                PermissionHelper.request(activityLink, PermissionHelper.Companion.PermissionGroups.SMS)
+                            }
+                            scroll.addScrollElement(alertText)
+                            scroll.addScrollElement(button)
+                        }
+                        triggerLayout.addView(scroll)
+                        activityLink.registerSmsListener()
                     }
                     else -> {
                         //FALLBACK
@@ -383,7 +461,7 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         triggerLayout.addView(button)
     }
 
-    private fun generateText(title: String?, content: String?): TextView {
+    private fun generateText(title: String?, content: String?): SreTextView {
         return generateText(title,content, ArrayList(), ArrayList())
     }
 
@@ -467,6 +545,31 @@ class WalkthroughPlayLayout(context: Context, private val scenario: Scenario, pr
         }
     }
 
+    fun handlePhoneNumber(phoneNumber: String): Boolean {
+        if (getCurrentTrigger() is CallTrigger){
+            val telephoneNr = StringHelper.nvl((getCurrentTrigger() as CallTrigger).telephoneNr,NOTHING)
+            if (StringHelper.hasText(telephoneNr) && (phoneNumber == telephoneNr || phoneNumber.matches(telephoneNr.toRegex()))){
+                notify("Call from $phoneNumber received!")
+                activityLink.unregisterPhoneCallListener()
+                loadNextStep(context.getString(R.string.walkthrough_transition_call))
+                return true
+            }
+        }
+        return false
+    }
+
+    fun handleSmsData(phoneNumber: String, message: String): Boolean {
+        if (getCurrentTrigger() is SmsTrigger){
+            val telephoneNr = StringHelper.nvl((getCurrentTrigger() as SmsTrigger).telephoneNr,NOTHING)
+            if (StringHelper.hasText(telephoneNr) && (phoneNumber == telephoneNr || phoneNumber.matches(telephoneNr.toRegex()))){
+                notify("SMS from $phoneNumber received: $message")
+                activityLink.unregisterSmsListener()
+                loadNextStep(context.getString(R.string.walkthrough_transition_sms))
+                return true
+            }
+        }
+        return false
+    }
 
     fun saveAndLoadNew(interrupted: Boolean = false, reason: String? = null) {
         onPause()

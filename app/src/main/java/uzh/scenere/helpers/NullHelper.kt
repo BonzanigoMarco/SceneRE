@@ -28,6 +28,7 @@ class NullHelper private constructor(){
                 Integer::class -> 0 as T
                 Short::class -> 0 as T
                 Boolean::class -> false as T
+                ByteArray::class -> ByteArray(0) as T
                 else -> throw ClassNotFoundException()
             }
         }

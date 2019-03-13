@@ -9,9 +9,10 @@ import android.widget.LinearLayout
 import uzh.scenere.R
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.NumberHelper
+import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
-class SreLoadingBar(context: Context, parent: ViewGroup?, height: Int = DipHelper.get(context.resources).dip5): LinearLayout(context), ISreView {
+class SreLoadingBar(context: Context, parent: ViewGroup?, height: Int = DipHelper.get(context.resources).dip5): LinearLayout(context), ISreView, Serializable {
     override var parentLayout =  ISreView.ParentLayout.UNKNOWN
 
     override fun getView(): View {

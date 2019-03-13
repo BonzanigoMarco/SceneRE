@@ -103,24 +103,24 @@
 
     <string-array name="editor_attributes_trigger_wifi">
         <item>Instruction Text</item>
-        <item>SSID (Regex possible)</item>
+        <item>SSID (Regex avail.)</item>
         <item>Signal Strength</item>
     </string-array>
 
 
     <string-array name="editor_attributes_trigger_bt">
         <item>Instruction Text</item>
-        <item>Device-Id (Regex possible)</item>
+        <item>Device-Id (Regex avail.)</item>
     </string-array>
 
     <string-array name="editor_attributes_trigger_call">
         <item>Instruction Text</item>
-        <item>Telephone-Nr.</item>
+        <item>Phone-Nr./Regex</item>
     </string-array>
 
     <string-array name="editor_attributes_trigger_sms">
         <item>Instruction Text</item>
-        <item>Telephone-Nr.</item>
+        <item>Phone-Nr./Regex</item>
     </string-array>
 
     <string name="spinner_none">[Select a Type first]</string>
@@ -180,6 +180,7 @@
     <string name="permission_description_nfc_title">NFC-Permissions</string>
     <string name="permission_description_sms_title">SMS-Permissions</string>
     <string name="permission_description_gps_title">GPS-Permissions</string>
+    <string name="permission_description_telephony_title">Telephony-Permissions</string>
     <string name="permission_description_network">Network-Permissions\n\nUsed to connect to the Internet.</string>
     <string name="permission_description_storage">Storage-Permissions\n\nUsed to store Data and Settings.</string>
     <string name="permission_description_audio">Audio-Permissions (Optional)\n\nUsed to record Audio-Memos.</string>
@@ -188,6 +189,7 @@
     <string name="permission_description_nfc">NFC-Permissions\n\nUsed to interact with other Stakeholders.</string>
     <string name="permission_description_sms">SMS-Permissions\n\nUsed for special Triggers.</string>
     <string name="permission_description_gps">GPS-Permissions\n\nUsed for special Triggers.</string>
+    <string name="permission_description_telephony">Telephony-Permissions\n\nUsed for special Triggers.</string>
 
     <!--General-->
     <string name="empty" />
@@ -263,9 +265,14 @@
     <string name="walkthrough_nfc_text">%1$s<![CDATA[<br>]]>Scan the corresponding NFC-Tag to continue.</string>
     <string name="walkthrough_wifi_text">%1$s<![CDATA[<br>]]>Get in reach of the Wi-Fi-Access Point to continue.<![CDATA[<br>]]>The Progress-Bar shows your proximity.</string>
     <string name="walkthrough_gps_text">%1$s<![CDATA[<br>]]>Get in %2$d m reach of the Location to continue.<![CDATA[<br>]]>Your proximity is shown below.<![CDATA[<br>]]>%3$s%4$s</string>
+    <string name="walkthrough_telephone_text">%1$s<![CDATA[<br>]]>Wait for a call to continue.<![CDATA[<br>]]>Number-Pattern: %2$s.<![CDATA[<br>]]></string>
+    <string name="walkthrough_sms_text">%1$s<![CDATA[<br>]]>Wait for an SMS to continue.<![CDATA[<br>]]>Number-Pattern: %2$s.<![CDATA[<br>]]></string>
     <string name="walkthrough_interaction_code">Interaction-Code</string>
     <string name="walkthrough_start_scenario">Start Scenario</string>
-    <string name="walkthrough_intro">Intro</string>
+    <string name="walkthrough_initiation">Initiation</string>
+    <string name="walkthrough_description">Description</string>
+    <string name="walkthrough_introduction">Introduction</string>
+    <string name="walkthrough_intro_text">In this Walkthrough you play as %1$s<![CDATA[<br>]]>Description: %2$s<![CDATA[<br>]]>Introduction: %3$s</string>
     <string name="walkthrough_question_option">Question [%1$d Option(s)]:</string>
     <string name="walkthrough_outro">Outro</string>
     <string name="walkthrough_statistics">Statistics</string>
@@ -275,6 +282,7 @@
     <string name="walkthrough_check_input">Check Input</string>
     <string name="walkthrough_enable_nfc">Enable NFC</string>
     <string name="walkthrough_enable_wifi">Enable Wi-Fi</string>
+    <string name="walkthrough_grant_permission">Grant Permissions</string>
     <string name="walkthrough_enable_gps">Enable GPS</string>
     <string name="walkthrough_open_location">Open Location</string>
     <string name="walkthrough_end_scenario">End Scenario</string>
@@ -409,7 +417,7 @@
     <string name="nfc_no_data">No data on the NFC-Tag!</string>
 
     <string name="input_optional">(Optional)</string>
-    <string name="regex_possible">(Regex possible)</string>
+    <string name="regex_possible">/Regex</string>
 
     <string name="editor_nfc_data">NFC Data</string>
     <string name="editor_nfc_loaded">Loaded, place your Phone on the Tag!</string>
@@ -417,7 +425,10 @@
     <string name="walkthrough_nfc_tag_wrong">Wrong NFC-Tag scanned!</string>
     <string name="x_not_supported">not supported</string>
     <string name="x_disabled">disabled</string>
+    <string name="x_not_granted">not granted</string>
     <string name="walkthrough_transition_wifi_discovered">Wi-Fi discovered</string>
+    <string name="walkthrough_transition_call">Call received</string>
+    <string name="walkthrough_transition_sms">SMS received</string>
     <string name="editor_gps_warning">Latitude/Longitude</string>
     <string name="editor_gps_warning_replace">Input Latitude/Longitude</string>
     <string name="editor_gps_formatting">e.g. 47.123456,8.123456</string>

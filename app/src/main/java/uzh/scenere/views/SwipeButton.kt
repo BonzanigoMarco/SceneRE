@@ -583,7 +583,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         execute()
     }
 
-    private fun reset() {
+    fun reset() {
         val positionXAnimator = createAnimator(Direction.X, animationDuration)
         val positionYAnimator = createAnimator(Direction.Y, animationDuration)
 

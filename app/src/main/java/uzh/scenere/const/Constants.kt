@@ -5,12 +5,17 @@ class Constants {
         const val APPLICATION_ID: String = "uzh.scenere.SceneRe"
         //Kotlin
         const val REFLECTION: String = " (Kotlin reflection is not available)"
+        //Android
+        const val PHONE_STATE: String = "android.intent.action.PHONE_STATE"
+        const val NEW_OUTGOING_CALL: String = "android.intent.action.NEW_OUTGOING_CALL"
+        const val SMS_RECEIVED: String = "android.provider.Telephony.SMS_RECEIVED"
         //Storage
         const val SHARED_PREFERENCES: String = "scenereSharedPreferences"
         const val USER_NAME: String = "scenereUserName"
         const val USER_ID: String = "scenereUserId"
         const val IMPORT_FOLDER: String = "scenereImportFolder"
         const val ANONYMOUS: String = "John Doe"
+        const val WALKTHROUGH_PLAY_STATE: String = "scenereWalkthroughPlayState"
         //NUMBERS
         val COORDINATES_PATTERN: Regex = "-?[1]?[0-9]{1,2}\\.[0-9]{1,6},-?[1]?[0-9]{1,2}\\.[0-9]{1,6}".toRegex()
         const val EARTH_RADIUS_M: Double = 6371000.0

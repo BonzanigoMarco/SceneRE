@@ -11,9 +11,10 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import uzh.scenere.R
+import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
-open class SreButton(context: Context, parent: ViewGroup?, label: String?, height: Int? = null, width: Int? = null, val style: ButtonStyle = ButtonStyle.LIGHT): Button(context), ISreView {
+open class SreButton(context: Context, parent: ViewGroup?, label: String?, height: Int? = null, width: Int? = null, val style: ButtonStyle = ButtonStyle.LIGHT): Button(context), ISreView, Serializable {
 
     constructor(context: Context, parent: ViewGroup?, stringId: Int, height: Int? = null, width: Int? = null): this(context,parent,context.getString(stringId),height,width)
 

@@ -26,6 +26,9 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.telephony.PhoneStateListener
+import android.telephony.SmsMessage
+import android.telephony.TelephonyManager
 import android.text.SpannedString
 import android.util.DisplayMetrics
 import android.view.Gravity
@@ -40,10 +43,14 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.MILLION
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.PHONE_STATE
+import uzh.scenere.const.Constants.Companion.SMS_RECEIVED
 import uzh.scenere.const.Constants.Companion.ZERO
-import uzh.scenere.helpers.*
+import uzh.scenere.helpers.DipHelper
+import uzh.scenere.helpers.NumberHelper
+import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.removeFirst
 import java.io.IOException
-import java.lang.Exception
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -63,6 +70,10 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     private var nfcReady = false
     //WiFi
     private var wifiManager: WifiManager? = null
+    //Telephone
+    private var srePhoneReceiver: SrePhoneReceiver? = null
+    //SMS
+    private var sreSmsReceiver: SreSmsReceiver? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,13 +122,21 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         if (nfcAdapter != null && pendingIntent != null){
             nfcAdapter!!.enableForegroundDispatch(this, pendingIntent, null, null)
         }
+        resumePhoneCallListener()
     }
 
     override fun onPause() {
         if (nfcAdapter != null) {
             nfcAdapter!!.disableForegroundDispatch(this)
         }
+        pausePhoneCallListener()
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        unregisterPhoneCallListener()
+        unregisterSmsListener()
+        super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -498,7 +517,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
                 }
                 val v0 = searchForLayout(view.getChildAt(v),clazz)
                 if (v0 != null){
-                    return v0 as T
+                    return v0
                 }
             }
         }
@@ -519,5 +538,180 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             holder.removeViewAt(holder.childCount-1)
         }
         removeExcept(holder,exception)
+    }
+
+    fun registerPhoneCallListener(){
+        srePhoneReceiver = SrePhoneReceiver(handlePhoneCall)
+        resumePhoneCallListener()
+    }
+
+    fun unregisterPhoneCallListener(){
+        pausePhoneCallListener()
+        srePhoneReceiver = null
+    }
+
+    private fun resumePhoneCallListener(){
+        if (srePhoneReceiver != null){
+            srePhoneReceiver!!.registerListener(applicationContext)
+            val phoneCallFilter = IntentFilter()
+            phoneCallFilter.addAction(PHONE_STATE)
+            registerReceiver(srePhoneReceiver,phoneCallFilter)
+        }
+    }
+
+    private fun pausePhoneCallListener(){
+        if (srePhoneReceiver != null){
+            try{
+                val telephonyManager = applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                telephonyManager.listen(null,PhoneStateListener.LISTEN_NONE)
+                unregisterReceiver(srePhoneReceiver)
+            }catch(e: Exception){
+                //NOP
+            }
+        }
+    }
+
+    open fun handlePhoneNumber(phoneNumber: String): Boolean {
+        return false
+    }
+
+    private val handlePhoneCall: (Context?, String) -> Boolean = { context: Context?, phoneNumber: String ->
+        var hangUp = false
+        if (handlePhoneNumber(phoneNumber)) {
+            try {
+                val telephonyManager = context?.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+
+                val methodGetITelephony = telephonyManager.javaClass.getDeclaredMethod("getITelephony")
+
+                methodGetITelephony.isAccessible = true
+
+                val telephonyInterface = methodGetITelephony.invoke(telephonyManager)
+
+                val methodEndCall = telephonyInterface.javaClass.getDeclaredMethod("endCall")
+
+                methodEndCall.invoke(telephonyInterface)
+                hangUp = true
+
+            } catch (e: java.lang.Exception) {
+                //NOP
+            }
+        }
+        hangUp
+    }
+
+    class SrePhoneReceiver(private val handlePhoneCall: (Context?, String) -> Boolean) : BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            registerListener(context)
+            if (intent?.action == PHONE_STATE) {
+                val state = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
+
+                if (state == TelephonyManager.EXTRA_STATE_IDLE) {
+                } else if (state == TelephonyManager.EXTRA_STATE_RINGING) {
+                    val telephoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
+                    if (!handlePhoneCall.invoke(context, telephoneNumber)) {
+
+                    }
+                } else if (state == TelephonyManager.EXTRA_STATE_OFFHOOK) {
+
+                }
+            } else {
+                //NOP
+            }
+        }
+
+        fun registerListener(context: Context?) {
+            val phoneListener = SrePhoneStateListener(context)
+            val telephonyManager = context?.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            telephonyManager.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE)
+        }
+    }
+
+    class SrePhoneStateListener(val context: Context?): PhoneStateListener() {
+        var isPhoneCalling = false
+        override fun onCallStateChanged(state: Int, incomingNumber: String?) {
+            if (TelephonyManager.CALL_STATE_OFFHOOK == state) {
+                isPhoneCalling = true
+            }
+            if (TelephonyManager.CALL_STATE_IDLE == state && isPhoneCalling) {
+                val intent = context?.packageManager?.getLaunchIntentForPackage(context.packageName)
+                intent?.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                context?.startActivity(intent)
+
+                isPhoneCalling = false
+            }
+        }
+    }
+
+    fun registerSmsListener(){
+        sreSmsReceiver = SreSmsReceiver(handleSms)
+        resumeSmsListener()
+    }
+
+    fun unregisterSmsListener(){
+        pauseSmsListener()
+        sreSmsReceiver = null
+    }
+
+    private fun resumeSmsListener(){
+        if (sreSmsReceiver != null){
+            val smsFilter = IntentFilter()
+            smsFilter.addAction(SMS_RECEIVED)
+            registerReceiver(sreSmsReceiver,smsFilter)
+        }
+    }
+
+    private fun pauseSmsListener(){
+        if (sreSmsReceiver != null){
+            try{
+                unregisterReceiver(sreSmsReceiver)
+            }catch(e: Exception){
+                //NOP
+            }
+        }
+    }
+
+    open fun handleSmsData(phoneNumber: String, message: String): Boolean {
+        return false
+    }
+
+    private val handleSms: (String, String) -> Boolean = { phoneNumber: String, message: String ->
+        if (handleSmsData(phoneNumber,message)) {
+            //NOP
+        }
+        true
+    }
+
+    class SreSmsReceiver(private val handleSms: (String, String) -> Boolean) : BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == SMS_RECEIVED) {
+                val bundle = intent.getExtras()
+                if (bundle != null) {
+                    val pdus = bundle.get("pdus")
+                    if (pdus is Array<*>) {
+                        for (obj in pdus) {
+                            val currentSMS = getIncomingMessage(obj, bundle)
+
+                            val senderNo = currentSMS.displayOriginatingAddress
+                            val message = currentSMS.displayMessageBody
+                            handleSms.invoke(senderNo,message)
+                        }
+                        this.abortBroadcast()
+                        // End of loop
+                    }
+                }
+            }
+        }
+
+        private fun getIncomingMessage(obj: Any?, bundle: Bundle): SmsMessage {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val format = bundle.getString ("format")
+                return SmsMessage.createFromPdu(obj as ByteArray, format)
+            } else {
+                return SmsMessage.createFromPdu(obj as ByteArray)
+            }
+        }
+
     }
 }

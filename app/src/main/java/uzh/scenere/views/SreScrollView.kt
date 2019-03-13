@@ -12,9 +12,10 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.ScrollView
 import uzh.scenere.R
+import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
-class SreScrollView(context: Context, parent: ViewGroup): ScrollView(context) {
+class SreScrollView(context: Context, parent: ViewGroup): ScrollView(context), Serializable {
     
     private val contentHolder = LinearLayout(context)
 

@@ -15,10 +15,11 @@ import uzh.scenere.const.Constants
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.views.SreEditText.EditStyle.DARK
 import uzh.scenere.views.SreEditText.EditStyle.LIGHT
+import java.io.Serializable
 
 
 @SuppressLint("ViewConstructor")
-open class SreEditText(context: Context, parent: ViewGroup?, text: String? = null, hint: String? = null, val style: EditStyle = DARK) : EditText(context), ISreView {
+open class SreEditText(context: Context, parent: ViewGroup?, text: String? = null, hint: String? = null, val style: EditStyle = DARK) : EditText(context), ISreView, Serializable {
 
     override var parentLayout = ISreView.ParentLayout.UNKNOWN
 

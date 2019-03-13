@@ -20,6 +20,7 @@ import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED
 import uzh.scenere.const.Constants.Companion.NONE
 import uzh.scenere.const.Constants.Companion.READ_ONLY
+import uzh.scenere.const.Constants.Companion.WALKTHROUGH_PLAY_STATE
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.*
 import uzh.scenere.views.SreContextAwareTextView
@@ -28,7 +29,7 @@ import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.WalkthroughPlayLayout
 import java.io.Serializable
 
-class WalkthroughActivity : AbstractManagementActivity() {
+class WalkthroughActivity : AbstractManagementActivity(), Serializable {
 
     override fun isInEditMode(): Boolean {
         return CollectionHelper.oneOf(mode,WalkthroughMode.INFO,WalkthroughMode.WHAT_IF,WalkthroughMode.INPUT)
@@ -166,6 +167,29 @@ class WalkthroughActivity : AbstractManagementActivity() {
         walkthrough_layout_selection_orientation.addView(projectLabel)
         walkthrough_layout_selection_orientation.addView(scenarioLabel)
         tutorialOpen = SreTutorialLayoutDialog(this, screenWidth, "info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        restoreWalkthroughIfPossible()
+    }
+
+    override fun onDestroy() {
+        backupWalkthroughIfNecessary()
+        super.onDestroy()
+    }
+
+    private fun restoreWalkthroughIfPossible() {
+        val bytes = DatabaseHelper.getInstance(applicationContext).read(WALKTHROUGH_PLAY_STATE, ByteArray::class, NullHelper.get(ByteArray::class), DatabaseHelper.DataMode.PREFERENCES)
+        if (bytes.isNotEmpty()) {
+            play(DataHelper.toObject(bytes, PlayState::class))
+        }
+        DatabaseHelper.getInstance(applicationContext).delete(WALKTHROUGH_PLAY_STATE, ByteArray::class, DatabaseHelper.DataMode.PREFERENCES)
+    }
+
+    private fun backupWalkthroughIfNecessary() {
+        if (activeWalkthrough != null && activeWalkthrough?.state != WalkthroughPlayLayout.WalkthroughState.FINISHED) {
+            val serialized = DataHelper.toByteArray(WalkthroughPlayLayout.saveState(activeWalkthrough!!))
+            if (serialized.isNotEmpty()) {
+                DatabaseHelper.getInstance(applicationContext).write(WALKTHROUGH_PLAY_STATE, serialized, DatabaseHelper.DataMode.PREFERENCES)
+            }
+        }
     }
 
     override fun onPause() {
@@ -175,7 +199,9 @@ class WalkthroughActivity : AbstractManagementActivity() {
 
     override fun onResume() {
         super.onResume()
-        activeWalkthrough?.resolveStepAndTrigger()
+        if (activeWalkthrough?.state == WalkthroughPlayLayout.WalkthroughState.PLAYING){
+            activeWalkthrough?.resolveStepAndTrigger()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -323,14 +349,19 @@ class WalkthroughActivity : AbstractManagementActivity() {
         }
     }
 
-    private fun play() {
+    private fun play(playState: PlayState? = null) {
         mode = WalkthroughMode.PLAY
         walkthrough_layout_selection_content.visibility = GONE
         walkthrough_layout_selection.visibility = GONE
         walkthrough_holder.visibility = VISIBLE
-        activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!],{resetToolbar()}, {stop()},notifyExecutable)
+        if (playState != null){
+            activeWalkthrough = WalkthroughPlayLayout(applicationContext,NullHelper.get(Scenario::class), NullHelper.get(Stakeholder::class), { resetToolbar() }, { stop() }, notifyExecutable)
+            WalkthroughPlayLayout.loadState(activeWalkthrough!!,playState)
+        }else {
+            activeWalkthrough = WalkthroughPlayLayout(applicationContext, scenarioContext!!, loadedStakeholders[pointer!!], { resetToolbar() }, { stop() }, notifyExecutable)
+        }
         activeWalkthrough?.connectActivity(this)
-        getContentHolderLayout().addView(activeWalkthrough)
+        getContentHolderLayout().addView(activeWalkthrough?.prepareLayout())
         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_walkthrough_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
@@ -348,6 +379,7 @@ class WalkthroughActivity : AbstractManagementActivity() {
         activeWalkthrough = null
         getContentHolderLayout().removeAllViews()
         resetToolbar()
+        creationButton?.reset()
     }
 
     private fun objectInfoSelected() {
@@ -401,6 +433,20 @@ class WalkthroughActivity : AbstractManagementActivity() {
     // - WiFi
     override fun execUseWifiScanResult(scanResult: ScanResult) {
         activeWalkthrough?.execUseWifiData(scanResult)
+    }
+
+    override fun handlePhoneNumber(phoneNumber: String): Boolean {
+        if (activeWalkthrough != null){
+            return activeWalkthrough!!.handlePhoneNumber(phoneNumber)
+        }
+        return super.handlePhoneNumber(phoneNumber)
+    }
+
+    override fun handleSmsData(phoneNumber: String, message: String): Boolean {
+        if (activeWalkthrough != null){
+            return activeWalkthrough!!.handleSmsData(phoneNumber,message)
+        }
+        return super.handleSmsData(phoneNumber, message)
     }
 
     private var awaitingBackConfirmation = false

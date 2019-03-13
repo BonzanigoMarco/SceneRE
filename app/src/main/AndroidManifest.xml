@@ -19,6 +19,9 @@
     <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
 
     <uses-feature android:name="android.hardware.nfc" />
 
@@ -30,11 +33,12 @@
         android:supportsRtl="true"
         android:fullBackupContent="true"
         android:theme="@style/SceneReTheme"
-        android:configChanges="keyboardHidden|orientation|screenSize"
+        android:configChanges="keyboardHidden|orientation|screenSize|layoutDirection|screenLayout"
         android:windowSoftInputMode="adjustNothing"
         android:screenOrientation="portrait"
         android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning">
+
         <activity android:name=".activities.MainMenuActivity"
             android:theme="@style/SceneReToolbarTheme">
             <intent-filter>
