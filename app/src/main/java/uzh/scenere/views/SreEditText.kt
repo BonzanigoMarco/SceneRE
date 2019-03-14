@@ -13,6 +13,7 @@ import android.widget.RelativeLayout
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.helpers.DipHelper
+import uzh.scenere.helpers.StringHelper
 import uzh.scenere.views.SreEditText.EditStyle.DARK
 import uzh.scenere.views.SreEditText.EditStyle.LIGHT
 import java.io.Serializable
@@ -28,9 +29,7 @@ open class SreEditText(context: Context, parent: ViewGroup?, text: String? = nul
     }
 
     init {
-        setHint(hint?.replace(context.getString(R.string.input_optional), Constants.NOTHING)
-                ?.replace(context.getString(R.string.regex_possible), Constants.NOTHING)
-                ?.replace(context.getString(R.string.editor_gps_warning_replace), context.getString(R.string.editor_gps_formatting)))
+        setHint(StringHelper.applyFilters(hint,context))
         setText(text)
         create(context, parent)
     }

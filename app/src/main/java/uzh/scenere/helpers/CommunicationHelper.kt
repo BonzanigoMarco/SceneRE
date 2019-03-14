@@ -117,7 +117,7 @@ class CommunicationHelper private constructor () {
             return true
         }
 
-        private fun enable(activity: Activity, communications: Communications): Boolean{
+        fun enable(activity: Activity, communications: Communications): Boolean{
             if (check(activity,communications)) return true
             when (communications){
                 Communications.GPS -> {
@@ -144,7 +144,7 @@ class CommunicationHelper private constructor () {
             return true
         }
 
-        private fun disable(activity: Activity, communications: Communications): Boolean{
+        fun disable(activity: Activity, communications: Communications): Boolean{
             if (!check(activity,communications)) return false
             when (communications){
                 Communications.GPS -> {

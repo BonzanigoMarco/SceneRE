@@ -17,6 +17,7 @@
         <item>@string/trigger_stakeholder_interaction</item>
         <item>@string/trigger_input</item>
         <item>@string/trigger_nfc</item>
+        <item>@string/trigger_bt</item>
         <item>@string/trigger_wifi</item>
         <item>@string/trigger_gps</item>
         <item>@string/trigger_call</item>
@@ -92,7 +93,7 @@
 
     <string-array name="editor_attributes_trigger_sound">
         <item>Instruction Text</item>
-        <item>Sound-Barrier (dB)</item>
+        <item>Threshold (dB)</item>
     </string-array>
 
     <string-array name="editor_attributes_trigger_gps">
@@ -103,14 +104,14 @@
 
     <string-array name="editor_attributes_trigger_wifi">
         <item>Instruction Text</item>
-        <item>SSID (Regex avail.)</item>
+        <item>SSID/Regex</item>
         <item>Signal Strength</item>
     </string-array>
 
 
     <string-array name="editor_attributes_trigger_bt">
         <item>Instruction Text</item>
-        <item>Device-Id (Regex avail.)</item>
+        <item>Device-Name/Regex</item>
     </string-array>
 
     <string-array name="editor_attributes_trigger_call">
@@ -138,7 +139,7 @@
     <string name="trigger_button">Button</string>
     <string name="trigger_if_else">If-Else</string>
     <string name="trigger_stakeholder_interaction">Stakeholder Interaction</string>
-    <string name="trigger_input">Input</string>
+    <string name="trigger_input">Passphrase Input</string>
     <string name="trigger_timer">Timer</string>
 
     <string name="trigger_bt">Bluetooth</string>
@@ -265,8 +266,11 @@
     <string name="walkthrough_nfc_text">%1$s<![CDATA[<br>]]>Scan the corresponding NFC-Tag to continue.</string>
     <string name="walkthrough_wifi_text">%1$s<![CDATA[<br>]]>Get in reach of the Wi-Fi-Access Point to continue.<![CDATA[<br>]]>The Progress-Bar shows your proximity.</string>
     <string name="walkthrough_gps_text">%1$s<![CDATA[<br>]]>Get in %2$d m reach of the Location to continue.<![CDATA[<br>]]>Your proximity is shown below.<![CDATA[<br>]]>%3$s%4$s</string>
-    <string name="walkthrough_telephone_text">%1$s<![CDATA[<br>]]>Wait for a call to continue.<![CDATA[<br>]]>Number-Pattern: %2$s.<![CDATA[<br>]]></string>
-    <string name="walkthrough_sms_text">%1$s<![CDATA[<br>]]>Wait for an SMS to continue.<![CDATA[<br>]]>Number-Pattern: %2$s.<![CDATA[<br>]]></string>
+    <string name="walkthrough_telephone_text">%1$s<![CDATA[<br>]]>Wait for a call to continue.<![CDATA[<br>]]>Number-Pattern:<![CDATA[<br>]]>%2$s</string>
+    <string name="walkthrough_sms_text">%1$s<![CDATA[<br>]]>Wait for an SMS to continue.<![CDATA[<br>]]>Number-Pattern:<![CDATA[<br>]]>%2$s</string>
+    <string name="walkthrough_bluetooth_text">%1$s<![CDATA[<br>]]>Get in reach of a Bluetooth Device to continue.<![CDATA[<br>]]>Device-Name:<![CDATA[<br>]]>%2$s</string>
+    <string name="walkthrough_timer_text">%1$s<![CDATA[<br>]]>Wait for the Timer to expire in order to continue.<![CDATA[<br>]]>Remaining Time:<![CDATA[<br>]]>%2$s</string>
+    <string name="walkthrough_sound_text">%1$s<![CDATA[<br>]]>Generate a Sound above the Threshold to continue.<![CDATA[<br>]]>Threshold:<![CDATA[<br>]]>%2$s dB</string>
     <string name="walkthrough_interaction_code">Interaction-Code</string>
     <string name="walkthrough_start_scenario">Start Scenario</string>
     <string name="walkthrough_initiation">Initiation</string>
@@ -282,6 +286,7 @@
     <string name="walkthrough_check_input">Check Input</string>
     <string name="walkthrough_enable_nfc">Enable NFC</string>
     <string name="walkthrough_enable_wifi">Enable Wi-Fi</string>
+    <string name="walkthrough_enable_bluetooth">Enable Bluetooth</string>
     <string name="walkthrough_grant_permission">Grant Permissions</string>
     <string name="walkthrough_enable_gps">Enable GPS</string>
     <string name="walkthrough_open_location">Open Location</string>
@@ -416,8 +421,11 @@
     <string name="nfc_no_init">Could not initialize NFC-Tag!</string>
     <string name="nfc_no_data">No data on the NFC-Tag!</string>
 
-    <string name="input_optional">(Optional)</string>
-    <string name="regex_possible">/Regex</string>
+    <string name="filter_optional">(Optional)</string>
+    <string name="filter_regex">/Regex</string>
+    <string name="filter_s">(s)</string>
+    <string name="filter_m">(m)</string>
+    <string name="filter_dB">(dB)</string>
 
     <string name="editor_nfc_data">NFC Data</string>
     <string name="editor_nfc_loaded">Loaded, place your Phone on the Tag!</string>
@@ -429,11 +437,14 @@
     <string name="walkthrough_transition_wifi_discovered">Wi-Fi discovered</string>
     <string name="walkthrough_transition_call">Call received</string>
     <string name="walkthrough_transition_sms">SMS received</string>
+    <string name="walkthrough_transition_bluetooth">In proximity to Device</string>
+    <string name="walkthrough_transition_timer">Timer expired</string>
     <string name="editor_gps_warning">Latitude/Longitude</string>
     <string name="editor_gps_warning_replace">Input Latitude/Longitude</string>
     <string name="editor_gps_formatting">e.g. 47.123456,8.123456</string>
     <string name="editor_gps_warning_text">Wrong format. Expected: "47.123456,8.123456"</string>
     <string name="walkthrough_gps_destination_reached">Destination reached!</string>
+    <string name="walkthrough_timer_expired">Timer expired!</string>
     <string name="walkthrough_gps_evaluation">Evaluating Distance</string>
     <string name="walkthrough_gps_distance">Distance: %1$s m</string>
 </resources>

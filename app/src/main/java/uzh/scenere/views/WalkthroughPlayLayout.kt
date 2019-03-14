@@ -1,6 +1,7 @@
 package uzh.scenere.views
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.res.ColorStateList
 import android.net.wifi.ScanResult
@@ -8,13 +9,16 @@ import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import uzh.scenere.R
 import uzh.scenere.activities.WalkthroughActivity
 import uzh.scenere.const.Constants.Companion.ANONYMOUS
 import uzh.scenere.const.Constants.Companion.DASH
 import uzh.scenere.const.Constants.Companion.FIVE_MIN_MS
+import uzh.scenere.const.Constants.Companion.FIVE_SEC_MS
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.ONE_SEC_MS
 import uzh.scenere.const.Constants.Companion.TEN_SEC_MS
 import uzh.scenere.const.Constants.Companion.TWO_SEC_MS
 import uzh.scenere.const.Constants.Companion.USER_NAME
@@ -44,9 +48,6 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
             return PlayState(
                     play.scenario,
                     play.stakeholder,
-//                    play.nextStepFunction,
-//                    play.stopFunction,
-//                    play.notify,
                     play.walkthrough,
                     play.startingTime,
                     play.infoTime,
@@ -124,6 +125,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
     //Update
     private var refresh = false
     private var wifiDiscovered = false
+    private var bluetoothDiscovered = false
     //Link
     private lateinit var activityLink: WalkthroughActivity
     //Progress
@@ -291,11 +293,51 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         }
                         triggerLayout.addView(scroll)
                     }
-                    is TimeTrigger -> {/*TODO*/
+                    is TimeTrigger -> {
+                        val text = (second as TimeTrigger).text!!
+                        val timeMs = (second as TimeTrigger).timeMs!!
+                        val endTime = System.currentTimeMillis()+timeMs
+                        val msToFormattedString = StringHelper.msToFormattedString(timeMs)
+                        val titleText = generateText(null, context.getString(R.string.walkthrough_timer_text,text,msToFormattedString), ArrayList(), arrayListOf(text,msToFormattedString))
+                        val scroll = SreScrollView(context,triggerLayout)
+                        scroll.addScrollElement(titleText)
+                        refresh = true
+                        refresh({
+                            if (System.currentTimeMillis() > endTime){
+                                notify(context.getString(R.string.walkthrough_timer_expired))
+                                loadNextStep(context.getString(R.string.walkthrough_transition_timer))
+                            }else{
+                                val remainingTime = StringHelper.msToFormattedString(endTime-System.currentTimeMillis())
+                                titleText.setTextWithNewBoldWords(context.getString(R.string.walkthrough_timer_text,text,remainingTime), text, remainingTime)
+                            }
+                        },ONE_SEC_MS)
+                        triggerLayout.addView(scroll)
+                        activityLink.registerSmsListener()
                     }
                     is SoundTrigger -> {/*TODO*/
                     }
                     is BluetoothTrigger -> {/*TODO*/
+                        val text = (second as BluetoothTrigger).text!!
+                        val deviceId = (second as BluetoothTrigger).deviceId!!
+                        val titleText = generateText(null, context.getString(R.string.walkthrough_bluetooth_text,text,deviceId), ArrayList(), arrayListOf(text,deviceId))
+                        val bluetoothAllowed = PermissionHelper.check(activityLink,PermissionHelper.Companion.PermissionGroups.BLUETOOTH)
+                        val scroll = SreScrollView(context,triggerLayout)
+                        scroll.addScrollElement(titleText)
+                        if (!bluetoothAllowed){
+                            val state = context.getString(R.string.x_not_granted)
+                            val alertText = generateText(null, "Bluetooth $state!",arrayListOf(state),ArrayList())
+                            val button = generateButton(context.getString(R.string.walkthrough_grant_permission))
+                            button.setExecutable {
+                                PermissionHelper.request(activityLink,PermissionHelper.Companion.PermissionGroups.BLUETOOTH)
+                            }
+                            scroll.addScrollElement(alertText)
+                            scroll.addScrollElement(button)
+                        }else{
+                            bluetoothDiscovered = false
+                            activityLink.registerBluetoothListener()
+                        }
+                        scroll.addScrollElement(ProgressBar(context))
+                        triggerLayout.addView(scroll)
                     }
                     is WifiTrigger -> {/*TODO*/
                         val text = (second as WifiTrigger).text!!
@@ -533,8 +575,8 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                 val targetStrength = CommunicationHelper.Companion.WiFiStrength.valueOf(step.getStrength()).strength
                 loadingBar?.setProgress(100f/ targetStrength *wifiStrength)
                 if (wifiStrength >= targetStrength) {
-                    notify("${data.SSID} discovered!")
                     wifiDiscovered = true
+                    notify("${data.SSID} discovered!")
                     loadingBar = null
                     activityLink.stopWifiScan()
                     loadNextStep(context.getString(R.string.walkthrough_transition_wifi_discovered))
@@ -567,6 +609,24 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                 loadNextStep(context.getString(R.string.walkthrough_transition_sms))
                 return true
             }
+        }
+        return false
+    }
+
+    fun handleBluetoothData(devices: List<BluetoothDevice>): Boolean {
+        if (!bluetoothDiscovered && getCurrentTrigger() is BluetoothTrigger) {
+            for (device in devices) {
+                val deviceId = StringHelper.nvl((getCurrentTrigger() as BluetoothTrigger).deviceId, NOTHING)
+                val name = device.name
+                if (StringHelper.hasText(deviceId) && StringHelper.hasText(name) && (name == deviceId || name.matches(deviceId.toRegex()))) {
+                    bluetoothDiscovered = true
+                    notify("In proximity to $name")
+                    activityLink.unregisterBluetoothListener()
+                    loadNextStep(context.getString(R.string.walkthrough_transition_bluetooth))
+                    return true
+                }
+            }
+            Handler().postDelayed({if (!bluetoothDiscovered && getCurrentTrigger() is BluetoothTrigger){activityLink.execStartBluetoothDiscovery()}},FIVE_SEC_MS)
         }
         return false
     }
@@ -679,6 +739,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
 
     fun onPause() {
         wifiDiscovered = false
+        bluetoothDiscovered = false
         refresh = false
         activityLink.stopWifiScan()
         CommunicationHelper.unregisterGpsListener(activityLink)

@@ -1,5 +1,6 @@
 package uzh.scenere.activities
 
+import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.wifi.ScanResult
@@ -447,6 +448,13 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
             return activeWalkthrough!!.handleSmsData(phoneNumber,message)
         }
         return super.handleSmsData(phoneNumber, message)
+    }
+
+    override fun handleBluetoothData(devices: List<BluetoothDevice>): Boolean {
+        if (activeWalkthrough != null){
+            return activeWalkthrough!!.handleBluetoothData(devices)
+        }
+        return super.handleBluetoothData(devices)
     }
 
     private var awaitingBackConfirmation = false

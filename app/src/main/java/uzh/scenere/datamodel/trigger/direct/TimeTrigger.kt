@@ -10,7 +10,7 @@ class TimeTrigger(id: String?, previousId: String?, pathId: String): AbstractTri
         FIXED_COUNTDOWN, RANDOM_COUNTDOWN, FIXED_TIME, RANDOM_TIME
     }
 
-    val countdown = TimeMode.FIXED_COUNTDOWN
+    val timeMode = TimeMode.FIXED_COUNTDOWN
 
     var text: String? = null
     var timeMs: Long? = null
@@ -33,5 +33,9 @@ class TimeTrigger(id: String?, previousId: String?, pathId: String): AbstractTri
     fun withTimeMillisecondSecond(time: String?): TimeTrigger {
         this.timeMs = NumberHelper.safeToNumber(time,0)
         return this
+    }
+
+    fun getTimeSecond():Long{
+        return NumberHelper.nvl(timeMs?.div(1000),0)
     }
 }

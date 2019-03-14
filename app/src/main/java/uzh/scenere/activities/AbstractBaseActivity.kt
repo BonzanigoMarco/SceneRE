@@ -4,6 +4,9 @@ import android.app.Activity
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.ScanCallback
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -43,13 +46,11 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.MILLION
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.ONE_SEC_MS
 import uzh.scenere.const.Constants.Companion.PHONE_STATE
 import uzh.scenere.const.Constants.Companion.SMS_RECEIVED
 import uzh.scenere.const.Constants.Companion.ZERO
-import uzh.scenere.helpers.DipHelper
-import uzh.scenere.helpers.NumberHelper
-import uzh.scenere.helpers.StringHelper
-import uzh.scenere.helpers.removeFirst
+import uzh.scenere.helpers.*
 import java.io.IOException
 import kotlin.random.Random
 import kotlin.reflect.KClass
@@ -70,6 +71,9 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     private var nfcReady = false
     //WiFi
     private var wifiManager: WifiManager? = null
+    //Bluetooth
+    private var sreBluetoothReceiver: SreBluetoothReceiver? = null
+    private var sreBluetoothCallback: SreBluetoothScanCallback? = null
     //Telephone
     private var srePhoneReceiver: SrePhoneReceiver? = null
     //SMS
@@ -123,6 +127,8 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             nfcAdapter!!.enableForegroundDispatch(this, pendingIntent, null, null)
         }
         resumePhoneCallListener()
+        resumeSmsListener()
+        resumeBluetoothListener()
     }
 
     override fun onPause() {
@@ -130,12 +136,15 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             nfcAdapter!!.disableForegroundDispatch(this)
         }
         pausePhoneCallListener()
+        pauseSmsListener()
+        pauseBluetoothListener()
         super.onPause()
     }
 
     override fun onDestroy() {
         unregisterPhoneCallListener()
         unregisterSmsListener()
+        unregisterBluetoothListener()
         super.onDestroy()
     }
 
@@ -686,7 +695,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
 
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == SMS_RECEIVED) {
-                val bundle = intent.getExtras()
+                val bundle = intent.extras
                 if (bundle != null) {
                     val pdus = bundle.get("pdus")
                     if (pdus is Array<*>) {
@@ -713,5 +722,161 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    fun registerBluetoothListener(){
+        if (CommunicationHelper.check(this,CommunicationHelper.Companion.Communications.BLUETOOTH)){
+            // Turn off Bluetooth to let devices reconnect
+            CommunicationHelper.disable(this,CommunicationHelper.Companion.Communications.BLUETOOTH)
+        }
+        //Turn on Bluetooth again
+        CommunicationHelper.enable(this,CommunicationHelper.Companion.Communications.BLUETOOTH)
+        registerBluetoothListenerDelayed()
+    }
+
+    private fun registerBluetoothListenerDelayed() {
+        Handler().postDelayed({
+            if (CommunicationHelper.check(this, CommunicationHelper.Companion.Communications.BLUETOOTH)) {
+                sreBluetoothReceiver = SreBluetoothReceiver(handleBluetooth)
+                resumeBluetoothListener()
+            }else{
+                CommunicationHelper.enable(this,CommunicationHelper.Companion.Communications.BLUETOOTH)
+                registerBluetoothListenerDelayed()
+            }
+        }, 300
+        )
+    }
+
+    fun unregisterBluetoothListener(){
+        pauseBluetoothListener()
+        sreBluetoothReceiver = null
+    }
+
+    private fun resumeBluetoothListener(){
+        if (sreBluetoothReceiver != null){
+            val bluetoothFilter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+            bluetoothFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+            bluetoothFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
+            registerReceiver(sreBluetoothReceiver,bluetoothFilter)
+            execStartBluetoothDiscovery()
+        }
+    }
+
+    private fun pauseBluetoothListener(){
+        if (sreBluetoothReceiver != null){
+            try{
+                execStopBluetoothDiscovery()
+                unregisterReceiver(sreBluetoothReceiver)
+            }catch(e: Exception){
+                //NOP
+            }
+        }
+    }
+
+    fun execStartBluetoothDiscovery() {
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        bluetoothAdapter.startDiscovery()
+        if (sreBluetoothCallback == null){
+            val alreadyKnownDevices = HashMap<String,BluetoothDevice>()
+            if (!bluetoothAdapter.bondedDevices.isEmpty()){
+                for (device in bluetoothAdapter.bondedDevices){
+                    alreadyKnownDevices[device.address] = device
+                }
+            }
+            sreBluetoothReceiver?.addAlreadyKnownDevices(alreadyKnownDevices)
+            sreBluetoothCallback = SreBluetoothScanCallback(handleBluetooth)
+            sreBluetoothCallback?.addAlreadyKnownDevices(alreadyKnownDevices)
+            bluetoothAdapter.bluetoothLeScanner.startScan(sreBluetoothCallback)
+        }
+    }
+
+    fun execStopBluetoothDiscovery() {
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        bluetoothAdapter.cancelDiscovery()
+        if (sreBluetoothCallback != null){
+            bluetoothAdapter.bluetoothLeScanner.stopScan(sreBluetoothCallback)
+            bluetoothAdapter.bluetoothLeScanner.flushPendingScanResults(sreBluetoothCallback)
+            sreBluetoothCallback = null
+        }
+    }
+
+    private fun reconnectDevice(device: BluetoothDevice): Boolean{
+        try{
+            val declaredMethod = device.javaClass.getDeclaredMethod("removeBond")
+            declaredMethod.invoke(device)
+        }catch (e: java.lang.Exception){
+            return false
+        }
+        return device.createBond()
+    }
+
+    open fun handleBluetoothData(deviceName: List<BluetoothDevice>): Boolean {
+        return false
+    }
+
+    private val handleBluetooth: (List<BluetoothDevice>) -> Boolean = { devices: List<BluetoothDevice> ->
+        if (handleBluetoothData(devices)) {
+            //NOP
+        }
+        true
+    }
+
+    class SreBluetoothReceiver(private val handleBluetooth: (List<BluetoothDevice>) -> Boolean) : BroadcastReceiver() {
+
+        private val alreadyKnownDevices = HashMap<String,BluetoothDevice>()
+        private val newDevices = ArrayList<BluetoothDevice>()
+
+        fun addAlreadyKnownDevices(devices: HashMap<String,BluetoothDevice>){
+            alreadyKnownDevices.clear()
+            alreadyKnownDevices.putAll(devices)
+        }
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent != null && CollectionHelper.oneOf(intent.action,BluetoothDevice.ACTION_FOUND,BluetoothDevice.ACTION_ACL_CONNECTED)) {
+                val device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                if(!newDevices.contains(device)){
+                    if (alreadyKnownDevices.containsKey(device.address)){
+                        newDevices.add(alreadyKnownDevices[device.address]!!)
+                    }else{
+                        newDevices.add(device)
+                    }
+                }
+            }else if (intent != null && intent.action == BluetoothAdapter.ACTION_DISCOVERY_FINISHED) {
+                if(!newDevices.isEmpty()){
+                    handleBluetooth.invoke(newDevices)
+                    newDevices.clear()
+                }
+            }else{
+                //NOP
+            }
+        }
+    }
+
+    class SreBluetoothScanCallback( private val handleBluetooth: (List<BluetoothDevice>) -> Boolean): ScanCallback(){
+
+        private val alreadyKnownDevices = HashMap<String,BluetoothDevice>()
+        private val newDevices = ArrayList<BluetoothDevice>()
+
+        fun addAlreadyKnownDevices(devices: HashMap<String,BluetoothDevice>){
+            alreadyKnownDevices.clear()
+            alreadyKnownDevices.putAll(devices)
+        }
+
+        override fun onScanResult(callbackType: Int, result: android.bluetooth.le.ScanResult?) {
+            if (result != null ){
+                val device = result.device
+                if (!newDevices.contains(device)) {
+                    if (alreadyKnownDevices.containsKey(device.address)){
+                        newDevices.add(alreadyKnownDevices[device.address]!!)
+                    }else{
+                        newDevices.add(device)
+                    }
+                }else{
+                    handleBluetooth.invoke(newDevices)
+                    newDevices.clear()
+                }
+            }
+            super.onScanResult(callbackType, result)
+        }
     }
 }

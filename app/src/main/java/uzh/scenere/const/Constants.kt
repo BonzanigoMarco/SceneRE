@@ -23,13 +23,19 @@ class Constants {
         const val MILLION: Int = 1000000
         const val FIVE_MIN_MS: Long = 300000
         const val TEN_SEC_MS: Long = 10000
+        const val FIVE_SEC_MS: Long = 5000
         const val TWO_SEC_MS: Long = 2000
+        const val ONE_SEC_MS: Long = 1000
         const val THOUSAND: Double = 1000.0
         const val HUNDRED: Double = 100.0
         const val FRACTION: Float = 0.1f
         const val ZERO_F: Float = 0.0f
         const val ZERO_L: Long = 0
         const val ZERO: Int = 0
+        const val SEC_MS: Long = 1000
+        const val MIN_MS: Long = 60000
+        const val HOUR_MS: Long = 3600000
+        const val DAY_MS: Long = 86400000
         //PERMISSIONS
         const val PERMISSION_REQUEST_ALL: Int = 888
         const val PERMISSION_REQUEST_GPS: Int = 666

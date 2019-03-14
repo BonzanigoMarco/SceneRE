@@ -249,7 +249,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             input.layoutParams = childParams
             input.textSize = textSize!!
-            input.hint = labelText.replace(getString(R.string.input_optional), NOTHING)
+            input.hint = StringHelper.applyFilters(labelText,applicationContext)
             input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             input.setText(realPresetValue)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_CONTEXT_EDIT))

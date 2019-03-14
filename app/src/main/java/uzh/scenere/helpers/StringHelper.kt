@@ -1,5 +1,6 @@
 package uzh.scenere.helpers
 
+import android.bluetooth.le.AdvertiseData
 import android.content.Context
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -9,7 +10,22 @@ import java.io.Serializable
 import android.text.Html
 import android.os.Build
 import android.text.Spanned
+import uzh.scenere.R
+import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.DAY_MS
+import uzh.scenere.const.Constants.Companion.HOUR_MS
+import uzh.scenere.const.Constants.Companion.MIN_MS
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.SEC_MS
+import uzh.scenere.const.Constants.Companion.ZERO
+import uzh.scenere.const.Constants.Companion.ZERO_L
+import java.lang.reflect.Array.getShort
+import java.nio.ByteOrder.LITTLE_ENDIAN
+import android.R.attr.order
+import java.util.*
+import java.io.UnsupportedEncodingException
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 
 class StringHelper{
@@ -202,6 +218,48 @@ class StringHelper{
                 3 -> num.toString().plus("rd")
                 else -> num.toString().plus("th")
             }
+        }
+
+        fun applyFilters(str: String?, context: Context): String{
+            if (!hasText(str)){
+                return NOTHING
+            }
+            return str!!.replace(context.getString(R.string.filter_optional), Constants.NOTHING)
+                    .replace(context.getString(R.string.filter_regex), Constants.NOTHING)
+                    .replace(context.getString(R.string.filter_s), Constants.NOTHING)
+                    .replace(context.getString(R.string.filter_m), Constants.NOTHING)
+                    .replace(context.getString(R.string.filter_dB), Constants.NOTHING)
+                    .replace(context.getString(R.string.editor_gps_warning_replace), context.getString(R.string.editor_gps_formatting))
+        }
+
+        fun msToFormattedString(ms: Long): String{
+            var remain = ms
+            var days = ZERO_L
+            var hours = ZERO_L
+            var minutes = ZERO_L
+            var seconds = ZERO_L
+            if (ms > DAY_MS){
+                days = remain.div(DAY_MS)
+                remain -= days.times(DAY_MS)
+            }
+            if (ms > HOUR_MS){
+                hours = remain.div(HOUR_MS)
+                remain -= hours.times(HOUR_MS)
+            }
+            if (ms > MIN_MS){
+                minutes = remain.div(MIN_MS)
+                remain -= minutes.times(MIN_MS)
+            }
+            if (ms > SEC_MS){
+                seconds = remain.div(SEC_MS)
+                remain -= seconds.times(SEC_MS)
+            }
+            return (when {
+                days != ZERO_L -> "$days d, $hours h, $minutes min, $seconds sec"
+                hours != ZERO_L -> "$hours h, $minutes min, $seconds sec"
+                minutes != ZERO_L -> "$minutes min, $seconds sec"
+                else -> "$seconds sec"
+            })
         }
     }
 }

@@ -237,7 +237,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             is TimeTrigger -> {
                 values.put(ElementTableEntry.TITLE, element.timeMs.toString()) //Carrier
                 values.put(ElementTableEntry.TEXT, element.text)
-                values.put(ElementTableEntry.TYPE, TYPE_SOUND_TRIGGER)
+                values.put(ElementTableEntry.TYPE, TYPE_TIME_TRIGGER)
             }
             is SoundTrigger -> {
                 values.put(ElementTableEntry.TITLE, element.dB.toString()) //Carrier
