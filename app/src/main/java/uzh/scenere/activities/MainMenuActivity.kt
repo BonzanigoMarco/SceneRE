@@ -2,8 +2,8 @@ package uzh.scenere.activities
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.net.wifi.ScanResult
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.activity_main_menu.*
@@ -12,10 +12,15 @@ import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.PermissionHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.reStyleText
 import uzh.scenere.views.SreButton
 import uzh.scenere.views.SreTutorialLayoutDialog
 
 class MainMenuActivity : AbstractBaseActivity() {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return main_menu_root
+    }
     override fun getConfiguredLayout(): Int {
         return R.layout.activity_main_menu
     }

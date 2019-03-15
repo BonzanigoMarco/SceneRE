@@ -90,7 +90,7 @@ class Element (context: Context, private var element: IElement, private val top:
         topWrapper?.addView(editButton)
         // CENTER
         if (top) {
-            connectionTop?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
+            connectionTop?.setBackgroundColor(getColorWithStyle(context,R.color.sreBlack))
         }
         val centerParams = LayoutParams(dpiConnectorWidth, dpiConnectorHeight+NumberHelper.nvl(editButton?.getTopMargin(),0)*2)
         centerParams.addRule(CENTER_HORIZONTAL, TRUE)
@@ -130,7 +130,7 @@ class Element (context: Context, private var element: IElement, private val top:
         bottomWrapper?.addView(pathSpinner)
         // CENTER
         if (bottom) {
-            connectionBottom?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
+            connectionBottom?.setBackgroundColor(getColorWithStyle(context,R.color.sreBlack))
         }
         connectionBottom?.layoutParams = connectionTop?.layoutParams
         bottomWrapper?.addView(connectionBottom)
@@ -160,9 +160,9 @@ class Element (context: Context, private var element: IElement, private val top:
     fun updateLeft(l: Boolean = left): Element {
         left = l
         if (left) {
-            connectionLeft?.setBackgroundColor(ContextCompat.getColor(context, R.color.sreBlack))
+            connectionLeft?.setBackgroundColor(getColorWithStyle(context, R.color.sreBlack))
         } else {
-            connectionLeft?.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
+            connectionLeft?.setBackgroundColor(getColorWithStyle(context, R.color.transparent))
         }
         return this
     }
@@ -170,9 +170,9 @@ class Element (context: Context, private var element: IElement, private val top:
     fun updateRight(r: Boolean = right): Element {
         right = r
         if (right) {
-            connectionRight?.setBackgroundColor(ContextCompat.getColor(context, R.color.sreBlack))
+            connectionRight?.setBackgroundColor(getColorWithStyle(context, R.color.sreBlack))
         } else {
-            connectionRight?.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
+            connectionRight?.setBackgroundColor(getColorWithStyle(context, R.color.transparent))
         }
         return this
     }
@@ -200,7 +200,7 @@ class Element (context: Context, private var element: IElement, private val top:
     }
 
     fun connectToNext(){
-        connectionBottom?.setBackgroundColor(ContextCompat.getColor(context,R.color.sreBlack))
+        connectionBottom?.setBackgroundColor(getColorWithStyle(context,R.color.sreBlack))
         deleteButton?.visibility = View.INVISIBLE
     }
 
@@ -293,9 +293,9 @@ class Element (context: Context, private var element: IElement, private val top:
 
     fun setNfcLoaded(loaded: Boolean) {
         if (loaded){
-            nfcButton?.setTextColor(ContextCompat.getColor(context, R.color.srePrimaryAttention))
+            nfcButton?.setTextColor(getColorWithStyle(context, R.color.srePrimaryAttention))
         }else{
-            nfcButton?.setTextColor(ContextCompat.getColor(context, R.color.srePrimaryPastel))
+            nfcButton?.setTextColor(getColorWithStyle(context, R.color.srePrimaryPastel))
         }
     }
 
@@ -306,9 +306,9 @@ class Element (context: Context, private var element: IElement, private val top:
 
     fun setZebraPattern(enabled: Boolean = false){
         if (enabled){
-            setBackgroundColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
+            setBackgroundColor(getColorWithStyle(context,R.color.srePrimaryPastel))
         }else{
-            setBackgroundColor(ContextCompat.getColor(context,R.color.sreWhite))
+            setBackgroundColor(getColorWithStyle(context,R.color.sreWhite))
         }
     }
 }

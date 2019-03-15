@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import uzh.scenere.R
+import uzh.scenere.helpers.getColorWithStyle
 import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
@@ -86,28 +87,28 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
             when (style) {
                 ButtonStyle.LIGHT -> {
                     background = context.getDrawable(R.drawable.sre_button)
-                    setTextColor(ContextCompat.getColor(context, R.color.srePrimaryPastel))
+                    setTextColor(getColorWithStyle(context, R.color.srePrimaryPastel))
                 }
                 ButtonStyle.DARK -> {
                     background = context.getDrawable(R.drawable.sre_button_dark)
-                    setTextColor(ContextCompat.getColor(context, R.color.srePrimaryPastel))
+                    setTextColor(getColorWithStyle(context, R.color.srePrimaryPastel))
                 }
                 ButtonStyle.ATTENTION -> {
                     background = context.getDrawable(R.drawable.sre_button_attention)
-                    setTextColor(ContextCompat.getColor(context, R.color.sreBlack))
+                    setTextColor(getColorWithStyle(context, R.color.sreBlack))
                 }
                 ButtonStyle.WARN -> {
                     background = context.getDrawable(R.drawable.sre_button_warn)
-                    setTextColor(ContextCompat.getColor(context, R.color.sreBlack))
+                    setTextColor(getColorWithStyle(context, R.color.sreBlack))
                 }
                 ButtonStyle.TUTORIAL -> {
                     background = context.getDrawable(R.drawable.sre_button_tutorial)
-                    setTextColor(ContextCompat.getColor(context, R.color.sreBlack))
+                    setTextColor(getColorWithStyle(context, R.color.sreBlack))
                 }
             }
         }else{
             background = context.getDrawable(R.drawable.sre_button_disabled)
-            setTextColor(ContextCompat.getColor(context,R.color.srePrimaryDisabledText))
+            setTextColor(getColorWithStyle(context,R.color.srePrimaryDisabledText))
         }
     }
 

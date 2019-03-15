@@ -14,6 +14,7 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.getColorWithStyle
 import uzh.scenere.views.SreEditText.EditStyle.DARK
 import uzh.scenere.views.SreEditText.EditStyle.LIGHT
 import java.io.Serializable
@@ -46,13 +47,13 @@ open class SreEditText(context: Context, parent: ViewGroup?, text: String? = nul
         when (style) {
             DARK -> {
                 background = context.getDrawable(R.drawable.sre_edit_text_dark)
-                val color = ContextCompat.getColor(context, R.color.srePrimaryPastel)
+                val color = getColorWithStyle(context, R.color.srePrimaryPastel)
                 setTextColor(color)
                 setHintTextColor(color)
             }
             LIGHT -> {
                 background = context.getDrawable(R.drawable.sre_edit_text_light)
-                val color = ContextCompat.getColor(context, R.color.srePrimaryDark)
+                val color = getColorWithStyle(context, R.color.srePrimaryDark)
                 setTextColor(color)
                 setHintTextColor(color)
             }

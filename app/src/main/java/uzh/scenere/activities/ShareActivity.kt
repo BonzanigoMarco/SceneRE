@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.view.Gravity
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.activity_share.*
 import uzh.scenere.R
@@ -32,6 +32,10 @@ import java.io.File
 //UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A
 
 class ShareActivity : AbstractManagementActivity() {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return share_root
+    }
 
     override fun isInEditMode(): Boolean {
         return false
@@ -123,7 +127,7 @@ class ShareActivity : AbstractManagementActivity() {
             }
         }
         creationButton = SwipeButton(this, getString(R.string.share_mode_file_export))
-                .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_null, null)
                 .setButtonStates(true,true, false, false)

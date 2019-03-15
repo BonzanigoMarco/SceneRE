@@ -19,9 +19,9 @@ class ColorHelper {
 
         fun getTextColor(context: Context, backgroundColor: Int): Int {
             return if (ColorHelper.isDark(backgroundColor)) {
-                ContextCompat.getColor(context, R.color.sreWhite)
+                getColorWithStyle(context, R.color.sreWhite)
             } else {
-                ContextCompat.getColor(context, R.color.sreBlack)
+                getColorWithStyle(context, R.color.sreBlack)
             }
         }
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import kotlinx.android.synthetic.main.activity_analytics.*
@@ -21,6 +22,10 @@ import uzh.scenere.views.*
 import java.io.Serializable
 
 class AnalyticsActivity : AbstractManagementActivity() {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return analytics_root
+    }
 
     override fun isInEditMode(): Boolean {
         return false
@@ -71,7 +76,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         loadData()
         creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) getString(R.string.analytics_no_walkthrough) else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
-                .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                 .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)

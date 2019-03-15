@@ -457,4 +457,6 @@
     <string name="walkthrough_shortcut_created">Shortcut created!</string>
     <string name="walkthrough_shortcut_creation_failed">Shortcut creation failed!</string>
     <string name="walkthrough_shortcut_creation">Walkthrough state saved to "%1$s"!</string>
+    <string name="cockpit_normal_mode">Enable Normal-Mode</string>
+    <string name="cockpit_contrast_mode">Enable Contrast-Mode</string>
 </resources>

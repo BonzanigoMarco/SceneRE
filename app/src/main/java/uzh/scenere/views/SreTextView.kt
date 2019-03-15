@@ -12,6 +12,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
 import uzh.scenere.helpers.DipHelper
+import uzh.scenere.helpers.getColorWithStyle
 import uzh.scenere.views.SreTextView.TextStyle.*
 import java.io.Serializable
 
@@ -42,19 +43,19 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
         when (style){
             LIGHT, BORDERLESS_LIGHT -> {
                 background = context.getDrawable(if (style== LIGHT) R.drawable.sre_text_view_light else R.drawable.sre_text_view_light_borderless)
-                setTextColor(ContextCompat.getColor(context,R.color.srePrimaryDark))
+                setTextColor(getColorWithStyle(context,R.color.srePrimaryDark))
             }
             DARK, BORDERLESS_DARK -> {
                 background = context.getDrawable(if (style== DARK) R.drawable.sre_text_view_dark else R.drawable.sre_text_view_dark_borderless)
-                setTextColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
+                setTextColor(getColorWithStyle(context,R.color.srePrimaryPastel))
             }
             MEDIUM -> {
                 background = context.getDrawable(R.drawable.sre_text_view_medium)
-                setTextColor(ContextCompat.getColor(context,R.color.srePrimaryPastel))
+                setTextColor(getColorWithStyle(context,R.color.srePrimaryPastel))
             }
             ATTENTION -> {
                 background = context.getDrawable(R.drawable.sre_text_view_attention)
-                setTextColor(ContextCompat.getColor(context,R.color.sreBlack))
+                setTextColor(getColorWithStyle(context,R.color.sreBlack))
             }
         }
         val padding = DipHelper.get(resources).dip15.toInt()

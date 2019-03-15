@@ -4,11 +4,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.hardware.Sensor
 import android.os.Bundle
-import android.os.Handler
-import android.support.v4.content.ContextCompat
+import android.view.ViewGroup
+import kotlinx.android.synthetic.main.activity_cockpit.*
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
@@ -16,17 +15,19 @@ import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_ALL
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_GPS
 import uzh.scenere.const.Constants.Companion.PNG_FILE
+import uzh.scenere.const.Constants.Companion.STYLE
 import uzh.scenere.const.Constants.Companion.TUTORIAL_UID_IDENTIFIER
-import uzh.scenere.helpers.CommunicationHelper
-import uzh.scenere.helpers.DatabaseHelper
-import uzh.scenere.helpers.PermissionHelper
-import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.*
 import uzh.scenere.sensors.SensorHelper
 import uzh.scenere.views.SreTutorialLayoutDialog
 import uzh.scenere.views.SwipeButton
 
 
 class CockpitActivity : AbstractManagementActivity() {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return cockpit_root
+    }
 
     override fun isInEditMode(): Boolean {
         return false
@@ -101,11 +102,11 @@ class CockpitActivity : AbstractManagementActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_ALL && permissions.isNotEmpty()) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                activeButton?.setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.srePrimarySafe), ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                activeButton?.setIndividualButtonColors(getColorWithStyle(applicationContext,R.color.srePrimarySafe), getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         ?.setButtonIcons(R.string.icon_check, R.string.icon_sign, null, null, null)
                         ?.updateViews(false)
             } else {
-                activeButton?.setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                activeButton?.setIndividualButtonColors(getColorWithStyle(applicationContext,R.color.srePrimaryWarn), getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         ?.setButtonIcons(R.string.icon_cross, R.string.icon_sign, null, null, null)
                         ?.updateViews(false)
             }
@@ -175,7 +176,7 @@ class CockpitActivity : AbstractManagementActivity() {
                         val granted = CommunicationHelper.check(this, communication)
                         val swipeButton = SwipeButton(this, communication.label)
                                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                                .setIndividualButtonColors(if (granted) ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (granted) ContextCompat.getColor(applicationContext,R.color.srePrimarySafe) else ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                                .setIndividualButtonColors(if (granted) getColorWithStyle(applicationContext,R.color.srePrimaryPastel) else getColorWithStyle(applicationContext,R.color.srePrimaryWarn), if (granted) getColorWithStyle(applicationContext,R.color.srePrimarySafe) else getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                                 .setButtonIcons(R.string.icon_cross, R.string.icon_check, null, null, null)
                                 .setButtonStates(true, true, false, false)
                                 .setAutoCollapse(true)
@@ -193,7 +194,7 @@ class CockpitActivity : AbstractManagementActivity() {
                 for (sensor in SensorHelper.getInstance(this).getSensorArray()) {
                     val swipeButton = SwipeButton(this, SensorHelper.getInstance(this).getTypeName(sensor.name))
                             .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                            .setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                            .setIndividualButtonColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                             .setButtonIcons(R.string.icon_eye_closed, R.string.icon_eye, null, null, null)
                             .setButtonStates(true, true, false, false)
                             .setAutoCollapse(true)
@@ -233,6 +234,26 @@ class CockpitActivity : AbstractManagementActivity() {
                         })
                         .setAutoCollapse(true)
                         .updateViews(true)
+                val sreStyle = getSreStyle(applicationContext)
+                val modeSwitch = SwipeButton(this, if (sreStyle == SreStyle.NORMAL) getString(R.string.cockpit_contrast_mode) else getString(R.string.cockpit_normal_mode) )
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
+                        .setButtonStates(false, true, false, false)
+                        .setAutoCollapse(true)
+                        .updateViews(true)
+                modeSwitch.setExecutable(object : SwipeButton.SwipeButtonExecution{
+                    override fun execRight() {
+                        val style = getSreStyle(applicationContext)
+                        if (style == SreStyle.NORMAL){
+                            DatabaseHelper.getInstance(applicationContext).write(STYLE,SreStyle.CONTRAST.toString(), DatabaseHelper.DataMode.PREFERENCES)
+                            modeSwitch.setText(getString(R.string.cockpit_normal_mode))
+                        }else{
+                            DatabaseHelper.getInstance(applicationContext).write(STYLE,SreStyle.NORMAL.toString(), DatabaseHelper.DataMode.PREFERENCES)
+                            modeSwitch.setText(getString(R.string.cockpit_contrast_mode))
+                        }
+                        reStyleText(applicationContext,getConfiguredRootLayout())
+                    }
+                })
                 val wipeData = SwipeButton(this, getString(R.string.cockpit_wipe_data))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
@@ -245,11 +266,12 @@ class CockpitActivity : AbstractManagementActivity() {
                                 showInfoText(getString(R.string.cockpit_wipe_data_confirm), R.color.srePrimaryWarn)
                             }
                         })
-                        .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         .setAutoCollapse(true)
                         .updateViews(true)
                 getContentHolderLayout().addView(resetTutorial)
                 getContentHolderLayout().addView(disableTutorial)
+                getContentHolderLayout().addView(modeSwitch)
                 getContentHolderLayout().addView(wipeData)
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_functions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
@@ -278,14 +300,14 @@ class CockpitActivity : AbstractManagementActivity() {
             override fun execRight() {
                 if (!CommunicationHelper.check(this@CockpitActivity, communication)) {
                     val active = CommunicationHelper.toggle(this@CockpitActivity, communication)
-                    button.setIndividualButtonColors(if (active) ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (active) ContextCompat.getColor(applicationContext,R.color.srePrimarySafe) else ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled)).updateViews(false)
+                    button.setIndividualButtonColors(if (active) getColorWithStyle(applicationContext,R.color.srePrimaryPastel) else getColorWithStyle(applicationContext,R.color.srePrimaryWarn), if (active) getColorWithStyle(applicationContext,R.color.srePrimarySafe) else getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled)).updateViews(false)
                 }
             }
 
             override fun execLeft() {
                 if (CommunicationHelper.check(this@CockpitActivity, communication)) {
                     val active = CommunicationHelper.toggle(this@CockpitActivity, communication)
-                    button.setIndividualButtonColors(if (active) ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel) else ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn), if (active) ContextCompat.getColor(applicationContext,R.color.srePrimarySafe) else ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled)).updateViews(false)
+                    button.setIndividualButtonColors(if (active) getColorWithStyle(applicationContext,R.color.srePrimaryPastel) else getColorWithStyle(applicationContext,R.color.srePrimaryWarn), if (active) getColorWithStyle(applicationContext,R.color.srePrimarySafe) else getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled)).updateViews(false)
                 }
             }
 

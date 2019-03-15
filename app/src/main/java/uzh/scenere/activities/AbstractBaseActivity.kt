@@ -26,7 +26,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
@@ -316,6 +315,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     }
 
     abstract fun getConfiguredLayout(): Int
+    abstract fun getConfiguredRootLayout(): ViewGroup?
 
     open fun onNavigationButtonClicked(view: View) {
         when (view.id) {
@@ -364,7 +364,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     }
 
     open fun onLayoutRendered(){
-        //NOP
+        reStyleText(applicationContext,getConfiguredRootLayout())
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -406,7 +406,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         titleText.textAlignment = View.TEXT_ALIGNMENT_CENTER
         titleText.gravity = Gravity.CENTER
         titleText.text = title
-        titleText.setTextColor(ContextCompat.getColor(applicationContext,R.color.srePrimaryDark))
+        titleText.setTextColor(getColorWithStyle(applicationContext,R.color.srePrimaryDark))
         holder.addView(titleText)
     }
 
@@ -432,7 +432,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         val notification = NotificationCompat.Builder(applicationContext, Constants.APPLICATION_ID)
                 .setSmallIcon(android.R.drawable.btn_star)
                 .setContentTitle(notificationQueue.first().first)
-                .setColor(ContextCompat.getColor(this,R.color.srePrimary))
+                .setColor(getColorWithStyle(this,R.color.srePrimary))
                 .setColorized(true)
                 .setDefaults(Notification.DEFAULT_ALL)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

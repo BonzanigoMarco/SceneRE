@@ -3,6 +3,8 @@ package uzh.scenere.activities
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
+import android.view.ViewGroup
+import kotlinx.android.synthetic.main.activity_stakeholders.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.BUNDLE_PROJECT
@@ -10,12 +12,17 @@ import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.getColorWithStyle
 import uzh.scenere.helpers.getStringValue
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.SwipeButton.SwipeButtonExecution
 
 
 class StakeholdersActivity : AbstractManagementActivity() {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return stakeholders_root
+    }
 
     override fun getConfiguredInfoString(): Int {
         return R.string.icon_explain_stakeholders
@@ -55,7 +62,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this,"Create New Stakeholder")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false,true,false,false)
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_stakeholder)
                         .setFirstPosition()
@@ -72,7 +79,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
 
     private fun addStakeholderToList(stakeholder: Stakeholder) {
         val swipeButton = SwipeButton(this, stakeholder.name)
-                .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit, null, null, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, false, false)

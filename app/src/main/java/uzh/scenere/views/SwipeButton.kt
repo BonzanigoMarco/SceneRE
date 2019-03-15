@@ -21,6 +21,7 @@ import android.widget.TextView
 import uzh.scenere.R
 import uzh.scenere.helpers.CollectionHelper
 import uzh.scenere.helpers.NumberHelper
+import uzh.scenere.helpers.getColorWithStyle
 
 
 class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : LinearLayout(context, attributeSet, defStyleAttr, defStyleRes) {
@@ -77,12 +78,12 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
     private var cIdx: Int = 4
     private var icons: IntArray = intArrayOf(R.string.icon_delete, R.string.icon_edit, R.string.icon_comment, R.string.icon_lock,R.string.icon_null)
     private var react: BooleanArray = booleanArrayOf(true, true, true, true, false)
-    private var colors: IntArray = intArrayOf(ContextCompat.getColor(context,R.color.srePrimaryPastel), ContextCompat.getColor(context,R.color.srePrimaryPastel), ContextCompat.getColor(context,R.color.srePrimaryPastel), ContextCompat.getColor(context,R.color.srePrimaryPastel), ContextCompat.getColor(context,R.color.srePrimaryPastel))
+    private var colors: IntArray = intArrayOf(getColorWithStyle(context,R.color.srePrimaryPastel), getColorWithStyle(context,R.color.srePrimaryPastel), getColorWithStyle(context,R.color.srePrimaryPastel), getColorWithStyle(context,R.color.srePrimaryPastel), getColorWithStyle(context,R.color.srePrimaryPastel))
     //State
     private var initialized: Boolean = false
     private var active: Boolean = false
-    private var activeColor: Int = ContextCompat.getColor(context,R.color.srePrimaryPastel)
-    private var inactiveColor: Int = ContextCompat.getColor(context,R.color.srePrimaryDisabled)
+    private var activeColor: Int = getColorWithStyle(context,R.color.srePrimaryPastel)
+    private var inactiveColor: Int = getColorWithStyle(context,R.color.srePrimaryDisabled)
     private var individualColor: Boolean = false
     var interacted: Boolean = false
     private var autoCollapse: Boolean = false
@@ -410,7 +411,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         return this
     }
 
-    fun setIndividualButtonColors(lColor: Int, rColor: Int, tColor: Int, bColor: Int, cColor: Int = ContextCompat.getColor(context,R.color.srePrimaryPastel)): SwipeButton {
+    fun setIndividualButtonColors(lColor: Int, rColor: Int, tColor: Int, bColor: Int, cColor: Int = getColorWithStyle(context,R.color.srePrimaryPastel)): SwipeButton {
         individualColor = true
         colors[lIdx] = lColor
         colors[rIdx] = rColor
@@ -430,7 +431,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         return this
     }
 
-    fun setCounter(topCounter: Int?, bottomCounter: Int?, color: Int = ContextCompat.getColor(context,R.color.srePrimaryWarn)): SwipeButton {
+    fun setCounter(topCounter: Int?, bottomCounter: Int?, color: Int = getColorWithStyle(context,R.color.srePrimaryWarn)): SwipeButton {
         topLabelText?.text = topCounter?.toString()
         bottomLabelText?.text = bottomCounter?.toString()
         topLabelText?.setTextColor(color)

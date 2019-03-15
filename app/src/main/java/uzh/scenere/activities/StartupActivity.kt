@@ -4,24 +4,27 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.content.ContextCompat
 import android.view.View
-import android.view.View.*
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
+import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_startup.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.NOTHING
-import uzh.scenere.helpers.DatabaseHelper
-import uzh.scenere.helpers.NumberHelper
-import uzh.scenere.helpers.StringHelper
-import uzh.scenere.helpers.nextSafeInt
+import uzh.scenere.helpers.*
 import uzh.scenere.views.WeightAnimator
 import java.util.*
 import kotlin.random.Random
 
 class StartupActivity : AbstractBaseActivity() {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return startup_root
+    }
+
     override fun getConfiguredLayout(): Int {
         return R.layout.activity_startup
     }
@@ -93,8 +96,8 @@ class StartupActivity : AbstractBaseActivity() {
     }
 
     private fun logoDisplayFinished() {
-        val primary = ContextCompat.getColor(this, R.color.srePrimaryDeepDark)
-        val secondary = ContextCompat.getColor(this, R.color.srePrimaryLight)
+        val primary = getColorWithStyle(this, R.color.srePrimaryDeepDark)
+        val secondary = getColorWithStyle(this, R.color.srePrimaryLight)
         (startup_text_1 as TextView).setTextColor(primary)
         (startup_text_2 as TextView).setTextColor(primary)
         (startup_text_3 as TextView).setTextColor(primary)

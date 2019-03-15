@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.support.v4.content.ContextCompat
 import android.view.View
 import uzh.scenere.R
+import uzh.scenere.helpers.getColorWithStyle
 
 @SuppressLint("ViewConstructor")
 class GraphView (context: Context,
@@ -45,16 +46,16 @@ class GraphView (context: Context,
             paint.textAlign = Paint.Align.LEFT
             val verticalSize = verticalLabels.size - 1
             for (i in verticalLabels.indices) {
-                paint.color = ContextCompat.getColor(context,R.color.srePrimary)
+                paint.color = getColorWithStyle(context,R.color.srePrimary)
 
                 val y = graphHeight / verticalSize * i + border
                 canvas.drawLine(horizontalStart, y, width, y, paint)
-                paint.color = ContextCompat.getColor(context,R.color.sreBlack)
+                paint.color = getColorWithStyle(context,R.color.sreBlack)
                 canvas.drawText(verticalLabels[i], 0f, y, paint)
             }
             val horizontalSize = horizontalLabels.size - 1
             for (i in horizontalLabels.indices) {
-                paint.color = ContextCompat.getColor(context,R.color.srePrimary)
+                paint.color = getColorWithStyle(context,R.color.srePrimary)
                 val x = graphWidth / horizontalSize * i + horizontalStart
                 canvas.drawLine(x, height - border, x, border, paint)
                 paint.textAlign = Paint.Align.CENTER
@@ -62,7 +63,7 @@ class GraphView (context: Context,
                     paint.textAlign = Paint.Align.RIGHT
                 if (i == 0)
                     paint.textAlign = Paint.Align.LEFT
-                paint.color = ContextCompat.getColor(context,R.color.sreBlack)
+                paint.color = getColorWithStyle(context,R.color.sreBlack)
                 canvas.drawText(horizontalLabels[i], x, height - 4, paint)
             }
 
@@ -70,8 +71,8 @@ class GraphView (context: Context,
             canvas.drawText(title, graphWidth / 2 + horizontalStart, border - 4, paint)
 
             if (max != min) {
-                val negativeColor = ContextCompat.getColor(context, R.color.sreSecondaryLight)
-                val positiveColor = ContextCompat.getColor(context, R.color.srePrimaryLight)
+                val negativeColor = getColorWithStyle(context, R.color.sreSecondaryLight)
+                val positiveColor = getColorWithStyle(context, R.color.srePrimaryLight)
                 if (type == GraphType.BAR) {
                     val dataLength = values.size.toFloat()
                     val colWidth = (width - 2 * border) / dataLength

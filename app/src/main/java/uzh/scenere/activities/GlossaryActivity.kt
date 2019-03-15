@@ -3,12 +3,20 @@ package uzh.scenere.activities
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
+import android.view.ViewGroup
+import kotlinx.android.synthetic.main.activity_glossary.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.helpers.getColorWithStyle
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.SwipeButtonSortingLayout
 
 class GlossaryActivity: AbstractManagementActivity() {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return glossary_root
+    }
+
     override fun isInEditMode(): Boolean {
         return false
     }
@@ -62,12 +70,12 @@ class GlossaryActivity: AbstractManagementActivity() {
         for (entry in buttonMap.entries){
             if (entry.key == topic){
                 button = entry.value
-                entry.value.setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn)).updateViews(false)
+                entry.value.setIndividualButtonColors(getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryWarn)).updateViews(false)
             }
             if (additional != null){
                 for (add in additional){
                     if (entry.key == add) {
-                        entry.value.setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention), ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention), ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention), ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention), ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention)).updateViews(false)
+                        entry.value.setIndividualButtonColors(getColorWithStyle(applicationContext,R.color.srePrimaryAttention), getColorWithStyle(applicationContext,R.color.srePrimaryAttention), getColorWithStyle(applicationContext,R.color.srePrimaryAttention), getColorWithStyle(applicationContext,R.color.srePrimaryAttention), getColorWithStyle(applicationContext,R.color.srePrimaryAttention)).updateViews(false)
                     }
                 }
             }

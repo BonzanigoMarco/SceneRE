@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -27,7 +26,10 @@ import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.*
 import uzh.scenere.datamodel.trigger.AbstractTrigger
-import uzh.scenere.datamodel.trigger.communication.*
+import uzh.scenere.datamodel.trigger.communication.BluetoothTrigger
+import uzh.scenere.datamodel.trigger.communication.GpsTrigger
+import uzh.scenere.datamodel.trigger.communication.NfcTrigger
+import uzh.scenere.datamodel.trigger.communication.WifiTrigger
 import uzh.scenere.datamodel.trigger.direct.*
 import uzh.scenere.datamodel.trigger.indirect.CallTrigger
 import uzh.scenere.datamodel.trigger.indirect.SmsTrigger
@@ -45,6 +47,10 @@ import kotlin.reflect.KClass
 
 
 class EditorActivity : AbstractManagementActivity() {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return editor_root
+    }
 
     override fun isInEditMode(): Boolean {
         return editorState == EDIT
@@ -108,7 +114,7 @@ class EditorActivity : AbstractManagementActivity() {
             activePath = activeScenario?.getPath(stakeholder!!, applicationContext, 0)
         }
 
-        getContentWrapperLayout().setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.sreWhite))
+        getContentWrapperLayout().setBackgroundColor(getColorWithStyle(applicationContext,R.color.sreWhite))
         populateExplanationMap()
         execAdaptToOrientationChange()
 
@@ -116,7 +122,7 @@ class EditorActivity : AbstractManagementActivity() {
 
         creationButton = SwipeButton(this, stakeholder?.name
                 ?: getString(R.string.editor_no_stakeholder))
-                .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
                 .setButtonStates(true, true, false, false)

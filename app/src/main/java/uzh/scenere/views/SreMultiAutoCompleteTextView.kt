@@ -25,6 +25,7 @@ import uzh.scenere.datamodel.Attribute
 import uzh.scenere.datamodel.AbstractObject
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.getColorWithStyle
 import uzh.scenere.views.SreMultiAutoCompleteTextView.AutoCompleteStyle.DARK
 import java.io.Serializable
 import kotlin.reflect.KClass
@@ -61,7 +62,7 @@ class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Seri
         val padding = DipHelper.get(resources).dip15.toInt()
         setPadding(padding,padding,padding,padding)
         background = context.getDrawable(if (style == DARK) R.drawable.sre_edit_text_dark else R.drawable.sre_edit_text_light)
-        setTextColor(if (style== DARK) ContextCompat.getColor(context,R.color.srePrimaryPastel) else ContextCompat.getColor(context,R.color.srePrimaryDark))
+        setTextColor(if (style== DARK) getColorWithStyle(context,R.color.srePrimaryPastel) else getColorWithStyle(context,R.color.srePrimaryDark))
 
     }
 

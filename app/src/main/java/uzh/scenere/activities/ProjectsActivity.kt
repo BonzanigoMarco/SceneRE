@@ -2,22 +2,25 @@ package uzh.scenere.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
+import android.view.ViewGroup
+import kotlinx.android.synthetic.main.activity_projects.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.BUNDLE_PROJECT
 import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.datamodel.Stakeholder
-import uzh.scenere.helpers.DatabaseHelper
-import uzh.scenere.helpers.StringHelper
-import uzh.scenere.helpers.getStringValue
+import uzh.scenere.helpers.*
 import uzh.scenere.views.SreTutorialLayoutDialog
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.SwipeButton.SwipeButtonExecution
 
 
 class ProjectsActivity : AbstractManagementActivity() {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return projects_root
+    }
 
     override fun getConfiguredInfoString(): Int {
         return R.string.icon_explain_projects
@@ -56,7 +59,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this,"Create New Project")
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false,true,false,false)
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_project)
                         .setFirstPosition()
@@ -70,11 +73,12 @@ class ProjectsActivity : AbstractManagementActivity() {
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
         resetToolbar()
         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_creation","info_bars", "info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        reStyleText(applicationContext,projects_root)
     }
 
     private fun addProjectToList(project: Project) {
         val swipeButton = SwipeButton(this, project.title)
-                .setColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_stakeholder, R.string.icon_scenario, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, true, true)
                 .updateViews(true)

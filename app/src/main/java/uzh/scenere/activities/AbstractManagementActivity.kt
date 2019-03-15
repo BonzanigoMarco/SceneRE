@@ -169,6 +169,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     override fun onLayoutRendered() {
+        super.onLayoutRendered()
         if (infoState == null) {
             execMorphInfoBar(InfoState.INITIALIZE)
         }
@@ -245,7 +246,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.setSize(WRAP_CONTENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val input = SreMultiAutoCompleteTextView(this, ArrayList())
-            input.setBackgroundColor(ContextCompat.getColor(this, R.color.srePrimary))
+            input.setBackgroundColor(getColorWithStyle(this, R.color.srePrimary))
             input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             input.layoutParams = childParams
@@ -532,7 +533,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             infoShowing = true
         }
         getInfoTitle().text = resources.getString(R.string.x_deleted, objectName)
-        getInfoTitle().setTextColor(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn))
+        getInfoTitle().setTextColor(getColorWithStyle(applicationContext,R.color.srePrimaryWarn))
         resetInfo()
     }
 
@@ -543,7 +544,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             infoShowing = true
         }
         getInfoTitle().text = infoText
-        getInfoTitle().setTextColor(ContextCompat.getColor(applicationContext,color))
+        getInfoTitle().setTextColor(getColorWithStyle(applicationContext,color))
         resetInfo(2000L+(50*infoText.length))
     }
 
@@ -557,7 +558,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         Handler().postDelayed({
             if (localHandlerId == handlerId) {
                 getInfoTitle().text = textPrior
-                getInfoTitle().setTextColor(NumberHelper.nvl(textColorPrior,ContextCompat.getColor(applicationContext,R.color.sreWhite)))
+                getInfoTitle().setTextColor(NumberHelper.nvl(textColorPrior,getColorWithStyle(applicationContext,R.color.sreWhite)))
                 infoShowing = false
             }
         }, time)

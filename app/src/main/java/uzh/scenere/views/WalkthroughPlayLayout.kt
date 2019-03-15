@@ -576,7 +576,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
     private fun generateEditText(title: String?): SreEditText {
         val text = SreEditText(context,stepLayout,null,title)
         text.addRule(RelativeLayout.CENTER_IN_PARENT)
-        text.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(context,R.color.srePrimaryPastel)))
+        text.setTextColor(ColorStateList.valueOf(getColorWithStyle(context,R.color.srePrimaryPastel)))
         text.setPadding(DipHelper.get(resources).dip5)
         text.setSingleLine(true)
         return text

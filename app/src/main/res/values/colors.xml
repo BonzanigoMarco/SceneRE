@@ -19,6 +19,12 @@
     <color name="sreSecondaryLight">#E1BEE7</color>  <!-- 100 pink  -->
     <color name="sreSecondary">#CE93D8</color>  <!-- 200 pink  -->
     <color name="sreSecondaryDark">#AB47BC</color>  <!-- 400 pink  -->
+    <!--APPLICATION CONTRAST-->
+    <color name="sreContrastPrimaryDeepDark">#B2DFDB</color>  <!-- 100 teal -->
+    <color name="sreContrastPrimaryDark">#4DB6AC</color>  <!-- 300 teal -->
+    <color name="sreContrastPrimary">#009688</color>  <!-- 500 teal -->
+    <color name="sreContrastPrimaryLight">#00796B</color>  <!-- 700 teal -->
+    <color name="sreContrastPrimaryPastel">#004d40</color>  <!-- 900 teal -->
 
     <color name="transparent">#00FFFFFF</color>
     <color name="black">#000000</color>

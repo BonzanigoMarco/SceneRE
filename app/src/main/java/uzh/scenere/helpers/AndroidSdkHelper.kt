@@ -1,6 +1,11 @@
 package uzh.scenere.helpers
 
 import uzh.scenere.const.Constants
+import java.lang.reflect.Array.setInt
+import java.lang.reflect.AccessibleObject.setAccessible
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
+
 
 //AndroidSdkHelper.setRColor(R::class.java,"srePrimaryLight",R.color.sreAccentLight)
 //AndroidSdkHelper.setRColor(R::class.java,"srePrimary",R.color.sreAccent)
@@ -23,7 +28,6 @@ class AndroidSdkHelper private constructor() {
             return try {
                 setStatic(Class.forName(aClassName), staticFieldName, toSet)
             } catch (e: ClassNotFoundException) {
-                e.printStackTrace()
                 false
             }
 
@@ -33,10 +37,13 @@ class AndroidSdkHelper private constructor() {
             return try {
                 val declaredField = aClass.getDeclaredField(staticFieldName)
                 declaredField.isAccessible = true
+                val modifiers = declaredField.javaClass.getDeclaredField("accessFlags")
+                modifiers.isAccessible = true
+                modifiers.setInt(declaredField, declaredField.modifiers and Modifier.FINAL.inv())
+                declaredField.set(null, toSet)
                 declaredField.set(null, toSet)
                 true
             } catch (e: Exception) {
-                e.printStackTrace()
                 false
             }
 

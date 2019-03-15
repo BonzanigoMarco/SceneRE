@@ -1,13 +1,19 @@
 package uzh.scenere.helpers
 
 import android.app.Activity
+import android.content.Context
 import android.database.Cursor
+import android.support.v4.content.ContextCompat
+import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NULL_CLASS
 import uzh.scenere.const.Constants.Companion.REFLECTION
 import uzh.scenere.const.Constants.Companion.SPACE
+import uzh.scenere.const.Constants.Companion.STYLE
 import java.io.File
 import kotlin.random.Random
 
@@ -128,5 +134,94 @@ fun Activity.getGenericStringWithIdAndTemplate(id: Int, templateId: Int, vararg 
 fun ArrayList<*>.removeFirst(){
     if (!isNullOrEmpty()){
         removeAt(0)
+    }
+}
+
+enum class SreStyle{
+    NORMAL, CONTRAST, INVERT
+}
+fun getColorWithStyle(context: Context, id: Int): Int{
+    return when {
+        getSreStyle(context) == SreStyle.NORMAL -> {
+            ContextCompat.getColor(context,id)
+        }
+        getSreStyle(context) == SreStyle.CONTRAST -> {
+            when (id){
+                R.color.srePrimaryPastel -> ContextCompat.getColor(context,R.color.sreBlack)
+                else -> ContextCompat.getColor(context,id)
+            }
+        }
+        getSreStyle(context) == SreStyle.CONTRAST -> {
+            when (id){
+                R.color.srePrimaryPastel -> ContextCompat.getColor(context,R.color.sreContrastPrimaryPastel)
+                R.color.srePrimaryLight -> ContextCompat.getColor(context,R.color.sreContrastPrimaryLight)
+                R.color.srePrimary -> ContextCompat.getColor(context,R.color.sreContrastPrimary)
+                R.color.srePrimaryDark -> ContextCompat.getColor(context,R.color.sreContrastPrimaryDark)
+                R.color.srePrimaryDeepDark -> ContextCompat.getColor(context,R.color.sreContrastPrimaryDeepDark)
+                R.color.sreBlack -> ContextCompat.getColor(context,R.color.sreWhite)
+                R.color.sreWhite -> ContextCompat.getColor(context,R.color.sreBlack)
+                else -> ContextCompat.getColor(context,id)
+            }
+        }
+        else -> ContextCompat.getColor(context,id)
+    }
+}
+
+fun getSreStyle(context: Context): SreStyle{
+    val enum = DatabaseHelper.getInstance(context).read(STYLE, String::class, SreStyle.NORMAL.toString(), DatabaseHelper.DataMode.PREFERENCES)
+    return SreStyle.valueOf(enum)
+}
+
+
+fun reStyle(context: Context, root: ViewGroup) {
+    if (root.childCount == 0) {
+        reStyleColor(context, root)
+    }else{
+        for (view in 0 until root.childCount){
+            val childAt = root.getChildAt(view)
+            if (childAt is ViewGroup){
+                reStyle(context, childAt)
+            }else{
+                reStyleColor(context, childAt)
+            }
+        }
+    }
+}
+
+fun reStyleColor(context: Context, root: ViewGroup) {
+    root.setBackgroundColor(getColorWithStyle(context,R.color.sreWhite))
+}
+
+fun reStyleColor(context: Context, view: View){
+    view.setBackgroundColor(getColorWithStyle(context,R.color.sreWhite))
+    if (view is TextView){
+        view.setTextColor(getColorWithStyle(context,R.color.sreBlack))
+    }
+    if (view is EditText){
+        view.setHintTextColor(getColorWithStyle(context,R.color.sreBlack))
+    }
+}
+
+fun reStyleText(context: Context, root: ViewGroup?) {
+    if (root != null && root.childCount != 0) {
+        for (view in 0 until root.childCount){
+            val childAt = root.getChildAt(view)
+            if (childAt is ViewGroup){
+                reStyleText(context, childAt)
+            }else{
+                reStyleTextColor(context, childAt)
+            }
+        }
+    }
+}
+
+fun reStyleTextColor(context: Context, view: View){
+    if (view is TextView){
+        if (view.currentTextColor == ContextCompat.getColor(context,R.color.srePrimaryPastel)){ //TODO COLOR MAP
+            view.setTextColor(getColorWithStyle(context,R.color.srePrimaryPastel))
+        }
+    }
+    if (view is EditText){
+        view.setHintTextColor(getColorWithStyle(context,R.color.srePrimaryPastel))
     }
 }

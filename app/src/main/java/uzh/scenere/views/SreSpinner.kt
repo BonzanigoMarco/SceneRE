@@ -10,6 +10,7 @@ import android.widget.*
 import uzh.scenere.R
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.getColorWithStyle
 
 @SuppressLint("ViewConstructor")
 class SreSpinner(context: Context, parent: ViewGroup?, lookupData: Array<String>): Spinner(context) {
@@ -139,8 +140,8 @@ class SreSpinner(context: Context, parent: ViewGroup?, lookupData: Array<String>
         textView.layoutParams = textParams
         textView.text = spinnerText
         textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
-        textView.setBackgroundColor(ContextCompat.getColor(context,R.color.sreWhite))
-        textView.setTextColor(ContextCompat.getColor(context,R.color.sreBlack))
+        textView.setBackgroundColor(getColorWithStyle(context,R.color.sreWhite))
+        textView.setTextColor(getColorWithStyle(context,R.color.sreBlack))
         textView.setPadding(margin,margin,margin,margin)
         textView.setOnTouchListener { _, _ ->
             selectionCarrier?.removeView(textView)

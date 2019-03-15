@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo
 import android.net.wifi.ScanResult
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -31,10 +30,13 @@ import uzh.scenere.views.SreTutorialLayoutDialog
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.WalkthroughPlayLayout
 import java.io.Serializable
-import java.lang.Exception
 
 
 class WalkthroughActivity : AbstractManagementActivity(), Serializable {
+
+    override fun getConfiguredRootLayout(): ViewGroup? {
+        return walkthrough_root
+    }
 
     override fun isInEditMode(): Boolean {
         return CollectionHelper.oneOf(mode,WalkthroughMode.INFO,WalkthroughMode.WHAT_IF,WalkthroughMode.INPUT)
@@ -150,7 +152,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         loadedProjects.clear()
         loadedProjects.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Project::class, null))
         creationButton = SwipeButton(this, createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
-                .setColors(ContextCompat.getColor(applicationContext, R.color.sreWhite), ContextCompat.getColor(applicationContext, R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext, R.color.sreWhite), getColorWithStyle(applicationContext, R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                 .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)
