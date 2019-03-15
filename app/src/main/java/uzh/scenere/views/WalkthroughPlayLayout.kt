@@ -36,7 +36,9 @@ import uzh.scenere.datamodel.trigger.direct.*
 import uzh.scenere.datamodel.trigger.indirect.CallTrigger
 import uzh.scenere.datamodel.trigger.indirect.SmsTrigger
 import uzh.scenere.datamodel.trigger.indirect.SoundTrigger
+import uzh.scenere.datastructures.PlayState
 import uzh.scenere.helpers.*
+import uzh.scenere.listener.SreSoundChangeListener
 import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
@@ -315,14 +317,63 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         activityLink.registerSmsListener()
                     }
                     is SoundTrigger -> {/*TODO*/
+                        val text = (second as SoundTrigger).text!!
+                        val threshold = (second as SoundTrigger).dB!!
+                        val calibrating = context.getString(R.string.walkthrough_calibrating)
+                        val titleText = generateText(null, context.getString(R.string.walkthrough_sound_text,text,threshold.toString(), calibrating), ArrayList(), arrayListOf(text,threshold.toString(), calibrating))
+                        val scroll = SreScrollView(context,triggerLayout)
+                        scroll.addScrollElement(titleText)
+                        //Audio
+                        val recorder = SreSoundChangeListener(activityLink)
+                        if (!recorder.audioAllowed) {
+                            val state = if (recorder.audioPossible) context.getString(R.string.x_not_granted) else context.getString(R.string.x_not_supported)
+                            val alertText = generateText(null, "Audio $state!", arrayListOf(state), ArrayList())
+                            val button = generateButton(context.getString(R.string.walkthrough_grant_permission))
+                            button.setExecutable {
+                                if (recorder.audioPossible){
+                                    PermissionHelper.request(activityLink, PermissionHelper.Companion.PermissionGroups.AUDIO)
+                                }else{
+                                    saveAndLoadNew(true,context.getString(R.string.walkthrough_final_state_cancelled_audio, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
+                                }
+                            }
+                            scroll.addScrollElement(alertText)
+                            scroll.addScrollElement(button)
+                        }
+                        val calibrationButton = generateButton(context.getString(R.string.walkthrough_calibrate_sound))
+                        calibrationButton.setExecutable {
+                            refresh = false
+                            titleText.setTextWithNewBoldWords(context.getString(R.string.walkthrough_sound_text,text,threshold.toString(),calibrating),text,threshold.toString(),calibrating)
+                            recorder.calibrate()
+                            refresh = true
+                        }
+                        scroll.addScrollElement(calibrationButton)
+                        refresh = true
+                        var init = true
+                        refresh({
+                            if (init) {
+                                recorder.start()
+                                init = false
+                            }
+                            val amplitude = recorder.getAmplitude()
+                            if (threshold < 0 && amplitude < threshold || threshold > 0 && amplitude > threshold) {
+                                recorder.stop()
+                                notify(context.getString(R.string.walkthrough_sound_threshold_reached))
+                                loadNextStep(context.getString(R.string.walkthrough_transition_sound))
+                            } else if (amplitude == 0.0) {
+                                titleText.setTextWithNewBoldWords(context.getString(R.string.walkthrough_sound_text, text, threshold.toString(), calibrating), text, threshold.toString(), calibrating)
+                            } else {
+                                titleText.setTextWithNewBoldWords(context.getString(R.string.walkthrough_sound_text, text, threshold.toString(), "$amplitude dB"), text, threshold.toString(), amplitude.toString())
+                            }
+                        },300)
+                        triggerLayout.addView(scroll)
                     }
                     is BluetoothTrigger -> {/*TODO*/
                         val text = (second as BluetoothTrigger).text!!
                         val deviceId = (second as BluetoothTrigger).deviceId!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_bluetooth_text,text,deviceId), ArrayList(), arrayListOf(text,deviceId))
-                        val bluetoothAllowed = PermissionHelper.check(activityLink,PermissionHelper.Companion.PermissionGroups.BLUETOOTH)
                         val scroll = SreScrollView(context,triggerLayout)
                         scroll.addScrollElement(titleText)
+                        val bluetoothAllowed = PermissionHelper.check(activityLink,PermissionHelper.Companion.PermissionGroups.BLUETOOTH)
                         if (!bluetoothAllowed){
                             val state = context.getString(R.string.x_not_granted)
                             val alertText = generateText(null, "Bluetooth $state!",arrayListOf(state),ArrayList())

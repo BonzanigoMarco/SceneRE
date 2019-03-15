@@ -16,6 +16,7 @@ class Constants {
         const val IMPORT_FOLDER: String = "scenereImportFolder"
         const val ANONYMOUS: String = "John Doe"
         const val WALKTHROUGH_PLAY_STATE: String = "scenereWalkthroughPlayState"
+        const val WALKTHROUGH_PLAY_STATE_SHORTCUT: String = "scenereWalkthroughPlayStateShortcut"
         //NUMBERS
         val COORDINATES_PATTERN: Regex = "-?[1]?[0-9]{1,2}\\.[0-9]{1,6},-?[1]?[0-9]{1,2}\\.[0-9]{1,6}".toRegex()
         const val EARTH_RADIUS_M: Double = 6371000.0
@@ -26,6 +27,8 @@ class Constants {
         const val FIVE_SEC_MS: Long = 5000
         const val TWO_SEC_MS: Long = 2000
         const val ONE_SEC_MS: Long = 1000
+        const val HALF_SEC_MS: Long = 500
+        const val THIRD_SEC_MS: Long = 300
         const val THOUSAND: Double = 1000.0
         const val HUNDRED: Double = 100.0
         const val FRACTION: Float = 0.1f

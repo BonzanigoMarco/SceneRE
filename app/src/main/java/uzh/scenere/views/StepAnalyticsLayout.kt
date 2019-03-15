@@ -9,7 +9,7 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.FRACTION
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
-import uzh.scenere.datamodel.StatisticArrayList
+import uzh.scenere.datastructures.StatisticArrayList
 import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.StringHelper

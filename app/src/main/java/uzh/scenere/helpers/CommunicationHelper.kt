@@ -3,6 +3,7 @@ package uzh.scenere.helpers
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.location.Location
@@ -334,6 +335,16 @@ class CommunicationHelper private constructor () {
                 }
                 return Intent(Intent.ACTION_VIEW, Uri.parse("https://maps.google.com/?q=$latitude,$longitude"))
             }
+        }
+
+        fun reconnectBluetoothDevice(device: BluetoothDevice): Boolean{
+            try{
+                val declaredMethod = device.javaClass.getDeclaredMethod("removeBond")
+                declaredMethod.invoke(device)
+            }catch (e: java.lang.Exception){
+                return false
+            }
+            return device.createBond()
         }
     }
 }

@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.le.ScanCallback
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -30,7 +29,6 @@ import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.telephony.PhoneStateListener
-import android.telephony.SmsMessage
 import android.telephony.TelephonyManager
 import android.text.SpannedString
 import android.util.DisplayMetrics
@@ -46,11 +44,14 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.MILLION
 import uzh.scenere.const.Constants.Companion.NOTHING
-import uzh.scenere.const.Constants.Companion.ONE_SEC_MS
 import uzh.scenere.const.Constants.Companion.PHONE_STATE
 import uzh.scenere.const.Constants.Companion.SMS_RECEIVED
 import uzh.scenere.const.Constants.Companion.ZERO
 import uzh.scenere.helpers.*
+import uzh.scenere.listener.SreBluetoothReceiver
+import uzh.scenere.listener.SreBluetoothScanCallback
+import uzh.scenere.listener.SrePhoneReceiver
+import uzh.scenere.listener.SreSmsReceiver
 import java.io.IOException
 import kotlin.random.Random
 import kotlin.reflect.KClass
@@ -608,50 +609,6 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         hangUp
     }
 
-    class SrePhoneReceiver(private val handlePhoneCall: (Context?, String) -> Boolean) : BroadcastReceiver() {
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            registerListener(context)
-            if (intent?.action == PHONE_STATE) {
-                val state = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
-
-                if (state == TelephonyManager.EXTRA_STATE_IDLE) {
-                } else if (state == TelephonyManager.EXTRA_STATE_RINGING) {
-                    val telephoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
-                    if (!handlePhoneCall.invoke(context, telephoneNumber)) {
-
-                    }
-                } else if (state == TelephonyManager.EXTRA_STATE_OFFHOOK) {
-
-                }
-            } else {
-                //NOP
-            }
-        }
-
-        fun registerListener(context: Context?) {
-            val phoneListener = SrePhoneStateListener(context)
-            val telephonyManager = context?.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            telephonyManager.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE)
-        }
-    }
-
-    class SrePhoneStateListener(val context: Context?): PhoneStateListener() {
-        var isPhoneCalling = false
-        override fun onCallStateChanged(state: Int, incomingNumber: String?) {
-            if (TelephonyManager.CALL_STATE_OFFHOOK == state) {
-                isPhoneCalling = true
-            }
-            if (TelephonyManager.CALL_STATE_IDLE == state && isPhoneCalling) {
-                val intent = context?.packageManager?.getLaunchIntentForPackage(context.packageName)
-                intent?.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                context?.startActivity(intent)
-
-                isPhoneCalling = false
-            }
-        }
-    }
-
     fun registerSmsListener(){
         sreSmsReceiver = SreSmsReceiver(handleSms)
         resumeSmsListener()
@@ -689,39 +646,6 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             //NOP
         }
         true
-    }
-
-    class SreSmsReceiver(private val handleSms: (String, String) -> Boolean) : BroadcastReceiver() {
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == SMS_RECEIVED) {
-                val bundle = intent.extras
-                if (bundle != null) {
-                    val pdus = bundle.get("pdus")
-                    if (pdus is Array<*>) {
-                        for (obj in pdus) {
-                            val currentSMS = getIncomingMessage(obj, bundle)
-
-                            val senderNo = currentSMS.displayOriginatingAddress
-                            val message = currentSMS.displayMessageBody
-                            handleSms.invoke(senderNo,message)
-                        }
-                        this.abortBroadcast()
-                        // End of loop
-                    }
-                }
-            }
-        }
-
-        private fun getIncomingMessage(obj: Any?, bundle: Bundle): SmsMessage {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val format = bundle.getString ("format")
-                return SmsMessage.createFromPdu(obj as ByteArray, format)
-            } else {
-                return SmsMessage.createFromPdu(obj as ByteArray)
-            }
-        }
-
     }
 
     fun registerBluetoothListener(){
@@ -790,7 +714,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         }
     }
 
-    fun execStopBluetoothDiscovery() {
+    private fun execStopBluetoothDiscovery() {
         val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         bluetoothAdapter.cancelDiscovery()
         if (sreBluetoothCallback != null){
@@ -798,16 +722,6 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             bluetoothAdapter.bluetoothLeScanner.flushPendingScanResults(sreBluetoothCallback)
             sreBluetoothCallback = null
         }
-    }
-
-    private fun reconnectDevice(device: BluetoothDevice): Boolean{
-        try{
-            val declaredMethod = device.javaClass.getDeclaredMethod("removeBond")
-            declaredMethod.invoke(device)
-        }catch (e: java.lang.Exception){
-            return false
-        }
-        return device.createBond()
     }
 
     open fun handleBluetoothData(deviceName: List<BluetoothDevice>): Boolean {
@@ -819,64 +733,5 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             //NOP
         }
         true
-    }
-
-    class SreBluetoothReceiver(private val handleBluetooth: (List<BluetoothDevice>) -> Boolean) : BroadcastReceiver() {
-
-        private val alreadyKnownDevices = HashMap<String,BluetoothDevice>()
-        private val newDevices = ArrayList<BluetoothDevice>()
-
-        fun addAlreadyKnownDevices(devices: HashMap<String,BluetoothDevice>){
-            alreadyKnownDevices.clear()
-            alreadyKnownDevices.putAll(devices)
-        }
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent != null && CollectionHelper.oneOf(intent.action,BluetoothDevice.ACTION_FOUND,BluetoothDevice.ACTION_ACL_CONNECTED)) {
-                val device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                if(!newDevices.contains(device)){
-                    if (alreadyKnownDevices.containsKey(device.address)){
-                        newDevices.add(alreadyKnownDevices[device.address]!!)
-                    }else{
-                        newDevices.add(device)
-                    }
-                }
-            }else if (intent != null && intent.action == BluetoothAdapter.ACTION_DISCOVERY_FINISHED) {
-                if(!newDevices.isEmpty()){
-                    handleBluetooth.invoke(newDevices)
-                    newDevices.clear()
-                }
-            }else{
-                //NOP
-            }
-        }
-    }
-
-    class SreBluetoothScanCallback( private val handleBluetooth: (List<BluetoothDevice>) -> Boolean): ScanCallback(){
-
-        private val alreadyKnownDevices = HashMap<String,BluetoothDevice>()
-        private val newDevices = ArrayList<BluetoothDevice>()
-
-        fun addAlreadyKnownDevices(devices: HashMap<String,BluetoothDevice>){
-            alreadyKnownDevices.clear()
-            alreadyKnownDevices.putAll(devices)
-        }
-
-        override fun onScanResult(callbackType: Int, result: android.bluetooth.le.ScanResult?) {
-            if (result != null ){
-                val device = result.device
-                if (!newDevices.contains(device)) {
-                    if (alreadyKnownDevices.containsKey(device.address)){
-                        newDevices.add(alreadyKnownDevices[device.address]!!)
-                    }else{
-                        newDevices.add(device)
-                    }
-                }else{
-                    handleBluetooth.invoke(newDevices)
-                    newDevices.clear()
-                }
-            }
-            super.onScanResult(callbackType, result)
-        }
     }
 }

@@ -1,4 +1,4 @@
-package uzh.scenere.datamodel
+package uzh.scenere.datastructures
 
 import uzh.scenere.const.Constants.Companion.FRACTION
 import uzh.scenere.const.Constants.Companion.NEW_LINE
@@ -100,6 +100,41 @@ class StatisticArrayList<E> : ArrayList<E>() {
                 is Long ->  return (total as Long/size) as E
                 is Float ->  return (total as Float/size) as E
                 is Int ->  return (total as Int/size) as E
+            }
+        }
+        return null
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun avgLarge(): E?{
+        if (!isEmpty() && get(0) is Number){
+            var avg: Double = 0.0
+            when(get(0)){
+                is Double -> {
+                    for (element in this){
+                        avg += (element as Double).div(size)
+                    }
+                    return avg as E
+                }
+                is Long -> {
+                    for (element in this){
+                        avg += (element as Long).toDouble().div(size)
+                    }
+                    return avg.toLong() as E
+                }
+                is Float -> {
+                    for (element in this){
+                        avg += (element as Float).toDouble().div(size)
+                    }
+                    return avg.toFloat() as E
+                }
+                is Int -> {
+                    for (element in this){
+                        avg += (element as Int).toDouble().div(size)
+                    }
+                    return avg.toInt() as E
+                }
+                else -> return null
             }
         }
         return null

@@ -538,7 +538,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = SoundTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_sound))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, NumberHelper.nvl(element.dB,0).toString(), false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_SIGNED_EDIT, NumberHelper.nvl(element.dB,0).toString(), false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is BluetoothTrigger -> {/*TODO*/
@@ -648,7 +648,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = TimeTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_time))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_SIGNED_EDIT, null, false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_bt) -> {/*TODO*/

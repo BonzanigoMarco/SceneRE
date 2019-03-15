@@ -182,6 +182,7 @@
     <string name="permission_description_sms_title">SMS-Permissions</string>
     <string name="permission_description_gps_title">GPS-Permissions</string>
     <string name="permission_description_telephony_title">Telephony-Permissions</string>
+    <string name="permission_description_shortcuts_title">Shortcut-Permissions</string>
     <string name="permission_description_network">Network-Permissions\n\nUsed to connect to the Internet.</string>
     <string name="permission_description_storage">Storage-Permissions\n\nUsed to store Data and Settings.</string>
     <string name="permission_description_audio">Audio-Permissions (Optional)\n\nUsed to record Audio-Memos.</string>
@@ -191,6 +192,7 @@
     <string name="permission_description_sms">SMS-Permissions\n\nUsed for special Triggers.</string>
     <string name="permission_description_gps">GPS-Permissions\n\nUsed for special Triggers.</string>
     <string name="permission_description_telephony">Telephony-Permissions\n\nUsed for special Triggers.</string>
+    <string name="permission_shortcuts_telephony">Shortcut-Permissions\n\nUsed for installing Walkthrough-Shortcuts.</string>
 
     <!--General-->
     <string name="empty" />
@@ -270,7 +272,7 @@
     <string name="walkthrough_sms_text">%1$s<![CDATA[<br>]]>Wait for an SMS to continue.<![CDATA[<br>]]>Number-Pattern:<![CDATA[<br>]]>%2$s</string>
     <string name="walkthrough_bluetooth_text">%1$s<![CDATA[<br>]]>Get in reach of a Bluetooth Device to continue.<![CDATA[<br>]]>Device-Name:<![CDATA[<br>]]>%2$s</string>
     <string name="walkthrough_timer_text">%1$s<![CDATA[<br>]]>Wait for the Timer to expire in order to continue.<![CDATA[<br>]]>Remaining Time:<![CDATA[<br>]]>%2$s</string>
-    <string name="walkthrough_sound_text">%1$s<![CDATA[<br>]]>Generate a Sound above the Threshold to continue.<![CDATA[<br>]]>Threshold:<![CDATA[<br>]]>%2$s dB</string>
+    <string name="walkthrough_sound_text">%1$s<![CDATA[<br>]]>Surpass the Sound-Threshold to continue. Calibrate again if Measurements are unusual.<![CDATA[<br>]]>Threshold: %2$s dB<![CDATA[<br>]]>Current: %3$s</string>
     <string name="walkthrough_interaction_code">Interaction-Code</string>
     <string name="walkthrough_start_scenario">Start Scenario</string>
     <string name="walkthrough_initiation">Initiation</string>
@@ -288,6 +290,7 @@
     <string name="walkthrough_enable_wifi">Enable Wi-Fi</string>
     <string name="walkthrough_enable_bluetooth">Enable Bluetooth</string>
     <string name="walkthrough_grant_permission">Grant Permissions</string>
+    <string name="walkthrough_calibrate_sound">Calibrate again</string>
     <string name="walkthrough_enable_gps">Enable GPS</string>
     <string name="walkthrough_open_location">Open Location</string>
     <string name="walkthrough_end_scenario">End Scenario</string>
@@ -302,6 +305,7 @@
     <string name="walkthrough_what_if_browse">Browse available What-If Questions</string>
     <string name="walkthrough_contribute_comments">Write down your Comment and press "Add" to contribute it</string>
     <string name="walkthrough_final_state_cancelled_nfc">Cancelled on the %1$s Step, \"%2$s\" (NFC not supported)</string>
+    <string name="walkthrough_final_state_cancelled_audio">Cancelled on the %1$s Step, \"%2$s\" (Audio not supported)</string>
     <string name="walkthrough_final_state_cancelled_gps">Cancelled on the %1$s Step, \"%2$s\" (GPS not supported)</string>
     <string name="walkthrough_final_state_cancelled">Cancelled on the %1$s Step, \"%2$s\"</string>
     <string name="walkthrough_final_state_cancelled_check">Cancelled on the "</string>
@@ -444,7 +448,13 @@
     <string name="editor_gps_formatting">e.g. 47.123456,8.123456</string>
     <string name="editor_gps_warning_text">Wrong format. Expected: "47.123456,8.123456"</string>
     <string name="walkthrough_gps_destination_reached">Destination reached!</string>
+    <string name="walkthrough_sound_threshold_reached">Threshold surpassed!</string>
+    <string name="walkthrough_transition_sound">Sound-Threshold surpassed</string>
     <string name="walkthrough_timer_expired">Timer expired!</string>
     <string name="walkthrough_gps_evaluation">Evaluating Distance</string>
     <string name="walkthrough_gps_distance">Distance: %1$s m</string>
+    <string name="walkthrough_calibrating">Calibrating…</string>
+    <string name="walkthrough_shortcut_created">Shortcut created!</string>
+    <string name="walkthrough_shortcut_creation_failed">Shortcut creation failed!</string>
+    <string name="walkthrough_shortcut_creation">Walkthrough state saved to "%1$s"!</string>
 </resources>

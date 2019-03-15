@@ -9,7 +9,7 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.datamodel.Stakeholder
-import uzh.scenere.datamodel.StatisticArrayList
+import uzh.scenere.datastructures.StatisticArrayList
 import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.helpers.*
 import java.util.*
@@ -21,9 +21,9 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         STEPS, COMMENTS
     }
 
-    private lateinit var steps: HashMap<Stakeholder,HashMap<Int,StatisticArrayList<String>>>
-    private lateinit var paths: HashMap<Stakeholder,StatisticArrayList<String>>
-    private lateinit var stepTimes: HashMap<Stakeholder,HashMap<Int,StatisticArrayList<Long>>>
+    private lateinit var steps: HashMap<Stakeholder,HashMap<Int, StatisticArrayList<String>>>
+    private lateinit var paths: HashMap<Stakeholder, StatisticArrayList<String>>
+    private lateinit var stepTimes: HashMap<Stakeholder,HashMap<Int, StatisticArrayList<Long>>>
     private lateinit var walkthroughAmount: HashMap<Stakeholder,Int>
     private var stakeholderPointer: Int = 0
 

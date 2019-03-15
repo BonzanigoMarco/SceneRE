@@ -22,13 +22,17 @@ import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED
 import uzh.scenere.const.Constants.Companion.NONE
 import uzh.scenere.const.Constants.Companion.READ_ONLY
 import uzh.scenere.const.Constants.Companion.WALKTHROUGH_PLAY_STATE
+import uzh.scenere.const.Constants.Companion.WALKTHROUGH_PLAY_STATE_SHORTCUT
 import uzh.scenere.datamodel.*
+import uzh.scenere.datastructures.PlayState
 import uzh.scenere.helpers.*
 import uzh.scenere.views.SreContextAwareTextView
 import uzh.scenere.views.SreTutorialLayoutDialog
 import uzh.scenere.views.SwipeButton
 import uzh.scenere.views.WalkthroughPlayLayout
 import java.io.Serializable
+import java.lang.Exception
+
 
 class WalkthroughActivity : AbstractManagementActivity(), Serializable {
 
@@ -177,11 +181,14 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
     }
 
     private fun restoreWalkthroughIfPossible() {
+        val shortcutSave = intent.getByteArrayExtra(WALKTHROUGH_PLAY_STATE_SHORTCUT)
         val bytes = DatabaseHelper.getInstance(applicationContext).read(WALKTHROUGH_PLAY_STATE, ByteArray::class, NullHelper.get(ByteArray::class), DatabaseHelper.DataMode.PREFERENCES)
-        if (bytes.isNotEmpty()) {
+        if (ShortcutHelper.enabled && shortcutSave != null && shortcutSave.isNotEmpty()){
+            play(DataHelper.toObject(shortcutSave, PlayState::class))
+        }else if (bytes.isNotEmpty()) {
             play(DataHelper.toObject(bytes, PlayState::class))
+            DatabaseHelper.getInstance(applicationContext).delete(WALKTHROUGH_PLAY_STATE, ByteArray::class, DatabaseHelper.DataMode.PREFERENCES)
         }
-        DatabaseHelper.getInstance(applicationContext).delete(WALKTHROUGH_PLAY_STATE, ByteArray::class, DatabaseHelper.DataMode.PREFERENCES)
     }
 
     private fun backupWalkthroughIfNecessary() {
@@ -241,7 +248,10 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         when (mode) {
             WalkthroughMode.SELECT_PROJECT -> select(loadedProjects, true)
             WalkthroughMode.SELECT_SCENARIO -> select(loadedScenarios, true)
-            WalkthroughMode.SELECT_STAKEHOLDER -> select(loadedStakeholders, true)
+            WalkthroughMode.SELECT_STAKEHOLDER -> {
+                select(loadedStakeholders, true)
+                showSave()
+            }
             else -> return
         }
     }
@@ -250,8 +260,21 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         when (mode) {
             WalkthroughMode.SELECT_PROJECT -> select(loadedProjects, false)
             WalkthroughMode.SELECT_SCENARIO -> select(loadedScenarios, false)
-            WalkthroughMode.SELECT_STAKEHOLDER -> select(loadedStakeholders, false)
+            WalkthroughMode.SELECT_STAKEHOLDER -> {
+                select(loadedStakeholders, false)
+                showSave()
+            }
             else -> return
+        }
+    }
+
+    private fun showSave() {
+        if (ShortcutHelper.enabled){
+            if (pointer != null) {
+                customizeToolbarId(R.string.icon_back, R.string.icon_save, null, R.string.icon_info, null)
+            } else {
+                customizeToolbarId(R.string.icon_back, null, null, R.string.icon_info, null)
+            }
         }
     }
 
@@ -345,6 +368,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                         ?.setText(createButtonLabel(loadedScenarios, getString(R.string.literal_scenarios)))
                         ?.updateViews(false)
+                customizeToolbarId(R.string.icon_back, null, null, R.string.icon_info, null)
             }
             else -> return
         }
@@ -479,7 +503,12 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
 
     override fun onToolbarCenterLeftClicked() {
         //WHAT IFS
-        if (CollectionHelper.oneOf(mode,WalkthroughMode.PLAY,WalkthroughMode.INPUT)) {
+        if (ShortcutHelper.enabled && mode == WalkthroughMode.SELECT_STAKEHOLDER){
+            if (scenarioPointer != null && pointer != null){
+                val saveState = WalkthroughPlayLayout.saveState(WalkthroughPlayLayout(applicationContext, NullHelper.get(Scenario::class), NullHelper.get(Stakeholder::class), { resetToolbar() }, { stop() }, notifyExecutable))
+                ShortcutHelper.addShortcut(applicationContext,"${loadedScenarios[scenarioPointer!!].title}-${loadedStakeholders[pointer!!].name}",saveState,notifyExtendedExecutable)
+            }
+        }else  if (CollectionHelper.oneOf(mode,WalkthroughMode.PLAY,WalkthroughMode.INPUT)) {
             if (mode == WalkthroughMode.INPUT){
                 activeWalkthrough?.resetActiveness()
             }
@@ -548,6 +577,10 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
 
     private val notifyExecutable: (String) -> Unit = {
         notify(it)
+    }
+
+    private val notifyExtendedExecutable: (String,String?) -> Unit = { title: String, content:String? ->
+        notify(title,content)
     }
 }
 

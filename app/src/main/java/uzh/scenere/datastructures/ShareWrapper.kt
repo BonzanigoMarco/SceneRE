@@ -1,8 +1,9 @@
-package uzh.scenere.datamodel
+package uzh.scenere.datastructures
 
-import android.content.Context
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NOT_VALIDATED
+import uzh.scenere.datamodel.Project
+import uzh.scenere.datamodel.Walkthrough
 import java.io.Serializable
 
 class ShareWrapper() : Serializable {
@@ -35,7 +36,7 @@ class ShareWrapper() : Serializable {
         return this
     }
 
-    fun validate(validation: Int): ShareWrapper{
+    fun validate(validation: Int): ShareWrapper {
         validationCode = validation
         return this
     }

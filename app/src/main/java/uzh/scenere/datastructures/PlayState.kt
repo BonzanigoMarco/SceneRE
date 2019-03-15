@@ -1,5 +1,6 @@
-package uzh.scenere.datamodel
+package uzh.scenere.datastructures
 
+import uzh.scenere.datamodel.*
 import uzh.scenere.views.WalkthroughPlayLayout
 import java.io.Serializable
 

@@ -185,6 +185,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         SINGLE_LINE_CONTEXT_EDIT,
         MULTI_LINE_CONTEXT_EDIT,
         NUMBER_EDIT,
+        NUMBER_SIGNED_EDIT,
         MULTI_TEXT
     }
 
@@ -201,7 +202,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         }else if (singleSelect || readOnly || noCompleteRemoval || simpleLookup){
             realPresetValue = null
         }
-        if (CollectionHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT, LineInputType.NUMBER_EDIT)) {
+        if (CollectionHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT, LineInputType.NUMBER_EDIT, LineInputType.NUMBER_SIGNED_EDIT)) {
             val layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             layoutParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             val wrapper = LinearLayout(this)
@@ -215,7 +216,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             val input = SreEditText(this, wrapper, null, getString(R.string.input, labelText))
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             input.textSize = textSize!!
-            input.inputType = if (inputType == LineInputType.NUMBER_EDIT) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            input.inputType = if (inputType == LineInputType.NUMBER_EDIT) InputType.TYPE_CLASS_NUMBER else if (inputType == LineInputType.NUMBER_SIGNED_EDIT) (InputType.TYPE_CLASS_NUMBER  or InputType.TYPE_NUMBER_FLAG_SIGNED )else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             input.setText(realPresetValue)
             input.setWeight(1f)
             input.setSize(MATCH_PARENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else 0)
