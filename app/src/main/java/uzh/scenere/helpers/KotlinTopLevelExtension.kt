@@ -138,7 +138,7 @@ fun ArrayList<*>.removeFirst(){
 }
 
 enum class SreStyle{
-    NORMAL, CONTRAST, INVERT
+    NORMAL, CONTRAST
 }
 fun getColorWithStyle(context: Context, id: Int): Int{
     return when {
@@ -146,22 +146,8 @@ fun getColorWithStyle(context: Context, id: Int): Int{
             ContextCompat.getColor(context,id)
         }
         getSreStyle(context) == SreStyle.CONTRAST -> {
-            when (id){
-                R.color.srePrimaryPastel -> ContextCompat.getColor(context,R.color.sreBlack)
-                else -> ContextCompat.getColor(context,id)
-            }
-        }
-        getSreStyle(context) == SreStyle.CONTRAST -> {
-            when (id){
-                R.color.srePrimaryPastel -> ContextCompat.getColor(context,R.color.sreContrastPrimaryPastel)
-                R.color.srePrimaryLight -> ContextCompat.getColor(context,R.color.sreContrastPrimaryLight)
-                R.color.srePrimary -> ContextCompat.getColor(context,R.color.sreContrastPrimary)
-                R.color.srePrimaryDark -> ContextCompat.getColor(context,R.color.sreContrastPrimaryDark)
-                R.color.srePrimaryDeepDark -> ContextCompat.getColor(context,R.color.sreContrastPrimaryDeepDark)
-                R.color.sreBlack -> ContextCompat.getColor(context,R.color.sreWhite)
-                R.color.sreWhite -> ContextCompat.getColor(context,R.color.sreBlack)
-                else -> ContextCompat.getColor(context,id)
-            }
+            val color = StyleHelper.get(context).switchToContrastMode[id]
+            color ?: ContextCompat.getColor(context,id)
         }
         else -> ContextCompat.getColor(context,id)
     }
@@ -172,56 +158,25 @@ fun getSreStyle(context: Context): SreStyle{
     return SreStyle.valueOf(enum)
 }
 
-
-fun reStyle(context: Context, root: ViewGroup) {
-    if (root.childCount == 0) {
-        reStyleColor(context, root)
-    }else{
-        for (view in 0 until root.childCount){
-            val childAt = root.getChildAt(view)
-            if (childAt is ViewGroup){
-                reStyle(context, childAt)
-            }else{
-                reStyleColor(context, childAt)
-            }
-        }
+fun reStyleText(context: Context, root: ViewGroup?, sreStyle: SreStyle? = null) {
+    var style = sreStyle
+    if (sreStyle == null){
+        style = getSreStyle(context)
     }
-}
-
-fun reStyleColor(context: Context, root: ViewGroup) {
-    root.setBackgroundColor(getColorWithStyle(context,R.color.sreWhite))
-}
-
-fun reStyleColor(context: Context, view: View){
-    view.setBackgroundColor(getColorWithStyle(context,R.color.sreWhite))
-    if (view is TextView){
-        view.setTextColor(getColorWithStyle(context,R.color.sreBlack))
-    }
-    if (view is EditText){
-        view.setHintTextColor(getColorWithStyle(context,R.color.sreBlack))
-    }
-}
-
-fun reStyleText(context: Context, root: ViewGroup?) {
     if (root != null && root.childCount != 0) {
         for (view in 0 until root.childCount){
             val childAt = root.getChildAt(view)
             if (childAt is ViewGroup){
-                reStyleText(context, childAt)
+                reStyleText(context, childAt, style)
             }else{
-                reStyleTextColor(context, childAt)
+                reStyleTextColor(context, childAt, style!!)
             }
         }
     }
 }
 
-fun reStyleTextColor(context: Context, view: View){
+fun reStyleTextColor(context: Context, view: View, sreStyle: SreStyle){
     if (view is TextView){
-        if (view.currentTextColor == ContextCompat.getColor(context,R.color.srePrimaryPastel)){ //TODO COLOR MAP
-            view.setTextColor(getColorWithStyle(context,R.color.srePrimaryPastel))
-        }
-    }
-    if (view is EditText){
-        view.setHintTextColor(getColorWithStyle(context,R.color.srePrimaryPastel))
+        StyleHelper.get(context).switch(view,sreStyle)
     }
 }

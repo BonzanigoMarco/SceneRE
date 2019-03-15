@@ -12,7 +12,6 @@ import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.PermissionHelper
 import uzh.scenere.helpers.StringHelper
-import uzh.scenere.helpers.reStyleText
 import uzh.scenere.views.SreButton
 import uzh.scenere.views.SreTutorialLayoutDialog
 

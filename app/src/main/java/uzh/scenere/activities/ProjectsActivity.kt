@@ -73,7 +73,6 @@ class ProjectsActivity : AbstractManagementActivity() {
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
         resetToolbar()
         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_creation","info_bars", "info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
-        reStyleText(applicationContext,projects_root)
     }
 
     private fun addProjectToList(project: Project) {

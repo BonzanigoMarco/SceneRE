@@ -14,7 +14,15 @@
     <color name="srePrimarySafe">@color/material_700_green</color>
     <color name="srePrimaryAttention">@color/material_700_orange</color>
     <color name="sreBlack">#000000</color>
+    <color name="sreBlack_I">#000001</color>
+    <color name="sreBlack_II">#000002</color>
+    <color name="sreBlack_III">#000003</color>
+    <color name="sreBlack_IV">#000004</color>
     <color name="sreWhite">#FFFFFF</color>
+    <color name="sreWhite_I">#FFFFFE</color>
+    <color name="sreWhite_II">#FFFFFD</color>
+    <color name="sreWhite_III">#FFFFFC</color>
+    <color name="sreWhite_IV">#FFFFFB</color>
     <color name="sreTutorial">#FB8C00</color>  <!-- 600 orange  -->
     <color name="sreSecondaryLight">#E1BEE7</color>  <!-- 100 pink  -->
     <color name="sreSecondary">#CE93D8</color>  <!-- 200 pink  -->
