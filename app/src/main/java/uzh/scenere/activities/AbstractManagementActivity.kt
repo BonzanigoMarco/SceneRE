@@ -28,6 +28,7 @@ import java.util.*
 import android.content.res.Configuration
 import android.text.InputFilter
 import android.text.method.DigitsKeyListener
+import android.view.inputmethod.EditorInfo
 
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
@@ -226,6 +227,10 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.setWeight(1f)
             input.setSize(MATCH_PARENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else 0)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
+            if (isLandscapeOrientation()){
+                //Present "Done" for every input to avoid jumping to unrelated inputs in landscape
+                input.imeOptions = EditorInfo.IME_ACTION_DONE
+            }
             if (limit > 0){
                 input.filters = arrayOf(InputFilter.LengthFilter(limit))
             }
@@ -259,6 +264,10 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             input.setText(realPresetValue)
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_CONTEXT_EDIT))
+            if (isLandscapeOrientation()){
+                //Present "Done" for every input to avoid jumping to unrelated inputs in landscape
+                input.imeOptions = EditorInfo.IME_ACTION_DONE
+            }
             wrapper.addView(label)
             wrapper.addView(input)
             inputMap[labelText] = input
@@ -399,6 +408,10 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.setWeight(1f)
             input.setSize(MATCH_PARENT, MATCH_PARENT)
             input.setSingleLine(false)
+            if (isLandscapeOrientation()){
+                //Present "Done" for every input to avoid jumping to unrelated inputs in landscape
+                input.imeOptions = EditorInfo.IME_ACTION_DONE
+            }
             addButton.setExecutable {
                 val text = input.text.toString()
                 if (StringHelper.hasText(text)){

@@ -2,7 +2,6 @@ package uzh.scenere.activities
 
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -69,7 +68,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
     private val activeScenarios = ArrayList<Scenario>()
     private val activeWalkthroughs = ArrayList<Walkthrough>()
     private var scenarioAnalytics: ScenarioAnalyticLayout? = null
-    private var stepAnalytics: StepAnalyticsLayout? = null
+    private var commentAnalytics: CommentAnalyticsLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -198,9 +197,9 @@ class AnalyticsActivity : AbstractManagementActivity() {
             }
             AnalyticsMode.SELECT_COMMENTS -> {
                 getContentHolderLayout().removeView(labelWrapper)
-                stepAnalytics?.addTo(getContentHolderLayout())
-                stepAnalytics?.nextStep()
-                val text = ObjectHelper.nvl(stepAnalytics?.getActiveStepName(), NOTHING)
+                commentAnalytics?.addTo(getContentHolderLayout())
+                commentAnalytics?.nextStep()
+                val text = ObjectHelper.nvl(commentAnalytics?.getActiveStepName(), NOTHING)
                 creationButton?.setText(text)?.updateViews(false)
             }
         }
@@ -220,9 +219,9 @@ class AnalyticsActivity : AbstractManagementActivity() {
             }
             AnalyticsMode.SELECT_COMMENTS -> {
                 getContentHolderLayout().removeView(labelWrapper)
-                stepAnalytics?.addTo(getContentHolderLayout())
-                stepAnalytics?.previousStep()
-                val text = ObjectHelper.nvl(stepAnalytics?.getActiveStepName(), NOTHING)
+                commentAnalytics?.addTo(getContentHolderLayout())
+                commentAnalytics?.previousStep()
+                val text = ObjectHelper.nvl(commentAnalytics?.getActiveStepName(), NOTHING)
                 creationButton?.setText(text)?.updateViews(false)
             }
         }
@@ -298,7 +297,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                 mode = AnalyticsMode.SELECT_COMMENTS
                 createStepStatistics()
                 updateLabelWrapper(null,null,getString(R.string.analytics_comments))
-                val commentCount = NumberHelper.nvl(stepAnalytics?.getStepCount(), 0)
+                val commentCount = NumberHelper.nvl(commentAnalytics?.getStepsWithCommentsCount(), 0)
                 creationButton?.setButtonStates(commentCount > 0, commentCount > 0, true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_null, null)
                         ?.setText(createButtonLabel(commentCount, getString(R.string.literal_steps_with_comments)))
@@ -361,7 +360,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
 
     private fun createStepStatistics() {
         getContentHolderLayout().removeAllViews()
-        stepAnalytics = StepAnalyticsLayout(applicationContext, *activeWalkthroughs.toTypedArray())
+        commentAnalytics = CommentAnalyticsLayout(applicationContext, *activeWalkthroughs.toTypedArray())
     }
 
     private val loadedWalkthroughs = ArrayList<Walkthrough>()

@@ -189,7 +189,9 @@
     <string name="cockpit_tutorial_disable">Disable Tutorials</string>
     <string name="cockpit_tutorial_disable_confirm">Tutorials disabled! Reset to show again.</string>
     <string name="cockpit_wipe_data">Wipe Data</string>
+    <string name="cockpit_wipe_walkthroughs">Wipe Walkthroughs</string>
     <string name="cockpit_wipe_data_confirm">All Data wiped!</string>
+    <string name="cockpit_wipe_walkthroughs_confirm">All Walkthroughs wiped!</string>
     <string name="permission_description_network_title">Network-Permissions</string>
     <string name="permission_description_storage_title">Storage-Permissions</string>
     <string name="permission_description_audio_title">Audio-Permissions</string>
@@ -413,7 +415,7 @@
     <string name="analytics_step_text">Step Text</string>
     <string name="analytics_step_runs">Step Runs</string>
     <string name="analytics_comment_timestamp">Comment Timestamp</string>
-    <string name="analytics_comment_of">Comment of %1$s</string>
+    <string name="analytics_comment_of">Comment of %1$s\n(%2$s)</string>
     <string name="analytics_x_seconds">%1$d Second(s)</string>
     <string name="analytics_transition_x">Transition #%1$d</string>
     <string name="analytics_path_version_x">Path Version %1$d</string>

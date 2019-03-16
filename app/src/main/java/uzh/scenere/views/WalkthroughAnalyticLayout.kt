@@ -23,7 +23,7 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
     }
 
     private fun createOverview() {
-        val stakeholder = DatabaseHelper.getInstance(context).read(walkthrough.stakeholderId, Stakeholder::class, NullHelper.get(Stakeholder::class))
+        val stakeholder = walkthrough.stakeholder
         val scenario = DatabaseHelper.getInstance(context).read(walkthrough.scenarioId, Scenario::class, NullHelper.get(Scenario::class))
         val project = DatabaseHelper.getInstance(context).read(scenario.projectId, Project::class, NullHelper.get(Project::class))
         if (stakeholder is Stakeholder.NullStakeholder){

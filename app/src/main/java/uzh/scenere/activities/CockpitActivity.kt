@@ -17,6 +17,7 @@ import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_GPS
 import uzh.scenere.const.Constants.Companion.PNG_FILE
 import uzh.scenere.const.Constants.Companion.STYLE
 import uzh.scenere.const.Constants.Companion.TUTORIAL_UID_IDENTIFIER
+import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.helpers.*
 import uzh.scenere.sensors.SensorHelper
 import uzh.scenere.views.SreTutorialLayoutDialog
@@ -254,6 +255,18 @@ class CockpitActivity : AbstractManagementActivity() {
                         reStyleText(applicationContext,getConfiguredRootLayout())
                     }
                 })
+                val wipeWalkthroughs = SwipeButton(this, getString(R.string.cockpit_wipe_walkthroughs))
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
+                        .setButtonStates(false, true, false, false)
+                        .setExecutable(object : SwipeButton.SwipeButtonExecution{
+                            override fun execRight() {DatabaseHelper.getInstance(applicationContext).readBulk(Walkthrough::class, null)
+                                showInfoText(getString(R.string.cockpit_wipe_walkthroughs_confirm), R.color.srePrimaryWarn)
+                            }
+                        })
+                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                        .setAutoCollapse(true)
+                        .updateViews(true)
                 val wipeData = SwipeButton(this, getString(R.string.cockpit_wipe_data))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)

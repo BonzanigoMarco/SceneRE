@@ -318,7 +318,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         val values = ContentValues()
         values.put(WalkthroughTableEntry.ID, walkthrough.id)
         values.put(WalkthroughTableEntry.SCENARIO_ID, walkthrough.scenarioId)
-        values.put(WalkthroughTableEntry.STAKEHOLDER_ID, walkthrough.stakeholderId)
+        values.put(WalkthroughTableEntry.STAKEHOLDER_ID, walkthrough.stakeholder.id)
         values.put(WalkthroughTableEntry.OWNER, walkthrough.owner)
         values.put(WalkthroughTableEntry.XML_DATA, walkthrough.getXml())
         return insert(WalkthroughTableEntry.TABLE_NAME, WalkthroughTableEntry.ID, walkthrough.id, values)
@@ -444,7 +444,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val description = cursor.getString(3)
             val projectBuilder = Project.ProjectBuilder(id, creator, title, description)
             if (fullLoad) {
-                projectBuilder.addStakeholders(stakeholder = *readStakeholders(projectBuilder.build()).toTypedArray())
+                projectBuilder.addStakeholders(stakeholder = *readStakeholder(projectBuilder.build()).toTypedArray())
                 projectBuilder.addScenarios(scenario = *readScenarios(projectBuilder.build(), true).toTypedArray())
             }
             val project = projectBuilder.build()
@@ -455,7 +455,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return valueIfNull
     }
 
-    fun readStakeholders(project: Project): List<Stakeholder> {
+    fun readStakeholder(project: Project): List<Stakeholder> {
         val db = dbHelper.readableDatabase
         val cursor = db.query(StakeholderTableEntry.TABLE_NAME, arrayOf(StakeholderTableEntry.ID, StakeholderTableEntry.NAME, StakeholderTableEntry.DESCRIPTION), StakeholderTableEntry.PROJECT_ID + LIKE + QUOTES + project.id + QUOTES, null, null, null, null, null)
         val stakeholders = ArrayList<Stakeholder>()
@@ -473,7 +473,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return stakeholders
     }
 
-    fun readStakeholders(key: String, valueIfNull: Stakeholder): Stakeholder {
+    fun readStakeholder(key: String, valueIfNull: Stakeholder): Stakeholder {
         val db = dbHelper.readableDatabase
         val cursor = db.query(StakeholderTableEntry.TABLE_NAME, arrayOf(StakeholderTableEntry.ID, StakeholderTableEntry.PROJECT_ID, StakeholderTableEntry.NAME, StakeholderTableEntry.DESCRIPTION), StakeholderTableEntry.ID + LIKE + QUOTES + key + QUOTES, null, null, null, null, null)
         if (cursor.moveToFirst()) {
@@ -636,7 +636,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                 val id = cursor.getString(0)
                 val stakeholderId = cursor.getString(1)
                 val layer = cursor.getInt(2)
-                val path = Path.PathBuilder(id, scenario.id, readStakeholders(stakeholderId, NullHelper.get(Stakeholder::class)), layer).build()
+                val path = Path.PathBuilder(id, scenario.id, readStakeholder(stakeholderId, NullHelper.get(Stakeholder::class)), layer).build()
                 if (fullLoad) {
                     for (element in readElements(path, true)) {
                         path.add(element)
@@ -657,7 +657,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val id = cursor.getString(0)
             val stakeholderId = cursor.getString(1)
             val layer = cursor.getInt(2)
-            val path = Path.PathBuilder(pathId, id, readStakeholders(stakeholderId, NullHelper.get(Stakeholder::class)), layer).build()
+            val path = Path.PathBuilder(pathId, id, readStakeholder(stakeholderId, NullHelper.get(Stakeholder::class)), layer).build()
             if (fullLoad) {
                 for (element in readElements(path, true)) {
                     path.add(element)
@@ -706,7 +706,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         readWhatIfs(id, step)
                         elements.add(step)
                     }
-                    TYPE_SOUND_TRIGGER -> {/*TODO*/
+                    TYPE_SOUND_STEP -> {/*TODO*/
                         val step = SoundStep(id, prevId, path.id).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
@@ -833,7 +833,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val scenarioId = cursor.getString(2)
             val stakeholderId = cursor.getString(3)
             val xml = cursor.getString(4)
-            val walkthrough = Walkthrough.WalkthroughBuilder(id, scenarioId, owner, stakeholderId).withXml(xml).build()
+            val walkthrough = Walkthrough.WalkthroughBuilder(id, scenarioId, owner, readStakeholder(stakeholderId,Stakeholder.NullStakeholder(stakeholderId))).withXml(xml).build()
             walkthrough.changeTimeMs = readVersioning(id)
             return walkthrough
         }
@@ -852,7 +852,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val scenarioId = cursor.getString(2)
             val stakeholderId = cursor.getString(3)
             val xml = cursor.getString(4)
-                val walkthrough = Walkthrough.WalkthroughBuilder(id, scenarioId, owner, stakeholderId).withXml(xml).build()
+                val walkthrough = Walkthrough.WalkthroughBuilder(id, scenarioId, owner, readStakeholder(stakeholderId,Stakeholder.NullStakeholder(stakeholderId))).withXml(xml).build()
                 walkthrough.changeTimeMs = readVersioning(id)
                 walkthroughs.add(walkthrough)
             } while (cursor.moveToNext())

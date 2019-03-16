@@ -1,5 +1,6 @@
 package uzh.scenere.datamodel
 
+import uzh.scenere.const.Constants.Companion.NOTHING
 import java.io.Serializable
 import java.util.*
 
@@ -44,7 +45,7 @@ open class Stakeholder private constructor(val id: String,val projectId: String,
         return name
     }
 
-    class NullStakeholder(): Stakeholder("","","","") {}
+    class NullStakeholder(stakeholderId: String = NOTHING): Stakeholder(stakeholderId,"","","") {}
 
     companion object {
         val name__ = "Stakeholder"

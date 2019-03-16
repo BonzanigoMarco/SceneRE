@@ -3,7 +3,9 @@ package uzh.scenere.datamodel
 import android.annotation.SuppressLint
 import android.content.Context
 import uzh.scenere.R
+import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NEW_LINE_C
+import uzh.scenere.const.Constants.Companion.NEW_LINE_TOKEN
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NOT_CONSULTED
 import uzh.scenere.const.Constants.Companion.NO_DATA
@@ -25,7 +27,7 @@ import kotlin.collections.HashMap
 import kotlin.reflect.KClass
 
 
-open class Walkthrough private constructor(val id: String, val owner: String, val scenarioId: String, val stakeholderId: String) : Serializable, IVersionItem {
+open class Walkthrough private constructor(val id: String, val owner: String, val scenarioId: String, val stakeholder: Stakeholder) : Serializable, IVersionItem {
     override var changeTimeMs: Long = 0
 
     private val localPropertiesMap = HashMap<WalkthroughProperty, Any>()
@@ -38,7 +40,8 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         WT_ID.set(id, String::class)
         WT_OWNER.set(owner, String::class)
         SCENARIO_ID.set(scenarioId, String::class)
-        STAKEHOLDER_ID.set(stakeholderId, String::class)
+        STAKEHOLDER_ID.set(stakeholder.id, String::class)
+        STAKEHOLDER_NAME.set(stakeholder.name, String::class)
     }
 
     fun copy() {
@@ -68,6 +71,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         WT_OWNER("User", String::class, NOTHING, true),
         SCENARIO_ID("Scenario-ID", String::class, NOTHING, false),
         STAKEHOLDER_ID("Stakeholder-ID", String::class, NOTHING, false),
+        STAKEHOLDER_NAME("Stakeholder-Name", String::class, NOTHING, false),
         INTRO_TIME("Intro Time", Long::class, ZERO_L, true),
         COMPLETION_TIME("Completion Time", Long::class, ZERO_L, true),
         TIMESTAMP("Timestamp", Long::class, ZERO_L, true),
@@ -292,10 +296,10 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             STEP_TIME.set(step.id, step.time)
             STEP_NUMBER.set(step.id, STEP_ID_LIST.getAll(String::class).size)
             STEP_TITLE.set(step.id, step.title)
-            STEP_TEXT.set(step.id, step.text)
+            STEP_TEXT.set(step.id, step.text?.replace(NEW_LINE,NEW_LINE_TOKEN))
             STEP_TYPE.set(step.id, step.className())
             for (comment in step.comments){
-                STEP_COMMENTS.set(step.id, comment)
+                STEP_COMMENTS.set(step.id, comment.replace(NEW_LINE,NEW_LINE_TOKEN))
             }
         }
     }
@@ -322,9 +326,9 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         return text
     }
 
-    class WalkthroughBuilder(private val owner: String, private val scenarioId: String, private val stakeholderId: String) {
+    class WalkthroughBuilder(private val owner: String, private val scenarioId: String, private val stakeholder: Stakeholder) {
 
-        constructor(id: String, owner: String, scenarioId: String, stakeholderId: String) : this(owner, scenarioId, stakeholderId) {
+        constructor(id: String, owner: String, scenarioId: String, stakeholder: Stakeholder) : this(owner, scenarioId, stakeholder) {
             this.id = id
         }
 
@@ -338,7 +342,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
 
         fun build(): Walkthrough {
             val walkthrough = Walkthrough(id
-                    ?: UUID.randomUUID().toString(), owner, scenarioId, stakeholderId)
+                    ?: UUID.randomUUID().toString(), owner, scenarioId, stakeholder)
             if (this.xmlRepresentation != null) {
                 walkthrough.xmlRepresentation = this.xmlRepresentation
                 walkthrough.fromXml()
@@ -440,5 +444,5 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         return xmlRepresentation
     }
 
-    class NullWalkthrough() : Walkthrough(NOTHING, NOTHING, NOTHING, NOTHING) {}
+    class NullWalkthrough() : Walkthrough(NOTHING, NOTHING, NOTHING, NullHelper.get(Stakeholder::class)) {}
 }

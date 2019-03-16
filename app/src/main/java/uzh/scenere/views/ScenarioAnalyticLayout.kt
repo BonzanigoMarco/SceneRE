@@ -80,7 +80,7 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         paths = HashMap()
         for (walkthrough in walkthroughs){
             walkthrough.load()
-            val stakeholder = DatabaseHelper.getInstance(context).read(walkthrough.stakeholderId, Stakeholder::class, NullHelper.get(Stakeholder::class))
+            val stakeholder = walkthrough.stakeholder
             if (!steps.contains(stakeholder)){
                 steps[stakeholder] = HashMap()
                 stepTimes[stakeholder] = HashMap()

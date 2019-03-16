@@ -6,11 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.FRACTION
 import uzh.scenere.const.Constants.Companion.NEW_LINE
+import uzh.scenere.const.Constants.Companion.NEW_LINE_TOKEN
 import uzh.scenere.const.Constants.Companion.NOTHING
-import uzh.scenere.datastructures.StatisticArrayList
 import uzh.scenere.datamodel.Walkthrough
+import uzh.scenere.datastructures.StatisticArrayList
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.StringHelper
 import java.util.*
@@ -18,11 +20,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 @SuppressLint("ViewConstructor")
-class StepAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
-
-    enum class ScenarioMode {
-        STEPS, COMMENTS
-    }
+class CommentAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
 
     private lateinit var comments: HashMap<String,ArrayList<CommentWrapper>>
     private lateinit var sortedStepList: ArrayList<String>
@@ -31,8 +29,8 @@ class StepAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthroug
     private var stepPointer: Int = 0
 
     fun nextStep(){
-        if (!sortedStepList.isEmpty()) {
-            if (stepPointer < sortedStepList.size-1) {
+        if (!comments.isEmpty()) {
+            if (stepPointer < comments.size-1) {
                 stepPointer++
             } else {
                 stepPointer = 0
@@ -41,11 +39,11 @@ class StepAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthroug
         visualizeOverview()
     }
     fun previousStep(){
-        if (!sortedStepList.isEmpty()){
+        if (!comments.isEmpty()){
             if (stepPointer>0){
                 stepPointer--
             }else{
-                stepPointer = sortedStepList.size-1
+                stepPointer = comments.size-1
             }
         }
         visualizeOverview()
@@ -67,16 +65,24 @@ class StepAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthroug
             walkthrough.load()
             val author = Walkthrough.WalkthroughProperty.WT_OWNER.get(String::class)
             val timestamp = Walkthrough.WalkthroughProperty.TIMESTAMP.getDisplayText()
+            val stakeholderName = Walkthrough.WalkthroughProperty.STAKEHOLDER_NAME.getDisplayText()
             for (stepId in Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class)){
                 if (!comments.contains(stepId)){
                     comments[stepId] = ArrayList()
                 }
+                val stepComments = Walkthrough.WalkthroughStepProperty.STEP_COMMENTS.getAll(stepId, String::class)
+                if (stepComments.isNullOrEmpty()){
+                    continue
+                }
+                val restoredComments = ArrayList<String>()
+                for (comment in stepComments){
+                    restoredComments.add(comment.replace(NEW_LINE_TOKEN,NEW_LINE))
+                }
                 val stepNumber = Walkthrough.WalkthroughStepProperty.STEP_NUMBER.get(stepId, Int::class)
                 val stepTitle = Walkthrough.WalkthroughStepProperty.STEP_TITLE.get(stepId, String::class)
                 val stepTime = Walkthrough.WalkthroughStepProperty.STEP_TIME.get(stepId, Long::class)
-                val stepComments = Walkthrough.WalkthroughStepProperty.STEP_COMMENTS.getAll(stepId, String::class)
-                val stepText = Walkthrough.WalkthroughStepProperty.STEP_TEXT.get(stepId, String::class)
-                val wrapper = CommentWrapper(author,stepTime,stepComments,stepTitle,stepText,stepNumber,timestamp)
+                val stepText = Walkthrough.WalkthroughStepProperty.STEP_TEXT.get(stepId, String::class).replace(NEW_LINE_TOKEN,NEW_LINE)
+                val wrapper = CommentWrapper(author,stepTime,restoredComments,stepTitle,stepText,stakeholderName,stepNumber,timestamp)
                 comments[stepId]?.add(wrapper)
                 addStepToSortingMap(sortingMap,stepId,stepNumber.toFloat())
             }
@@ -137,7 +143,7 @@ class StepAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthroug
             for (wrapper in wrapperList){
                 if (!wrapper.comments.isNullOrEmpty()){
                     val comments = StringHelper.concatList(NEW_LINE,wrapper.comments)
-                    addView(createLine(context.getString(R.string.analytics_comment_of,wrapper.author),false, comments,SreTextView.TextStyle.MEDIUM))
+                    addView(createLine(context.getString(R.string.analytics_comment_of,wrapper.author,wrapper.stakeholderName),false, comments,SreTextView.TextStyle.MEDIUM))
                     addView(createLine(context.getString(R.string.analytics_comment_timestamp),false, wrapper.timestamp))
                 }
             }
@@ -177,9 +183,13 @@ class StepAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthroug
         return sortedStepList.size
     }
 
+    fun getStepsWithCommentsCount(): Int {
+        return comments.size
+    }
+
     fun getActiveStepName(): String {
         return activeStepName
     }
 
-    private class CommentWrapper(val author: String, val time: Long, val comments: List<String>, val title: String, val text: String,val stepNumber: Int, val timestamp: String)
+    private class CommentWrapper(val author: String, val time: Long, val comments: List<String>, val title: String, val text: String, val stakeholderName: String, val stepNumber: Int, val timestamp: String)
 }

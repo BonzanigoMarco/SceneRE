@@ -105,7 +105,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
     }
 
     //Statistics
-    private var walkthrough: Walkthrough = Walkthrough.WalkthroughBuilder(DatabaseHelper.getInstance(context).read(USER_NAME,String::class, ANONYMOUS), scenario.id, stakeholder.id).build()
+    private var walkthrough: Walkthrough = Walkthrough.WalkthroughBuilder(DatabaseHelper.getInstance(context).read(USER_NAME,String::class, ANONYMOUS), scenario.id, stakeholder).build()
     fun getWalkthrough(): Walkthrough{
         return walkthrough
     }
@@ -332,10 +332,12 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         val scroll = SreScrollView(context,triggerLayout)
                         scroll.addScrollElement(titleText)
                         refresh = true
+                        var timerUp = false
                         refresh({
-                            if (System.currentTimeMillis() > endTime){
+                            if (!timerUp && System.currentTimeMillis() > endTime){
                                 notify(context.getString(R.string.walkthrough_timer_expired))
                                 loadNextStep(context.getString(R.string.walkthrough_transition_timer))
+                                timerUp = true
                             }else{
                                 val remainingTime = StringHelper.msToFormattedString(endTime-System.currentTimeMillis())
                                 titleText.setTextWithNewBoldWords(context.getString(R.string.walkthrough_timer_text,text,remainingTime), text, remainingTime)

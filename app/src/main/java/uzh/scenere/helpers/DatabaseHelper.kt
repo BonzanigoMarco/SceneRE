@@ -151,7 +151,7 @@ class DatabaseHelper private constructor(context: Context) {
                     if (Float::class == clz) return database!!.readFloat(key, valIfNull as Float) as T
                     if (Double::class == clz) return database!!.readDouble(key, valIfNull as Double) as T
                     if (Project::class == clz) return database!!.readProject(key, valIfNull as Project) as T
-                    if (Stakeholder::class == clz) return database!!.readStakeholders(key, valIfNull as Stakeholder) as T
+                    if (Stakeholder::class == clz) return database!!.readStakeholder(key, valIfNull as Stakeholder) as T
                     if (AbstractObject::class == clz) return database!!.readObject(key, valIfNull as AbstractObject) as T
                     if (Attribute::class == clz) return database!!.readAttribute(key, valIfNull as Attribute) as T
                     if (Scenario::class == clz) return database!!.readScenario(key, valIfNull as Scenario) as T
@@ -285,7 +285,7 @@ class DatabaseHelper private constructor(context: Context) {
             }
             DataMode.DATABASE -> {
                 if (Project::class == clz) return database!!.readProjects() as List<T>
-                if (Stakeholder::class == clz && key is Project) return database!!.readStakeholders(key) as List<T>
+                if (Stakeholder::class == clz && key is Project) return database!!.readStakeholder(key) as List<T>
                 if (AbstractObject::class == clz && key is Scenario) return database!!.readObjects(key, fullLoad) as List<T>
                 if (Attribute::class == clz && key is String) return database!!.readAttributes(key) as List<T>
                 if (Scenario::class == clz && key is Project) return database!!.readScenarios(key, fullLoad) as List<T>

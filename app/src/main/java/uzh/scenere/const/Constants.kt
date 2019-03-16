@@ -85,6 +85,7 @@ class Constants {
         const val SPACE_C: Char = ' '
         const val EQUALS: String = "="
         const val NEW_LINE: String = "\n"
+        const val NEW_LINE_TOKEN: String = "!!NEW_LINE_TOKEN!!"
         const val PERCENT: String = "%"
         const val SPACE: String = " "
         const val COMMA: String = ","
