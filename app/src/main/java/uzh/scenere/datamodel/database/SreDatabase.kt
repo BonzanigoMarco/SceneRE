@@ -8,6 +8,8 @@ import uzh.scenere.const.Constants.Companion.HASH_MAP_OPTIONS_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.INIT_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.MAX_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.MIN_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.TARGET_STEP_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.TYPE_ACCELERATION_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_BLUETOOTH_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_BUTTON_TRIGGER
@@ -15,27 +17,30 @@ import uzh.scenere.const.Constants.Companion.TYPE_CALL_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_GPS_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_GYROSCOPE_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_IF_ELSE_TRIGGER
-import uzh.scenere.const.Constants.Companion.TYPE_INPUT_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_INPUT_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_JUMP_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_LIGHT_TRIGGER
-import uzh.scenere.const.Constants.Companion.TYPE_LOOPBACK_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_MAGNETOMETER_TRIGGER
-import uzh.scenere.const.Constants.Companion.TYPE_MERGE_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_MOBILE_NETWORK_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_NFC_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_OBJECT
 import uzh.scenere.const.Constants.Companion.TYPE_RESOURCE_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_SMS_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_SOUND_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_SOUND_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_STAKEHOLDER_INTERACTION_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_STANDARD_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_TIME_TRIGGER
+import uzh.scenere.const.Constants.Companion.TYPE_VIBRATION_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_WIFI_TRIGGER
 import uzh.scenere.const.Constants.Companion.VERSIONING_IDENTIFIER
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.*
 import uzh.scenere.datamodel.trigger.AbstractTrigger
-import uzh.scenere.datamodel.trigger.communication.*
+import uzh.scenere.datamodel.trigger.communication.BluetoothTrigger
+import uzh.scenere.datamodel.trigger.communication.GpsTrigger
+import uzh.scenere.datamodel.trigger.communication.NfcTrigger
+import uzh.scenere.datamodel.trigger.communication.WifiTrigger
 import uzh.scenere.datamodel.trigger.direct.*
 import uzh.scenere.datamodel.trigger.indirect.CallTrigger
 import uzh.scenere.datamodel.trigger.indirect.SmsTrigger
@@ -208,9 +213,22 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                 }
                 values.put(ElementTableEntry.TYPE, TYPE_STANDARD_STEP)
             }
-            is InputStep -> {/*TODO*/}
-            is LoopbackStep -> {/*TODO*/}
-            is MergeStep -> {/*TODO*/}
+            is JumpStep -> {/*TODO*/
+                for (obj in element.objects) {
+                    writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
+                }
+                writeString(TARGET_STEP_UID_IDENTIFIER.plus(element.getElementId()),element.targetStepId!!)
+                values.put(ElementTableEntry.TYPE, TYPE_JUMP_STEP)}
+            is SoundStep -> {/*TODO*/
+                for (obj in element.objects) {
+                    writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
+                }
+                values.put(ElementTableEntry.TYPE, TYPE_SOUND_STEP)}
+            is VibrationStep -> {/*TODO*/
+                for (obj in element.objects) {
+                    writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
+                }
+                values.put(ElementTableEntry.TYPE, TYPE_VIBRATION_STEP)}
             is ResourceStep -> {/*TODO*/}
             //TRIGGERS
             is ButtonTrigger -> {
@@ -677,9 +695,37 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         readWhatIfs(id, step)
                         elements.add(step)
                     }
-                    TYPE_INPUT_STEP -> {/*TODO*/}
-                    TYPE_LOOPBACK_STEP -> {/*TODO*/}
-                    TYPE_MERGE_STEP -> {/*TODO*/}
+                    TYPE_JUMP_STEP -> {/*TODO*/
+                        val step = JumpStep(id, prevId, path.id).withTargetStep(readString(TARGET_STEP_UID_IDENTIFIER.plus(id),NOTHING)).withText(text).withTitle(additionalInfo)
+                        if (fullLoad) {
+                            for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
+                                step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
+                            }
+                        }
+                        step.changeTimeMs = readVersioning(id)
+                        readWhatIfs(id, step)
+                        elements.add(step)
+                    }
+                    TYPE_SOUND_TRIGGER -> {/*TODO*/
+                        val step = SoundStep(id, prevId, path.id).withText(text).withTitle(additionalInfo)
+                        if (fullLoad) {
+                            for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
+                                step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
+                            }
+                        }
+                        step.changeTimeMs = readVersioning(id)
+                        readWhatIfs(id, step)
+                        elements.add(step)}
+                    TYPE_VIBRATION_STEP -> {/*TODO*/
+                        val step = VibrationStep(id, prevId, path.id).withText(text).withTitle(additionalInfo)
+                        if (fullLoad) {
+                            for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
+                                step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
+                            }
+                        }
+                        step.changeTimeMs = readVersioning(id)
+                        readWhatIfs(id, step)
+                        elements.add(step)}
                     TYPE_RESOURCE_STEP -> {/*TODO*/}
                     //TRIGGERS
                     TYPE_BUTTON_TRIGGER -> {

@@ -1,6 +1,7 @@
 package uzh.scenere.datamodel
 
 import android.content.Context
+import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.NumberHelper
@@ -123,6 +124,57 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         return false
     }
 
+    fun getObjectsWithNames(objectNames: ArrayList<String>): ArrayList<AbstractObject>{
+        val objectList = ArrayList<AbstractObject>()
+        for (name in objectNames){
+            for (obj in this.objects){
+                if (obj.name == name){
+                    objectList.add(obj)
+                }
+            }
+        }
+        return objectList
+    }
+
+    fun getAllSteps(stakeholder: Stakeholder, exceptId: String? = null): Pair<ArrayList<String>, ArrayList<String>> {
+        val stepTitles = ArrayList<String>()
+        val stepIds = ArrayList<String>()
+        val allPaths = getAllPaths(stakeholder)
+        if (allPaths != null) {
+            for (path in allPaths) {
+                for (entry in path.value.elements){
+                    val element = entry.value
+                    if (element is AbstractStep && element.title != null && element.id != exceptId) {
+                        stepTitles.add(element.title!!)
+                        stepIds.add(element.id)
+                    }
+                }
+            }
+        }
+        return Pair(stepTitles, stepIds)
+    }
+
+
+    fun getPathAndStepToStepId(stakeholderId: Stakeholder, id: String): Pair<AbstractStep?, Path?>  {
+        var step: AbstractStep? = null
+        var path: Path? = null
+        val stepTitles = ArrayList<String>()
+        val stepIds = ArrayList<String>()
+        val allPaths = getAllPaths(stakeholderId)
+        if (allPaths != null) {
+            for (p in allPaths) {
+                for (entry in p.value.elements){
+                    val element = entry.value
+                    if (element is AbstractStep) {
+                        step = element
+                        path = p.value
+                    }
+                }
+            }
+        }
+        return Pair(step,path)
+    }
+
     class ScenarioBuilder(private val projectId: String, private val title: String, private val intro: String, private val outro: String){
 
         constructor(project: Project, title: String, intro: String, outro: String): this(project.id,title,intro,outro)
@@ -136,17 +188,9 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         }
 
         private var id: String? = null
-        private var resources: List<Resource> = ArrayList()
         private var objects: List<AbstractObject> = ArrayList()
         private val paths: HashMap<String,HashMap<Int,Path>> = HashMap()
-        private var stakeholders: List<Stakeholder> = ArrayList()
-        private var walkthroughs: List<Walkthrough> = ArrayList()
-        private var whatIfs: List<WhatIf> = ArrayList()
 
-//        fun addResource(vararg resource: Resource): ScenarioBuilder{
-//            this.resources = this.resources.plus(resource)
-//            return this
-//        }
         fun addObjects(vararg obj: AbstractObject): ScenarioBuilder{
             this.objects = this.objects.plus(obj)
             return this
@@ -161,40 +205,17 @@ open class Scenario private constructor(val id: String, val projectId: String, v
             }
             return this
         }
-//        fun addStakeholder(vararg stakeholder: Stakeholder): ScenarioBuilder{
-//            this.stakeholders = this.stakeholders.plus(stakeholder)
-//            return this
-//        }
-//        fun addWalkthrough(vararg walkthrough: Walkthrough): ScenarioBuilder{
-//            this.walkthroughs = this.walkthroughs.plus(walkthrough)
-//            return this
-//        }
-//        fun addWhatIf(vararg whatIf: WhatIf): ScenarioBuilder{
-//            this.whatIfs = this.whatIfs.plus(whatIf)
-//            return this
-//        }
+
         fun copyId(scenario: Scenario) {
             this.id = scenario.id
         }
 
         fun build(): Scenario{
             val scenario  = Scenario(id?: UUID.randomUUID().toString(),projectId, title, intro, outro)
-//            scenario.resources.plus(this.resources)
             scenario.objects.addAll(this.objects)
             scenario.paths = this.paths
-//            scenario.stakeholders.plus(this.stakeholders)
-//            scenario.walkthroughs.plus(this.walkthroughs)
-//            scenario.whatIfs.plus(this.whatIfs)
-//            scenario.startingPoint = getStartingPoint()
             return scenario
         }
-//        private fun getStartingPoint(): AbstractStep?{
-//            for (path in paths){
-//                val step = path.getStartingPoint()
-//                if (step != null) return step
-//            }
-//            return null
-//        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -206,18 +227,6 @@ open class Scenario private constructor(val id: String, val projectId: String, v
 
     override fun hashCode(): Int {
         return super.hashCode()
-    }
-
-    fun getObjectsWithNames(objectNames: ArrayList<String>): ArrayList<AbstractObject>{
-        val objectList = ArrayList<AbstractObject>()
-        for (name in objectNames){
-            for (obj in this.objects){
-                if (obj.name == name){
-                    objectList.add(obj)
-                }
-            }
-        }
-        return objectList
     }
 
     class NullScenario(): Scenario("","","","","") {}

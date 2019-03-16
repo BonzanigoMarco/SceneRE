@@ -27,6 +27,7 @@ import uzh.scenere.views.SreTextView.TextStyle.MEDIUM
 import java.util.*
 import android.content.res.Configuration
 import android.text.InputFilter
+import android.text.method.DigitsKeyListener
 
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
@@ -218,6 +219,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             input.textSize = textSize!!
             input.inputType = if (inputType == LineInputType.NUMBER_EDIT) InputType.TYPE_CLASS_NUMBER else if (inputType == LineInputType.NUMBER_SIGNED_EDIT) (InputType.TYPE_CLASS_NUMBER  or InputType.TYPE_NUMBER_FLAG_SIGNED )else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            if (inputType == LineInputType.NUMBER_EDIT){
+                input.keyListener = DigitsKeyListener.getInstance("0123456789")
+            }
             input.setText(realPresetValue)
             input.setWeight(1f)
             input.setSize(MATCH_PARENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else 0)
@@ -299,8 +303,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.setWeight(1f)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val spinner = Spinner(applicationContext)
-            val spinnerArrayAdapter = ArrayAdapter<String>(this, R.layout.sre_spinner_item, data as Array<String>)
-            spinnerArrayAdapter.setDropDownViewResource(R.layout.sre_spinner_item)
+            val viewResource = if (isContrastStyle(applicationContext)) R.layout.sre_spinner_item_contrast else R.layout.sre_spinner_item
+            val spinnerArrayAdapter = ArrayAdapter<String>(this, viewResource, data as Array<String>)
+            spinnerArrayAdapter.setDropDownViewResource(viewResource)
             spinner.adapter = spinnerArrayAdapter
             spinner.dropDownVerticalOffset = textSize!!.toInt()
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -323,6 +328,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                                 inputMap[labelText] = selection
                             }
                         }
+                    }else if (singleSelect){
+                        selectionCarrier.removeAllViews()
+                        inputMap[labelText]?.text = NOTHING
                     }
                 }
 
@@ -458,7 +466,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         } else {
             multiInputMap[labelText]?.add(textButton)
         }
-        spinner?.setSelection(0)
+        if (!singleSelect){
+            spinner?.setSelection(0)
+        }
         return textButton
     }
 

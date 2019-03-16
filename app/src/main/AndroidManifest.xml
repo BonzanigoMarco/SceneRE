@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.INSTALL_SHORTCUT"/>
     <uses-permission android:name="android.permission.UNINSTALL_SHORTCUT"/>
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
@@ -41,7 +42,7 @@
         android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".activities.MainMenuActivity"
+        <activity android:name=".activities.EditorActivity"
             android:theme="@style/SceneReToolbarTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -165,7 +166,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.EditorActivity"
+        <activity android:name=".activities.MainMenuActivity"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/SceneReToolbarTheme"
             android:screenOrientation="portrait">

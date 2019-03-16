@@ -94,6 +94,7 @@ class EditorActivity : AbstractManagementActivity() {
     private var activeScenario: Scenario? = null
     private var projectContext: Project? = null
     private var activePath: Path? = null
+    private var activeStepIds: ArrayList<String> = ArrayList()
     private val pathList = ArrayList<Int>()
     private val pathNameList = ArrayList<String>()
 
@@ -106,7 +107,8 @@ class EditorActivity : AbstractManagementActivity() {
         } else {
             //DEV
             projectContext = DatabaseHelper.getInstance(applicationContext).readFull("cdbf3429-1e49-4147-b099-71c76a416aa9", Project::class)
-            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("64fd2449-085b-4ad0-b804-ba392c73b855", Scenario::class)
+            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("ec5c16cf-5e0d-4b4c-abf6-773bc37e0169", Scenario::class)
+//            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("64fd2449-085b-4ad0-b804-ba392c73b855", Scenario::class)
         }
         var stakeholder: Stakeholder? = null
         if (projectContext != null && !projectContext!!.stakeholders.isNullOrEmpty()) {
@@ -179,7 +181,7 @@ class EditorActivity : AbstractManagementActivity() {
     private fun renderElement(iElement: IElement) {
         var title: String? = null
         var tutorialDrawable: String? = null
-        if (iElement is StandardStep) {
+        if (iElement is AbstractStep) {
             title = BOLD_START + iElement.readableClassName() + BOLD_END+ BREAK + iElement.title
             tutorialDrawable = "info_what_if"
         }
@@ -354,7 +356,7 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun updateRenderedElement(iElement: IElement) {
         var title: String? = null
-        if (iElement is StandardStep) title = BOLD_START + iElement.readableClassName() + BOLD_END+BREAK + iElement.title
+        if (iElement is AbstractStep) title = BOLD_START + iElement.readableClassName() + BOLD_END+BREAK + iElement.title
         if (iElement is AbstractTrigger) title = BOLD_START + iElement.readableClassName() + BOLD_END
         for (v in 0 until getContentHolderLayout().childCount){
             if (getContentHolderLayout().getChildAt(v) is Element && (getContentHolderLayout().getChildAt(v) as Element).containsElement(iElement)){
@@ -483,9 +485,49 @@ class EditorActivity : AbstractManagementActivity() {
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
-                is InputStep -> {/*TODO*/}
-                is LoopbackStep -> {/*TODO*/}
-                is MergeStep -> {/*TODO*/}
+                is JumpStep -> {/*TODO*/
+                    creationUnitClass = JumpStep::class
+                    if (inputMode == InputMode.WHAT_IF){
+                        val pointer = adaptAttributes(getString(R.string.literal_what_if))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
+                    }else{
+                        val (stepTitles, stepIds) = activeScenario!!.getAllSteps(activePath!!.stakeholder,element.id)
+                        activeStepIds = stepIds
+                        val stepId = activeStepIds.indexOf(element.targetStepId)+1
+                        var pointer = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_jump))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title, false, -1))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text, false, -1))
+                        (inputMap[elementAttributes[pointer++]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.LOOKUP, if (stepId > 0) SINGLE_SELECT_WITH_PRESET_POSITION.plus(stepId) else null, false, -1,addToArrayBefore(stepTitles.toTypedArray(),NOTHING)))
+                    }
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is SoundStep -> {/*TODO*/
+                    creationUnitClass = SoundStep::class
+                    if (inputMode == InputMode.WHAT_IF){
+                        val pointer = adaptAttributes(getString(R.string.literal_what_if))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
+                    }else{
+                        var pointer = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_sound))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title, false, -1))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text, false, -1))
+                        (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    }
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
+                is VibrationStep -> {/*TODO*/
+                    creationUnitClass = VibrationStep::class
+                    if (inputMode == InputMode.WHAT_IF){
+                        val pointer = adaptAttributes(getString(R.string.literal_what_if))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
+                    }else{
+                        var pointer = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_vibration))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title, false, -1))
+                        getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text, false, -1))
+                        (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    }
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
                 is ResourceStep -> {/*TODO*/}
                 //TRIGGERS
                 is ButtonTrigger -> {
@@ -617,9 +659,36 @@ class EditorActivity : AbstractManagementActivity() {
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
-                resources.getString(R.string.step_input) -> {/*TODO*/ }
-                resources.getString(R.string.step_loopback) -> {/*TODO*/ }
-                resources.getString(R.string.step_merge) -> {/*TODO*/ }
+                resources.getString(R.string.step_jump) -> {/*TODO*/
+                    creationUnitClass = JumpStep::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_jump))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
+                    (inputMap[elementAttributes[index++]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    val (stepTitles, stepIds) = activeScenario!!.getAllSteps(activePath!!.stakeholder)
+                    activeStepIds = stepIds
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT, false, -1,addToArrayBefore(stepTitles.toTypedArray(),NOTHING)))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                }
+                resources.getString(R.string.step_sound) -> {/*TODO*/
+                    creationUnitClass = SoundStep::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_sound))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
+                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                }
+                resources.getString(R.string.step_vibration) -> {/*TODO*/
+                    creationUnitClass = VibrationStep::class
+                    var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_vibration))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
+                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                }
                 resources.getString(R.string.step_resource) -> {/*TODO*/ }
                 //TRIGGER
                 resources.getString(R.string.trigger_button) -> {
@@ -798,9 +867,25 @@ class EditorActivity : AbstractManagementActivity() {
                 val text = inputMap[elementAttributes[1]]!!.getStringValue()
                 addAndRenderElement(StandardStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTitle(title).withText(text).withObjects(objects!!).withWhatIfs((editUnit as AbstractStep?)?.whatIfs))
             }
-            InputStep::class -> {/*TODO*/}
-            LoopbackStep::class -> {/*TODO*/}
-            MergeStep::class -> {/*TODO*/}
+            JumpStep::class -> {/*TODO*/
+                val title = inputMap[elementAttributes[0]]!!.getStringValue()
+                val objects = activeScenario?.getObjectsWithNames((inputMap[elementAttributes[1]]!! as SreMultiAutoCompleteTextView).getUsedObjectLabels())
+                val text = inputMap[elementAttributes[1]]!!.getStringValue()
+                val targetStepIdPosition = ((inputMap[elementAttributes[2]] as SreButton).data as Int) - 1
+                addAndRenderElement(JumpStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTargetStep(activeStepIds[targetStepIdPosition]).withTitle(title).withText(text).withObjects(objects!!).withWhatIfs((editUnit as AbstractStep?)?.whatIfs))
+            }
+            SoundStep::class -> {/*TODO*/
+                val title = inputMap[elementAttributes[0]]!!.getStringValue()
+                val objects = activeScenario?.getObjectsWithNames((inputMap[elementAttributes[1]]!! as SreMultiAutoCompleteTextView).getUsedObjectLabels())
+                val text = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(SoundStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTitle(title).withText(text).withObjects(objects!!).withWhatIfs((editUnit as AbstractStep?)?.whatIfs))
+            }
+            VibrationStep::class -> {/*TODO*/
+                val title = inputMap[elementAttributes[0]]!!.getStringValue()
+                val objects = activeScenario?.getObjectsWithNames((inputMap[elementAttributes[1]]!! as SreMultiAutoCompleteTextView).getUsedObjectLabels())
+                val text = inputMap[elementAttributes[1]]!!.getStringValue()
+                addAndRenderElement(VibrationStep(editUnit?.getElementId(), endPoint, activePath!!.id).withTitle(title).withText(text).withObjects(objects!!).withWhatIfs((editUnit as AbstractStep?)?.whatIfs))
+            }
             ResourceStep::class -> {/*TODO*/}
             //Triggers
             ButtonTrigger::class -> {
@@ -950,8 +1035,9 @@ class EditorActivity : AbstractManagementActivity() {
     }
 
     private fun updateSpinner(arrayResource: Int) {
-        val spinnerArrayAdapter = ArrayAdapter<String>(this, R.layout.sre_spinner_item, resources.getStringArray(arrayResource))
-        spinnerArrayAdapter.setDropDownViewResource(R.layout.sre_spinner_item)
+        val viewResource = if (isContrastStyle(applicationContext)) R.layout.sre_spinner_item_contrast else R.layout.sre_spinner_item
+        val spinnerArrayAdapter = ArrayAdapter<String>(this, viewResource, resources.getStringArray(arrayResource))
+        spinnerArrayAdapter.setDropDownViewResource(viewResource)
         editor_spinner_selection.adapter = spinnerArrayAdapter
         editor_spinner_selection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

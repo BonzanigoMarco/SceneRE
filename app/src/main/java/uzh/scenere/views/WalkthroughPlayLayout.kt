@@ -25,8 +25,7 @@ import uzh.scenere.const.Constants.Companion.USER_NAME
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.ContextObject.NullContextObject
 import uzh.scenere.datamodel.Resource.NullResource
-import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.datamodel.steps.StandardStep
+import uzh.scenere.datamodel.steps.*
 import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.communication.BluetoothTrigger
 import uzh.scenere.datamodel.trigger.communication.GpsTrigger
@@ -40,6 +39,12 @@ import uzh.scenere.datastructures.PlayState
 import uzh.scenere.helpers.*
 import uzh.scenere.listener.SreSoundChangeListener
 import java.io.Serializable
+import android.os.VibrationEffect
+import android.os.Build
+import android.os.Vibrator
+import uzh.scenere.const.Constants.Companion.HALF_SEC_MS
+import android.media.ToneGenerator
+import android.media.AudioManager
 
 @SuppressLint("ViewConstructor")
 class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, private var stakeholder: Stakeholder, private var nextStepFunction: () -> Unit, private var stopFunction: () -> Unit,  private var notify: ((String) -> Unit)) : LinearLayout(context), Serializable {
@@ -182,6 +187,29 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         val title = StringHelper.nvl((first as StandardStep).title, NOTHING)
                         val text = generateText(title,(first as StandardStep).text, (first as StandardStep).objects,arrayListOf(title))
                         stepLayout.addView(text)
+                    }
+                    is JumpStep -> {
+                        val title = StringHelper.nvl((first as JumpStep).title, NOTHING)
+                        val text = generateText(title,(first as JumpStep).text, (first as JumpStep).objects,arrayListOf(title))
+                        stepLayout.addView(text)
+                    }
+                    is SoundStep -> {
+                        val title = StringHelper.nvl((first as SoundStep).title, NOTHING)
+                        val text = generateText(title,(first as SoundStep).text, (first as SoundStep).objects,arrayListOf(title))
+                        stepLayout.addView(text)
+                        val toneGen1 = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+                        toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150)
+                    }
+                    is VibrationStep -> {
+                        val title = StringHelper.nvl((first as VibrationStep).title, NOTHING)
+                        val text = generateText(title,(first as VibrationStep).text, (first as VibrationStep).objects,arrayListOf(title))
+                        stepLayout.addView(text)
+                        val v = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            v.vibrate(VibrationEffect.createOneShot(HALF_SEC_MS, VibrationEffect.DEFAULT_AMPLITUDE))
+                        } else {
+                            v.vibrate(HALF_SEC_MS)
+                        }
                     }
                 }
                 when (second) {
@@ -590,11 +618,18 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
 
     private fun loadNextStep(info: String, pathSwitch: Boolean = false) {
         onPause()
-        walkthrough.addTriggerInfo(getCurrentStep(),info,getCurrentTrigger())
+        val currentStep = getCurrentStep()
+        walkthrough.addTriggerInfo(currentStep,info,getCurrentTrigger())
         if (state != WalkthroughState.STARTED){
-            walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments))
+            walkthrough.addStep(currentStep?.withTime(getTime())?.withComments(comments))
             comments.clear()
-            first = if (pathSwitch) paths?.get(layer)?.getStartingPoint() else paths?.get(layer)?.getNextElement(second)
+            if (currentStep is JumpStep){
+                val (s,p) = scenario.getPathAndStepToStepId(stakeholder, currentStep.targetStepId!!)
+                first = s!!
+                layer = p!!.layer
+            }else{
+                first = if (pathSwitch) paths?.get(layer)?.getStartingPoint() else paths?.get(layer)?.getNextElement(second)
+            }
             second = paths?.get(layer)?.getNextElement(first)
         }
         state = WalkthroughState.PLAYING

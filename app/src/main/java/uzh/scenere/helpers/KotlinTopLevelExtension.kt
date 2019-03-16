@@ -158,6 +158,10 @@ fun getSreStyle(context: Context): SreStyle{
     return SreStyle.valueOf(enum)
 }
 
+fun isContrastStyle(context: Context): Boolean{
+    return getSreStyle(context) == SreStyle.CONTRAST
+}
+
 fun reStyleText(context: Context, root: ViewGroup?, sreStyle: SreStyle? = null) {
     var style = sreStyle
     if (sreStyle == null){
@@ -175,7 +179,7 @@ fun reStyleText(context: Context, root: ViewGroup?, sreStyle: SreStyle? = null) 
     }
 }
 
-fun reStyleTextColor(context: Context, view: View, sreStyle: SreStyle){
+private fun reStyleTextColor(context: Context, view: View, sreStyle: SreStyle){
     if (view is TextView){
         StyleHelper.get(context).switch(view,sreStyle)
     }

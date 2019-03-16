@@ -8,6 +8,9 @@
     <string-array name="spinner_steps">
         <item>@string/step_none</item>
         <item>@string/step_standard</item>
+        <item>@string/step_jump</item>
+        <item>@string/step_sound</item>
+        <item>@string/step_vibration</item>
     </string-array>
 
     <string-array name="spinner_triggers">
@@ -44,6 +47,22 @@
     </string-array>
 
     <string-array name="editor_attributes_step_standard">
+        <item>Title</item>
+        <item>Instruction Text</item>
+    </string-array>
+
+    <string-array name="editor_attributes_step_jump">
+        <item>Title</item>
+        <item>Instruction Text</item>
+        <item>Target Step</item>
+    </string-array>
+
+    <string-array name="editor_attributes_step_sound">
+        <item>Title</item>
+        <item>Instruction Text</item>
+    </string-array>
+
+    <string-array name="editor_attributes_step_vibration">
         <item>Title</item>
         <item>Instruction Text</item>
     </string-array>
@@ -93,7 +112,7 @@
 
     <string-array name="editor_attributes_trigger_sound">
         <item>Instruction Text</item>
-        <item>Threshold (dB)</item>
+        <item>Threshold (+/-dB)</item>
     </string-array>
 
     <string-array name="editor_attributes_trigger_gps">
@@ -107,7 +126,6 @@
         <item>SSID/Regex</item>
         <item>Signal Strength</item>
     </string-array>
-
 
     <string-array name="editor_attributes_trigger_bt">
         <item>Instruction Text</item>
@@ -128,38 +146,37 @@
     <!--Steps-->
     <string name="step_none">[Select a Step]</string>
     <string name="step_standard">Standard Step</string>
-    <string name="step_alternative">Alternative Step</string>
-    <string name="step_input">Input Step</string>
-    <string name="step_loopback">Loopback Step</string>
-    <string name="step_merge">Merge Step</string>
+    <string name="step_jump">Jump Step</string>
+    <string name="step_sound">Sound Step</string>
+    <string name="step_vibration">Vibration Step</string>
     <string name="step_resource">Resource Step</string>
     <!--Trigger-->
     <string name="trigger_none">[Select a Trigger]</string>
     
-    <string name="trigger_button">Button</string>
-    <string name="trigger_if_else">If-Else</string>
-    <string name="trigger_stakeholder_interaction">Stakeholder Interaction</string>
-    <string name="trigger_input">Passphrase Input</string>
-    <string name="trigger_timer">Timer</string>
+    <string name="trigger_button">Button Trigger</string>
+    <string name="trigger_if_else">If-Else Trigger</string>
+    <string name="trigger_stakeholder_interaction">Stakeholder Interaction Trigger</string>
+    <string name="trigger_input">Passphrase Input Trigger</string>
+    <string name="trigger_timer">Timer Trigger</string>
 
-    <string name="trigger_bt">Bluetooth</string>
-    <string name="trigger_gps">GPS</string>
-    <string name="trigger_mobile">Mobile Network</string>
-    <string name="trigger_nfc">NFC</string>
-    <string name="trigger_wifi">Wi-Fi</string>
+    <string name="trigger_bt">Bluetooth Trigger</string>
+    <string name="trigger_gps">GPS Trigger</string>
+    <string name="trigger_mobile">Mobile Network Trigger</string>
+    <string name="trigger_nfc">NFC Trigger</string>
+    <string name="trigger_wifi">Wi-Fi Trigger</string>
 
-    <string name="trigger_call">Call</string>
-    <string name="trigger_sms">SMS</string>
-    <string name="trigger_sound">Sound</string>
+    <string name="trigger_call">Call Trigger</string>
+    <string name="trigger_sms">SMS Trigger</string>
+    <string name="trigger_sound">Sound Trigger</string>
 
-    <string name="trigger_acceleration">Acceleration</string>
-    <string name="trigger_gyroscope">Gyroscope</string>
-    <string name="trigger_humidity">Humidity</string>
-    <string name="trigger_light">Light</string>
-    <string name="trigger_magnetic">Magnetic</string>
-    <string name="trigger_pressure">Pressure</string>
-    <string name="trigger_proximity">Proximity</string>
-    <string name="trigger_temperature">Temperature</string>
+    <string name="trigger_acceleration">Acceleration Trigger</string>
+    <string name="trigger_gyroscope">Gyroscope Trigger</string>
+    <string name="trigger_humidity">Humidity Trigger</string>
+    <string name="trigger_light">Light Trigger</string>
+    <string name="trigger_magnetic">Magnetic Trigger</string>
+    <string name="trigger_pressure">Pressure Trigger</string>
+    <string name="trigger_proximity">Proximity Trigger</string>
+    <string name="trigger_temperature">Temperature Trigger</string>
 
     <!--Cockpit-->
     <string name="cockpit_info_title">Info Text</string>
@@ -175,24 +192,25 @@
     <string name="cockpit_wipe_data_confirm">All Data wiped!</string>
     <string name="permission_description_network_title">Network-Permissions</string>
     <string name="permission_description_storage_title">Storage-Permissions</string>
-    <string name="permission_description_audio_title">Audio-Permissions (Optional)</string>
+    <string name="permission_description_audio_title">Audio-Permissions</string>
     <string name="permission_description_bluetooth_title">Bluetooth-Permissions</string>
     <string name="permission_description_wifi_title">Wi-Fi-Permissions</string>
     <string name="permission_description_nfc_title">NFC-Permissions</string>
     <string name="permission_description_sms_title">SMS-Permissions</string>
     <string name="permission_description_gps_title">GPS-Permissions</string>
     <string name="permission_description_telephony_title">Telephony-Permissions</string>
+    <string name="permission_description_device_title">Device-Permissions</string>
     <string name="permission_description_shortcuts_title">Shortcut-Permissions</string>
     <string name="permission_description_network">Network-Permissions\n\nUsed to connect to the Internet.</string>
     <string name="permission_description_storage">Storage-Permissions\n\nUsed to store Data and Settings.</string>
-    <string name="permission_description_audio">Audio-Permissions (Optional)\n\nUsed to record Audio-Memos.</string>
+    <string name="permission_description_audio">Audio-Permissions\n\nUsed for Sound-induced Triggers.</string>
     <string name="permission_description_bluetooth">Bluetooth-Permissions\n\nUsed to scan and connect to other Devices for Transmission.</string>
     <string name="permission_description_wifi">Wi-Fi-Permissions\n\nUsed to scan for Access-Points.</string>
     <string name="permission_description_nfc">NFC-Permissions\n\nUsed to interact with other Stakeholders.</string>
     <string name="permission_description_sms">SMS-Permissions\n\nUsed for special Triggers.</string>
     <string name="permission_description_gps">GPS-Permissions\n\nUsed for special Triggers.</string>
     <string name="permission_description_telephony">Telephony-Permissions\n\nUsed for special Triggers.</string>
-    <string name="permission_shortcuts_telephony">Shortcut-Permissions\n\nUsed for installing Walkthrough-Shortcuts.</string>
+    <string name="permission_description_device">Device-Permissions\n\nUsed for Vibration and Sound.</string>
 
     <!--General-->
     <string name="empty" />
@@ -429,7 +447,7 @@
     <string name="filter_regex">/Regex</string>
     <string name="filter_s">(s)</string>
     <string name="filter_m">(m)</string>
-    <string name="filter_dB">(dB)</string>
+    <string name="filter_dB">(+/-dB)</string>
 
     <string name="editor_nfc_data">NFC Data</string>
     <string name="editor_nfc_loaded">Loaded, place your Phone on the Tag!</string>
@@ -457,6 +475,6 @@
     <string name="walkthrough_shortcut_created">Shortcut created!</string>
     <string name="walkthrough_shortcut_creation_failed">Shortcut creation failed!</string>
     <string name="walkthrough_shortcut_creation">Walkthrough state saved to "%1$s"!</string>
-    <string name="cockpit_normal_mode">Enable Normal-Mode</string>
-    <string name="cockpit_contrast_mode">Enable Contrast-Mode</string>
+    <string name="cockpit_normal_mode">Contrast-Mode Off</string>
+    <string name="cockpit_contrast_mode">Contrast-Mode On</string>
 </resources>

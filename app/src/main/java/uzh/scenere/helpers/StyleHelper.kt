@@ -12,9 +12,11 @@ class StyleHelper private constructor(context: Context) {
     val switchToContrastMode = HashMap<Int,Int>()
 
     init {
-        addEntry(context,R.color.sreWhite,R.color.sreBlack_I)
+        addEntry(context,R.color.sreWhite,R.color.sreGray)
         addEntry(context,R.color.srePrimaryPastel,R.color.sreBlack_II)
         addEntry(context,R.color.srePrimaryLight,R.color.sreBlack_III)
+        addEntry(context,R.color.srePrimary,R.color.sreBlack_IV)
+        addEntry(context,R.color.srePrimaryDark,R.color.sreBlack_V)
         addEntry(context,R.color.srePrimaryDisabledText,R.color.sreWhite_I)
         addEntry(context,R.color.srePrimaryDisabled,R.color.sreWhite_II)
         addEntry(context,R.color.sreBlack,R.color.sreWhite_III)
@@ -37,10 +39,18 @@ class StyleHelper private constructor(context: Context) {
             SreStyle.NORMAL -> {
                 textColor = switchToNormalMode[view.currentTextColor]
                 hintColor = switchToNormalMode[view.currentHintTextColor]
+                if (StringHelper.hasText(view.text) && !view.text.matches(".*[^\\x20-\\x7E].*".toRegex())){
+                    //no icons contained
+                    view.typeface = Typeface.DEFAULT
+                }
             }
             SreStyle.CONTRAST -> {
                 textColor = switchToContrastMode[view.currentTextColor]
                 hintColor = switchToContrastMode[view.currentHintTextColor]
+                if (StringHelper.hasText(view.text) && !view.text.matches(".*[^\\x20-\\x7E].*".toRegex())){
+                    //no icons contained
+                    view.typeface = Typeface.DEFAULT_BOLD
+                }
             }
         }
         if (textColor != null){
