@@ -504,7 +504,7 @@ class ShareActivity : AbstractManagementActivity() {
 
     private fun persist(id: String, versionItem: IVersionItem, onlyNewer: Boolean){
         if (!onlyNewer || onlyNewer && DatabaseHelper.getInstance(applicationContext).isNewerVersion(versionItem)){
-            DatabaseHelper.getInstance(applicationContext).write(id,versionItem)
+            DatabaseHelper.getInstance(applicationContext).disableNewVersioning().write(id,versionItem)
         }
     }
 

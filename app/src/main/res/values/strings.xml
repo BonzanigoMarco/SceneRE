@@ -11,6 +11,7 @@
         <item>@string/step_jump</item>
         <item>@string/step_sound</item>
         <item>@string/step_vibration</item>
+        <item>@string/step_resource</item>
     </string-array>
 
     <string-array name="spinner_triggers">
@@ -19,6 +20,7 @@
         <item>@string/trigger_if_else</item>
         <item>@string/trigger_stakeholder_interaction</item>
         <item>@string/trigger_input</item>
+        <item>@string/trigger_resource</item>
         <item>@string/trigger_nfc</item>
         <item>@string/trigger_bt</item>
         <item>@string/trigger_wifi</item>
@@ -67,6 +69,13 @@
         <item>Instruction Text</item>
     </string-array>
 
+    <string-array name="editor_attributes_step_resource">
+        <item>Title</item>
+        <item>Resource</item>
+        <item>Change (Optional)</item>
+        <item>Instruction Text</item>
+    </string-array>
+
     <string-array name="editor_attributes_trigger_button">
         <item>Button-Label</item>
     </string-array>
@@ -98,6 +107,14 @@
     <string-array name="editor_attributes_trigger_input">
         <item>Instruction Text</item>
         <item>Correct Answer</item>
+    </string-array>
+
+    <string-array name="editor_attributes_trigger_resource">
+        <item>Button Text</item>
+        <item>Resource</item>
+        <item>Check</item>
+        <item>Value</item>
+        <item>Step if Check false</item>
     </string-array>
 
     <string-array name="editor_attributes_trigger_nfc">
@@ -158,6 +175,7 @@
     <string name="trigger_stakeholder_interaction">Stakeholder Interaction Trigger</string>
     <string name="trigger_input">Passphrase Input Trigger</string>
     <string name="trigger_timer">Timer Trigger</string>
+    <string name="trigger_resource">Resource-Check Trigger</string>
 
     <string name="trigger_bt">Bluetooth Trigger</string>
     <string name="trigger_gps">GPS Trigger</string>
@@ -411,11 +429,12 @@
     <string name="warn_not_all_required_info_entered">Not all required information entered!</string>
     <string name="analytics_avg_time">Avg. Time</string>
     <string name="analytics_step_number">Step #</string>
+    <string name="analytics_step_stakeholder">Stakeholder</string>
     <string name="analytics_step_title">Step Title</string>
     <string name="analytics_step_text">Step Text</string>
     <string name="analytics_step_runs">Step Runs</string>
     <string name="analytics_comment_timestamp">Comment Timestamp</string>
-    <string name="analytics_comment_of">Comment of %1$s\n(%2$s)</string>
+    <string name="analytics_comment_of">Comment of %1$s</string>
     <string name="analytics_x_seconds">%1$d Second(s)</string>
     <string name="analytics_transition_x">Transition #%1$d</string>
     <string name="analytics_path_version_x">Path Version %1$d</string>
@@ -450,6 +469,7 @@
     <string name="filter_s">(s)</string>
     <string name="filter_m">(m)</string>
     <string name="filter_dB">(+/-dB)</string>
+    <string name="filter_next_step"> Check false</string>
 
     <string name="editor_nfc_data">NFC Data</string>
     <string name="editor_nfc_loaded">Loaded, place your Phone on the Tag!</string>

@@ -465,6 +465,9 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             selectionCarrier.removeView(textButton)
             multiInputMap[labelText]?.remove(textButton)
             removalExecutable?.invoke(text)
+            if (singleSelect){
+                spinner?.setSelection(0)
+            }
         }
         textButton.setLongClickOnly(true)
         if (singleSelect){

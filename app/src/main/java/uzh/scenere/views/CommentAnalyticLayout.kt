@@ -138,14 +138,21 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
         if (!wrapperList.isNullOrEmpty()){
             val commentWrapper = wrapperList.first()
             activeStepName = commentWrapper.title
-            addView(createLine(context.getString(R.string.analytics_step_number),false, stepPointer.toString()))
+            addView(createLine(context.getString(R.string.analytics_step_number),false, (stepPointer+1).toString()))
             addView(createLine(context.getString(R.string.analytics_step_title),false, commentWrapper.title))
             addView(createLine(context.getString(R.string.analytics_step_text),false, commentWrapper.text))
             val times = StatisticArrayList<Long>()
             var runs = 0
+            var stakeholderName = NOTHING
             for (wrapper in wrapperList) {
                 times.add(wrapper.time)
                 runs += wrapper.stepRuns
+                if (StringHelper.hasText(wrapper.stakeholderName)){
+                    stakeholderName = wrapper.stakeholderName
+                }
+            }
+            if (StringHelper.hasText(stakeholderName)){
+                addView(createLine(context.getString(R.string.analytics_step_stakeholder),false, stakeholderName))
             }
             addView(createLine(context.getString(R.string.analytics_step_runs),false, runs.toString()))
             val avg = times.avg()
@@ -153,7 +160,7 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
             for (wrapper in wrapperList){
                 if (!wrapper.comments.isNullOrEmpty()){
                     val comments = StringHelper.concatList(NEW_LINE,wrapper.comments)
-                    addView(createLine(context.getString(R.string.analytics_comment_of,wrapper.author,wrapper.stakeholderName),false, comments,SreTextView.TextStyle.MEDIUM))
+                    addView(createLine(context.getString(R.string.analytics_comment_of,wrapper.author),false, comments,SreTextView.TextStyle.MEDIUM))
                     addView(createLine(context.getString(R.string.analytics_comment_timestamp),false, wrapper.timestamp))
                 }
             }

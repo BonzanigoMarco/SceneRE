@@ -13,12 +13,8 @@ import kotlin.collections.HashMap
 open class Scenario private constructor(val id: String, val projectId: String, val title: String, val intro: String, val outro: String): Serializable, IVersionItem {
     override var changeTimeMs: Long = 0
 
-    private val resources: List<Resource> = ArrayList()
     val objects: ArrayList<AbstractObject> = ArrayList()
     var paths: HashMap<String,HashMap<Int,Path>> = HashMap()
-    private val stakeholders: List<Stakeholder> = ArrayList()
-    private val walkthroughs: List<Walkthrough> = ArrayList()
-    private val whatIfs: List<WhatIf> = ArrayList()
 
     fun getPath(stakeholder: Stakeholder, context: Context, layer: Int = -1 ): Path {
         val stakeholderPaths = paths[stakeholder.id]
@@ -155,11 +151,19 @@ open class Scenario private constructor(val id: String, val projectId: String, v
     }
 
 
+    fun getAllResources(): ArrayList<Resource> {
+        val list = ArrayList<Resource>()
+        for (obj in objects){
+            if (obj.isResource){
+                list.add(obj as Resource)
+            }
+        }
+        return list
+    }
+
     fun getPathAndStepToStepId(stakeholderId: Stakeholder, id: String): Pair<AbstractStep?, Path?>  {
         var step: AbstractStep? = null
         var path: Path? = null
-        val stepTitles = ArrayList<String>()
-        val stepIds = ArrayList<String>()
         val allPaths = getAllPaths(stakeholderId)
         if (allPaths != null) {
             for (p in allPaths) {
@@ -219,14 +223,18 @@ open class Scenario private constructor(val id: String, val projectId: String, v
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other is Scenario){
-            return (id == other.id)
-        }
-        return false
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Scenario
+
+        if (id != other.id) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return super.hashCode()
+        return id.hashCode()
     }
 
     class NullScenario(): Scenario("","","","","") {}

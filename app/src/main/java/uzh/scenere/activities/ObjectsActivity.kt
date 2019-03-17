@@ -187,9 +187,9 @@ class ObjectsActivity : AbstractManagementActivity() {
         }
         if (isResource){
             val resource: Resource? = if (activeObject is Resource) activeObject as Resource else null
-            minResourceLayout = createLine(min, LineInputType.NUMBER_SIGNED_EDIT, if (resource?.min == null) null else resource.min.toString(), false, -1)
-            maxResourceLayout = createLine(max, LineInputType.NUMBER_SIGNED_EDIT, if (resource?.max == null) null else resource.max.toString(), false, -1)
-            initResourceLayout = createLine(init, LineInputType.NUMBER_SIGNED_EDIT, if (resource?.init == null) null else resource.init.toString(), false, -1)
+            minResourceLayout = createLine(min, LineInputType.NUMBER_SIGNED_EDIT, if (resource?.min == null) null else resource.min.toString(), false, 9)
+            maxResourceLayout = createLine(max, LineInputType.NUMBER_SIGNED_EDIT, if (resource?.max == null) null else resource.max.toString(), false, 9)
+            initResourceLayout = createLine(init, LineInputType.NUMBER_SIGNED_EDIT, if (resource?.init == null) null else resource.init.toString(), false, 9)
             getInfoContentWrap().addView(minResourceLayout,getInfoContentWrap().childCount-1)
             getInfoContentWrap().addView(maxResourceLayout,getInfoContentWrap().childCount-1)
             getInfoContentWrap().addView(initResourceLayout,getInfoContentWrap().childCount-1)

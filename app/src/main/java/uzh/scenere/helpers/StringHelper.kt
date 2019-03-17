@@ -229,6 +229,7 @@ class StringHelper{
                     .replace(context.getString(R.string.filter_s), Constants.NOTHING)
                     .replace(context.getString(R.string.filter_m), Constants.NOTHING)
                     .replace(context.getString(R.string.filter_dB), Constants.NOTHING)
+                    .replace(context.getString(R.string.filter_next_step), Constants.NOTHING)
                     .replace(context.getString(R.string.editor_gps_warning_replace), context.getString(R.string.editor_gps_formatting))
         }
 

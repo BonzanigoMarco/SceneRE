@@ -2,7 +2,11 @@ package uzh.scenere.datamodel.database
 
 import android.content.ContentValues
 import android.content.Context
+import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.ARRAY_LIST_WHAT_IF_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.CHANGE_UID_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.CHECK_MODE_UID_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.CHECK_VALUE_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.HASH_MAP_LINK_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.HASH_MAP_OPTIONS_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.INIT_IDENTIFIER
@@ -24,6 +28,8 @@ import uzh.scenere.const.Constants.Companion.TYPE_MAGNETOMETER_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_MOBILE_NETWORK_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_NFC_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_OBJECT
+import uzh.scenere.const.Constants.Companion.TYPE_RESOURCE
+import uzh.scenere.const.Constants.Companion.TYPE_RESOURCE_CHECK_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_RESOURCE_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_SMS_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_SOUND_STEP
@@ -34,6 +40,7 @@ import uzh.scenere.const.Constants.Companion.TYPE_TIME_TRIGGER
 import uzh.scenere.const.Constants.Companion.TYPE_VIBRATION_STEP
 import uzh.scenere.const.Constants.Companion.TYPE_WIFI_TRIGGER
 import uzh.scenere.const.Constants.Companion.VERSIONING_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.ZERO_S
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.*
 import uzh.scenere.datamodel.trigger.AbstractTrigger
@@ -53,6 +60,7 @@ import uzh.scenere.helpers.*
 
 class SreDatabase private constructor(context: Context) : AbstractSreDatabase() {
     private val dbHelper: DbHelper = DbHelper(context)
+    var disableNewVersion = false
 
     companion object {
         // Volatile: writes to this field are immediately made visible to other threads.
@@ -132,7 +140,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
 
     fun writeProject(project: Project): Long {
-        addVersioning(project.id)
+        addVersioning(project.id,project.changeTimeMs)
         val values = ContentValues()
         values.put(ProjectTableEntry.ID, project.id)
         values.put(ProjectTableEntry.CREATOR, project.creator)
@@ -142,7 +150,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
 
     fun writeStakeholder(stakeholder: Stakeholder): Long {
-        addVersioning(stakeholder.id)
+        addVersioning(stakeholder.id, stakeholder.changeTimeMs)
         val values = ContentValues()
         values.put(StakeholderTableEntry.ID, stakeholder.id)
         values.put(StakeholderTableEntry.PROJECT_ID, stakeholder.projectId)
@@ -152,7 +160,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
 
     fun writeObject(obj: AbstractObject): Long {
-        addVersioning(obj.id)
+        addVersioning(obj.id, obj.changeTimeMs)
         val values = ContentValues()
         values.put(ObjectTableEntry.ID, obj.id)
         values.put(ObjectTableEntry.SCENARIO_ID, obj.scenarioId)
@@ -171,7 +179,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
 
     fun writeAttribute(attribute: Attribute): Long {
-        addVersioning(attribute.id)
+        addVersioning(attribute.id, attribute.changeTimeMs)
         val values = ContentValues()
         values.put(AttributeTableEntry.ID, attribute.id)
         values.put(AttributeTableEntry.REF_ID, attribute.refId)
@@ -182,7 +190,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
 
     fun writeScenario(scenario: Scenario): Long {
-        addVersioning(scenario.id)
+        addVersioning(scenario.id, scenario.changeTimeMs)
         val values = ContentValues()
         values.put(ScenarioTableEntry.ID, scenario.id)
         values.put(ScenarioTableEntry.PROJECT_ID, scenario.projectId)
@@ -197,39 +205,39 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         values.put(ElementTableEntry.ID, element.getElementId())
         values.put(ElementTableEntry.PREV_ID, element.getPreviousElementId())
         values.put(ElementTableEntry.PATH_ID, element.getElementPathId())
+        var time = 0L
         if (element is AbstractStep) {
-            addVersioning(element.id)
+            time = addVersioning(element.id, element.changeTimeMs)
             values.put(ElementTableEntry.TITLE, element.title)
             values.put(ElementTableEntry.TEXT, element.text)
             writeByteArray(ARRAY_LIST_WHAT_IF_IDENTIFIER.plus(element.getElementId()),DataHelper.toByteArray(element.whatIfs))
+            for (obj in element.objects) {
+                val attribute = Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build()
+                attribute.changeTimeMs = time
+                writeAttribute(attribute)
+            }
         }else if (element is AbstractTrigger){
-            addVersioning(element.id)
+            addVersioning(element.id, element.changeTimeMs)
         }
         when (element) {
             //STEPS
             is StandardStep -> {
-                for (obj in element.objects) {
-                    writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
-                }
                 values.put(ElementTableEntry.TYPE, TYPE_STANDARD_STEP)
             }
-            is JumpStep -> {/*TODO*/
-                for (obj in element.objects) {
-                    writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
-                }
+            is JumpStep -> {
                 writeString(TARGET_STEP_UID_IDENTIFIER.plus(element.getElementId()),element.targetStepId!!)
                 values.put(ElementTableEntry.TYPE, TYPE_JUMP_STEP)}
-            is SoundStep -> {/*TODO*/
-                for (obj in element.objects) {
-                    writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
-                }
+            is SoundStep -> {
                 values.put(ElementTableEntry.TYPE, TYPE_SOUND_STEP)}
-            is VibrationStep -> {/*TODO*/
-                for (obj in element.objects) {
-                    writeAttribute(Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build())
-                }
+            is VibrationStep -> {
                 values.put(ElementTableEntry.TYPE, TYPE_VIBRATION_STEP)}
-            is ResourceStep -> {/*TODO*/}
+            is ResourceStep -> {
+                writeInt(CHANGE_UID_IDENTIFIER.plus(element.getElementId()),element.change)
+                values.put(ElementTableEntry.TYPE, TYPE_RESOURCE_STEP)
+                val attribute = Attribute.AttributeBuilder(element.id, element.resource!!.id, null).withAttributeType(TYPE_RESOURCE).build()
+                attribute.changeTimeMs = time
+                writeAttribute(attribute)
+            }
             //TRIGGERS
             is ButtonTrigger -> {
                 values.put(ElementTableEntry.TITLE, element.buttonLabel)
@@ -251,6 +259,16 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                 values.put(ElementTableEntry.TITLE, element.input) //Carrier
                 values.put(ElementTableEntry.TEXT, element.text)
                 values.put(ElementTableEntry.TYPE, TYPE_INPUT_TRIGGER)
+            }
+            is ResourceCheckTrigger -> {
+                values.put(ElementTableEntry.TITLE, element.buttonLabel)
+                values.put(ElementTableEntry.TEXT, element.falseStepId) //Carrier
+                values.put(ElementTableEntry.TYPE, TYPE_RESOURCE_CHECK_TRIGGER)
+                writeInt(CHECK_VALUE_UID_IDENTIFIER.plus(element.getElementId()),element.checkValue)
+                writeString(CHECK_MODE_UID_IDENTIFIER.plus(element.getElementId()),element.mode.toString())
+                val attribute = Attribute.AttributeBuilder(element.id, element.resource!!.id, null).withAttributeType(TYPE_RESOURCE).build()
+                attribute.changeTimeMs = time
+                writeAttribute(attribute)
             }
             is TimeTrigger -> {
                 values.put(ElementTableEntry.TITLE, element.timeMs.toString()) //Carrier
@@ -301,7 +319,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
 
     fun writePath(path: Path): Long {
-        addVersioning(path.id)
+        addVersioning(path.id, path.changeTimeMs)
         val values = ContentValues()
         values.put(PathTableEntry.ID, path.id)
         values.put(PathTableEntry.SCENARIO_ID, path.scenarioId)
@@ -314,7 +332,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
     }
 
     fun writeWalkthrough(walkthrough: Walkthrough): Long {
-        addVersioning(walkthrough.id)
+        addVersioning(walkthrough.id, walkthrough.changeTimeMs)
         val values = ContentValues()
         values.put(WalkthroughTableEntry.ID, walkthrough.id)
         values.put(WalkthroughTableEntry.SCENARIO_ID, walkthrough.scenarioId)
@@ -500,7 +518,10 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val isResource = cursor.getBoolean(4)
             val objectBuilder: AbstractObject.AbstractObjectBuilder
             if (isResource){
-                objectBuilder = Resource.ResourceBuilder(id, scenarioId, name, description)
+                objectBuilder = Resource.ResourceBuilder(id, scenarioId, name, description).configure(
+                        readDouble(MIN_IDENTIFIER.plus(id),0.0),
+                        readDouble(MAX_IDENTIFIER.plus(id),0.0),
+                        readDouble(INIT_IDENTIFIER.plus(id),0.0))
             }else{
                 objectBuilder = ContextObject.ContextObjectBuilder(id, scenarioId, name, description)
             }
@@ -695,7 +716,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         readWhatIfs(id, step)
                         elements.add(step)
                     }
-                    TYPE_JUMP_STEP -> {/*TODO*/
+                    TYPE_JUMP_STEP -> {
                         val step = JumpStep(id, prevId, path.id).withTargetStep(readString(TARGET_STEP_UID_IDENTIFIER.plus(id),NOTHING)).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
@@ -706,7 +727,7 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         readWhatIfs(id, step)
                         elements.add(step)
                     }
-                    TYPE_SOUND_STEP -> {/*TODO*/
+                    TYPE_SOUND_STEP -> {
                         val step = SoundStep(id, prevId, path.id).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
@@ -715,8 +736,9 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         }
                         step.changeTimeMs = readVersioning(id)
                         readWhatIfs(id, step)
-                        elements.add(step)}
-                    TYPE_VIBRATION_STEP -> {/*TODO*/
+                        elements.add(step)
+                    }
+                    TYPE_VIBRATION_STEP -> {
                         val step = VibrationStep(id, prevId, path.id).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
@@ -725,8 +747,24 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         }
                         step.changeTimeMs = readVersioning(id)
                         readWhatIfs(id, step)
-                        elements.add(step)}
-                    TYPE_RESOURCE_STEP -> {/*TODO*/}
+                        elements.add(step)
+                    }
+                    TYPE_RESOURCE_STEP -> {
+                        val attributes = readAttributes(id, TYPE_RESOURCE)
+                        var resource: Resource? = null
+                        if (attributes.size == 1){
+                            resource = readObject(attributes.first().key!!,NullHelper.get(Resource::class), true) as Resource
+                        }
+                        val step = ResourceStep(id, prevId, path.id).withChange(readInt(CHANGE_UID_IDENTIFIER.plus(id), Constants.ZERO)).withResource(resource).withText(text).withTitle(additionalInfo)
+                        if (fullLoad) {
+                            for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
+                                step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
+                            }
+                        }
+                        step.changeTimeMs = readVersioning(id)
+                        readWhatIfs(id, step)
+                        elements.add(step)
+                    }
                     //TRIGGERS
                     TYPE_BUTTON_TRIGGER -> {
                         val trigger = ButtonTrigger(id, prevId, path.id).withButtonLabel(additionalInfo)
@@ -760,6 +798,18 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
+                    TYPE_RESOURCE_CHECK_TRIGGER -> {
+                        val attributes = readAttributes(id, TYPE_RESOURCE)
+                        var resource: Resource? = null
+                        if (attributes.size == 1){
+                            resource = readObject(attributes.first().key!!,NullHelper.get(Resource::class), true) as Resource
+                        }
+                        val trigger = ResourceCheckTrigger(id, prevId, path.id).withButtonLabel(additionalInfo)
+                                .withFalseStepId(text).withResource(resource).withCheckValue(readInt(CHECK_VALUE_UID_IDENTIFIER.plus(id), Constants.ZERO)).withMode(readString(CHECK_MODE_UID_IDENTIFIER.plus(id), NOTHING))
+                        trigger.changeTimeMs = readVersioning(id)
+
+                        elements.add(trigger)
+                    }
                     TYPE_TIME_TRIGGER -> {
                         val trigger = TimeTrigger(id, prevId, path.id).withText(text).withTimeMillisecondSecond(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
@@ -779,7 +829,6 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
-                    TYPE_MOBILE_NETWORK_TRIGGER -> {/*TODO*/}
                     TYPE_NFC_TRIGGER -> {
                         val trigger = NfcTrigger(id, prevId, path.id).withText(text).withMessage(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
@@ -861,8 +910,15 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
         return walkthroughs
     }
 
-    private fun addVersioning(id: String){
-        writeLong(VERSIONING_IDENTIFIER.plus(id),System.currentTimeMillis())
+    private fun addVersioning(id: String, oldTimeStamp: Long): Long{
+        var time = oldTimeStamp
+        if (disableNewVersion && oldTimeStamp != 0L){
+            writeLong(VERSIONING_IDENTIFIER.plus(id),oldTimeStamp)
+        }else{
+            writeLong(VERSIONING_IDENTIFIER.plus(id),System.currentTimeMillis())
+            time = System.currentTimeMillis()
+        }
+        return time
     }
 
     private fun readVersioning(id: String): Long{

@@ -33,6 +33,7 @@ class Constants {
         const val THOUSAND: Double = 1000.0
         const val HUNDRED: Double = 100.0
         const val FRACTION: Float = 0.1f
+        const val ZERO_S: String = "0"
         const val ZERO_F: Float = 0.0f
         const val ZERO_L: Long = 0
         const val ZERO: Int = 0
@@ -72,6 +73,9 @@ class Constants {
         const val WALKTHROUGH_UID_IDENTIFIER: String = "walkthrough_"
         const val TUTORIAL_UID_IDENTIFIER: String = "tutorial_"
         const val TARGET_STEP_UID_IDENTIFIER: String = "target_step_"
+        const val CHANGE_UID_IDENTIFIER: String = "change_"
+        const val CHECK_VALUE_UID_IDENTIFIER: String = "check_value_"
+        const val CHECK_MODE_UID_IDENTIFIER: String = "check_mode_"
         const val HASH_MAP_UID_IDENTIFIER: String = "hash_map_"
         const val HASH_MAP_OPTIONS_IDENTIFIER: String = "hash_map_options_"
         const val HASH_MAP_LINK_IDENTIFIER: String = "hash_map_link_"
@@ -127,6 +131,7 @@ class Constants {
         const val STARTING_POINT: String = "starting_point"
         //ATTRIBUTE TYPES
         const val TYPE_OBJECT: String = "Object"
+        const val TYPE_RESOURCE: String = "Resource"
         const val TYPE_STANDARD_STEP: String = "StandardStep"
         const val TYPE_JUMP_STEP: String = "JumpStep"
         const val TYPE_SOUND_STEP: String = "SoundStep"
@@ -137,6 +142,7 @@ class Constants {
         const val TYPE_STAKEHOLDER_INTERACTION_TRIGGER: String = "StakeholderInteractionTrigger"
         const val TYPE_TIME_TRIGGER: String = "TimeTrigger"
         const val TYPE_INPUT_TRIGGER: String = "InputTrigger"
+        const val TYPE_RESOURCE_CHECK_TRIGGER: String = "ResourceCheckTrigger"
         const val TYPE_SOUND_TRIGGER: String = "SoundTrigger"
         const val TYPE_BLUETOOTH_TRIGGER: String = "BluetoothTrigger"
         const val TYPE_GPS_TRIGGER: String = "GpsTrigger"

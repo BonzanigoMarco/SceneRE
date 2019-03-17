@@ -8,9 +8,6 @@ import java.util.*
 
 class ButtonTrigger(id: String?, previousId: String?, pathId: String): AbstractTrigger(id ?: UUID.randomUUID().toString(), previousId, pathId), IDirectTrigger {
     var buttonLabel: String? = null
-    enum class ButtonMode{
-        SINGLE, MULTIPLE
-    }
 
     fun withButtonLabel(label: String?): ButtonTrigger{
         buttonLabel = label

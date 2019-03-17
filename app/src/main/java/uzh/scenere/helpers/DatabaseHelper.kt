@@ -33,6 +33,19 @@ class DatabaseHelper private constructor(context: Context) {
     private var database: SreDatabase? = null
     private var sharedPreferences: SharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE)
 
+    fun disableNewVersioning(): DatabaseHelper{
+        if (mode == DataMode.DATABASE && database != null){
+            database?.disableNewVersion = true
+        }
+        return this
+    }
+
+    private fun enableNewVersioning(){
+        if (mode == DataMode.DATABASE && database != null){
+            database?.disableNewVersion = false
+        }
+    }
+
     init {
         if (PermissionHelper.check(context, PermissionHelper.Companion.PermissionGroups.STORAGE)) {
             database = SreDatabase.getInstance(context)
@@ -104,6 +117,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Walkthrough) database!!.writeWalkthrough(obj)
             }
         }
+        enableNewVersioning()
         return true
     }
 
