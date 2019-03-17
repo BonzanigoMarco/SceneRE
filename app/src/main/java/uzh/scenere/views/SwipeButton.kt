@@ -538,7 +538,9 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
                 active = true
-                sliderButton?.text = resources.getText(icon)
+                if (!autoCollapse){
+                    sliderButton?.text = resources.getText(icon)
+                }
             }
         }
 

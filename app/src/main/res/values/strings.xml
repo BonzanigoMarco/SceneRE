@@ -189,7 +189,7 @@
     <string name="cockpit_tutorial_disable">Disable Tutorials</string>
     <string name="cockpit_tutorial_disable_confirm">Tutorials disabled! Reset to show again.</string>
     <string name="cockpit_wipe_data">Wipe Data</string>
-    <string name="cockpit_wipe_walkthroughs">Wipe Walkthroughs</string>
+    <string name="cockpit_wipe_walkthroughs">Wipe All Walkthroughs</string>
     <string name="cockpit_wipe_data_confirm">All Data wiped!</string>
     <string name="cockpit_wipe_walkthroughs_confirm">All Walkthroughs wiped!</string>
     <string name="permission_description_network_title">Network-Permissions</string>

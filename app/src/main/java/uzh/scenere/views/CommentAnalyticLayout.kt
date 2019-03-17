@@ -20,7 +20,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 @SuppressLint("ViewConstructor")
-class CommentAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
+class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
 
     private lateinit var comments: HashMap<String,ArrayList<CommentWrapper>>
     private lateinit var sortedStepList: ArrayList<String>
@@ -66,6 +66,7 @@ class CommentAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthr
             val author = Walkthrough.WalkthroughProperty.WT_OWNER.get(String::class)
             val timestamp = Walkthrough.WalkthroughProperty.TIMESTAMP.getDisplayText()
             val stakeholderName = Walkthrough.WalkthroughProperty.STAKEHOLDER_NAME.getDisplayText()
+            var stepNumber = 1
             for (stepId in Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class)){
                 if (!comments.contains(stepId)){
                     comments[stepId] = ArrayList()
@@ -78,13 +79,20 @@ class CommentAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthr
                 for (comment in stepComments){
                     restoredComments.add(comment.replace(NEW_LINE_TOKEN,NEW_LINE))
                 }
-                val stepNumber = Walkthrough.WalkthroughStepProperty.STEP_NUMBER.get(stepId, Int::class)
                 val stepTitle = Walkthrough.WalkthroughStepProperty.STEP_TITLE.get(stepId, String::class)
                 val stepTime = Walkthrough.WalkthroughStepProperty.STEP_TIME.get(stepId, Long::class)
                 val stepText = Walkthrough.WalkthroughStepProperty.STEP_TEXT.get(stepId, String::class).replace(NEW_LINE_TOKEN,NEW_LINE)
                 val wrapper = CommentWrapper(author,stepTime,restoredComments,stepTitle,stepText,stakeholderName,stepNumber,timestamp)
-                comments[stepId]?.add(wrapper)
+                if (!comments[stepId]!!.contains(wrapper)){
+                    comments[stepId]?.add(wrapper)
+                }else{
+                    val index = comments[stepId]?.indexOf(wrapper)
+                    if (index != null){
+                        comments[stepId]?.get(index)?.stepRuns?.plus(1)
+                    }
+                }
                 addStepToSortingMap(sortingMap,stepId,stepNumber.toFloat())
+                stepNumber++
             }
         }
         //SORTING
@@ -133,11 +141,13 @@ class CommentAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthr
             addView(createLine(context.getString(R.string.analytics_step_number),false, stepPointer.toString()))
             addView(createLine(context.getString(R.string.analytics_step_title),false, commentWrapper.title))
             addView(createLine(context.getString(R.string.analytics_step_text),false, commentWrapper.text))
-            addView(createLine(context.getString(R.string.analytics_step_runs),false, wrapperList.size.toString()))
             val times = StatisticArrayList<Long>()
+            var runs = 0
             for (wrapper in wrapperList) {
                 times.add(wrapper.time)
+                runs += wrapper.stepRuns
             }
+            addView(createLine(context.getString(R.string.analytics_step_runs),false, runs.toString()))
             val avg = times.avg()
             addView(createLine(context.getString(R.string.analytics_avg_time),false, context.getString(R.string.analytics_x_seconds,avg)))
             for (wrapper in wrapperList){
@@ -169,11 +179,9 @@ class CommentAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthr
         return wrapper
     }
 
-    private var added = false
     fun addTo(viewGroup: ViewGroup): Boolean {
-        if (!added){
+        if (parent == null){
             viewGroup.addView(this)
-            added = true
             return true
         }
         return false
@@ -191,5 +199,26 @@ class CommentAnalyticsLayout(context: Context, vararg  val walkthroughs: Walkthr
         return activeStepName
     }
 
-    private class CommentWrapper(val author: String, val time: Long, val comments: List<String>, val title: String, val text: String, val stakeholderName: String, val stepNumber: Int, val timestamp: String)
+    private class CommentWrapper(val author: String, val time: Long, val comments: List<String>, val title: String, val text: String, val stakeholderName: String, val stepNumber: Int, val timestamp: String){
+
+        var stepRuns = 1
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as CommentWrapper
+
+            if (time != other.time) return false
+            if (text != other.text) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = time.hashCode()
+            result = 31 * result + text.hashCode()
+            return result
+        }
+    }
 }

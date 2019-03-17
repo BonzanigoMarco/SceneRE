@@ -398,7 +398,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             val addButtonParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT,1f)
             addButtonParams.setMargins(0,marginSmall!!,0,marginSmall!!)
             addButtonParams.weight = 1f
-            addButtonParams.setMargins(0,0,0,0)
             addButton.layoutParams = addButtonParams
             val input = SreEditText(this, wrapper, null, getString(R.string.input, labelText))
             input.textAlignment = View.TEXT_ALIGNMENT_TEXT_START

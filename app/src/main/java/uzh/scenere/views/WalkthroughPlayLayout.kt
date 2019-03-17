@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.net.wifi.ScanResult
 import android.os.Handler
-import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar

@@ -66,7 +66,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
 
     //Data can be collected globally due to a single entry point
     @Suppress("UNCHECKED_CAST")
-    enum class WalkthroughProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val isStatisticalValue: Boolean, val multivalued: Boolean = false) {
+    enum class WalkthroughProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val isStatisticalValue: Boolean, val multivalued: Boolean = false, val orderedWithDuplicates: Boolean = false) {
         WT_ID("Walkthrough-ID", String::class, NOTHING, false),
         WT_OWNER("User", String::class, NOTHING, true),
         SCENARIO_ID("Scenario-ID", String::class, NOTHING, false),
@@ -81,7 +81,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         FINAL_STATE("Final State", String::class, NOTHING, true),
         INFO_OBJECT("Info Object(s)", String::class, NOTHING, true, true),
         INFO_ATTRIBUTE("Info Attribute(s)", String::class, NOTHING, true, true),
-        STEP_ID_LIST("Step ID(s)", String::class, NOTHING, false, true);
+        STEP_ID_LIST("Step ID(s)", String::class, NOTHING, false, true,true);
 
         @SuppressLint("SimpleDateFormat")
         fun getDisplayText(): String {
@@ -136,6 +136,9 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
                 if (getPropertiesMap(map)[this] == null) {
                     return list
                 }
+                if (this.orderedWithDuplicates){
+                    return (getPropertiesMap(map)[this] as ArrayList<T>)
+                }
                 val m = (getPropertiesMap(map)[this] as HashMap<T, Int>)
                 for (entry in m.entries) {
                     list.add(entry.key)
@@ -145,11 +148,16 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             return listOf(get(clazz))
         }
 
-        fun <T : Serializable> getAllCount(clazz: KClass<T>, map: HashMap<WalkthroughProperty, Any>? = null): HashMap<T, Int> {
-            if (this.multivalued) {
-                return if (getPropertiesMap(map)[this] == null) HashMap<T, Int>() else getPropertiesMap(map)[this] as HashMap<T, Int>
+        fun <T : Serializable> getAllCount(clazz: KClass<T>, map: HashMap<WalkthroughProperty, Any>? = null): ArrayList<T> {
+            val list = ArrayList<T>()
+            if (this.orderedWithDuplicates){
+                return (getPropertiesMap(map)[this] as ArrayList<T>)
+            }else if (this.multivalued && getPropertiesMap(map)[this] != null) {
+                for (entry in getPropertiesMap(map)[this] as HashMap<T, Int>){
+                    list.add(entry.key)
+                }
             }
-            return hashMapOf(get(clazz) to 1)
+            return list
         }
 
         fun <T : Any> set(property: T?, type: KClass<T> = this.type as KClass<T>) {
@@ -169,7 +177,13 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             }
             if (this.multivalued) {
                 val entry = propertiesMap[this]
-                if (entry != null) {
+                if (orderedWithDuplicates){
+                    if (entry == null){
+                        propertiesMap[this] = arrayListOf(property)
+                    }else{
+                        (propertiesMap[this] as ArrayList<T>).add(property)
+                    }
+                }else if (entry != null) {
                     val count = (propertiesMap[this] as HashMap<T, Int>)[property]
                     (propertiesMap[this] as HashMap<T, Int>)[property] = (if (count == null) 1 else (count + 1))
                 } else {
@@ -185,7 +199,6 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
     enum class WalkthroughStepProperty(val label: String, val type: KClass<out Serializable>, private val valueIfNull: Any, val isStatisticalValue: Boolean, val multivalued: Boolean = false) {
         STEP_ID("Step-ID", String::class, NOTHING, false),
         STEP_TIME("Step Time", Long::class, ZERO_L, true),
-        STEP_NUMBER("Step Number", Int::class, ZERO, true),
         STEP_TEXT("Step Text", String::class, NOTHING, true),
         STEP_TITLE("Step Title", String::class, NOTHING, true),
         STEP_TYPE("Step Type", String::class, NOTHING, true),
@@ -294,7 +307,6 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             STEP_ID_LIST.set(step.id)
             STEP_ID.set(step.id, step.id)
             STEP_TIME.set(step.id, step.time)
-            STEP_NUMBER.set(step.id, STEP_ID_LIST.getAll(String::class).size)
             STEP_TITLE.set(step.id, step.title)
             STEP_TEXT.set(step.id, step.text?.replace(NEW_LINE,NEW_LINE_TOKEN))
             STEP_TYPE.set(step.id, step.className())
@@ -367,7 +379,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             if (property.multivalued) {
                 var counter = 0
                 for (entry in property.getAllCount(property.type)) {
-                    xml += context.resources.getString(R.string.xml_enclosing, property.toString().plus(counter), entry.key.className(), entry.key).plus(NEW_LINE_C)
+                    xml += context.resources.getString(R.string.xml_enclosing, property.toString().plus(counter), entry.className(), entry).plus(NEW_LINE_C)
                     counter++
                 }
             } else {

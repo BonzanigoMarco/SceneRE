@@ -68,7 +68,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
     private val activeScenarios = ArrayList<Scenario>()
     private val activeWalkthroughs = ArrayList<Walkthrough>()
     private var scenarioAnalytics: ScenarioAnalyticLayout? = null
-    private var commentAnalytics: CommentAnalyticsLayout? = null
+    private var commentAnalytics: CommentAnalyticLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -360,7 +360,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
 
     private fun createStepStatistics() {
         getContentHolderLayout().removeAllViews()
-        commentAnalytics = CommentAnalyticsLayout(applicationContext, *activeWalkthroughs.toTypedArray())
+        commentAnalytics = CommentAnalyticLayout(applicationContext, *activeWalkthroughs.toTypedArray())
     }
 
     private val loadedWalkthroughs = ArrayList<Walkthrough>()

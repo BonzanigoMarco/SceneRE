@@ -260,11 +260,12 @@ class CockpitActivity : AbstractManagementActivity() {
                         .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
                         .setButtonStates(false, true, false, false)
                         .setExecutable(object : SwipeButton.SwipeButtonExecution{
-                            override fun execRight() {DatabaseHelper.getInstance(applicationContext).readBulk(Walkthrough::class, null)
-                                showInfoText(getString(R.string.cockpit_wipe_walkthroughs_confirm), R.color.srePrimaryWarn)
+                            override fun execRight() {
+                                DatabaseHelper.getInstance(applicationContext).dropAndRecreateWalkthroughs()
+                                showInfoText(getString(R.string.cockpit_wipe_walkthroughs_confirm), R.color.srePrimaryAttention)
                             }
                         })
-                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryAttention),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         .setAutoCollapse(true)
                         .updateViews(true)
                 val wipeData = SwipeButton(this, getString(R.string.cockpit_wipe_data))
@@ -285,6 +286,7 @@ class CockpitActivity : AbstractManagementActivity() {
                 getContentHolderLayout().addView(resetTutorial)
                 getContentHolderLayout().addView(disableTutorial)
                 getContentHolderLayout().addView(modeSwitch)
+                getContentHolderLayout().addView(wipeWalkthroughs)
                 getContentHolderLayout().addView(wipeData)
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_functions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }

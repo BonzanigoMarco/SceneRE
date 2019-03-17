@@ -501,5 +501,11 @@ class DatabaseHelper private constructor(context: Context) {
         }
     }
 
+    fun dropAndRecreateWalkthroughs(){
+        if (mode == DataMode.DATABASE) {
+            database!!.dropAndRecreateTable("WALKTHROUGH_TABLE")
+        }
+    }
+
 
 }
