@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.ViewGroup
+import uzh.scenere.const.Constants.Companion.BREAK
 import uzh.scenere.const.Constants.Companion.MATERIAL_100_BLUE
 import uzh.scenere.const.Constants.Companion.MATERIAL_100_GREEN
 import uzh.scenere.const.Constants.Companion.MATERIAL_100_LIME
@@ -22,6 +23,7 @@ import uzh.scenere.const.Constants.Companion.MATERIAL_700_RED
 import uzh.scenere.const.Constants.Companion.MATERIAL_700_TURQUOISE
 import uzh.scenere.const.Constants.Companion.MATERIAL_700_VIOLET
 import uzh.scenere.const.Constants.Companion.MATERIAL_700_YELLOW
+import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.datamodel.Attribute
 import uzh.scenere.datamodel.AbstractObject
 import uzh.scenere.helpers.StringHelper
@@ -50,6 +52,9 @@ class SreContextAwareTextView(context: Context, parent: ViewGroup?,var boldWords
     }
 
     init {
+        for (s in boldWords.indices){
+            boldWords[s] = boldWords[s].replace(BREAK,NEW_LINE)
+        }
         if (!objects.isEmpty()) {
             addObjects(objects)
         }
@@ -129,11 +134,11 @@ class SreContextAwareTextView(context: Context, parent: ViewGroup?,var boldWords
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (!ignore) {
                 var str = s.toString()
-                for (entry in textView.objectLabels.entries) {
-                    str = str.replace(entry.key,entry.value)
-                }
                 for (word in textView.boldWords) {
                     str = str.replaceFirst(word,"<b>$word</b>")
+                }
+                for (entry in textView.objectLabels.entries) {
+                    str = str.replace(entry.key,entry.value)
                 }
                 str = str.replace("\n","<br>").replace("\r","<br>")
                 ignore = true

@@ -26,9 +26,12 @@ import uzh.scenere.views.SreTextView.TextStyle.BORDERLESS_DARK
 import uzh.scenere.views.SreTextView.TextStyle.MEDIUM
 import java.util.*
 import android.content.res.Configuration
+import android.text.Editable
 import android.text.InputFilter
+import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.inputmethod.EditorInfo
+import uzh.scenere.const.Constants.Companion.ZERO_S
 
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
@@ -222,6 +225,26 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.inputType = if (inputType == LineInputType.NUMBER_EDIT) InputType.TYPE_CLASS_NUMBER else if (inputType == LineInputType.NUMBER_SIGNED_EDIT) (InputType.TYPE_CLASS_NUMBER  or InputType.TYPE_NUMBER_FLAG_SIGNED )else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             if (inputType == LineInputType.NUMBER_EDIT){
                 input.keyListener = DigitsKeyListener.getInstance("0123456789")
+            }else if (CollectionHelper.oneOf(inputType, LineInputType.NUMBER_EDIT, LineInputType.NUMBER_SIGNED_EDIT)){
+                input.addTextChangedListener(object: TextWatcher {
+                    override fun afterTextChanged(s: Editable?) {
+                        val str = s.toString()
+                        if (str.length > 1 && str.startsWith(ZERO_S)) {
+                            val selection = if (input.selectionStart==1) 0 else str.length-1
+                            s?.clear() //Avoid preceding 0 in Number-Fields
+                            input.setText(str.substring(1))
+                            input.setSelection(selection)
+                        }
+                    }
+
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        //NOP
+                    }
+
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        //NOP
+                    }
+                })
             }
             input.setText(realPresetValue)
             input.setWeight(1f)
@@ -229,7 +252,12 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_EDIT))
             if (isLandscapeOrientation()){
                 //Present "Done" for every input to avoid jumping to unrelated inputs in landscape
-                input.imeOptions = EditorInfo.IME_ACTION_DONE
+                //Also prevents fullscreen cover-up in the input
+                if (inputType == LineInputType.MULTI_LINE_EDIT){
+                    input.imeOptions = EditorInfo.IME_ACTION_DONE
+                }else{
+                    input.imeOptions = EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                }
             }
             if (limit > 0){
                 input.filters = arrayOf(InputFilter.LengthFilter(limit))
@@ -266,7 +294,12 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.setSingleLine((inputType != LineInputType.MULTI_LINE_CONTEXT_EDIT))
             if (isLandscapeOrientation()){
                 //Present "Done" for every input to avoid jumping to unrelated inputs in landscape
-                input.imeOptions = EditorInfo.IME_ACTION_DONE
+                //Also prevents fullscreen cover-up in the input
+                if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT){
+                    input.imeOptions = EditorInfo.IME_ACTION_DONE
+                }else{
+                    input.imeOptions = EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                }
             }
             wrapper.addView(label)
             wrapper.addView(input)
@@ -406,10 +439,11 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             input.setText(realPresetValue)
             input.setWeight(1f)
             input.setSize(MATCH_PARENT, MATCH_PARENT)
-            input.setSingleLine(false)
+            input.setSingleLine(true)
             if (isLandscapeOrientation()){
                 //Present "Done" for every input to avoid jumping to unrelated inputs in landscape
-                input.imeOptions = EditorInfo.IME_ACTION_DONE
+                //Also prevents fullscreen cover-up in the input
+                input.imeOptions = EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_EXTRACT_UI
             }
             addButton.setExecutable {
                 val text = input.text.toString()

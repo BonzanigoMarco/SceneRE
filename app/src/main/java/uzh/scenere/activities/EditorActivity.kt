@@ -13,6 +13,7 @@ import uzh.scenere.R
 import uzh.scenere.activities.EditorActivity.EditorState.*
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.ARROW_RIGHT
+import uzh.scenere.const.Constants.Companion.ATTRIBUTE_TOKEN
 import uzh.scenere.const.Constants.Companion.BOLD_END
 import uzh.scenere.const.Constants.Companion.BOLD_START
 import uzh.scenere.const.Constants.Companion.BREAK
@@ -20,9 +21,14 @@ import uzh.scenere.const.Constants.Companion.COMMA
 import uzh.scenere.const.Constants.Companion.COORDINATES_PATTERN
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.OBJECT_TOKEN
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT_WITH_PRESET_POSITION
 import uzh.scenere.const.Constants.Companion.SPACE
+import uzh.scenere.const.Constants.Companion.STAKEHOLDER_1_TOKEN
+import uzh.scenere.const.Constants.Companion.STAKEHOLDER_2_TOKEN
+import uzh.scenere.const.Constants.Companion.STATIC_TOKEN
+import uzh.scenere.const.Constants.Companion.WHAT_IF_DATA
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.*
 import uzh.scenere.datamodel.trigger.AbstractTrigger
@@ -833,39 +839,90 @@ class EditorActivity : AbstractManagementActivity() {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun createWhatIfs(element: AbstractStep): Array<String>{
         if (element.whatIfs.isEmpty()) {
+            val whatIfMode = WhatIfMode.valueOf(DatabaseHelper.getInstance(applicationContext).read(Constants.WHAT_IF_MODE, String::class, WhatIfMode.ALL.toString(),DatabaseHelper.DataMode.PREFERENCES))
+            val initialized = DatabaseHelper.getInstance(applicationContext).read(Constants.WHAT_IF_INITIALIZED, Boolean::class, false,DatabaseHelper.DataMode.PREFERENCES)
+            val map = HashMap<String,ArrayList<String>>()
+            map[OBJECT_TOKEN] = ArrayList<String>()
+            map["$ATTRIBUTE_TOKEN$OBJECT_TOKEN"] = ArrayList<String>()
+            map["$STAKEHOLDER_1_TOKEN$STAKEHOLDER_2_TOKEN"] = ArrayList<String>()
+            map[STAKEHOLDER_1_TOKEN] = ArrayList<String>()
+            map[STATIC_TOKEN] = ArrayList<String>()
+            val bytes = DatabaseHelper.getInstance(applicationContext).read(WHAT_IF_DATA,ByteArray::class,NullHelper.get(ByteArray::class))
+            if (bytes.isNotEmpty()){
+                try{
+                    map.putAll(DataHelper.toObject(bytes,HashMap::class) as HashMap<String,ArrayList<String>>)
+                }catch(e: Exception){/*NOP*/}
+            }
+            if (!initialized){
+                //OBJECTS
+                for (i in 1 .. 4){
+                    map[OBJECT_TOKEN]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_object_0, OBJECT_TOKEN))
+                }
+                //ATTRIBUTES
+                for (i in 1 .. 2){
+                    map["$ATTRIBUTE_TOKEN$OBJECT_TOKEN"]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_attribute_0, ATTRIBUTE_TOKEN, OBJECT_TOKEN))
+                }
+                //STAKEHOLDER RELATION
+                for (i in 1 .. 3){
+                    map["$STAKEHOLDER_1_TOKEN$STAKEHOLDER_2_TOKEN"]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_2_0, STAKEHOLDER_1_TOKEN, STAKEHOLDER_2_TOKEN))
+                }
+                //STAKEHOLDER
+                for (i in 1 .. 1){
+                    map[STAKEHOLDER_1_TOKEN]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_1_0,STAKEHOLDER_1_TOKEN))
+                }
+                //FIXED
+                for (i in 1 .. 22){
+                    map[STATIC_TOKEN]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_0))
+                }
+                for (whatIf in map){
+                    DatabaseHelper.getInstance(applicationContext).write(WHAT_IF_DATA,DataHelper.toByteArray(map))
+                }
+                DatabaseHelper.getInstance(applicationContext).write(Constants.WHAT_IF_INITIALIZED, true, DatabaseHelper.DataMode.PREFERENCES)
+            }
             val stakeholder1 = StringHelper.nvl(activePath?.stakeholder?.name,NOTHING)
             var stakeholder2 = "Stakeholder2"
-            val list = ArrayList<String>()
-            //Variable
-            for (o in element.objects){
-                for (i in 1 .. 4){
-                    list.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_object_0,o.name))
-                }
-            }
-            //Attributes
-            //TODO Attributes & Configuration
-            //Stakeholders
-            val stakeholderCount = NumberHelper.nvl(projectContext?.stakeholders?.size, 0)
-            if (stakeholderCount > 1){
-                for (s in 0 until stakeholderCount){
-                    stakeholder2 = projectContext!!.stakeholders[s].name
-                    if (stakeholder2 != stakeholder1) {
-                        for (i in 1 .. 3){
-                            list.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_2_0,stakeholder1, stakeholder2))
+            val whatIfList = ArrayList<String>()
+            //Objects & Attributes
+            if (CollectionHelper.oneOf(whatIfMode,WhatIfMode.ALL,WhatIfMode.DYNAMIC,WhatIfMode.OBJECTS)) {
+                for (o in element.objects) {
+                    for (whatIf in map[OBJECT_TOKEN]!!) {
+                        whatIfList.add(whatIf.replace(OBJECT_TOKEN, o.name))
+                    }
+                    for (a in activeScenario!!.getAttributesToObject(o)) {
+                        for (whatIf in map["$ATTRIBUTE_TOKEN$OBJECT_TOKEN"]!!){
+                            if (a.key != null){
+                                whatIfList.add(whatIf.replace(OBJECT_TOKEN, o.name).replace(ATTRIBUTE_TOKEN, a.key))
+                            }
                         }
                     }
                 }
             }
-            for (i in 1 .. 1){
-                list.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_1_0,stakeholder1))
+            //Stakeholders
+            if (CollectionHelper.oneOf(whatIfMode,WhatIfMode.ALL,WhatIfMode.DYNAMIC,WhatIfMode.STAKEHOLDER)) {
+                val stakeholderCount = NumberHelper.nvl(projectContext?.stakeholders?.size, 0)
+                if (stakeholderCount > 1){
+                    for (s in 0 until stakeholderCount){
+                        stakeholder2 = projectContext!!.stakeholders[s].name
+                        if (stakeholder2 != stakeholder1) {
+                            for (whatIf in map["$STAKEHOLDER_1_TOKEN$STAKEHOLDER_2_TOKEN"]!!){
+                                whatIfList.add(whatIf.replace(STAKEHOLDER_1_TOKEN, stakeholder1).replace(STAKEHOLDER_2_TOKEN, stakeholder2))
+                            }
+                        }
+                    }
+                }
+                for (whatIf in map[STAKEHOLDER_1_TOKEN]!!){
+                    whatIfList.add(whatIf.replace(STAKEHOLDER_1_TOKEN, stakeholder1))
+                }
             }
-            //Fixed
-            for (i in 1 .. 22){
-                list.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_0))
+            if (CollectionHelper.oneOf(whatIfMode,WhatIfMode.ALL,WhatIfMode.STATIC)) {
+                for (whatIf in map[STATIC_TOKEN]!!){
+                    whatIfList.add(whatIf)
+                }
             }
-            return list.toTypedArray()
+            return whatIfList.toTypedArray()
         }
         return element.whatIfs.toTypedArray()
     }

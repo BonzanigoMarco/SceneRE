@@ -14,6 +14,9 @@ class Constants {
         const val USER_NAME: String = "scenereUserName"
         const val USER_ID: String = "scenereUserId"
         const val STYLE: String = "scenereStyle"
+        const val WHAT_IF_MODE: String = "scenereWhatIfMode"
+        const val WHAT_IF_INITIALIZED: String = "scenereWhatIfInitialized"
+        const val WHAT_IF_DATA: String = "scenereWhatIfData"
         const val IMPORT_FOLDER: String = "scenereImportFolder"
         const val ANONYMOUS: String = "John Doe"
         const val WALKTHROUGH_PLAY_STATE: String = "scenereWalkthroughPlayState"
@@ -34,6 +37,7 @@ class Constants {
         const val HUNDRED: Double = 100.0
         const val FRACTION: Float = 0.1f
         const val ZERO_S: String = "0"
+        const val ZERO_D: Double = 0.0
         const val ZERO_F: Float = 0.0f
         const val ZERO_L: Long = 0
         const val ZERO: Int = 0
@@ -90,6 +94,11 @@ class Constants {
         const val EQUALS: String = "="
         const val NEW_LINE: String = "\n"
         const val NEW_LINE_TOKEN: String = "!!NEW_LINE_TOKEN!!"
+        const val STAKEHOLDER_1_TOKEN: String = "!!STAKEHOLDER_1!!"
+        const val STAKEHOLDER_2_TOKEN: String = "!!STAKEHOLDER_2!!"
+        const val OBJECT_TOKEN: String = "!!OBJECT!!"
+        const val ATTRIBUTE_TOKEN: String = "!!ATTRIBUTE!!"
+        const val STATIC_TOKEN: String = "!!STATIC!!"
         const val PERCENT: String = "%"
         const val SPACE: String = " "
         const val COMMA: String = ","

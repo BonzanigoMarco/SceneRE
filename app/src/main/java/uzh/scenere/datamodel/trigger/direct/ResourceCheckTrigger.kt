@@ -1,5 +1,7 @@
 package uzh.scenere.datamodel.trigger.direct
 
+import android.content.Context
+import uzh.scenere.R
 import uzh.scenere.datamodel.Resource
 import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.IDirectTrigger
@@ -24,6 +26,14 @@ class ResourceCheckTrigger(id: String?, previousId: String?, pathId: String): Ab
                     }
                 }
                 return null
+            }
+        }
+        fun getSucceedString(res: String, value: Int, check: Int, context: Context): String{
+            return when (this){
+                ABOVE -> context.getString(R.string.resource_check_above,res,check,value)
+                BELOW -> context.getString(R.string.resource_check_below,res,check,value)
+                EQUAL -> context.getString(R.string.resource_check_equal,res,check,value)
+                NOT_EQUAL -> context.getString(R.string.resource_check_not_equal,res,check,value)
             }
         }
     }

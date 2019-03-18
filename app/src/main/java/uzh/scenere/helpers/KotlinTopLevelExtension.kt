@@ -184,3 +184,7 @@ private fun reStyleTextColor(context: Context, view: View, sreStyle: SreStyle){
         StyleHelper.get(context).switch(view,sreStyle)
     }
 }
+
+enum class WhatIfMode(){
+    ALL, DYNAMIC, STAKEHOLDER, OBJECTS, STATIC, NONE
+}

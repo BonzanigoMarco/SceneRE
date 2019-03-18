@@ -31,8 +31,11 @@ class ShareWrapper() : Serializable {
         return this
     }
 
-    fun withWalkthroughs(walkthroughs: Array<Walkthrough>): ShareWrapper {
+    fun withWalkthroughs(walkthroughs: Array<Walkthrough>, wipeAllOther: Boolean = false): ShareWrapper {
         walkthroughArray = walkthroughs
+        if (wipeAllOther){
+            projectArray = emptyArray()
+        }
         return this
     }
 

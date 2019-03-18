@@ -2,7 +2,7 @@ package uzh.scenere.datamodel
 
 import java.util.*
 
-open class Resource private constructor(id: String, scenarioId: String, name: String, description: String, val max: Double, val min: Double, val init: Double) : AbstractObject(id, scenarioId, name, description, true) {
+open class Resource private constructor(id: String, scenarioId: String, name: String, description: String, val max: Int, val min: Int, val init: Int) : AbstractObject(id, scenarioId, name, description, true) {
 
     class ResourceBuilder(private val scenarioId: String, private val name: String, private val description: String) : AbstractObjectBuilder(scenarioId, name, description) {
 
@@ -16,11 +16,11 @@ open class Resource private constructor(id: String, scenarioId: String, name: St
             this.id = id
         }
 
-        private var max: Double = 0.0
-        private var min: Double = 0.0
-        private var init: Double = 0.0
+        private var max: Int = 0
+        private var min: Int = 0
+        private var init: Int = 0
 
-        fun configure(min: Double, max: Double, init: Double): ResourceBuilder {
+        fun configure(min: Int, max: Int, init: Int): ResourceBuilder {
             this.max = max
             this.min = min
             this.init = init
@@ -35,5 +35,5 @@ open class Resource private constructor(id: String, scenarioId: String, name: St
         }
     }
 
-    class NullResource() : Resource("", "", "", "",0.0,0.0,0.0) {}
+    class NullResource() : Resource("", "", "", "",0,0,0) {}
 }

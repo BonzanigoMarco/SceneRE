@@ -171,9 +171,9 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             writeAttribute(attribute)
         }
         if (obj is Resource){
-            writeDouble(MIN_IDENTIFIER.plus(obj.id),obj.min)
-            writeDouble(MAX_IDENTIFIER.plus(obj.id),obj.max)
-            writeDouble(INIT_IDENTIFIER.plus(obj.id),obj.init)
+            writeInt(MIN_IDENTIFIER.plus(obj.id),obj.min)
+            writeInt(MAX_IDENTIFIER.plus(obj.id),obj.max)
+            writeInt(INIT_IDENTIFIER.plus(obj.id),obj.init)
         }
         return insert(ObjectTableEntry.TABLE_NAME, ObjectTableEntry.ID, obj.id, values)
     }
@@ -519,9 +519,9 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
             val objectBuilder: AbstractObject.AbstractObjectBuilder
             if (isResource){
                 objectBuilder = Resource.ResourceBuilder(id, scenarioId, name, description).configure(
-                        readDouble(MIN_IDENTIFIER.plus(id),0.0),
-                        readDouble(MAX_IDENTIFIER.plus(id),0.0),
-                        readDouble(INIT_IDENTIFIER.plus(id),0.0))
+                        readInt(MIN_IDENTIFIER.plus(id),0),
+                        readInt(MAX_IDENTIFIER.plus(id),0),
+                        readInt(INIT_IDENTIFIER.plus(id),0))
             }else{
                 objectBuilder = ContextObject.ContextObjectBuilder(id, scenarioId, name, description)
             }
@@ -549,9 +549,9 @@ class SreDatabase private constructor(context: Context) : AbstractSreDatabase() 
                 val objectBuilder: AbstractObject.AbstractObjectBuilder
                 if (isResource){
                     objectBuilder = Resource.ResourceBuilder(id, scenario, name, description).configure(
-                            readDouble(MIN_IDENTIFIER.plus(id),0.0),
-                            readDouble(MAX_IDENTIFIER.plus(id),0.0),
-                            readDouble(INIT_IDENTIFIER.plus(id),0.0)
+                            readInt(MIN_IDENTIFIER.plus(id),0),
+                            readInt(MAX_IDENTIFIER.plus(id),0),
+                            readInt(INIT_IDENTIFIER.plus(id),0)
                     )
                 }else{
                     objectBuilder = ContextObject.ContextObjectBuilder(id, scenario, name, description)

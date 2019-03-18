@@ -98,12 +98,11 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                 }
                 val stepTitle = Walkthrough.WalkthroughStepProperty.STEP_TITLE.get(stepId, String::class)
                 val stepTime = Walkthrough.WalkthroughStepProperty.STEP_TIME.get(stepId, Long::class)
-                var triggerInfo = Walkthrough.WalkthroughStepProperty.TRIGGER_INFO.get(stepId, String::class)
-                if (!StringHelper.hasText(triggerInfo)){
-                    triggerInfo = context.getString(R.string.analytics_walkthrough_cancelled)
-                }
+                val triggerInfoList = Walkthrough.WalkthroughStepProperty.TRIGGER_INFO.getAll(stepId, String::class)
                 path += "($stepNumber) $stepTitle".plus(NEW_LINE)
-                steps[stakeholder]!![stepNumber]!!.add(triggerInfo)
+                for (triggerInfo in triggerInfoList){
+                    steps[stakeholder]!![stepNumber]!!.add(triggerInfo)
+                }
                 stepTimes[stakeholder]!![stepNumber]!!.add(stepTime)
                 pathSteps[stepNumber] = stepTitle
                 stepNumber++

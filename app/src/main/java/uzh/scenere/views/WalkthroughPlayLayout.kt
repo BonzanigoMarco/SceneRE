@@ -4,23 +4,37 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.res.ColorStateList
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.net.wifi.ScanResult
+import android.os.Build
 import android.os.Handler
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.text.InputType
+import android.text.method.DigitsKeyListener
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import uzh.scenere.R
 import uzh.scenere.activities.WalkthroughActivity
 import uzh.scenere.const.Constants.Companion.ANONYMOUS
+import uzh.scenere.const.Constants.Companion.BREAK
 import uzh.scenere.const.Constants.Companion.DASH
 import uzh.scenere.const.Constants.Companion.FIVE_MIN_MS
 import uzh.scenere.const.Constants.Companion.FIVE_SEC_MS
+import uzh.scenere.const.Constants.Companion.HALF_SEC_MS
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.ONE_SEC_MS
 import uzh.scenere.const.Constants.Companion.TEN_SEC_MS
+import uzh.scenere.const.Constants.Companion.THIRD_SEC_MS
 import uzh.scenere.const.Constants.Companion.TWO_SEC_MS
 import uzh.scenere.const.Constants.Companion.USER_NAME
+import uzh.scenere.const.Constants.Companion.ZERO
+import uzh.scenere.const.Constants.Companion.ZERO_D
+import uzh.scenere.const.Constants.Companion.ZERO_L
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.ContextObject.NullContextObject
 import uzh.scenere.datamodel.Resource.NullResource
@@ -38,12 +52,6 @@ import uzh.scenere.datastructures.PlayState
 import uzh.scenere.helpers.*
 import uzh.scenere.listener.SreSoundChangeListener
 import java.io.Serializable
-import android.os.VibrationEffect
-import android.os.Build
-import android.os.Vibrator
-import uzh.scenere.const.Constants.Companion.HALF_SEC_MS
-import android.media.ToneGenerator
-import android.media.AudioManager
 
 @SuppressLint("ViewConstructor")
 class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, private var stakeholder: Stakeholder, private var nextStepFunction: () -> Unit, private var stopFunction: () -> Unit,  private var notify: ((String) -> Unit)) : LinearLayout(context), Serializable {
@@ -68,7 +76,8 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                     play.backupState,
                     play.state,
                     play.refresh,
-                    play.wifiDiscovered)
+                    play.wifiDiscovered,
+                    play.activeResources)
         }
 
         fun loadState(play: WalkthroughPlayLayout, playState: PlayState){
@@ -89,6 +98,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
             play.state = playState.state
             play.refresh = playState.refresh
             play.wifiDiscovered = playState.wifiDiscovered
+            play.activeResources = playState.activeResources
         }
     }
 
@@ -114,11 +124,11 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
         startingTime = System.currentTimeMillis()
         return time
     }
-    private var infoTime: Long = 0
-    private var whatIfTime: Long = 0
-    private var inputTime: Long = 0
+    private var infoTime: Long = ZERO_L
+    private var whatIfTime: Long = ZERO_L
+    private var inputTime: Long = ZERO_L
     //Play
-    private var layer: Int = 0
+    private var layer: Int = ZERO
     private var paths: HashMap<Int, Path>? = scenario.getAllPaths(stakeholder)
     private var first = paths?.get(layer)?.getStartingPoint()
     private var second = paths?.get(layer)?.getNextElement(first)
@@ -136,6 +146,10 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
     private lateinit var activityLink: WalkthroughActivity
     //Progress
     private var loadingBar: SreLoadingBar? = null
+    //Resources
+    private var activeResources = HashMap<Resource,Int>()
+    private var activeResource: Resource? = null
+    private var activeResourceInput: SreEditText? = null
 
     fun prepareLayout(): WalkthroughPlayLayout {
         removeAllViews()
@@ -196,8 +210,8 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         val title = StringHelper.nvl((first as SoundStep).title, NOTHING)
                         val text = generateText(title,(first as SoundStep).text, (first as SoundStep).objects,arrayListOf(title))
                         stepLayout.addView(text)
-                        val toneGen1 = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
-                        toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150)
+                        val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+                        toneGenerator.startTone(ToneGenerator.TONE_CDMA_MED_PBX_SSL, HALF_SEC_MS.toInt())
                     }
                     is VibrationStep -> {
                         val title = StringHelper.nvl((first as VibrationStep).title, NOTHING)
@@ -208,6 +222,39 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                             v.vibrate(VibrationEffect.createOneShot(HALF_SEC_MS, VibrationEffect.DEFAULT_AMPLITUDE))
                         } else {
                             v.vibrate(HALF_SEC_MS)
+                        }
+                    }
+                    is ResourceStep -> {
+                        val title = StringHelper.nvl((first as ResourceStep).title, NOTHING)
+                        val resource = (first as ResourceStep).resource
+                        var text = NOTHING
+                        if (resource != null){
+                            val change = (first as ResourceStep).change
+                            var currentValue: Int? = null
+                            if (!activeResources.containsKey(resource)) {
+                                activeResources[resource] = resource.init
+                                currentValue = resource.init
+                            } else {
+                                currentValue = activeResources[resource]
+                            }
+                            if (change != ZERO) {
+                                val remainingResource = NumberHelper.capAt(currentValue?.plus(change), resource.min, resource.max)
+                                activeResources[resource] = remainingResource
+                                val changeString = if (change > 0) context.getString(R.string.walkthrough_resource_adding) else context.getString(R.string.walkthrough_resource_subtracting)
+                                text = context.getString(R.string.walkthrough_resource_state,changeString,Math.abs(change).toString(),resource.name,remainingResource,resource.name)
+                            } else {
+                                text = context.getString(R.string.walkthrough_resource_input,resource.name,resource.min,resource.max,currentValue)
+                                activeResource = resource
+                            }
+                        }else{
+                            text = context.getString(R.string.walkthrough_resource_deleted)
+                        }
+                        val textView = generateText(title,(first as ResourceStep).text.plus(BREAK).plus(text), (first as ResourceStep).objects,arrayListOf(title, text))
+                        stepLayout.addView(textView)
+                        if (activeResource != null){
+                            activeResourceInput = generateEditText("Amount",textView)
+                            activeResourceInput?.inputType = InputType.TYPE_CLASS_NUMBER  or InputType.TYPE_NUMBER_FLAG_SIGNED
+                            stepLayout.addView(activeResourceInput)
                         }
                     }
                 }
@@ -227,7 +274,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         triggerLayout.addView(questionText)
                         val scroll = SreScrollView(context,triggerLayout)
                         scroll.addRule(RelativeLayout.BELOW, questionText.id)
-                        var optionId = 0
+                        var optionId = ZERO
                         for (option in (second as IfElseTrigger).getOptions()){
                             val button = generateButton(option)
                             button.addRule(RelativeLayout.BELOW, id)
@@ -236,7 +283,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                             val optionLayer = (second as IfElseTrigger).getLayerForOption(optionId++)
                             button.setExecutable {
                                 layer = optionLayer
-                                loadNextStep( context.getString(R.string.walkthrough_transition_button_x,button.text),optionLayer != 0)
+                                loadNextStep( context.getString(R.string.walkthrough_transition_button_x,button.text),optionLayer != ZERO)
                             }
                             scroll.addScrollElement(button)
                         }
@@ -299,6 +346,59 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         scroll.addScrollElement(button)
                         triggerLayout.addView(scroll)
                     }
+                    is ResourceCheckTrigger -> {
+                        val button = generateButton((second as ResourceCheckTrigger).buttonLabel)
+                        val mode = (second as ResourceCheckTrigger).mode
+                        val checkValue = (second as ResourceCheckTrigger).checkValue
+                        val resource = (second as ResourceCheckTrigger).resource
+                        val falseStepId = (second as ResourceCheckTrigger).falseStepId
+                        var resourceValue = activeResources[resource]
+                        button.setExecutable {
+                            if (resource == null){
+                                loadNextStep(context.getString(R.string.walkthrough_resource_does_not_exist_continue))
+                            }else{
+                                if (activeResource != null){
+                                    //Awaiting Resource Input, so check first
+                                    resourceValue = collectData(true)
+                                }
+                                if (resourceValue == null){
+                                    activeResources[resource] = resource.init
+                                    resourceValue = resource.init
+                                }
+                                when(mode){
+                                    ResourceCheckTrigger.CheckMode.ABOVE -> {
+                                        if (resourceValue!! > checkValue){
+                                            loadNextStep(context.getString(R.string.resource_check_success,mode.getSucceedString(resource.name,resourceValue!!,checkValue,context)))
+                                        }else{
+                                            loadNextStep(context.getString(R.string.resource_check_failed),false,falseStepId)
+                                        }
+                                    }
+                                    ResourceCheckTrigger.CheckMode.BELOW -> {
+                                        if (resourceValue!! < checkValue){
+                                            loadNextStep(context.getString(R.string.resource_check_success,mode.getSucceedString(resource.name,resourceValue!!,checkValue,context)))
+                                        }else{
+                                            loadNextStep(context.getString(R.string.resource_check_failed),false,falseStepId)
+                                        }
+                                    }
+                                    ResourceCheckTrigger.CheckMode.EQUAL -> {
+                                        if (resourceValue!! == checkValue){
+                                            loadNextStep(context.getString(R.string.resource_check_success,mode.getSucceedString(resource.name,resourceValue!!,checkValue,context)))
+                                        }else{
+                                            loadNextStep(context.getString(R.string.resource_check_failed),false,falseStepId)
+                                        }
+                                    }
+                                    ResourceCheckTrigger.CheckMode.NOT_EQUAL -> {
+                                        if (resourceValue!! != checkValue){
+                                            loadNextStep(context.getString(R.string.resource_check_success,mode.getSucceedString(resource.name,resourceValue!!,checkValue,context)))
+                                        }else{
+                                            loadNextStep(context.getString(R.string.resource_check_failed),false,falseStepId)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        triggerLayout.addView(button)
+                    }
                     is NfcTrigger -> {
                         val text = (second as NfcTrigger).text!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_nfc_text,text), ArrayList(), arrayListOf(text))
@@ -345,7 +445,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         triggerLayout.addView(scroll)
                         activityLink.registerSmsListener()
                     }
-                    is SoundTrigger -> {/*TODO*/
+                    is SoundTrigger -> {
                         val text = (second as SoundTrigger).text!!
                         val threshold = (second as SoundTrigger).dB!!
                         val calibrating = context.getString(R.string.walkthrough_calibrating)
@@ -384,19 +484,19 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                                 init = false
                             }
                             val amplitude = recorder.getAmplitude()
-                            if (threshold < 0 && amplitude < threshold || threshold > 0 && amplitude > threshold) {
+                            if (threshold < ZERO && amplitude < threshold || threshold > ZERO && amplitude > threshold) {
                                 recorder.stop()
                                 notify(context.getString(R.string.walkthrough_sound_threshold_reached))
                                 loadNextStep(context.getString(R.string.walkthrough_transition_sound))
-                            } else if (amplitude == 0.0) {
+                            } else if (amplitude == ZERO_D) {
                                 titleText.setTextWithNewBoldWords(context.getString(R.string.walkthrough_sound_text, text, threshold.toString(), calibrating), text, threshold.toString(), calibrating)
                             } else {
                                 titleText.setTextWithNewBoldWords(context.getString(R.string.walkthrough_sound_text, text, threshold.toString(), "$amplitude dB"), text, threshold.toString(), amplitude.toString())
                             }
-                        },300)
+                        }, THIRD_SEC_MS)
                         triggerLayout.addView(scroll)
                     }
-                    is BluetoothTrigger -> {/*TODO*/
+                    is BluetoothTrigger -> {
                         val text = (second as BluetoothTrigger).text!!
                         val deviceId = (second as BluetoothTrigger).deviceId!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_bluetooth_text,text,deviceId), ArrayList(), arrayListOf(text,deviceId))
@@ -419,7 +519,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         scroll.addScrollElement(ProgressBar(context))
                         triggerLayout.addView(scroll)
                     }
-                    is WifiTrigger -> {/*TODO*/
+                    is WifiTrigger -> {
                         val text = (second as WifiTrigger).text!!
                         val ssid = (second as WifiTrigger).ssidAndStrength!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_wifi_text,text), ArrayList(), arrayListOf(text,ssid))
@@ -442,7 +542,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         wifiDiscovered = false
                         activityLink.startWifiScan()
                     }
-                    is GpsTrigger -> {/*TODO*/
+                    is GpsTrigger -> {
                         val text = (second as GpsTrigger).text!!
                         var state = context.getString(R.string.walkthrough_gps_evaluation)
                         val range = (second as GpsTrigger).getRadius()
@@ -496,7 +596,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         scroll.addScrollElement(openButton)
                         triggerLayout.addView(scroll)
                     }
-                    is CallTrigger -> {/*TODO*/
+                    is CallTrigger -> {
                         val text = (second as CallTrigger).text!!
                         val telephoneNr = (second as CallTrigger).telephoneNr!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_telephone_text,text,telephoneNr), ArrayList(), arrayListOf(text,telephoneNr))
@@ -516,7 +616,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         triggerLayout.addView(scroll)
                         activityLink.registerPhoneCallListener()
                     }
-                    is SmsTrigger -> {/*TODO*/
+                    is SmsTrigger -> {
                         val text = (second as SmsTrigger).text!!
                         val telephoneNr = (second as SmsTrigger).telephoneNr!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_sms_text,text,telephoneNr), ArrayList(), arrayListOf(text,telephoneNr))
@@ -602,12 +702,17 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
         return text
     }
 
-    private fun generateEditText(title: String?): SreEditText {
+    private fun generateEditText(title: String?, view: View? = null): SreEditText {
         val text = SreEditText(context,stepLayout,null,title)
-        text.addRule(RelativeLayout.CENTER_IN_PARENT)
-        text.setTextColor(ColorStateList.valueOf(getColorWithStyle(context,R.color.srePrimaryPastel)))
-        text.setPadding(DipHelper.get(resources).dip5)
+        if (view == null){
+            text.addRule(RelativeLayout.CENTER_IN_PARENT,RelativeLayout.TRUE)
+        }else{
+            view.id = View.generateViewId()
+            text.addRule(RelativeLayout.BELOW,view.id)
+            text.addRule(RelativeLayout.CENTER_HORIZONTAL,RelativeLayout.TRUE)
+        }
         text.setSingleLine(true)
+        text.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI
         return text
     }
 
@@ -617,18 +722,22 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
         return button
     }
 
-    private fun loadNextStep(info: String, pathSwitch: Boolean = false) {
+    private fun loadNextStep(info: String, pathSwitch: Boolean = false, specificStepId: String? = null) {
+        collectData()
         onPause()
         val currentStep = getCurrentStep()
-        walkthrough.addTriggerInfo(currentStep,info,getCurrentTrigger())
         if (state != WalkthroughState.STARTED){
-            walkthrough.addStep(currentStep?.withTime(getTime())?.withComments(comments))
+            walkthrough.addStep(currentStep?.withTime(getTime())?.withComments(comments),info)
             comments.clear()
             if (currentStep is JumpStep){
                 val (s,p) = scenario.getPathAndStepToStepId(stakeholder, currentStep.targetStepId!!)
                 first = s!!
                 layer = p!!.layer
-            }else{
+            } else if (specificStepId != null){
+                val (s,p) = scenario.getPathAndStepToStepId(stakeholder, specificStepId)
+                first = s!!
+                layer = p!!.layer
+            } else {
                 first = if (pathSwitch) paths?.get(layer)?.getStartingPoint() else paths?.get(layer)?.getNextElement(second)
             }
             second = paths?.get(layer)?.getNextElement(first)
@@ -721,7 +830,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
     fun saveAndLoadNew(interrupted: Boolean = false, reason: String? = null) {
         onPause()
         if (interrupted){
-            walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments))
+            walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments),context.getString(R.string.analytics_walkthrough_cancelled))
             Walkthrough.WalkthroughProperty.FINAL_STATE.set(reason?: context.getString(R.string.walkthrough_final_state_cancelled, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
         }else{
             Walkthrough.WalkthroughProperty.FINAL_STATE.set(context.getString(R.string.walkthrough_final_state_complete))
@@ -748,7 +857,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
             state = WalkthroughState.INFO
         }else{
             Walkthrough.WalkthroughProperty.INFO_TIME.set(Walkthrough.WalkthroughProperty.INFO_TIME.get(Long::class)+(System.currentTimeMillis()-infoTime)/1000)
-            infoTime = 0
+            infoTime = ZERO_L
             state = backupState
         }
     }
@@ -760,7 +869,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
             state = WalkthroughState.WHAT_IF
         }else{
             Walkthrough.WalkthroughProperty.WHAT_IF_TIME.set(Walkthrough.WalkthroughProperty.WHAT_IF_TIME.get(Long::class)+(System.currentTimeMillis()-whatIfTime)/1000)
-            whatIfTime = 0
+            whatIfTime = ZERO_L
             state = backupState
         }
     }
@@ -772,7 +881,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
             state = WalkthroughState.INPUT
         }else{
             Walkthrough.WalkthroughProperty.INPUT_TIME.set(Walkthrough.WalkthroughProperty.INPUT_TIME.get(Long::class)+(System.currentTimeMillis()-inputTime)/1000)
-            inputTime = 0
+            inputTime = ZERO_L
             state = backupState
 
         }
@@ -824,7 +933,40 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
         this.activityLink = walkthroughActivity
     }
 
+    private fun collectData(clear: Boolean = false): Int{
+        var newValue = 0
+        if (activeResource != null && activeResourceInput != null){
+            val text = activeResourceInput!!.text.toString()
+            val current = NumberHelper.nvl(activeResources[activeResource!!], ZERO)
+            if (StringHelper.hasText(text)){
+                val change = text.toInt()
+                newValue = NumberHelper.capAt(current+change,activeResource!!.min,activeResource!!.max)
+                activeResources[activeResource!!] = newValue
+                when {
+                    newValue == (current+change) -> {
+                        notify(context.getString(R.string.walkthrough_resource_change_equal,activeResource!!.name,newValue))
+                    }
+                    newValue < (current+change) -> {
+                        notify(context.getString(R.string.walkthrough_resource_change_too_high,newValue-current,newValue))
+                    }
+                    newValue > (current+change) -> {
+                        notify(context.getString(R.string.walkthrough_resource_change_too_low,newValue-current,newValue))
+                    }
+                }
+            }else{
+                notify(context.getString(R.string.walkthrough_resource_unchanged,activeResource!!.name))
+            }
+        }
+        if (clear){
+            activeResource = null
+            activeResourceInput = null
+        }
+        return newValue
+    }
+
     fun onPause() {
+        activeResource = null
+        activeResourceInput = null
         wifiDiscovered = false
         bluetoothDiscovered = false
         refresh = false

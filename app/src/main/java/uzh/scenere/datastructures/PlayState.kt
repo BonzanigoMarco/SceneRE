@@ -20,4 +20,5 @@ class PlayState(val scenario: Scenario,
                 val backupState: WalkthroughPlayLayout.WalkthroughState,
                 val state: WalkthroughPlayLayout.WalkthroughState,
                 val refresh: Boolean,
-                val wifiDiscovered: Boolean) : Serializable
+                val wifiDiscovered: Boolean,
+                val activeResources: HashMap<Resource, Int>) : Serializable

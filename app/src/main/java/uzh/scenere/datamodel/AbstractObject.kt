@@ -47,18 +47,24 @@ abstract class AbstractObject internal constructor(val id: String, val scenarioI
         abstract fun build(): AbstractObject
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (other is AbstractObject) {
-            return (id == other.id)
-        }
-        return false
-    }
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
 
     override fun toString(): String {
         return name
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AbstractObject
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
     }
 }

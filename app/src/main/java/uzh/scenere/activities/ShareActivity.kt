@@ -1,6 +1,7 @@
 package uzh.scenere.activities
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -108,8 +109,19 @@ class ShareActivity : AbstractManagementActivity() {
     private var controlInput: SreContextAwareTextView? = null
     private var cachedBinary: ByteArray? = null
     private val fileMap =  HashMap<File,LinearLayout>()
-    private var includeWalkthroughs = true
     private var walkthroughSwitch: SreButton? = null
+    private var includeWalkthroughs: WalkthroughExport = WalkthroughExport.INCLUDE
+    enum class  WalkthroughExport{
+        EXCLUDE,INCLUDE,ONLY;
+
+        fun getLabelText(context: Context): String {
+            return when (this){
+                EXCLUDE -> context.getString(R.string.share_exclude_walkthroughs)
+                INCLUDE -> context.getString(R.string.share_include_walkthroughs)
+                ONLY -> context.getString(R.string.share_only_walkthroughs)
+            }
+        }
+    }
 
     private var openFileUri: Uri? = null
 
@@ -183,6 +195,7 @@ class ShareActivity : AbstractManagementActivity() {
     }
 
     private fun execLoadFileExport() {
+        cachedBinary = null
         getContentHolderLayout().removeAllViews()
         controlButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_collect_data)).setExecutable {
             cachedBinary = exportDatabaseToBinary()
@@ -208,11 +221,15 @@ class ShareActivity : AbstractManagementActivity() {
                 }
             }
         }
-        includeWalkthroughs = true
+        includeWalkthroughs = WalkthroughExport.INCLUDE
         walkthroughSwitch = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_include_walkthroughs))
         walkthroughSwitch?.setExecutable {
-            includeWalkthroughs = !includeWalkthroughs
-            walkthroughSwitch?.text = if (includeWalkthroughs) getString(R.string.share_include_walkthroughs) else getString(R.string.share_exclude_walkthroughs)
+            when (includeWalkthroughs){
+                WalkthroughExport.EXCLUDE -> includeWalkthroughs = WalkthroughExport.ONLY
+                WalkthroughExport.INCLUDE -> includeWalkthroughs = WalkthroughExport.EXCLUDE
+                WalkthroughExport.ONLY -> includeWalkthroughs = WalkthroughExport.INCLUDE
+            }
+            walkthroughSwitch?.text = includeWalkthroughs.getLabelText(applicationContext)
         }
         getContentHolderLayout().addView(controlButton)
         getContentHolderLayout().addView(walkthroughSwitch)
@@ -316,7 +333,7 @@ class ShareActivity : AbstractManagementActivity() {
             val wrapper = createStatisticsFromCachedBinary(false)
             if (wrapper.validationCode == VALIDATION_OK){
                 if (wrapper.totalItems > wrapper.oldItems) {
-                    val importNewerButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.oldItems == 0) getString(R.string.share_import) else getString(R.string.share_import_newer)).setExecutable {
+                    val importNewerButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.oldItems == 0) getString(R.string.share_import) else getString(R.string.share_import_newer,(wrapper.totalItems-wrapper.oldItems))).setExecutable {
                         importBinaryToDatabase(wrapper, true)
                         notify(getString(R.string.share_import_finished), getString(R.string.share_import_number_successful,(wrapper.totalItems - wrapper.oldItems)))
                         execLoadFileImport()
@@ -324,7 +341,7 @@ class ShareActivity : AbstractManagementActivity() {
                     buttonWrap.addView(importNewerButton)
                 }
                 if (wrapper.oldItems > 0){
-                    val importAllButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.totalItems > wrapper.oldItems) getString(R.string.share_import_all_1,(wrapper.totalItems-wrapper.oldItems)) else getString(R.string.share_import_all_2),null,null,SreButton.ButtonStyle.WARN).setExecutable {
+                    val importAllButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.totalItems > wrapper.oldItems) getString(R.string.share_import_all_1) else getString(R.string.share_import_all_2),null,null,SreButton.ButtonStyle.WARN).setExecutable {
                         importBinaryToDatabase(wrapper,false)
                         notify(getString(R.string.share_import_finished),getString(R.string.share_import_number_successful,wrapper.totalItems))
                         execLoadFileImport()
@@ -370,8 +387,8 @@ class ShareActivity : AbstractManagementActivity() {
         val userName = DatabaseHelper.getInstance(applicationContext).read(Constants.USER_NAME, String::class, NOTHING)
         shareWrapper.withOwner(userName)
         // Walkthroughs
-        val walkthroughs = if (includeWalkthroughs) DatabaseHelper.getInstance(applicationContext).readBulk(Walkthrough::class, null) else ArrayList()
-        shareWrapper.withWalkthroughs(walkthroughs.toTypedArray())
+        val walkthroughs = if (CollectionHelper.oneOf(includeWalkthroughs,WalkthroughExport.ONLY,WalkthroughExport.INCLUDE)) DatabaseHelper.getInstance(applicationContext).readBulk(Walkthrough::class, null) else ArrayList()
+        shareWrapper.withWalkthroughs(walkthroughs.toTypedArray(), includeWalkthroughs == WalkthroughExport.ONLY)
         return DataHelper.toByteArray(shareWrapper)
     }
 
@@ -484,7 +501,7 @@ class ShareActivity : AbstractManagementActivity() {
                 " $triggerCount Trigger(s), $triggerNewCount New \n" +
                 " $walkthroughCount Walkthrough(s), $walkthroughNewCount New "
 
-        val valid = (projectCount > 0)
+        val valid = (projectCount > 0) || (walkthroughCount > 0)
         if (write && valid){
             walkthroughList.forEach { w -> persist(w.id,w,onlyNewer)}
             projectList.forEach { p -> persist(p.id,p,onlyNewer)}

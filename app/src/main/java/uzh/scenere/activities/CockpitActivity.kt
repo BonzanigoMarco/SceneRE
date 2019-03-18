@@ -17,7 +17,8 @@ import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_GPS
 import uzh.scenere.const.Constants.Companion.PNG_FILE
 import uzh.scenere.const.Constants.Companion.STYLE
 import uzh.scenere.const.Constants.Companion.TUTORIAL_UID_IDENTIFIER
-import uzh.scenere.datamodel.Walkthrough
+import uzh.scenere.const.Constants.Companion.WHAT_IF_DATA
+import uzh.scenere.const.Constants.Companion.WHAT_IF_MODE
 import uzh.scenere.helpers.*
 import uzh.scenere.sensors.SensorHelper
 import uzh.scenere.views.SreTutorialLayoutDialog
@@ -236,6 +237,66 @@ class CockpitActivity : AbstractManagementActivity() {
                         .setAutoCollapse(true)
                         .updateViews(true)
                 val sreStyle = getSreStyle(applicationContext)
+                val whatIfMode = WhatIfMode.valueOf(DatabaseHelper.getInstance(applicationContext).read(WHAT_IF_MODE, String::class, WhatIfMode.ALL.toString(),DatabaseHelper.DataMode.PREFERENCES))
+                val whatIfSwitch = SwipeButton(this,
+                        when (whatIfMode){
+                            WhatIfMode.ALL -> getString(R.string.what_if_all)
+                            WhatIfMode.DYNAMIC -> getString(R.string.what_if_dynamic)
+                            WhatIfMode.STAKEHOLDER -> getString(R.string.what_if_stakeholder)
+                            WhatIfMode.OBJECTS -> getString(R.string.what_if_objects)
+                            WhatIfMode.STATIC -> getString(R.string.what_if_static)
+                            WhatIfMode.NONE -> getString(R.string.what_if_none)
+                        })
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
+                        .setButtonStates(false, true, false, false)
+                        .setAutoCollapse(true)
+                        .updateViews(true)
+                whatIfSwitch.setExecutable(object : SwipeButton.SwipeButtonExecution{
+                    override fun execRight() {
+                        val oldWhatIfMode = WhatIfMode.valueOf(DatabaseHelper.getInstance(applicationContext).read(WHAT_IF_MODE, String::class, WhatIfMode.ALL.toString(),DatabaseHelper.DataMode.PREFERENCES))
+                        val newMode = when (oldWhatIfMode){
+                            WhatIfMode.ALL -> WhatIfMode.DYNAMIC
+                            WhatIfMode.DYNAMIC -> WhatIfMode.STAKEHOLDER
+                            WhatIfMode.STAKEHOLDER -> WhatIfMode.OBJECTS
+                            WhatIfMode.OBJECTS -> WhatIfMode.STATIC
+                            WhatIfMode.STATIC -> WhatIfMode.NONE
+                            WhatIfMode.NONE -> WhatIfMode.ALL
+                        }
+                        whatIfSwitch.setText(
+                                when (newMode){
+                                    WhatIfMode.ALL -> getString(R.string.what_if_all)
+                                    WhatIfMode.DYNAMIC -> getString(R.string.what_if_dynamic)
+                                    WhatIfMode.STAKEHOLDER -> getString(R.string.what_if_stakeholder)
+                                    WhatIfMode.OBJECTS -> getString(R.string.what_if_objects)
+                                    WhatIfMode.STATIC -> getString(R.string.what_if_static)
+                                    WhatIfMode.NONE -> getString(R.string.what_if_none)
+                                })
+                        when (newMode) {
+                            WhatIfMode.ALL -> showInfoText(getString(R.string.what_if_all_text))
+                            WhatIfMode.DYNAMIC -> showInfoText(getString(R.string.what_if_dynamic_text))
+                            WhatIfMode.STAKEHOLDER -> showInfoText(getString(R.string.what_if_stakeholder_text))
+                            WhatIfMode.OBJECTS -> showInfoText(getString(R.string.what_if_objects_text))
+                            WhatIfMode.STATIC -> showInfoText(getString(R.string.what_if_static_text))
+                            WhatIfMode.NONE -> showInfoText(getString(R.string.what_if_none_text))
+                        }
+                        DatabaseHelper.getInstance(applicationContext).write(WHAT_IF_MODE,newMode.toString(),DatabaseHelper.DataMode.PREFERENCES)
+                    }
+                })
+                val whatIfWipe = SwipeButton(this,getString(R.string.what_if_wipe))
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
+                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryAttention),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                        .setButtonStates(false, true, false, false)
+                        .setAutoCollapse(true)
+                        .updateViews(true)
+                whatIfWipe.setExecutable(object : SwipeButton.SwipeButtonExecution{
+                    override fun execRight() {
+                        DatabaseHelper.getInstance(applicationContext).delete(WHAT_IF_DATA,ByteArray::class)
+                        DatabaseHelper.getInstance(applicationContext).write(Constants.WHAT_IF_INITIALIZED, false, DatabaseHelper.DataMode.PREFERENCES)
+                        showInfoText(getString(R.string.what_if_wipe))
+                    }
+                })
                 val modeSwitch = SwipeButton(this, if (sreStyle == SreStyle.NORMAL) getString(R.string.cockpit_contrast_mode) else getString(R.string.cockpit_normal_mode) )
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
@@ -285,6 +346,8 @@ class CockpitActivity : AbstractManagementActivity() {
                         .updateViews(true)
                 getContentHolderLayout().addView(resetTutorial)
                 getContentHolderLayout().addView(disableTutorial)
+                getContentHolderLayout().addView(whatIfSwitch)
+                getContentHolderLayout().addView(whatIfWipe)
                 getContentHolderLayout().addView(modeSwitch)
                 getContentHolderLayout().addView(wipeWalkthroughs)
                 getContentHolderLayout().addView(wipeData)

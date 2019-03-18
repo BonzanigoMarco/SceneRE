@@ -2,7 +2,7 @@ package uzh.scenere.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
+import android.os.Handler
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Spinner
@@ -10,6 +10,7 @@ import kotlinx.android.synthetic.main.activity_objects.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.BUNDLE_SCENARIO
+import uzh.scenere.const.Constants.Companion.HALF_SEC_MS
 import uzh.scenere.const.Constants.Companion.SIMPLE_LOOKUP
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.*
@@ -58,6 +59,7 @@ class ObjectsActivity : AbstractManagementActivity() {
     private var activeScenario: Scenario? = null
     private var activeObject: AbstractObject? = null
     private var isResourceSpinner: View? = null
+    private var inputInvalid = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,11 +76,16 @@ class ObjectsActivity : AbstractManagementActivity() {
         creationButton!!.setExecutable(generateCreationExecutable(creationButton!!))
         getContentHolderLayout().addView(creationButton)
         createTitle("",getContentHolderLayout())
-        for (obj in DatabaseHelper.getInstance(applicationContext).readBulk(AbstractObject::class, activeScenario)){
-            addObjectToList(obj)
-        }
+        loadData()
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_objects),fontAwesome)
         resetToolbar()
+    }
+
+    private fun loadData() {
+        removeExcept(getContentHolderLayout(),creationButton)
+        for (obj in DatabaseHelper.getInstance(applicationContext).readBulk(AbstractObject::class, activeScenario)) {
+            addObjectToList(obj)
+        }
     }
 
     private fun addObjectToList(obj: AbstractObject) {
@@ -136,9 +143,9 @@ class ObjectsActivity : AbstractManagementActivity() {
         val objectBuilder: AbstractObject.AbstractObjectBuilder?
         if (isResource){
             objectBuilder = Resource.ResourceBuilder(activeScenario!!, name, introduction).configure(
-            inputMap[min]!!.getStringValue().toDouble(),
-            inputMap[max]!!.getStringValue().toDouble(),
-            inputMap[init]!!.getStringValue().toDouble())
+            inputMap[min]!!.getStringValue().toInt(),
+            inputMap[max]!!.getStringValue().toInt(),
+            inputMap[init]!!.getStringValue().toInt())
         }else{
             objectBuilder = ContextObject.ContextObjectBuilder(activeScenario!!, name, introduction)
         }
@@ -147,8 +154,24 @@ class ObjectsActivity : AbstractManagementActivity() {
             objectBuilder.copyId(activeObject!!)
         }
         val obj = objectBuilder.build()
-        DatabaseHelper.getInstance(applicationContext).write(obj.id,obj)
-        addObjectToList(obj)
+        if (obj is Resource && obj.min >= obj.max){
+            reOpenInput(obj,R.string.objects_min_max_alert)
+        }else if (obj is Resource && obj.init > obj.max){
+            reOpenInput(obj,R.string.objects_init_max_alert)
+        }else if (obj is Resource && obj.init < obj.min){
+            reOpenInput(obj,R.string.objects_init_min_alert)
+        }else{
+            DatabaseHelper.getInstance(applicationContext).write(obj.id,obj)
+            addObjectToList(obj)
+        }
+    }
+
+    private fun reOpenInput(obj: AbstractObject, notification: Int) {
+        inputInvalid = true
+        Handler().postDelayed({
+            openInput(ObjectMode.EDIT, obj)
+            notify(getString(R.string.objects_min_max_alert_title), getString(notification))
+        }, HALF_SEC_MS)
     }
 
     private fun openInput(objectsMode: ObjectMode, obj: AbstractObject? = null) {
@@ -173,7 +196,7 @@ class ObjectsActivity : AbstractManagementActivity() {
         execMorphInfoBar(InfoState.MAXIMIZED)
     }
 
-    private val min = "Min"
+    private val min = "Minimum"
     private val max = "Maximum"
     private val init = "Initial"
     private var minResourceLayout: View? = null
@@ -241,6 +264,16 @@ class ObjectsActivity : AbstractManagementActivity() {
             intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, "Object")
             intent.putExtra(Constants.BUNDLE_GLOSSARY_ADDITIONAL_TOPICS, arrayOf("Resource","Attribute"))
             startActivity(intent)
+        }
+    }
+
+    override fun onToolbarRightClicked() {
+        if (isInputOpen() && inputInvalid){
+            super.onToolbarRightClicked()
+            loadData()
+            inputInvalid = false
+        }else{
+            super.onToolbarRightClicked()
         }
     }
 }

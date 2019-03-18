@@ -42,8 +42,7 @@
         android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".activities.EditorActivity"
-            android:windowSoftInputMode="adjustPan"
+        <activity android:name=".activities.MainMenuActivity"
             android:theme="@style/SceneReToolbarTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -167,7 +166,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.MainMenuActivity"
+        <activity android:name=".activities.EditorActivity"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/SceneReToolbarTheme"
             android:screenOrientation="portrait">

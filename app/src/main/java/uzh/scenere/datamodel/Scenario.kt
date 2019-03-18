@@ -94,6 +94,15 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         return null
     }
 
+    fun getAttributesToObject(obj: AbstractObject): List<Attribute> {
+        for (o in objects){
+            if (o.id == obj.id){
+                return o.attributes
+            }
+        }
+        return emptyList()
+    }
+
     fun getObjectNames(vararg additionalName: String): Array<String>{
         val list = ArrayList<String>()
         list.addAll(additionalName)
@@ -169,7 +178,7 @@ open class Scenario private constructor(val id: String, val projectId: String, v
             for (p in allPaths) {
                 for (entry in p.value.elements){
                     val element = entry.value
-                    if (element is AbstractStep) {
+                    if (element is AbstractStep && element.id == id) {
                         step = element
                         path = p.value
                     }
@@ -199,6 +208,7 @@ open class Scenario private constructor(val id: String, val projectId: String, v
             this.objects = this.objects.plus(obj)
             return this
         }
+
         fun addPaths(vararg path: Path): ScenarioBuilder{
             for (p in path){
                 if (paths[p.stakeholder.id] == null){

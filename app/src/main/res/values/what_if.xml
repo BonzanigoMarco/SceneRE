@@ -6,6 +6,10 @@
     <string name="what_if_object_3">%1$s is not functioning during this action?</string>
     <string name="what_if_object_4">%1$s is unavailable during this action?</string>
 
+    <string name="what_if_attribute_0">what_if_attribute_%1$d</string>
+    <string name="what_if_attribute_1">%1$s is not an Attribute of %2$s?</string>
+    <string name="what_if_attribute_2">%1$s is not enough to identify %2$s?</string>
+
     <string name="what_if_stakeholder_2_0">what_if_stakeholder_2_%1$d</string>
     <string name="what_if_stakeholder_2_1">%1$s and %2$s are the same instance of an agent?</string>
     <string name="what_if_stakeholder_2_2">%1$s and %2$s fulfil the same roles during this action?</string>

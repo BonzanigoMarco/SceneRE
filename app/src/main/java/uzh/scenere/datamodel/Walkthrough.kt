@@ -203,7 +203,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         STEP_TITLE("Step Title", String::class, NOTHING, true),
         STEP_TYPE("Step Type", String::class, NOTHING, true),
         STEP_COMMENTS("Step Comments", String::class, NOTHING, true,true),
-        TRIGGER_INFO("Trigger Info", String::class, NOTHING, true);
+        TRIGGER_INFO("Trigger Info", String::class, NOTHING, true,true);
 
         @SuppressLint("SimpleDateFormat")
         fun getDisplayText(stepId: String): String {
@@ -302,7 +302,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         private val stepPropertiesMap = HashMap<String, HashMap<WalkthroughStepProperty, Any>>()
     }
 
-    fun addStep(step: AbstractStep?) {
+    fun addStep(step: AbstractStep?, triggerInfo: String) {
         if (step != null) {
             STEP_ID_LIST.set(step.id)
             STEP_ID.set(step.id, step.id)
@@ -310,6 +310,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
             STEP_TITLE.set(step.id, step.title)
             STEP_TEXT.set(step.id, step.text?.replace(NEW_LINE,NEW_LINE_TOKEN))
             STEP_TYPE.set(step.id, step.className())
+            TRIGGER_INFO.set(step.id,triggerInfo)
             for (comment in step.comments){
                 STEP_COMMENTS.set(step.id, comment.replace(NEW_LINE,NEW_LINE_TOKEN))
             }
@@ -318,7 +319,6 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
 
     fun addTriggerInfo(step: AbstractStep?, info: String, trigger: AbstractTrigger? = null){
         if (step != null) {
-            TRIGGER_INFO.set(step.id,info)
         }
     }
 

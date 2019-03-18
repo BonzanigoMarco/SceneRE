@@ -169,11 +169,11 @@
     <string name="step_resource">Resource Step</string>
     <!--Trigger-->
     <string name="trigger_none">[Select a Trigger]</string>
-    
+
     <string name="trigger_button">Button Trigger</string>
     <string name="trigger_if_else">If-Else Trigger</string>
     <string name="trigger_stakeholder_interaction">Stakeholder Interaction Trigger</string>
-    <string name="trigger_input">Passphrase Input Trigger</string>
+    <string name="trigger_input">Passphrase-Input Trigger</string>
     <string name="trigger_timer">Timer Trigger</string>
     <string name="trigger_resource">Resource-Check Trigger</string>
 
@@ -251,8 +251,8 @@
     <string name="stakeholders_edit">Edit Stakeholder</string>
     <string name="scenarios_create">Creating a new Scenario</string>
     <string name="scenarios_edit">Edit Scenario</string>
-    <string name="objects_create">Creating a new AbstractObject</string>
-    <string name="objects_edit">Edit AbstractObject</string>
+    <string name="objects_create">Creating a new Object</string>
+    <string name="objects_edit">Edit Object</string>
     <string name="attributes_create">Creating a new Attribute</string>
     <string name="attributes_edit">Edit Attribute</string>
 
@@ -408,18 +408,19 @@
     <string name="share_too_many_files_failed">The Folder could not be read correctly!</string>
     <string name="share_too_many_files_title">Too many Files</string>
     <string name="share_return">Return</string>
-    <string name="share_import_newer">Import Newer</string>
+    <string name="share_import_newer">Import Newer (%1$d)</string>
     <string name="share_import">Import</string>
     <string name="share_import_finished">Import finished</string>
-    <string name="share_import_all_1">Import All (+%1$d)</string>
+    <string name="share_import_all_1">Import All</string>
     <string name="share_import_all_2">Import (all Items are old)</string>
     <string name="share_import_number_successful">All %1$d Items imported successfully.</string>
     <string name="share_click_to_import">Select one of the %1$d Files to analyze it</string>
     <string name="share_folder">Folder: %1$s</string>
     <string name="share_mode_file_export">File Export Mode</string>
     <string name="share_collect_data">Collect your Data</string>
-    <string name="share_include_walkthroughs">Include Walkthroughs</string>
-    <string name="share_exclude_walkthroughs">Exclude Walkthroughs</string>
+    <string name="share_include_walkthroughs">Data-Mode: Include Walkthroughs</string>
+    <string name="share_exclude_walkthroughs">Data-Mode: Exclude Walkthroughs</string>
+    <string name="share_only_walkthroughs">Data-Mode: Only Walkthroughs</string>
 
 
     <!--Analytics-->
@@ -499,4 +500,38 @@
     <string name="walkthrough_shortcut_creation">Walkthrough state saved to "%1$s"!</string>
     <string name="cockpit_normal_mode">Contrast-Mode Off</string>
     <string name="cockpit_contrast_mode">Contrast-Mode On</string>
+    <string name="walkthrough_resource_state">After %1$s %2$s %3$s, you have a total of %4$d %5$s.</string>
+    <string name="walkthrough_resource_input">Enter an Amount to subtract from / add to your %1$s.<![CDATA[<br>]]>Lower Bound: %2$d, Upper Bound: %3$d, Current: %4$d</string>
+    <string name="objects_min_max_alert">The Maximum must be greater than the Minimum!</string>
+    <string name="objects_init_max_alert">The Initial-Value must be less than or equal the Maximum!</string>
+    <string name="objects_init_min_alert">The Initial-Value must be greater than or equal the Minimum!</string>
+    <string name="objects_min_max_alert_title">Invalid Numbers</string>
+    <string name="walkthrough_resource_deleted">The Resource from this Step no longer exists. Continuation without Resource.</string>
+    <string name="walkthrough_resource_adding">adding</string>
+    <string name="walkthrough_resource_subtracting">subtracting</string>
+    <string name="walkthrough_resource_unchanged">You did not change the Amount of %1$s!</string>
+    <string name="walkthrough_resource_change_equal">You changed the amount of %1$s to %2$d</string>
+    <string name="walkthrough_resource_change_too_low">Number too small, adjusted change to: %1$d, current: %2$d</string>
+    <string name="walkthrough_resource_change_too_high">Number too big, adjusted change to: %1$d, current:  %2$d</string>
+    <string name="resource_check_above">%1$s was above %2$d (%3$d)</string>
+    <string name="resource_check_below">%1$s was below %2$d (%3$d)</string>
+    <string name="resource_check_equal">%1$s was equal to %2$d (%3$d)</string>
+    <string name="resource_check_not_equal">%1$s was not equal to %2$d (%3$d)</string>
+    <string name="resource_check_success">Resource-Check succeeded, %1$s</string>
+    <string name="resource_check_failed">Resource-Check failed</string>
+    <string name="walkthrough_resource_does_not_exist_continue">The checked Resource does not exist anymore, continue!</string>
+    <string name="what_if_wipe">Wipe All What-Ifs</string>
+    <string name="what_if_all">What-If Suggestions: All</string>
+    <string name="what_if_dynamic">What-If Suggestions: Dynamic</string>
+    <string name="what_if_stakeholder">What-If Suggestions: Stakeholders</string>
+    <string name="what_if_objects">What-If Suggestions: Objects</string>
+    <string name="what_if_static">What-If Suggestions: Static</string>
+    <string name="what_if_none">What-If Suggestions: None</string>
+    <string name="what_if_all_text">Displaying all Suggestions</string>
+    <string name="what_if_dynamic_text">Displaying only Stakeholder-/Object-Suggestions</string>
+    <string name="what_if_stakeholder_text">Displaying only Stakeholder-Suggestions</string>
+    <string name="what_if_objects_text">Displaying only Object-Suggestions</string>
+    <string name="what_if_static_text">Displaying only unspecific Suggestions</string>
+    <string name="what_if_none_text">Displaying no Suggestions</string>
+    <string name="what_if_wipe_confirm">All What-Ifs reset!</string>
 </resources>

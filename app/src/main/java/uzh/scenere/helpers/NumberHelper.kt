@@ -112,11 +112,12 @@ class NumberHelper {
         }
 
 
-        fun capAt(i: Int, low: Int, high: Int): Int {
+        fun capAt(i: Int?, low: Int, high: Int): Int {
+            val nvl = nvl(i,0)
             return when {
-                i < low -> low
-                i > high -> high
-                else -> i
+                nvl < low -> low
+                nvl > high -> high
+                else -> nvl
             }
         }
 

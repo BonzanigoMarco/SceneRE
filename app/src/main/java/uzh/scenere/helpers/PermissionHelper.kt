@@ -23,8 +23,8 @@ class PermissionHelper private constructor () {
             NFC("NFC", R.string.permission_description_nfc_title,R.string.permission_description_nfc),
             SMS("SMS", R.string.permission_description_sms_title,R.string.permission_description_sms),
             GPS("GPS", R.string.permission_description_gps_title,R.string.permission_description_gps),
-            TELEPHONY("TELEPHONY", R.string.permission_description_telephony_title,R.string.permission_description_telephony),
-            DEVICE("DEVICE", R.string.permission_description_device_title,R.string.permission_description_device);
+            TELEPHONY("Telephony", R.string.permission_description_telephony_title,R.string.permission_description_telephony),
+            DEVICE("Device", R.string.permission_description_device_title,R.string.permission_description_device);
 
             fun getDescription(context: Context): String {
                 return context.getString(description)

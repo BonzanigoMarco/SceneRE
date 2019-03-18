@@ -81,7 +81,7 @@ class MainMenuActivity : AbstractBaseActivity() {
     }
 
     fun setButtonStates(buttons: Array<SreButton>){
-        if (!PermissionHelper.check(applicationContext,PermissionHelper.Companion.PermissionGroups.STORAGE)){
+        if (PermissionHelper.getRequiredPermissions(applicationContext).isNotEmpty()){
             for (button in buttons){
                 button.isEnabled = false
             }
