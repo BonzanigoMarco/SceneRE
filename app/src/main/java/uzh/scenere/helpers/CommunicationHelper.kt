@@ -82,6 +82,14 @@ class CommunicationHelper private constructor () {
             }
         }
 
+        fun requestBeamActivation(context: Context, open: Boolean = false): Boolean {
+            val nfcAdapter = NfcAdapter.getDefaultAdapter(context) ?: return false
+            if (open && !nfcAdapter.isNdefPushEnabled){
+                context.startActivity(Intent(Settings.ACTION_NFCSHARING_SETTINGS))
+            }
+            return nfcAdapter.isNdefPushEnabled
+        }
+
         private fun checkGpsState(activity: Activity): Boolean {
             if (!PermissionHelper.check(activity,PermissionHelper.Companion.PermissionGroups.GPS)){
                 return false

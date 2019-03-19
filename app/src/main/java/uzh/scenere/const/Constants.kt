@@ -136,6 +136,12 @@ class Constants {
         //FILE FORMATS
         const val PNG_FILE: String = ".png"
         const val SRE_FILE: String = ".sre"
+        //FILE LOCATIONS
+        const val FOLDER_ROOT: String = "/SceneRe"
+        const val FOLDER_EXPORT: String = "/Export"
+        const val FOLDER_IMPORT: String = "/Import"
+        const val FOLDER_DATABASE: String = "/Database"
+        const val FOLDER_TEMP: String = "/Temp"
         //ELEMENTS
         const val STARTING_POINT: String = "starting_point"
         //ATTRIBUTE TYPES

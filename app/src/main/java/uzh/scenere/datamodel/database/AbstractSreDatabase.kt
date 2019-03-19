@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Environment
 import android.provider.BaseColumns
+import uzh.scenere.const.Constants.Companion.FOLDER_DATABASE
+import uzh.scenere.const.Constants.Companion.FOLDER_ROOT
 import uzh.scenere.helpers.StringHelper
 import java.io.File
 
@@ -312,8 +314,8 @@ abstract class AbstractSreDatabase {
                                    private val DATABASE_VERSION: Int = 1,
                                    private val DATABASE_NAME: String = "SreDatabase",
                                    private val DATABASE_ENDING: String = ".db",
-                                   private val FILE_DIR: String = "SceneRE/Database"
-    ) : SQLiteOpenHelper(context, Environment.getExternalStorageDirectory().toString() + File.separator + FILE_DIR + File.separator + DATABASE_NAME + DATABASE_ENDING, null, DATABASE_VERSION) {
+                                   private val FILE_DIR: String = FOLDER_ROOT.plus(FOLDER_DATABASE)
+    ) : SQLiteOpenHelper(context, Environment.getExternalStorageDirectory().toString() + FILE_DIR + File.separator + DATABASE_NAME + DATABASE_ENDING, null, DATABASE_VERSION) {
 
         init {
             onCreate(writableDatabase)

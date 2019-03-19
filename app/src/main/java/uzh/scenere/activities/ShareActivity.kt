@@ -8,9 +8,11 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import kotlinx.android.synthetic.main.activity_share.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.FOLDER_EXPORT
 import uzh.scenere.const.Constants.Companion.IMPORT_DATA_FILE
 import uzh.scenere.const.Constants.Companion.IMPORT_DATA_FOLDER
 import uzh.scenere.const.Constants.Companion.IMPORT_FOLDER
@@ -68,6 +70,10 @@ class ShareActivity : AbstractManagementActivity() {
 
     override fun resetToolbar() {
         customizeToolbarId(R.string.icon_back, null, null, R.string.icon_null, null)
+    }
+
+    override fun isUsingNfc(): Boolean {
+        return true
     }
 
     enum class ShareMode(private val index: Int, val label: String, private val enabled: Boolean) {
@@ -171,14 +177,15 @@ class ShareActivity : AbstractManagementActivity() {
 
     private fun swapMode(forward: Boolean){
         mode = if (forward) mode.next() else mode.previous()
-        sawpModeInternal()
+        swapModeInternal()
     }
     private fun setMode(newMode: ShareMode){
         mode = newMode
-        sawpModeInternal()
+        swapModeInternal()
     }
 
-    private fun sawpModeInternal() {
+    private fun swapModeInternal() {
+        cancelAsyncTask()
         creationButton?.setText(mode.label)
         when (mode) {
             ShareMode.FILE_EXPORT -> {
@@ -198,28 +205,40 @@ class ShareActivity : AbstractManagementActivity() {
         cachedBinary = null
         getContentHolderLayout().removeAllViews()
         controlButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_collect_data)).setExecutable {
-            cachedBinary = exportDatabaseToBinary()
-            if (cachedBinary != null) {
-                val wrapper = createStatisticsFromCachedBinary(true)
-                if (wrapper.validationCode == VALIDATION_OK){
-                    getContentHolderLayout().removeView(walkthroughSwitch)
-                    controlButton?.text = getString(R.string.share_export_data)
-                    controlButton?.setExecutable {
-                        val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + SRE_FILE
-                        val destinationFile = FileHelper.writeFile(applicationContext, cachedBinary!!, fileName)
-                        notify(getString(R.string.share_export_finished))
-                        controlButton?.text = getString(R.string.share_export_location)
+            var progressBar: ProgressBar? = null
+            if (!isAsyncTaskRunning()){
+                controlButton?.text = getString(R.string.share_loading)
+                progressBar = ProgressBar(applicationContext)
+                getContentHolderLayout().addView(progressBar)
+                getContentHolderLayout().removeView(walkthroughSwitch)
+            }
+            executeAsyncTask({ cachedBinary = exportDatabaseToBinary()},{
+                if (cachedBinary != null) {
+                    val wrapper = createStatisticsFromCachedBinary(true)
+                    if (wrapper.validationCode == VALIDATION_OK){
+                        getContentHolderLayout().removeView(progressBar)
+                        controlButton?.text = getString(R.string.share_export_data)
                         controlButton?.setExecutable {
-                            val success = FileHelper.openFolder(applicationContext, destinationFile.replace("/$fileName",""))
-                            if (!success){
-                                FileHelper.openFile(applicationContext, destinationFile)
+                            val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + SRE_FILE
+                            val destinationFile = FileHelper.writeFile(applicationContext, cachedBinary!!, fileName, FOLDER_EXPORT)
+                            notify(getString(R.string.share_export_finished))
+                            controlButton?.text = getString(R.string.share_export_location)
+                            controlButton?.setExecutable {
+                                val success = FileHelper.openFolder(applicationContext, destinationFile.replace("/$fileName",""))
+                                if (!success){
+                                    FileHelper.openFile(applicationContext, destinationFile)
+                                }
                             }
                         }
+                    }else{
+                        controlButton?.setExecutable {}
                     }
                 }else{
-                    controlButton?.setExecutable {}
+                    controlButton?.text = getString(R.string.share_collect_data)
+                    notify(getString(R.string.share_collection_failed))
+                    getContentHolderLayout().removeView(walkthroughSwitch)
                 }
-            }
+            })
         }
         includeWalkthroughs = WalkthroughExport.INCLUDE
         walkthroughSwitch = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_include_walkthroughs))
@@ -334,18 +353,27 @@ class ShareActivity : AbstractManagementActivity() {
             if (wrapper.validationCode == VALIDATION_OK){
                 if (wrapper.totalItems > wrapper.oldItems) {
                     val importNewerButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.oldItems == 0) getString(R.string.share_import) else getString(R.string.share_import_newer,(wrapper.totalItems-wrapper.oldItems))).setExecutable {
-                        importBinaryToDatabase(wrapper, true)
-                        notify(getString(R.string.share_import_finished), getString(R.string.share_import_number_successful,(wrapper.totalItems - wrapper.oldItems)))
-                        execLoadFileImport()
+                        getContentHolderLayout().removeView(buttonWrap)
+                        val progressBar = ProgressBar(applicationContext)
+                        getContentHolderLayout().addView(progressBar)
+                        executeAsyncTask({importBinaryToDatabase(wrapper, true)}, {
+                            getContentHolderLayout().removeView(progressBar)
+                            notify(getString(R.string.share_import_finished), getString(R.string.share_import_number_successful, (wrapper.totalItems - wrapper.oldItems)))
+                            execLoadFileImport()
+                        })
                     }
                     buttonWrap.addView(importNewerButton)
                 }
                 if (wrapper.oldItems > 0){
                     val importAllButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.totalItems > wrapper.oldItems) getString(R.string.share_import_all_1) else getString(R.string.share_import_all_2),null,null,SreButton.ButtonStyle.WARN).setExecutable {
-                        importBinaryToDatabase(wrapper,false)
-                        notify(getString(R.string.share_import_finished),getString(R.string.share_import_number_successful,wrapper.totalItems))
-                        execLoadFileImport()
-
+                        getContentHolderLayout().removeView(buttonWrap)
+                        val progressBar = ProgressBar(applicationContext)
+                        getContentHolderLayout().addView(progressBar)
+                        executeAsyncTask({importBinaryToDatabase(wrapper,false)},{
+                            getContentHolderLayout().removeView(progressBar)
+                            notify(getString(R.string.share_import_finished),getString(R.string.share_import_number_successful,wrapper.totalItems))
+                            execLoadFileImport()
+                        })
                     }
                     buttonWrap.addView(importAllButton)
                 }
@@ -427,38 +455,38 @@ class ShareActivity : AbstractManagementActivity() {
         val userName = wrapper.owner
         val timeStamp = DateHelper.toTimestamp(wrapper.timeMs, "dd.MM.yyyy HH:mm:ss")
         for (walkthrough in wrapper.walkthroughArray){
-            walkthroughNewCount += addOneIfNew(walkthrough)
+            walkthroughNewCount += addOneIfNew(walkthrough, export)
             walkthroughList.add(walkthrough)
         }
         for (project in wrapper.projectArray) {
-            projectNewCount += addOneIfNew(project)
+            projectNewCount += addOneIfNew(project, export)
             projectList.add(project)
             for (stakeholder in project.stakeholders){
-                stakeholderNewCount += addOneIfNew(stakeholder)
+                stakeholderNewCount += addOneIfNew(stakeholder, export)
                 stakeholderList.add(stakeholder)
             }
             for (scenario in project.scenarios) {
-                scenarioNewCount += addOneIfNew(scenario)
+                scenarioNewCount += addOneIfNew(scenario, export)
                 scenarioList.add(scenario)
                 for (o in scenario.objects) {
-                    objectNewCount += addOneIfNew(o)
+                    objectNewCount += addOneIfNew(o, export)
                     objectList.add(o)
                     for (attribute in o.attributes){
-                        attributeNewCount += addOneIfNew(attribute)
+                        attributeNewCount += addOneIfNew(attribute, export)
                         attributeCount ++
                     }
                 }
                 for (shPath in scenario.paths.entries) {
                     for (path in shPath.value.entries) {
-                        pathNewCount += addOneIfNew(path.value)
+                        pathNewCount += addOneIfNew(path.value, export)
                         pathList.add(path.value)
                         for (element in path.value.elements) {
                             val iElement = element.value
                             if (iElement is AbstractStep) {
-                                stepNewCount += addOneIfNew(iElement)
+                                stepNewCount += addOneIfNew(iElement, export)
                                 stepCount++
                             } else if (iElement is AbstractTrigger) {
-                                triggerNewCount += addOneIfNew(iElement)
+                                triggerNewCount += addOneIfNew(iElement, export)
                                 triggerCount++
                             }
                         }
@@ -515,7 +543,10 @@ class ShareActivity : AbstractManagementActivity() {
         return wrapper.validate(if (valid) VALIDATION_OK else if (export) VALIDATION_NO_DATA else VALIDATION_INVALID)
     }
 
-    private fun addOneIfNew(versionItem: IVersionItem): Int{
+    private fun addOneIfNew(versionItem: IVersionItem, export: Boolean): Int{
+        if (export){
+            return 1
+        }
         return if (DatabaseHelper.getInstance(applicationContext).isNewerVersion(versionItem)) 1 else 0
     }
 

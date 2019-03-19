@@ -534,4 +534,6 @@
     <string name="what_if_static_text">Displaying only unspecific Suggestions</string>
     <string name="what_if_none_text">Displaying no Suggestions</string>
     <string name="what_if_wipe_confirm">All What-Ifs reset!</string>
+    <string name="share_loading">Loading...</string>
+    <string name="share_collection_failed">Data Collection failed!</string>
 </resources>

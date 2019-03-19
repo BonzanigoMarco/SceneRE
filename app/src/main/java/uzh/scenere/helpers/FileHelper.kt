@@ -8,6 +8,11 @@ import android.os.Environment
 import uzh.scenere.const.Constants.Companion.NOTHING
 import java.lang.Exception
 import android.os.Environment.getExternalStorageDirectory
+import uzh.scenere.const.Constants.Companion.FOLDER_DATABASE
+import uzh.scenere.const.Constants.Companion.FOLDER_EXPORT
+import uzh.scenere.const.Constants.Companion.FOLDER_IMPORT
+import uzh.scenere.const.Constants.Companion.FOLDER_ROOT
+import uzh.scenere.const.Constants.Companion.FOLDER_TEMP
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 
@@ -23,12 +28,12 @@ class FileHelper {
             return context.filesDir.path.plus("/$fileName")
         }
 
-        private fun writeFileExternal(path: String, fileName: String, array: ByteArray): String {
+        private fun writeFileExternal(path: String, fileName: String, array: ByteArray, folder: String): String {
             var pathFinal = path
             if (!File(pathFinal).exists()) {
                 File(pathFinal).mkdir()
             }
-            pathFinal += "/Export"
+            pathFinal += folder
             if (!File(pathFinal).exists()) {
                 File(pathFinal).mkdir()
             }
@@ -41,10 +46,10 @@ class FileHelper {
             return pathFinal
         }
 
-        fun writeFile(context: Context, array: ByteArray, fileName: String): String{
+        fun writeFile(context: Context, array: ByteArray, fileName: String, folder: String = FOLDER_EXPORT): String{
             var available = false
             var writeable = false
-            val path = getExternalStorageDirectory().path.plus("/SceneRe")
+            val path = getExternalStorageDirectory().path.plus(FOLDER_ROOT)
             val state = Environment.getExternalStorageState()
             when (state) {
                 Environment.MEDIA_MOUNTED -> {
@@ -61,7 +66,7 @@ class FileHelper {
                 }
             }
             return if (available && writeable){
-                writeFileExternal(path, fileName, array)
+                writeFileExternal(path, fileName, array, folder)
             }else{
                 writeFileInternal(context,array,fileName)
             }
@@ -137,5 +142,19 @@ class FileHelper {
             return emptyArray()
         }
 
+        fun checkAndCreateFolderStructure() {
+            val rootPath = getExternalStorageDirectory().path.plus(FOLDER_ROOT)
+            val rootFile = File(rootPath)
+            if (!rootFile.exists()){
+                rootFile.mkdirs()
+            }
+            for (folder in arrayOf(FOLDER_EXPORT, FOLDER_IMPORT, FOLDER_TEMP, FOLDER_DATABASE)){
+                val folderFile = File(rootPath.plus(folder))
+                if (!folderFile.exists()){
+                    folderFile.mkdirs()
+                }
+            }
+
+        }
     }
 }

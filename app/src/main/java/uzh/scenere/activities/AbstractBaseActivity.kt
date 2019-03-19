@@ -1,5 +1,6 @@
 package uzh.scenere.activities
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Notification
 import android.app.NotificationManager
@@ -12,12 +13,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Typeface
+import android.net.Uri
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
-import android.nfc.NdefMessage
-import android.nfc.NdefRecord
-import android.nfc.NfcAdapter
-import android.nfc.Tag
+import android.nfc.*
 import android.nfc.tech.Ndef
 import android.nfc.tech.NdefFormatable
 import android.os.AsyncTask
@@ -41,6 +40,7 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.FOLDER_TEMP
 import uzh.scenere.const.Constants.Companion.MILLION
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.PHONE_STATE
@@ -51,6 +51,7 @@ import uzh.scenere.listener.SreBluetoothReceiver
 import uzh.scenere.listener.SreBluetoothScanCallback
 import uzh.scenere.listener.SrePhoneReceiver
 import uzh.scenere.listener.SreSmsReceiver
+import java.io.File
 import java.io.IOException
 import kotlin.random.Random
 import kotlin.reflect.KClass
@@ -78,14 +79,23 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     private var srePhoneReceiver: SrePhoneReceiver? = null
     //SMS
     private var sreSmsReceiver: SreSmsReceiver? = null
+    //Async
+    private var asyncTask: SreAsyncTask? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkAndCreateFolderStructure()
         setContentView(getConfiguredLayout())
         readVariables()
         initNfc()
         initWifi()
+    }
+
+    private fun checkAndCreateFolderStructure(){
+        if (PermissionHelper.check(applicationContext,PermissionHelper.Companion.PermissionGroups.STORAGE)){
+            FileHelper.checkAndCreateFolderStructure()
+        }
     }
 
     private fun readVariables() {
@@ -138,6 +148,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         pausePhoneCallListener()
         pauseSmsListener()
         pauseBluetoothListener()
+        cancelAsyncTask()
         super.onPause()
     }
 
@@ -157,6 +168,8 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
 
     private var nfcDataWrite: String? = null
     private var nfcDataRead: String? = null
+    private var beamBinaryWrite: ByteArray? = null
+    private var beamBinaryRead: ByteArray? = null
 
     fun setDataToWrite(data: String?){
         nfcDataWrite = data
@@ -164,6 +177,14 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
 
     fun getDataToRead(): String?{
         return nfcDataRead
+    }
+
+    fun setBinaryDataToBeam(data: ByteArray?){
+        beamBinaryWrite = data
+    }
+
+    fun getBinaryDataFromBeam(): ByteArray?{
+        return beamBinaryRead
     }
 
     open fun execUseNfcData(data: String){
@@ -262,6 +283,23 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         val pathPrefix = Constants.APPLICATION_ID
         val nfcRecord = NdefRecord(NdefRecord.TNF_EXTERNAL_TYPE, pathPrefix.toByteArray(), ByteArray(0), data.toByteArray())
         return NdefMessage(arrayOf(nfcRecord))
+    }
+
+
+    @SuppressLint("SetWorldReadable")
+    fun sendDataOverBeam(){
+        if (beamBinaryWrite != null && isUsingNfc() && CommunicationHelper.check(this,CommunicationHelper.Companion.Communications.NFC)&&
+                CommunicationHelper.supports(this,CommunicationHelper.Companion.Communications.NFC)&&
+                CommunicationHelper.requestBeamActivation(this,true)){
+            val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + Constants.SRE_FILE
+            val filePath = FileHelper.writeFile(applicationContext, beamBinaryWrite!!,fileName,FOLDER_TEMP)
+            val fileToTransfer = File(filePath)
+            fileToTransfer.setReadable(true, false)
+            fileToTransfer.deleteOnExit()
+            nfcAdapter!!.setBeamPushUris(arrayOf(Uri.fromFile(fileToTransfer)), this)
+            nfcAdapter!!.invokeBeam(this)
+            beamBinaryWrite = null
+        }
     }
 
     // WiFi
@@ -503,9 +541,38 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         return getText(id) as SpannedString
     }
 
-    class SreAsyncTask() : AsyncTask<Void, Void, String?>() {
-        override fun doInBackground(vararg params: Void?): String? {
-            //NOP
+    protected fun executeAsyncTask(asyncFunction: () -> Unit, postExecuteFunction: () -> Any?){
+        if (asyncTask == null){
+            asyncTask = SreAsyncTask(asyncFunction,postExecuteFunction,{cancelAsyncTask()})
+            asyncTask?.execute()
+        }
+    }
+
+    protected fun cancelAsyncTask(){
+        if (asyncTask != null){
+            try {
+                asyncTask?.cancel(true)
+            }catch (e: Exception){
+                //NOP
+            }
+            asyncTask = null
+        }
+    }
+
+    protected fun isAsyncTaskRunning(): Boolean{
+        if (asyncTask != null){
+            return !asyncTask!!.isCancelled
+        }
+        return false
+    }
+
+    class SreAsyncTask(private val asyncFunction: () -> Unit, private val postExecuteFunction: () -> Any?, val cleanupFunction: () -> Unit) : AsyncTask<Void, Void, Void?>() {
+        override fun doInBackground(vararg params: Void?): Void? {
+            try{
+                asyncFunction.invoke()
+            }catch(e: Exception){
+                //NOP
+            }
             return null
         }
 
@@ -513,8 +580,14 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             //NOP
         }
 
-        override fun onPostExecute(result: String?) {
-            //NOP
+        override fun onPostExecute(result: Void?) {
+            try{
+                postExecuteFunction.invoke()
+            }catch(e: Exception){
+                //NOP
+            }finally {
+                cleanupFunction.invoke()
+            }
         }
     }
 

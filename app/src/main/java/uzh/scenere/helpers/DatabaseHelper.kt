@@ -99,6 +99,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Walkthrough) write(WALKTHROUGH_UID_IDENTIFIER + key, DataHelper.toByteArray(obj))
             }
             DataMode.DATABASE -> {
+                database!!.openWritable()
                 if (obj is Boolean) database!!.writeBoolean(key, obj)
                 if (obj is String) database!!.writeString(key, obj)
                 if (obj is ByteArray) database!!.writeByteArray(key, obj)
@@ -115,6 +116,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (obj is Path) database!!.writePath(obj)
                 if (obj is IElement) database!!.writeElement(obj)
                 if (obj is Walkthrough) database!!.writeWalkthrough(obj)
+                database!!.close()
             }
         }
         enableNewVersioning()
@@ -123,6 +125,17 @@ class DatabaseHelper private constructor(context: Context) {
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Serializable> read(key: String, clz: KClass<T>, valIfNull: T = NullHelper.get(clz), internalMode: DataMode = mode): T {
+        return when (internalMode) {
+            DataMode.PREFERENCES -> readInternal(key,clz,valIfNull,internalMode)
+            DataMode.DATABASE -> {
+                database!!.openReadable()
+                val readInternal = readInternal(key,clz,valIfNull,internalMode)
+                database!!.close()
+                readInternal
+            }
+        }
+    }
+    fun <T : Serializable> readInternal(key: String, clz: KClass<T>, valIfNull: T = NullHelper.get(clz), internalMode: DataMode = mode): T {
         try {
             when (internalMode) {
                 DataMode.PREFERENCES -> {
@@ -188,8 +201,20 @@ class DatabaseHelper private constructor(context: Context) {
         return valIfNull
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T : Serializable> readFull(key: String, clz: KClass<T>, internalMode: DataMode = mode): T? {
+        return when (internalMode) {
+            DataMode.PREFERENCES -> readFullInternal(key,clz,internalMode)
+            DataMode.DATABASE -> {
+                database!!.openReadable()
+                val readFull = readFullInternal(key, clz, internalMode)
+                database!!.close()
+                readFull
+            }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Serializable> readFullInternal(key: String, clz: KClass<T>, internalMode: DataMode = mode): T? {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 if (Project::class == clz) return readBinary(key, clz, PROJECT_UID_IDENTIFIER, NullHelper.get(clz))
@@ -211,36 +236,20 @@ class DatabaseHelper private constructor(context: Context) {
         return null
     }
 
-    fun <T : Serializable> readAndMigrate(key: String, clz: KClass<T>, valIfNull: T, deleteInPrefs: Boolean = true): T {
-        when (mode) {
-            DataMode.PREFERENCES -> {
-                return read(key, clz, valIfNull)
-            }
+    fun <T : Serializable> readBulk(clz: KClass<T>, key: Any?, fullLoad: Boolean = false, internalMode: DataMode = mode): List<T> {
+        return when (internalMode) {
+            DataMode.PREFERENCES -> readBulkInternal(clz,key,fullLoad,internalMode)
             DataMode.DATABASE -> {
-                val readPref = read(key, clz, valIfNull, DataMode.PREFERENCES)
-                val readDb = read(key, clz, valIfNull, DataMode.DATABASE)
-                if (readPref == valIfNull) {
-                    //Val was not saved, return DB value
-                    return readDb
-                }
-                //Delete from Prefs if not specified otherwise
-                if (deleteInPrefs) {
-                    delete(key, clz, DataMode.PREFERENCES)
-                }
-                //Value was saved, check DB value
-                if (readDb == valIfNull) {
-                    //DB value does'nt exist, write to DB, return
-                    write(key, readPref)
-                    return readPref
-                }
-                //DB value did exist, return
-                return readDb
+                database!!.openReadable()
+                val readBulkInternal = readBulkInternal(clz, key, fullLoad, internalMode)
+                database!!.close()
+                readBulkInternal
             }
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Serializable> readBulk(clz: KClass<T>, key: Any?, fullLoad: Boolean = false, internalMode: DataMode = mode): List<T> {
+    fun <T : Serializable> readBulkInternal(clz: KClass<T>, key: Any?, fullLoad: Boolean = false, internalMode: DataMode = mode): List<T> {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 if (Project::class == clz) return readBulkInternal(clz, PROJECT_UID_IDENTIFIER)
@@ -311,6 +320,38 @@ class DatabaseHelper private constructor(context: Context) {
         return emptyList()
     }
 
+    fun <T : Serializable> readAndMigrate(key: String, clz: KClass<T>, valIfNull: T, deleteInPrefs: Boolean = true): T {
+        when (mode) {
+            DataMode.PREFERENCES -> {
+                return read(key, clz, valIfNull)
+            }
+            DataMode.DATABASE -> {
+                val readPref = read(key, clz, valIfNull, DataMode.PREFERENCES)
+                database!!.openReadable()
+                val readDb = read(key, clz, valIfNull, DataMode.DATABASE)
+                database!!.close()
+                if (readPref == valIfNull) {
+                    //Val was not saved, return DB value
+                    return readDb
+                }
+                //Delete from Prefs if not specified otherwise
+                if (deleteInPrefs) {
+                    delete(key, clz, DataMode.PREFERENCES)
+                }
+                //Value was saved, check DB value
+                if (readDb == valIfNull) {
+                    //DB value does'nt exist, write to DB, return
+                    database!!.openWritable()
+                    write(key, readPref)
+                    database!!.close()
+                    return readPref
+                }
+                //DB value did exist, return
+                return readDb
+            }
+        }
+    }
+
     @Suppress("UNCHECKED_CAST")
     private fun <T : Serializable> readBulkInternal(clz: KClass<T>, identifier: String): List<T> {
         val list = ArrayList<Serializable>()
@@ -341,25 +382,63 @@ class DatabaseHelper private constructor(context: Context) {
             else -> false
         }
     }
+    fun isNewerVersionBulk(versionItems: List<IVersionItem>): HashMap<KClass<*>,Int> {
+        val map = HashMap<KClass<*>,Int>()
+        for (item in versionItems){
+            val new = when (item){
+                is Project -> item.changeTimeMs > readVersioning(item.id,mode,false)
+                is Stakeholder -> item.changeTimeMs > readVersioning(item.id,mode,false)
+                is Scenario -> item.changeTimeMs > readVersioning(item.id,mode,false)
+                is AbstractObject -> item.changeTimeMs > readVersioning(item.id,mode,false)
+                is Attribute -> item.changeTimeMs > readVersioning(item.id,mode,false)
+                is Path -> item.changeTimeMs > readVersioning(item.id,mode,false)
+                is AbstractTrigger -> item.changeTimeMs > readVersioning(item.id,mode,false)
+                is AbstractStep -> item.changeTimeMs > readVersioning(item.id,mode,false)
+                is Walkthrough -> item.changeTimeMs > readVersioning(item.id,mode,false)
+                else -> false
+            }
+            if (new){
+                map[item::class] = NumberHelper.nvl(map[item::class],0)+1
+            }
+        }
+        return map
+    }
 
     fun addVersioning(id: String, internalMode: DataMode = mode){
         when (internalMode){
             DataMode.PREFERENCES -> sharedPreferences.edit().putLong(Constants.VERSIONING_IDENTIFIER.plus(id),System.currentTimeMillis()).apply()
-            DataMode.DATABASE -> database?.writeLong(Constants.VERSIONING_IDENTIFIER.plus(id),System.currentTimeMillis())
+            DataMode.DATABASE -> {
+                database!!.openWritable()
+                database?.writeLong(Constants.VERSIONING_IDENTIFIER.plus(id),System.currentTimeMillis())
+                database!!.close()
+            }
         }
     }
 
-    fun readVersioning(id: String, internalMode: DataMode = mode): Long{
+    fun readVersioning(id: String, internalMode: DataMode = mode, openDatabase: Boolean = true): Long{
         return when (internalMode){
             DataMode.PREFERENCES -> sharedPreferences.getLong(Constants.VERSIONING_IDENTIFIER.plus(id),0)
-            DataMode.DATABASE -> NumberHelper.nvl(database?.readLong(Constants.VERSIONING_IDENTIFIER.plus(id),0),0)
+            DataMode.DATABASE -> {
+                if (openDatabase){
+                    database!!.openReadable()
+                }
+                val l = NumberHelper.nvl(database?.readLong(Constants.VERSIONING_IDENTIFIER.plus(id), 0), 0)
+                if (openDatabase){
+                    database!!.close()
+                }
+                l
+            }
         }
     }
 
     fun deleteVersioning(id: String, internalMode: DataMode = mode){
         when (internalMode){
             DataMode.PREFERENCES -> sharedPreferences.edit().remove(Constants.VERSIONING_IDENTIFIER.plus(id)).apply()
-            DataMode.DATABASE -> database?.deleteNumber(Constants.VERSIONING_IDENTIFIER.plus(id))
+            DataMode.DATABASE -> {
+                database!!.openWritable()
+                database?.deleteNumber(Constants.VERSIONING_IDENTIFIER.plus(id))
+                database!!.close()
+            }
         }
     }
 
@@ -379,6 +458,7 @@ class DatabaseHelper private constructor(context: Context) {
                 sharedPreferences.edit().remove(PROJECT_UID_IDENTIFIER + key).apply()
             }
             DataMode.DATABASE -> {
+                database!!.openWritable()
                 if (Project::class == clz) {
                     val project = readFull(key, Project::class)
                     database!!.deleteProject(key)
@@ -459,6 +539,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (ByteArray::class == clz) {
                     database!!.deleteData(key)
                 }
+                database!!.close()
             }
         }
     }
@@ -469,6 +550,7 @@ class DatabaseHelper private constructor(context: Context) {
                 sharedPreferences.edit().clear().apply()
             }
             DataMode.DATABASE -> {
+                database!!.openWritable()
                 database!!.truncateData()
                 database!!.truncateNumbers()
                 database!!.truncateStrings()
@@ -477,11 +559,13 @@ class DatabaseHelper private constructor(context: Context) {
                 database!!.truncateObjects()
                 database!!.truncateAttributes()
                 database!!.truncateScenarios()
+                database!!.close()
             }
         }
     }
 
     fun <T : Serializable> dropAndRecreate(kClass: KClass<T>) {
+        database!!.openWritable()
         if (kClass == Attribute::class) {
             database!!.dropAndRecreateTable("ATTRIBUTE_TABLE")
         }
@@ -494,10 +578,12 @@ class DatabaseHelper private constructor(context: Context) {
         if (kClass == AbstractObject::class) {
             database!!.dropAndRecreateTable("OBJECT_TABLE")
         }
+        database!!.close()
     }
 
     fun dropAndRecreateAll(){
         if (mode == DataMode.DATABASE) {
+            database!!.openWritable()
             database!!.dropAndRecreateTable("ATTRIBUTE_TABLE")
             database!!.dropAndRecreateTable("PATH_TABLE")
             database!!.dropAndRecreateTable("ELEMENT_TABLE")
@@ -509,6 +595,7 @@ class DatabaseHelper private constructor(context: Context) {
             database!!.dropAndRecreateTable("NUMBER_TABLE")
             database!!.dropAndRecreateTable("DATA_TABLE")
             database!!.dropAndRecreateTable("TEXT_TABLE")
+            database!!.close()
         }
         for (pref in sharedPreferences.all){
             sharedPreferences.edit().remove(pref.key).apply()
@@ -517,7 +604,9 @@ class DatabaseHelper private constructor(context: Context) {
 
     fun dropAndRecreateWalkthroughs(){
         if (mode == DataMode.DATABASE) {
+            database!!.openWritable()
             database!!.dropAndRecreateTable("WALKTHROUGH_TABLE")
+            database!!.close()
         }
     }
 
