@@ -1,5 +1,6 @@
 package uzh.scenere.helpers
 
+import android.annotation.SuppressLint
 import android.content.Context
 import java.io.File
 import android.content.Intent
@@ -28,6 +29,7 @@ class FileHelper {
             return context.filesDir.path.plus("/$fileName")
         }
 
+        @SuppressLint("SetWorldReadable")
         private fun writeFileExternal(path: String, fileName: String, array: ByteArray, folder: String): String {
             var pathFinal = path
             if (!File(pathFinal).exists()) {
@@ -39,6 +41,7 @@ class FileHelper {
             }
             pathFinal = pathFinal.plus("/$fileName")
             File(pathFinal).createNewFile()
+            File(pathFinal).setReadable(true, false)
             val bos = BufferedOutputStream(FileOutputStream(pathFinal))
             bos.write(array)
             bos.flush()

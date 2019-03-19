@@ -289,9 +289,9 @@
     <string name="walkthrough_button_label_failure">No %1$s created yet</string>
     <string name="walkthrough_selection_info">Select an Object you want Information about</string>
     <string name="walkthrough_selection_no_info">No Context Information available</string>
-    <string name="walkthrough_selected_scenario">Selected Scenario: </string>
-    <string name="walkthrough_selected_project">Selected Project: </string>
-    <string name="walkthrough_selected_analytics">Analytics: </string>
+    <string name="walkthrough_selected_scenario">Selected Scenario: %1$s</string>
+    <string name="walkthrough_selected_project">Selected Project: %1$s</string>
+    <string name="walkthrough_selected_analytics">Analytics: %1$s</string>
     <string name="walkthrough_complete">Complete Walkthrough</string>
     <string name="walkthrough_see_more">See more Details in the Analytics</string>
     <string name="walkthrough_confirm">Press the Back Button again to cancel the Walkthrough</string>

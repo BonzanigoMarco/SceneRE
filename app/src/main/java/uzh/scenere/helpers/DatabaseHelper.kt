@@ -374,7 +374,7 @@ class DatabaseHelper private constructor(context: Context) {
             is Stakeholder -> versionItem.changeTimeMs > readVersioning(versionItem.id)
             is Scenario -> versionItem.changeTimeMs > readVersioning(versionItem.id)
             is AbstractObject -> versionItem.changeTimeMs > readVersioning(versionItem.id)
-            is Attribute -> versionItem.changeTimeMs > readVersioning(versionItem.id)
+            is Attribute -> versionItem.changeTimeMs > readVersioning(versionItem.getVersioningId())
             is Path -> versionItem.changeTimeMs > readVersioning(versionItem.id)
             is AbstractTrigger -> versionItem.changeTimeMs > readVersioning(versionItem.id)
             is AbstractStep -> versionItem.changeTimeMs > readVersioning(versionItem.id)

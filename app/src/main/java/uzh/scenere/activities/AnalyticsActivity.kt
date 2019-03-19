@@ -102,17 +102,17 @@ class AnalyticsActivity : AbstractManagementActivity() {
         labelWrapper?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
         labelWrapper?.orientation = VERTICAL
         labelWrapper?.weightSum = 6f
-        projectLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_project)), ArrayList())
-        scenarioLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_scenario)), ArrayList())
-        analyticsLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_analytics)), ArrayList())
+        projectLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_project,NOTHING)), ArrayList())
+        scenarioLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_scenario,NOTHING)), ArrayList())
+        analyticsLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_analytics,NOTHING)), ArrayList())
         val weightedParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0)
         weightedParams.weight = 2f
         projectLabel?.setWeight(weightedParams)
         scenarioLabel?.setWeight(weightedParams)
         analyticsLabel?.setWeight(weightedParams)
-        projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(Constants.NONE)
-        scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(Constants.NONE)
-        analyticsLabel?.text = getString(R.string.walkthrough_selected_analytics).plus(Constants.NONE)
+        projectLabel?.text = getString(R.string.walkthrough_selected_project,Constants.NONE)
+        scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario,Constants.NONE)
+        analyticsLabel?.text = getString(R.string.walkthrough_selected_analytics,Constants.NONE)
         labelWrapper?.addView(projectLabel)
         labelWrapper?.addView(scenarioLabel)
         labelWrapper?.addView(analyticsLabel)
@@ -125,14 +125,14 @@ class AnalyticsActivity : AbstractManagementActivity() {
             getContentHolderLayout().addView(labelWrapper)
         }
         if (StringHelper.hasText(project)){
-            projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(SPACE).plus(project)
+            projectLabel?.text = getString(R.string.walkthrough_selected_project,project)
         }
         if (StringHelper.hasText(scenario)){
-            scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(SPACE).plus(scenario)
+            scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario,scenario)
         }
         if (StringHelper.hasText(analytics)){
             analyticsLabel?.visibility = View.VISIBLE
-            analyticsLabel?.text = getString(R.string.walkthrough_selected_analytics).plus(SPACE).plus(analytics)
+            analyticsLabel?.text = getString(R.string.walkthrough_selected_analytics,analytics)
         }else{
             analyticsLabel?.visibility = View.INVISIBLE
         }

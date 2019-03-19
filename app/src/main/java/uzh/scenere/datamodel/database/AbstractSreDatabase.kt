@@ -4,7 +4,6 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Environment
-import android.provider.BaseColumns
 import uzh.scenere.const.Constants.Companion.FOLDER_DATABASE
 import uzh.scenere.const.Constants.Companion.FOLDER_ROOT
 import uzh.scenere.helpers.StringHelper
@@ -49,7 +48,7 @@ abstract class AbstractSreDatabase {
         const val CREATE_TABLE_IF_NOT_EXISTS = "CREATE TABLE IF NOT EXISTS "
         const val DROP_TABLE_IF_EXISTS_TEMP = "DROP TABLE IF EXISTS TEMP_"
         //Reflection
-        const val BASE_COLUMNS_ID = "android.provider.BaseColumns"
+        const val BASE_COLUMNS_ID = "uzh.scenere.datamodel.database.SreBaseColumns"
         val COLUMN_TYPE = "COLUMN_TYPE_"
         val TABLE_NAME = "TABLE_NAME"
         val ID_COLUMN = "_ID"
@@ -139,10 +138,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Numbers
-    protected class NumberTableEntry private constructor() : BaseColumns {
+    protected class NumberTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " NUMBER_TABLE "
-            const val COLUMN_TYPE_KEY = TEXT_TYPE
+            const val COLUMN_TYPE_KEY = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_VALUE = FLOATING_NUMBER_TYPE
             const val COLUMN_TYPE_TIMESTAMP = NUMBER_TYPE
             const val KEY = " KEY "
@@ -152,10 +151,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Texts
-    protected class TextTableEntry private constructor() : BaseColumns {
+    protected class TextTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " TEXT_TABLE "
-            const val COLUMN_TYPE_KEY = TEXT_TYPE
+            const val COLUMN_TYPE_KEY = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_VALUE = TEXT_TYPE
             const val COLUMN_TYPE_TIMESTAMP = NUMBER_TYPE
             const val KEY = " KEY "
@@ -165,10 +164,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Data
-    protected class DataTableEntry private constructor() : BaseColumns {
+    protected class DataTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " DATA_TABLE "
-            const val COLUMN_TYPE_KEY = TEXT_TYPE
+            const val COLUMN_TYPE_KEY = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_VALUE = DATA_TYPE
             const val COLUMN_TYPE_TIMESTAMP = NUMBER_TYPE
             const val KEY = " KEY "
@@ -178,10 +177,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Projects
-    protected class ProjectTableEntry private constructor() : BaseColumns {
+    protected class ProjectTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " PROJECT_TABLE "
-            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_ID = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_CREATOR = TEXT_TYPE
             const val COLUMN_TYPE_TITLE = TEXT_TYPE
             const val COLUMN_TYPE_DESCRIPTION = TEXT_TYPE
@@ -193,10 +192,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Stakeholder
-    protected class StakeholderTableEntry private constructor() : BaseColumns {
+    protected class StakeholderTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " STAKEHOLDER_TABLE "
-            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_ID = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_PROJECT_ID = TEXT_TYPE
             const val COLUMN_TYPE_NAME = TEXT_TYPE
             const val COLUMN_TYPE_DESCRIPTION = TEXT_TYPE
@@ -208,10 +207,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Objects
-    protected class ObjectTableEntry private constructor() : BaseColumns {
+    protected class ObjectTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " OBJECT_TABLE "
-            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_ID = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_SCENARIO_ID = TEXT_TYPE
             const val COLUMN_TYPE_NAME = TEXT_TYPE
             const val COLUMN_TYPE_DESCRIPTION = TEXT_TYPE
@@ -225,10 +224,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Scenarios
-    protected class ScenarioTableEntry private constructor() : BaseColumns {
+    protected class ScenarioTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " SCENARIO_TABLE "
-            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_ID = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_PROJECT_ID = TEXT_TYPE
             const val COLUMN_TYPE_TITLE = TEXT_TYPE
             const val COLUMN_TYPE_INTRO = TEXT_TYPE
@@ -242,10 +241,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Attributes
-    protected class AttributeTableEntry private constructor() : BaseColumns {
+    protected class AttributeTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " ATTRIBUTE_TABLE "
-            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_ID = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_REF_ID = TEXT_TYPE
             const val COLUMN_TYPE_KEY = TEXT_TYPE
             const val COLUMN_TYPE_VALUE = TEXT_TYPE
@@ -260,10 +259,10 @@ abstract class AbstractSreDatabase {
 
 
     //Table for Paths
-    protected class PathTableEntry private constructor() : BaseColumns {
+    protected class PathTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " PATH_TABLE "
-            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_ID = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_SCENARIO_ID = TEXT_TYPE
             const val COLUMN_TYPE_STAKEHOLDER_ID = TEXT_TYPE
             const val COLUMN_TYPE_LAYER = NUMBER_TYPE
@@ -275,10 +274,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Elements
-    protected class ElementTableEntry private constructor() : BaseColumns {
+    protected class ElementTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " ELEMENT_TABLE "
-            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_ID = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_PREV_ID = TEXT_TYPE
             const val COLUMN_TYPE_PATH_ID = TEXT_TYPE
             const val COLUMN_TYPE_TYPE = TEXT_TYPE
@@ -294,10 +293,10 @@ abstract class AbstractSreDatabase {
     }
 
     //Table for Walkthroughs
-    protected class WalkthroughTableEntry private constructor() : BaseColumns {
+    protected class WalkthroughTableEntry private constructor() : SreBaseColumns {
         companion object {
             const val TABLE_NAME = " WALKTHROUGH_TABLE "
-            const val COLUMN_TYPE_ID = TEXT_TYPE
+            const val COLUMN_TYPE_ID = TEXT_TYPE + KEY_TYPE
             const val COLUMN_TYPE_OWNER = TEXT_TYPE
             const val COLUMN_TYPE_SCENARIO_ID = TEXT_TYPE
             const val COLUMN_TYPE_STAKEHOLDER_ID = TEXT_TYPE
@@ -347,4 +346,8 @@ abstract class AbstractSreDatabase {
             onUpgrade(db, oldVersion, newVersion)
         }
     }
+}
+
+interface SreBaseColumns {
+
 }

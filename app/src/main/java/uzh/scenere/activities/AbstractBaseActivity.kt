@@ -285,7 +285,6 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         return NdefMessage(arrayOf(nfcRecord))
     }
 
-
     @SuppressLint("SetWorldReadable")
     fun sendDataOverBeam(){
         if (beamBinaryWrite != null && isUsingNfc() && CommunicationHelper.check(this,CommunicationHelper.Companion.Communications.NFC)&&
@@ -541,7 +540,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         return getText(id) as SpannedString
     }
 
-    protected fun executeAsyncTask(asyncFunction: () -> Unit, postExecuteFunction: () -> Any?){
+    protected fun executeAsyncTask(asyncFunction: () -> Unit, postExecuteFunction: () -> Unit){
         if (asyncTask == null){
             asyncTask = SreAsyncTask(asyncFunction,postExecuteFunction,{cancelAsyncTask()})
             asyncTask?.execute()

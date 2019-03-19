@@ -19,6 +19,7 @@ import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED
 import uzh.scenere.const.Constants.Companion.NONE
+import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.READ_ONLY
 import uzh.scenere.const.Constants.Companion.WALKTHROUGH_PLAY_STATE
 import uzh.scenere.const.Constants.Companion.WALKTHROUGH_PLAY_STATE_SHORTCUT
@@ -163,14 +164,14 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         creationButton?.setExecutable(createControlExecutable())
         walkthrough_layout_selection_content.addView(creationButton)
         resetToolbar()
-        projectLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_project)), ArrayList())
-        scenarioLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_scenario)), ArrayList())
+        projectLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_project,NOTHING)), ArrayList())
+        scenarioLabel = SreContextAwareTextView(applicationContext, walkthrough_layout_selection_orientation, arrayListOf(getString(R.string.walkthrough_selected_scenario,NOTHING)), ArrayList())
         val weightedParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0)
         weightedParams.weight = 2f
         projectLabel?.setWeight(weightedParams)
         scenarioLabel?.setWeight(weightedParams)
-        projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(Constants.SPACE).plus(NONE)
-        scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(Constants.SPACE).plus(NONE)
+        projectLabel?.text = getString(R.string.walkthrough_selected_project,NONE)
+        scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario,NONE)
         walkthrough_layout_selection_orientation.addView(projectLabel)
         walkthrough_layout_selection_orientation.addView(scenarioLabel)
         tutorialOpen = SreTutorialLayoutDialog(this, screenWidth, "info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
@@ -283,17 +284,20 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
     private fun execSelect() {
         when (mode) {
             WalkthroughMode.SELECT_PROJECT -> {
-                mode = WalkthroughMode.SELECT_SCENARIO
-                loadedScenarios.clear()
-                loadedScenarios.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class, loadedProjects[pointer!!]))
-                projectPointer = pointer
-                pointer = null
-                projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(Constants.SPACE).plus(loadedProjects[projectPointer!!].title)
-                creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)
-                        ?.setText(createButtonLabel(loadedScenarios, "Scenarios"))
-                        ?.updateViews(false)
+                executeAsyncTask({
+                    mode = WalkthroughMode.SELECT_SCENARIO
+                    loadedScenarios.clear()
+                    loadedScenarios.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class, loadedProjects[pointer!!]))
+                    projectPointer = pointer
+                    pointer = null
+                    projectLabel?.text = getString(R.string.walkthrough_selected_project, loadedProjects[projectPointer!!].title)
+                    creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)
+                            ?.setText(createButtonLabel(loadedScenarios, "Scenarios"))
+                            ?.updateViews(false)
+                },{})
             }
             WalkthroughMode.SELECT_SCENARIO -> {
+                executeAsyncTask({
                 mode = WalkthroughMode.SELECT_STAKEHOLDER
                 loadedStakeholders.clear()
                 scenarioContext = DatabaseHelper.getInstance(applicationContext).readFull(loadedScenarios[pointer!!].id, Scenario::class)
@@ -305,11 +309,12 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
                         loadedStakeholders.add(stakeholder)
                     }
                 }
-                scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(Constants.SPACE).plus(loadedScenarios[scenarioPointer!!].title)
+                scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario, loadedScenarios[scenarioPointer!!].title)
                 creationButton?.setButtonStates(!loadedStakeholders.isEmpty(), !loadedStakeholders.isEmpty(), true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_play, null)
                         ?.setText(createButtonLabel(loadedStakeholders, getString(R.string.literal_stakeholders)))
                         ?.updateViews(false)
+                },{})
             }
             WalkthroughMode.SELECT_STAKEHOLDER -> play()
             else -> return
@@ -355,7 +360,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
                 loadedProjects.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Project::class, null))
                 pointer = null
                 projectPointer = null
-                projectLabel?.text = getString(R.string.walkthrough_selected_project).plus(Constants.SPACE).plus(NONE)
+                projectLabel?.text = getString(R.string.walkthrough_selected_project,NONE)
                 creationButton?.setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)?.setText(createButtonLabel(loadedProjects, getString(R.string.literal_projects)))?.updateViews(false)
             }
             WalkthroughMode.SELECT_STAKEHOLDER -> {
@@ -365,7 +370,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
                 scenarioContext = null
                 pointer = null
                 scenarioPointer = null
-                scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario).plus(Constants.SPACE).plus(NONE)
+                scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario,NONE)
                 creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                         ?.setText(createButtonLabel(loadedScenarios, getString(R.string.literal_scenarios)))

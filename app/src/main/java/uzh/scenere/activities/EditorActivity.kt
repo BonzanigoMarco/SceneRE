@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ProgressBar
 import kotlinx.android.synthetic.main.activity_editor.*
 import uzh.scenere.R
 import uzh.scenere.activities.EditorActivity.EditorState.*
@@ -106,58 +107,63 @@ class EditorActivity : AbstractManagementActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activeScenario = intent.getSerializableExtra(Constants.BUNDLE_SCENARIO) as Scenario?
-        if (activeScenario != null) {
-            projectContext = DatabaseHelper.getInstance(applicationContext).readFull(activeScenario!!.projectId, Project::class)
-            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull(activeScenario!!.id, Scenario::class)
-        } else {
-            //DEV
-            projectContext = DatabaseHelper.getInstance(applicationContext).readFull("cdbf3429-1e49-4147-b099-71c76a416aa9", Project::class)
-            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("ec5c16cf-5e0d-4b4c-abf6-773bc37e0169", Scenario::class)
-//            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("64fd2449-085b-4ad0-b804-ba392c73b855", Scenario::class)
-        }
         var stakeholder: Stakeholder? = null
-        if (projectContext != null && !projectContext!!.stakeholders.isNullOrEmpty()) {
-            stakeholder = projectContext?.getNextStakeholder()
-            activePath = activeScenario?.getPath(stakeholder!!, applicationContext, 0)
-        }
-
-        getContentWrapperLayout().setBackgroundColor(getColorWithStyle(applicationContext,R.color.sreWhite))
-        populateExplanationMap()
-        execAdaptToOrientationChange()
-
-        refreshState()
-
-        creationButton = SwipeButton(this, stakeholder?.name
-                ?: getString(R.string.editor_no_stakeholder))
-                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
-                .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
-                .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
-                .setButtonStates(true, true, false, false)
-                .adaptMasterLayoutParams(true)
-                .setFirstPosition()
-                .setAutoCollapse(true)
-                .updateViews(true)
-        creationButton?.setExecutable(createControlExecutable())
-        editor_linear_layout_control.addView(creationButton)
-
-        getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
-        resetToolbar()
-        getInfoTitle().textSize = DipHelper.get(resources).dip2_5.toFloat()
-        tutorialOpen = true
-        visualizeActivePath()
-        tutorialOpen = false
-        getContentHolderLayout().setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-            override fun onChildViewRemoved(parent: View?, child: View?) {
-                refreshState(child)
+        val progressBar = ProgressBar(applicationContext)
+        getContentHolderLayout().addView(progressBar)
+        executeAsyncTask({
+            activeScenario = intent.getSerializableExtra(Constants.BUNDLE_SCENARIO) as Scenario?
+            if (activeScenario != null) {
+                projectContext = DatabaseHelper.getInstance(applicationContext).readFull(activeScenario!!.projectId, Project::class)
+                activeScenario = DatabaseHelper.getInstance(applicationContext).readFull(activeScenario!!.id, Scenario::class)
+            } else {
+                //DEV
+                projectContext = DatabaseHelper.getInstance(applicationContext).readFull("cdbf3429-1e49-4147-b099-71c76a416aa9", Project::class)
+                activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("ec5c16cf-5e0d-4b4c-abf6-773bc37e0169", Scenario::class)
+//            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("64fd2449-085b-4ad0-b804-ba392c73b855", Scenario::class)
             }
-
-            override fun onChildViewAdded(parent: View?, child: View?) {
-                //NOP
+            if (projectContext != null && !projectContext!!.stakeholders.isNullOrEmpty()) {
+                stakeholder = projectContext?.getNextStakeholder()
+                activePath = activeScenario?.getPath(stakeholder!!, applicationContext, 0)
             }
+        }, {
+            getContentWrapperLayout().setBackgroundColor(getColorWithStyle(applicationContext, R.color.sreWhite))
+            populateExplanationMap()
+            execAdaptToOrientationChange()
 
+            refreshState()
+
+            creationButton = SwipeButton(this, stakeholder?.name
+                    ?: getString(R.string.editor_no_stakeholder))
+                    .setColors(getColorWithStyle(applicationContext, R.color.srePrimaryPastel), getColorWithStyle(applicationContext, R.color.srePrimaryDisabled))
+                    .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
+                    .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
+                    .setButtonStates(true, true, false, false)
+                    .adaptMasterLayoutParams(true)
+                    .setFirstPosition()
+                    .setAutoCollapse(true)
+                    .updateViews(true)
+            creationButton?.setExecutable(createControlExecutable())
+            editor_linear_layout_control.addView(creationButton)
+
+            getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
+            resetToolbar()
+            getInfoTitle().textSize = DipHelper.get(resources).dip2_5.toFloat()
+            tutorialOpen = true
+            visualizeActivePath()
+            tutorialOpen = false
+            getContentHolderLayout().setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                override fun onChildViewRemoved(parent: View?, child: View?) {
+                    refreshState(child)
+                }
+
+                override fun onChildViewAdded(parent: View?, child: View?) {
+                    //NOP
+                }
+
+            })
+            tutorialOpen = SreTutorialLayoutDialog(applicationContext, screenWidth, "info_editor_stakeholder", "info_editor_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            getContentHolderLayout().removeView(progressBar)
         })
-        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_stakeholder","info_editor_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun visualizeActivePath() {

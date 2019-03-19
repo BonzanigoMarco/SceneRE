@@ -161,7 +161,7 @@ class ScenariosActivity : AbstractManagementActivity() {
                 val intent = Intent(this, EditorActivity::class.java)
                 intent.putExtra(Constants.BUNDLE_SCENARIO, activeScenario)
                 Handler().postDelayed({
-                startActivity(intent)},350)
+                startActivity(intent)},0)
                 return
             }
         }

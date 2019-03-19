@@ -58,12 +58,13 @@ import uzh.scenere.datamodel.trigger.sensor.GyroscopeTrigger
 import uzh.scenere.datamodel.trigger.sensor.LightTrigger
 import uzh.scenere.datamodel.trigger.sensor.MagnetometerTrigger
 import uzh.scenere.helpers.*
+import java.util.*
 
 class SreDatabase private constructor(val context: Context) : AbstractSreDatabase() {
     private var dbHelper: DbHelper = DbHelper(context)
     var disableNewVersion = false
     private var db: SQLiteDatabase? = null
-    private val cursors = ArrayList<Cursor>()
+    private val activeCursors = ArrayList<Cursor>()
 
     fun openReadable(){
         if (db == null){
@@ -82,15 +83,14 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
             if (db!!.inTransaction()){
                 db?.endTransaction()
             }
-            for (cursor in cursors){
+            for (cursor in activeCursors){
                 if (!cursor.isClosed){
                     cursor.close()
                 }
             }
-            cursors.clear()
+            activeCursors.clear()
             db?.close()
             db = null
-            System.gc()
         }
     }
 
@@ -98,10 +98,18 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
         return db!!
     }
 
+    val map = TreeMap<Long,String>()
+    var lastInsert = 0L
+    var lastStatement = NOTHING
     private fun getCursor(table: String, columns: Array<String>, selection: String, selectionArgs: Array<String>?,
                           groupBy: String?, having: String?, orderBy: String?, limit: String?): Cursor {
         val cursor = getDb().query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)
-        cursors.add(cursor)
+        if (lastInsert != 0L){
+            map[System.currentTimeMillis()-lastInsert] = lastStatement
+        }
+        lastInsert = System.currentTimeMillis()
+        lastStatement = table+selection
+        activeCursors.add(cursor)
         return cursor
     }
 
@@ -223,7 +231,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
     }
 
     fun writeAttribute(attribute: Attribute): Long {
-        addVersioning(attribute.id, attribute.changeTimeMs)
+        addVersioning(attribute.getVersioningId(), attribute.changeTimeMs)
         val values = ContentValues()
         values.put(AttributeTableEntry.ID, attribute.id)
         values.put(AttributeTableEntry.REF_ID, attribute.refId)
@@ -256,7 +264,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
             values.put(ElementTableEntry.TEXT, element.text)
             writeByteArray(ARRAY_LIST_WHAT_IF_IDENTIFIER.plus(element.getElementId()), DataHelper.toByteArray(element.whatIfs))
             for (obj in element.objects) {
-                val attribute = Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).build()
+                val attribute = Attribute.AttributeBuilder(element.id, obj.id, null).withAttributeType(TYPE_OBJECT).buildAsLink()
                 attribute.changeTimeMs = time
                 writeAttribute(attribute)
             }
@@ -281,7 +289,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
             is ResourceStep -> {
                 writeInt(CHANGE_UID_IDENTIFIER.plus(element.getElementId()), element.change)
                 values.put(ElementTableEntry.TYPE, TYPE_RESOURCE_STEP)
-                val attribute = Attribute.AttributeBuilder(element.id, element.resource!!.id, null).withAttributeType(TYPE_RESOURCE).build()
+                val attribute = Attribute.AttributeBuilder(element.id, element.resource!!.id, null).withAttributeType(TYPE_RESOURCE).buildAsLink()
                 attribute.changeTimeMs = time
                 writeAttribute(attribute)
             }
@@ -313,7 +321,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                 values.put(ElementTableEntry.TYPE, TYPE_RESOURCE_CHECK_TRIGGER)
                 writeInt(CHECK_VALUE_UID_IDENTIFIER.plus(element.getElementId()), element.checkValue)
                 writeString(CHECK_MODE_UID_IDENTIFIER.plus(element.getElementId()), element.mode.toString())
-                val attribute = Attribute.AttributeBuilder(element.id, element.resource!!.id, null).withAttributeType(TYPE_RESOURCE).build()
+                val attribute = Attribute.AttributeBuilder(element.id, element.resource!!.id, null).withAttributeType(TYPE_RESOURCE).buildAsLink()
                 attribute.changeTimeMs = time
                 writeAttribute(attribute)
             }
@@ -383,7 +391,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
     }
 
     fun writeWalkthrough(walkthrough: Walkthrough): Long {
-        addVersioning(walkthrough.id, walkthrough.changeTimeMs)
+        addVersioning(walkthrough.id, walkthrough.changeTimeMs) //2ddaff99-604b-4a24-b44f-accca02b9b9e
         val values = ContentValues()
         values.put(WalkthroughTableEntry.ID, walkthrough.id)
         values.put(WalkthroughTableEntry.SCENARIO_ID, walkthrough.scenarioId)
@@ -508,6 +516,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
             }
             val project = projectBuilder.build()
             project.changeTimeMs = readVersioning(id)
+            cursor.close()
             return project
         }
         cursor.close()
@@ -540,6 +549,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
             val description = cursor.getString(3)
             val stakeholder = Stakeholder.StakeholderBuilder(id, projectId, name, description).build()
             stakeholder.changeTimeMs = readVersioning(id)
+            cursor.close()
             return stakeholder
         }
         cursor.close()
@@ -568,6 +578,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
             }
             val abstractObject = objectBuilder.build()
             abstractObject.changeTimeMs = readVersioning(id)
+            cursor.close()
             return abstractObject
         }
         cursor.close()
@@ -613,7 +624,8 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
             val name = cursor.getString(2)
             val description = cursor.getString(3)
             val attribute = Attribute.AttributeBuilder(id, scenarioId, name, description).build()
-            attribute.changeTimeMs = readVersioning(id)
+            attribute.changeTimeMs = readVersioning(attribute.getVersioningId())
+            cursor.close()
             return attribute
         }
         cursor.close()
@@ -629,7 +641,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                 val key = cursor.getString(1)
                 val value = cursor.getString(2)
                 val attribute = Attribute.AttributeBuilder(id, refId, key, value).withAttributeType(type).build()
-                attribute.changeTimeMs = readVersioning(id)
+                attribute.changeTimeMs = readVersioning(attribute.getVersioningId())
                 attributes.add(attribute)
             } while (cursor.moveToNext())
         }
@@ -652,6 +664,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
             }
             val scenario = scenarioBuilder.build()
             scenario.changeTimeMs = readVersioning(id)
+            cursor.close()
             return scenario
         }
         cursor.close()
@@ -716,6 +729,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                 }
             }
             path.changeTimeMs = readVersioning(id)
+            cursor.close()
             return path
         }
         cursor.close()
@@ -918,6 +932,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
             val xml = cursor.getString(4)
             val walkthrough = Walkthrough.WalkthroughBuilder(id, scenarioId, owner, readStakeholder(stakeholderId, Stakeholder.NullStakeholder(stakeholderId))).withXml(xml).build()
             walkthrough.changeTimeMs = readVersioning(id)
+            cursor.close()
             return walkthrough
         }
         cursor.close()
@@ -1063,8 +1078,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
     /** INTERNAL **/
     private fun insert(tableName: String, keyColumn: String, key: String, values: ContentValues): Long {
         delete(tableName, keyColumn, key)
-        val newRowId: Long = getDb().insert(tableName, "null", values)
-        return newRowId
+        return getDb().insert(tableName, "null", values)
     }
 
     private fun delete(tableName: String, keyColumn: String, key: String) {

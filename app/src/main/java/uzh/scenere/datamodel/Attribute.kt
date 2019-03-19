@@ -26,12 +26,25 @@ open class Attribute private constructor(val id: String, val refId: String, val 
             return this
         }
 
+        fun buildAsLink(): Attribute {
+            if (key != null){
+                this.id = refId+key
+            }
+            return build()
+        }
+
         fun build(): Attribute {
             val attribute = Attribute(id ?: UUID.randomUUID().toString(), refId, key, value)
             attribute.type = this.type
             return attribute
         }
+    }
 
+    fun getVersioningId(): String{
+        if (key != null){
+            return refId+key
+        }
+        return id
     }
 
     override fun equals(other: Any?): Boolean {

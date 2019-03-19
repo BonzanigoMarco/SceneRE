@@ -215,8 +215,8 @@ class ShareActivity : AbstractManagementActivity() {
             executeAsyncTask({ cachedBinary = exportDatabaseToBinary()},{
                 if (cachedBinary != null) {
                     val wrapper = createStatisticsFromCachedBinary(true)
+                    getContentHolderLayout().removeView(progressBar)
                     if (wrapper.validationCode == VALIDATION_OK){
-                        getContentHolderLayout().removeView(progressBar)
                         controlButton?.text = getString(R.string.share_export_data)
                         controlButton?.setExecutable {
                             val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + SRE_FILE
