@@ -124,7 +124,7 @@ class ShareActivity : AbstractManagementActivity() {
     private val fileMap =  HashMap<File,LinearLayout>()
     private var walkthroughSwitch: SreButton? = null
     private var includeWalkthroughs: WalkthroughExport = WalkthroughExport.INCLUDE
-    private val progressBar = ProgressBar(applicationContext)
+    private var progressBar: ProgressBar? = null
     private var activeDeviceButton: SreButton? = null
     private var activeSocket: ServerSocket? = null
 
@@ -134,8 +134,8 @@ class ShareActivity : AbstractManagementActivity() {
     }
 
     private fun detachProgressBar(){
-        if (progressBar.parent != null && progressBar.parent is ViewGroup){
-            (progressBar.parent as ViewGroup).removeView(progressBar)
+        if (progressBar!!.parent != null && progressBar!!.parent is ViewGroup){
+            (progressBar!!.parent as ViewGroup).removeView(progressBar)
         }
     }
 
@@ -155,6 +155,7 @@ class ShareActivity : AbstractManagementActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        progressBar = ProgressBar(applicationContext)
         if (!PermissionHelper.check(applicationContext,PermissionHelper.Companion.PermissionGroups.STORAGE)){
             startActivity(Intent(this, StartupActivity::class.java))
         }
@@ -433,6 +434,7 @@ class ShareActivity : AbstractManagementActivity() {
             getContentHolderLayout().removeAllViews()
             val button = SreButton(applicationContext, getContentHolderLayout(), "Your Device-ID: ${it.deviceName}")
             getContentHolderLayout().addView(button)
+            attachProgressBar(getContentHolderLayout())
         }
     }
 
