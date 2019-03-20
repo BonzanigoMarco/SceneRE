@@ -38,7 +38,7 @@ class PermissionHelper private constructor () {
                 STORAGE to arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE),
                 AUDIO to arrayOf(Manifest.permission.RECORD_AUDIO),
                 BLUETOOTH to arrayOf(Manifest.permission.BLUETOOTH,Manifest.permission.BLUETOOTH_ADMIN),
-                WIFI to arrayOf(Manifest.permission.ACCESS_WIFI_STATE,Manifest.permission.CHANGE_WIFI_STATE),
+                WIFI to arrayOf(Manifest.permission.ACCESS_WIFI_STATE,Manifest.permission.CHANGE_WIFI_STATE,Manifest.permission.ACCESS_COARSE_LOCATION),
                 NFC to arrayOf(Manifest.permission.NFC),
                 SMS to arrayOf(Manifest.permission.SEND_SMS,Manifest.permission.RECEIVE_SMS,Manifest.permission.READ_SMS),
                 GPS to arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION),

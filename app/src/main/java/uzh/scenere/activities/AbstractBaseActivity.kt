@@ -13,16 +13,21 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Typeface
+import android.net.NetworkInfo
 import android.net.Uri
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
-import android.nfc.*
+import android.net.wifi.p2p.WifiP2pDevice
+import android.net.wifi.p2p.WifiP2pDeviceList
+import android.net.wifi.p2p.WifiP2pInfo
+import android.net.wifi.p2p.WifiP2pManager
+import android.nfc.NdefMessage
+import android.nfc.NdefRecord
+import android.nfc.NfcAdapter
+import android.nfc.Tag
 import android.nfc.tech.Ndef
 import android.nfc.tech.NdefFormatable
-import android.os.AsyncTask
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
+import android.os.*
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
@@ -51,8 +56,10 @@ import uzh.scenere.listener.SreBluetoothReceiver
 import uzh.scenere.listener.SreBluetoothScanCallback
 import uzh.scenere.listener.SrePhoneReceiver
 import uzh.scenere.listener.SreSmsReceiver
-import java.io.File
-import java.io.IOException
+import java.io.*
+import java.net.InetSocketAddress
+import java.net.ServerSocket
+import java.net.Socket
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -72,6 +79,11 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     private var nfcReady = false
     //WiFi
     private var wifiManager: WifiManager? = null
+    //WiFi direct
+    private var wifiP2pManager: WifiP2pManager? = null
+    private var ownWifiP2pDevice: WifiP2pDevice? = null
+    private var wifiP2pEnabled = false
+    private var retryChannel = false
     //Bluetooth
     private var sreBluetoothReceiver: SreBluetoothReceiver? = null
     private var sreBluetoothCallback: SreBluetoothScanCallback? = null
@@ -81,7 +93,6 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     private var sreSmsReceiver: SreSmsReceiver? = null
     //Async
     private var asyncTask: SreAsyncTask? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,6 +150,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         resumePhoneCallListener()
         resumeSmsListener()
         resumeBluetoothListener()
+        registerWifiP2pReceiver()
     }
 
     override fun onPause() {
@@ -148,6 +160,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         pausePhoneCallListener()
         pauseSmsListener()
         pauseBluetoothListener()
+        unregisterWifiP2pReceiver()
         cancelAsyncTask()
         super.onPause()
     }
@@ -351,6 +364,207 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         }
     }
 
+    //WiFi P2P
+    var channel: WifiP2pManager.Channel? = null
+    var sreWifiP2pBroadcastReceiver: SreWifiP2pBroadcastReceiver? = null
+    protected fun enableWifiP2p(){
+        if (PermissionHelper.check(this,PermissionHelper.Companion.PermissionGroups.WIFI)){
+            wifiP2pEnabled = true
+            wifiP2pManager = getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
+            channel = wifiP2pManager!!.initialize(this, Looper.getMainLooper(),null)
+            registerWifiP2pReceiver()
+        }
+    }
+
+    private fun registerWifiP2pReceiver() {
+        if (wifiP2pEnabled && sreWifiP2pBroadcastReceiver == null){
+            sreWifiP2pBroadcastReceiver = SreWifiP2pBroadcastReceiver(wifiP2pManager!!, channel!!, this, handlePeerData, handleOwnData, collectWifiP2pDataToSend, handleWifiP2pData, createWifiP2pSender, createWifiP2pReceiver)
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
+            intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION)
+            intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
+            intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION)
+            registerReceiver(sreWifiP2pBroadcastReceiver, intentFilter)
+        }
+    }
+
+    protected fun getWifiP2pManager(): WifiP2pManager? {
+        return wifiP2pManager
+    }
+
+    protected fun isWifiP2pScanActive(): Boolean{
+        return wifiP2pScanActive
+    }
+
+    private var wifiP2pScanActive = false
+
+    protected fun startWifiP2pDeviceDiscovery(){
+        if (wifiP2pEnabled && wifiP2pManager != null){
+            wifiP2pScanActive = true
+            wifiP2pManager!!.discoverPeers(channel, object: WifiP2pManager.ActionListener {
+                override fun onSuccess() {
+//                    notify("Started Device-Discovery")
+                }
+
+                override fun onFailure(reason: Int) {
+//                    notify("Device-Discovery failed")
+                }
+            })
+        }
+    }
+
+    protected fun disableWifiP2p(){
+        unregisterWifiP2pReceiver()
+        stopWifiP2pDeviceDiscovery()
+        wifiP2pManager = null
+        channel = null
+        wifiP2pEnabled = false
+    }
+
+    protected fun stopWifiP2pDeviceDiscovery() {
+        if (wifiP2pManager != null) {
+            wifiP2pScanActive = false
+            wifiP2pManager?.stopPeerDiscovery(channel, object : WifiP2pManager.ActionListener {
+                override fun onSuccess() {
+//                    notify("Stopped Device-Discovery")
+                }
+
+                override fun onFailure(reason: Int) {
+//                    notify("Stopping Device-Discovery failed")
+                }
+            })
+        }
+    }
+
+    private fun unregisterWifiP2pReceiver() {
+        if (wifiP2pEnabled && sreWifiP2pBroadcastReceiver != null){
+            unregisterReceiver(sreWifiP2pBroadcastReceiver)
+            sreWifiP2pBroadcastReceiver = null
+        }
+    }
+
+    protected fun resetWifiP2p(){
+        disableWifiP2p()
+        enableWifiP2p()
+        startWifiP2pDeviceDiscovery()
+    }
+
+    open val handlePeerData: (WifiP2pDeviceList?) -> Unit = {
+        //NOP
+    }
+
+    open val handleOwnData: (WifiP2pDevice?) -> Unit = {
+        //NOP
+    }
+
+    open val collectWifiP2pDataToSend: () -> ByteArray = {
+        //NOP
+        ByteArray(0)
+    }
+
+    open val handleWifiP2pData: (ByteArray) -> Unit = {
+        //NOP
+    }
+
+    open val createWifiP2pSender: () -> ServerSocket? = {
+        var returnSocket: ServerSocket? = null
+        if (!collectWifiP2pDataToSend.invoke().isEmpty()) {
+            val serverSocket = ServerSocket(8118)
+            returnSocket = serverSocket
+            cancelAsyncTask()
+            Handler().postDelayed({
+                serverSocket.close()
+                cancelAsyncTask()},30000)
+            executeAsyncTask({
+                try {
+                    val client = serverSocket.accept()
+                    val dataOutputStream = DataOutputStream(BufferedOutputStream(client.getOutputStream()))
+                    dataOutputStream.write(collectWifiP2pDataToSend.invoke())
+                    dataOutputStream.flush()
+                } catch (e: java.lang.Exception) {
+
+                } finally {
+                    serverSocket.close()
+                }
+            }, { })
+        }
+        returnSocket
+    }
+
+    open val createWifiP2pReceiver: (WifiP2pInfo) -> Unit = {
+        cancelAsyncTask()
+        executeAsyncTask({
+            val host: String = it.groupOwnerAddress.hostAddress
+            val port: Int = 8118
+            val socket = Socket()
+            try {
+                socket.bind(null)
+                socket.connect((InetSocketAddress(host, port)), 2500)
+                val outputStream = socket.getOutputStream()
+                outputStream.write("ACK".toByteArray())
+                outputStream.flush()
+                val inputStream = DataInputStream(BufferedInputStream(socket.getInputStream()))
+                val out = ByteArrayOutputStream(8192)
+                val buffer = ByteArray(8192)
+                while (true) {
+                    val length = inputStream.read(buffer)
+                    if (length <= 0)
+                        break
+                    out.write(buffer, 0, length)
+                }
+                handleWifiP2pData.invoke(out.toByteArray())
+//                out.close()
+//                inputStream.close()
+            } catch (e: IOException) {
+                val a = 1
+            } finally {
+                socket.close()
+            }
+        }, {
+            Handler().postDelayed({
+                if (wifiP2pEnabled) {
+                    resetWifiP2p()
+                }
+            }, 2500)
+        })
+    }
+
+
+    class SreWifiP2pBroadcastReceiver(private val wifiP2pManager: WifiP2pManager,
+                                      private val channel: WifiP2pManager.Channel,
+                                      private val activity: AbstractBaseActivity,
+                                      private val handlePeerData: (WifiP2pDeviceList?) -> Unit,
+                                      private val handleOwnData: (WifiP2pDevice?) -> Unit,
+                                      private val collectWifiP2pDataToSend: () -> ByteArray,
+                                      private val handleWifiP2pData: (ByteArray) -> Unit,
+                                      private val createWifiP2pSender: () -> ServerSocket?,
+                                      private val createWifiP2pReceiver: (WifiP2pInfo) -> Unit
+                                      ): BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION == intent?.action){
+                wifiP2pManager.requestPeers(channel) { peers -> handlePeerData.invoke(peers) }
+            }else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION == intent?.action){
+                handleOwnData.invoke(intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as WifiP2pDevice?)
+            }else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION == intent?.action){
+                wifiP2pManager.let { manager ->
+
+                    val networkInfo: NetworkInfo? = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO) as NetworkInfo
+                    val wifiP2pInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_INFO) as WifiP2pInfo
+
+                    if (networkInfo?.isConnected == true && wifiP2pInfo.groupFormed) {
+                        if (wifiP2pInfo.isGroupOwner){
+                            //SERVER
+                            createWifiP2pSender.invoke()
+                        }else{
+                            //CLIENT
+                            createWifiP2pReceiver.invoke(wifiP2pInfo)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     abstract fun getConfiguredLayout(): Int
     abstract fun getConfiguredRootLayout(): ViewGroup?
 
@@ -540,14 +754,14 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         return getText(id) as SpannedString
     }
 
-    protected fun executeAsyncTask(asyncFunction: () -> Unit, postExecuteFunction: () -> Unit){
+    fun executeAsyncTask(asyncFunction: () -> Unit, postExecuteFunction: () -> Unit){
         if (asyncTask == null){
             asyncTask = SreAsyncTask(asyncFunction,postExecuteFunction,{cancelAsyncTask()})
             asyncTask?.execute()
         }
     }
 
-    protected fun cancelAsyncTask(){
+    fun cancelAsyncTask(){
         if (asyncTask != null){
             try {
                 asyncTask?.cancel(true)

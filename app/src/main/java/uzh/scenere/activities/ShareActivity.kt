@@ -4,6 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.net.wifi.WpsInfo
+import android.net.wifi.p2p.WifiP2pConfig
+import android.net.wifi.p2p.WifiP2pDevice
+import android.net.wifi.p2p.WifiP2pDeviceList
+import android.net.wifi.p2p.WifiP2pManager
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -31,6 +36,8 @@ import uzh.scenere.datastructures.ShareWrapper
 import uzh.scenere.helpers.*
 import uzh.scenere.views.*
 import java.io.File
+import java.net.ServerSocket
+
 
 //UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A
 
@@ -79,8 +86,8 @@ class ShareActivity : AbstractManagementActivity() {
     enum class ShareMode(private val index: Int, val label: String, private val enabled: Boolean) {
         FILE_EXPORT(1,"File Export Mode",true),
         FILE_IMPORT(2,"File Import Mode",true),
-        NFC_EXPORT(3,"NFC Export Mode",false),
-        NFC_IMPORT(4, "NFC Import Mode",false);
+        WIFI_EXPORT(3,"Wi-Fi Export Mode",true),
+        WIFI_IMPORT(4, "Wi-Fi Import Mode",true);
 
         fun next(mode: ShareMode = this): ShareMode{
             if (mode.index >= ShareMode.values().size){
@@ -117,6 +124,21 @@ class ShareActivity : AbstractManagementActivity() {
     private val fileMap =  HashMap<File,LinearLayout>()
     private var walkthroughSwitch: SreButton? = null
     private var includeWalkthroughs: WalkthroughExport = WalkthroughExport.INCLUDE
+    private val progressBar = ProgressBar(applicationContext)
+    private var activeDeviceButton: SreButton? = null
+    private var activeSocket: ServerSocket? = null
+
+    private fun attachProgressBar(grp: ViewGroup){
+        detachProgressBar()
+        grp.addView(progressBar)
+    }
+
+    private fun detachProgressBar(){
+        if (progressBar.parent != null && progressBar.parent is ViewGroup){
+            (progressBar.parent as ViewGroup).removeView(progressBar)
+        }
+    }
+
     enum class  WalkthroughExport{
         EXCLUDE,INCLUDE,ONLY;
 
@@ -187,6 +209,7 @@ class ShareActivity : AbstractManagementActivity() {
     private fun swapModeInternal() {
         cancelAsyncTask()
         creationButton?.setText(mode.label)
+        disableWifiP2p()
         when (mode) {
             ShareMode.FILE_EXPORT -> {
                 execLoadFileExport()
@@ -194,9 +217,11 @@ class ShareActivity : AbstractManagementActivity() {
             ShareMode.FILE_IMPORT -> {
                 execLoadFileImport()
             }
-            ShareMode.NFC_EXPORT -> {
+            ShareMode.WIFI_EXPORT -> {
+                execLoadFileExport()
             }
-            ShareMode.NFC_IMPORT -> {
+            ShareMode.WIFI_IMPORT -> {
+                execLoadWifiImport()
             }
         }
     }
@@ -205,28 +230,31 @@ class ShareActivity : AbstractManagementActivity() {
         cachedBinary = null
         getContentHolderLayout().removeAllViews()
         controlButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_collect_data)).setExecutable {
-            var progressBar: ProgressBar? = null
             if (!isAsyncTaskRunning()){
                 controlButton?.text = getString(R.string.share_loading)
-                progressBar = ProgressBar(applicationContext)
-                getContentHolderLayout().addView(progressBar)
+                attachProgressBar(getContentHolderLayout())
                 getContentHolderLayout().removeView(walkthroughSwitch)
             }
+            cancelAsyncTask()
             executeAsyncTask({ cachedBinary = exportDatabaseToBinary()},{
                 if (cachedBinary != null) {
-                    val wrapper = createStatisticsFromCachedBinary(true)
-                    getContentHolderLayout().removeView(progressBar)
+                    val wrapper = createStatisticsFromCachedBinary(true,mode != ShareMode.WIFI_EXPORT)
+                    detachProgressBar()
                     if (wrapper.validationCode == VALIDATION_OK){
-                        controlButton?.text = getString(R.string.share_export_data)
-                        controlButton?.setExecutable {
-                            val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + SRE_FILE
-                            val destinationFile = FileHelper.writeFile(applicationContext, cachedBinary!!, fileName, FOLDER_EXPORT)
-                            notify(getString(R.string.share_export_finished))
-                            controlButton?.text = getString(R.string.share_export_location)
+                        if (mode == ShareMode.WIFI_EXPORT){
+                            prepareButtonForScan()
+                        }else{
+                            controlButton?.text = getString(R.string.share_export_data)
                             controlButton?.setExecutable {
-                                val success = FileHelper.openFolder(applicationContext, destinationFile.replace("/$fileName",""))
-                                if (!success){
-                                    FileHelper.openFile(applicationContext, destinationFile)
+                                val fileName = getString(R.string.share_export_file_prefix) + DateHelper.getCurrentTimestamp() + SRE_FILE
+                                val destinationFile = FileHelper.writeFile(applicationContext, cachedBinary!!, fileName, FOLDER_EXPORT)
+                                notify(getString(R.string.share_export_finished))
+                                controlButton?.text = getString(R.string.share_export_location)
+                                controlButton?.setExecutable {
+                                    val success = FileHelper.openFolder(applicationContext, destinationFile.replace("/$fileName",""))
+                                    if (!success){
+                                        FileHelper.openFile(applicationContext, destinationFile)
+                                    }
                                 }
                             }
                         }
@@ -256,7 +284,7 @@ class ShareActivity : AbstractManagementActivity() {
         tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_share","info_export").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
-    private fun createStatisticsFromCachedBinary(export: Boolean): ShareWrapper {
+    private fun createStatisticsFromCachedBinary(export: Boolean, addView: Boolean = true): ShareWrapper {
         val wrapper = analyzeBinary(cachedBinary!!, export)
         val statistics = SreContextAwareTextView(applicationContext, getContentHolderLayout(), resources.getStringArray(R.array.share_keywords).toCollection(ArrayList()), ArrayList())
         when (wrapper.validationCode){
@@ -277,7 +305,9 @@ class ShareActivity : AbstractManagementActivity() {
                 }
         }
         statistics.isEnabled = false
-        getContentHolderLayout().addView(statistics)
+        if (addView){
+            getContentHolderLayout().addView(statistics)
+        }
         getInfoTitle().text = NOTHING
         return wrapper
     }
@@ -339,39 +369,130 @@ class ShareActivity : AbstractManagementActivity() {
         return files
     }
 
+    private fun prepareButtonForScan() {
+        controlButton?.text = "Scan for Devices"
+        controlButton?.setExecutable {
+            execLoadWifiExport()
+        }
+    }
+
+    private fun prepareButtonForCancel() {
+        controlButton?.text = "Cancel Scan"
+        controlButton?.setExecutable {
+            detachProgressBar()
+            stopWifiP2pDeviceDiscovery()
+            prepareButtonForScan()
+        }
+    }
+
+    private fun execLoadWifiExport(){
+        removeExcept(getContentHolderLayout(), controlButton)
+        attachProgressBar(getContentHolderLayout())
+        resetWifiP2p()
+        prepareButtonForCancel()
+    }
+
+    private fun execLoadWifiImport(){
+        getContentHolderLayout().removeAllViews()
+        resetWifiP2p()
+    }
+
+    override val handlePeerData: (WifiP2pDeviceList?) -> Unit = {
+        if (mode == ShareMode.WIFI_EXPORT) {
+            getContentHolderLayout().removeAllViews()
+            for (device in it!!.deviceList) {
+                val button = SreButton(applicationContext, getContentHolderLayout(), "Send to ${device.deviceName}")
+                button.data = device
+                button.setExecutable {
+                    activeSocket?.close()
+                    activeDeviceButton?.setTextColor(getColorWithStyle(applicationContext, R.color.srePrimaryPastel))
+                    resetWifiP2p()
+                    val config = WifiP2pConfig().apply {
+                        deviceAddress = device.deviceAddress
+                        wps.setup = WpsInfo.PBC
+                    }
+                    getWifiP2pManager()?.connect(channel, config, object : WifiP2pManager.ActionListener {
+                        override fun onSuccess() {
+//                            notify("Connected successfully")
+                        }
+
+                        override fun onFailure(reason: Int) {
+//                            notify("Connection failed")
+                        }
+                    })
+                    activeDeviceButton = button
+                    activeDeviceButton?.setTextColor(getColorWithStyle(applicationContext, R.color.srePrimaryAttention))
+                }
+                getContentHolderLayout().addView(button)
+            }
+        }
+    }
+
+    override val handleOwnData: (WifiP2pDevice?) -> Unit = {
+        if (mode == ShareMode.WIFI_IMPORT && it != null){
+            getContentHolderLayout().removeAllViews()
+            val button = SreButton(applicationContext, getContentHolderLayout(), "Your Device-ID: ${it.deviceName}")
+            getContentHolderLayout().addView(button)
+        }
+    }
+
+    override val collectWifiP2pDataToSend: () -> ByteArray = {
+        cachedBinary ?: ByteArray(0)
+    }
+
+    override val handleWifiP2pData: (ByteArray) -> Unit = {
+        notify("Received ${it.size/1000} kB!")
+        cachedBinary = it
+        execPrepareDataImport()
+    }
+
+    override val createWifiP2pSender: () -> ServerSocket? = {
+        val serverSocket = super.createWifiP2pSender.invoke()
+        activeSocket = serverSocket
+        serverSocket
+    }
+
     private fun execLoadFile(file: File){
         getContentHolderLayout().removeAllViews()
         cachedBinary = FileHelper.readFile(applicationContext, file.path)
+        execPrepareDataImport()
+    }
+
+    private fun execPrepareDataImport() {
         val buttonWrap = LinearLayout(applicationContext)
-        buttonWrap.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT)
+        buttonWrap.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         buttonWrap.orientation = LinearLayout.HORIZONTAL
         buttonWrap.gravity = Gravity.CENTER
-        val backButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_return)).setExecutable { execLoadFileImport() }
+        val backButton = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_return)).setExecutable {
+            if (mode == ShareMode.FILE_IMPORT){
+                execLoadFileImport()
+            }else if (mode == ShareMode.WIFI_IMPORT){
+                execLoadWifiImport()
+            }
+        }
         buttonWrap.addView(backButton)
-        if (cachedBinary != null){
+        if (cachedBinary != null) {
             val wrapper = createStatisticsFromCachedBinary(false)
-            if (wrapper.validationCode == VALIDATION_OK){
+            if (wrapper.validationCode == VALIDATION_OK) {
                 if (wrapper.totalItems > wrapper.oldItems) {
-                    val importNewerButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.oldItems == 0) getString(R.string.share_import) else getString(R.string.share_import_newer,(wrapper.totalItems-wrapper.oldItems))).setExecutable {
+                    val importNewerButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.oldItems == 0) getString(R.string.share_import) else getString(R.string.share_import_newer, (wrapper.totalItems - wrapper.oldItems))).setExecutable {
                         getContentHolderLayout().removeView(buttonWrap)
-                        val progressBar = ProgressBar(applicationContext)
-                        getContentHolderLayout().addView(progressBar)
-                        executeAsyncTask({importBinaryToDatabase(wrapper, true)}, {
-                            getContentHolderLayout().removeView(progressBar)
+                        attachProgressBar(getContentHolderLayout())
+                        executeAsyncTask({ importBinaryToDatabase(wrapper, true) }, {
+                            detachProgressBar()
                             notify(getString(R.string.share_import_finished), getString(R.string.share_import_number_successful, (wrapper.totalItems - wrapper.oldItems)))
                             execLoadFileImport()
                         })
                     }
                     buttonWrap.addView(importNewerButton)
                 }
-                if (wrapper.oldItems > 0){
-                    val importAllButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.totalItems > wrapper.oldItems) getString(R.string.share_import_all_1) else getString(R.string.share_import_all_2),null,null,SreButton.ButtonStyle.WARN).setExecutable {
+                if (wrapper.oldItems > 0) {
+                    val importAllButton = SreButton(applicationContext, getContentHolderLayout(), if (wrapper.totalItems > wrapper.oldItems) getString(R.string.share_import_all_1) else getString(R.string.share_import_all_2), null, null, SreButton.ButtonStyle.WARN).setExecutable {
                         getContentHolderLayout().removeView(buttonWrap)
-                        val progressBar = ProgressBar(applicationContext)
-                        getContentHolderLayout().addView(progressBar)
-                        executeAsyncTask({importBinaryToDatabase(wrapper,false)},{
-                            getContentHolderLayout().removeView(progressBar)
-                            notify(getString(R.string.share_import_finished),getString(R.string.share_import_number_successful,wrapper.totalItems))
+                        attachProgressBar(getContentHolderLayout())
+                        executeAsyncTask({ importBinaryToDatabase(wrapper, false) }, {
+                            detachProgressBar()
+                            notify(getString(R.string.share_import_finished), getString(R.string.share_import_number_successful, wrapper.totalItems))
                             execLoadFileImport()
                         })
                     }

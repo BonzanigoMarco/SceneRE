@@ -169,7 +169,6 @@ class CockpitActivity : AbstractManagementActivity() {
                     swipeButton.outputObject = getInfoContent()
                     swipeButton.setExecutable(generatePermissionExecutable(permission, swipeButton))
                     getContentHolderLayout().addView(swipeButton)
-                    createTitle("",getContentHolderLayout()) //Spacer
                 }
             }
             CockpitMode.COMMUNICATIONS -> {
@@ -187,7 +186,6 @@ class CockpitActivity : AbstractManagementActivity() {
                         swipeButton.outputObject = getInfoContent()
                         swipeButton.setExecutable(generateCommunicationExecutable(communication, swipeButton))
                         getContentHolderLayout().addView(swipeButton)
-                        createTitle("",getContentHolderLayout()) //Spacer
                     }
                 }
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_communications").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
@@ -205,7 +203,6 @@ class CockpitActivity : AbstractManagementActivity() {
                     swipeButton.outputObject = getInfoContent()
                     swipeButton.setExecutable(generateSensorExecutable(sensor, swipeButton))
                     getContentHolderLayout().addView(swipeButton)
-                    createTitle("",getContentHolderLayout()) //Spacer
                 }
                 tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_sensors").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
