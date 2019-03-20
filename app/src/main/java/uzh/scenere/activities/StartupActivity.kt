@@ -54,7 +54,7 @@ class StartupActivity : AbstractBaseActivity() {
             userId = UUID.randomUUID().toString()
             DatabaseHelper.getInstance(applicationContext).write(Constants.USER_ID, userId)
         }
-        //TODO, load and cleanup in the background
+        WhatIfAiHelper.think(applicationContext)
     }
 
     private fun morphRandom(text: TextView, returnChar: Char, init: Boolean = true, offset: Int = 0) {
@@ -88,11 +88,13 @@ class StartupActivity : AbstractBaseActivity() {
     }
 
     fun onStartupInterrupt(v: View){
-        interrupted = true
-        startup_edit_name.isEnabled = true
-        startup_button_continue.visibility = VISIBLE
-        startup_text_name.text = getString(R.string.startup_name_change)
-        fadeIn()
+        if (StringHelper.hasText(userName)){
+            interrupted = true
+            startup_edit_name.isEnabled = true
+            startup_button_continue.visibility = VISIBLE
+            startup_text_name.text = getString(R.string.startup_name_change)
+            fadeIn()
+        }
     }
 
     private fun logoDisplayFinished() {

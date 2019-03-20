@@ -214,7 +214,7 @@ class DatabaseHelper private constructor(context: Context) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Serializable> readFullInternal(key: String, clz: KClass<T>, internalMode: DataMode = mode): T? {
+    private fun <T : Serializable> readFullInternal(key: String, clz: KClass<T>, internalMode: DataMode = mode): T? {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 if (Project::class == clz) return readBinary(key, clz, PROJECT_UID_IDENTIFIER, NullHelper.get(clz))
@@ -249,7 +249,7 @@ class DatabaseHelper private constructor(context: Context) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Serializable> readBulkInternal(clz: KClass<T>, key: Any?, fullLoad: Boolean = false, internalMode: DataMode = mode): List<T> {
+    private fun <T : Serializable> readBulkInternal(clz: KClass<T>, key: Any?, fullLoad: Boolean = false, internalMode: DataMode = mode): List<T> {
         when (internalMode) {
             DataMode.PREFERENCES -> {
                 if (Project::class == clz) return readBulkInternal(clz, PROJECT_UID_IDENTIFIER)
@@ -314,6 +314,7 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Scenario::class == clz && key is Project) return database!!.readScenarios(key, fullLoad) as List<T>
                 if (Path::class == clz && key is Scenario) return database!!.readPaths(key, fullLoad) as List<T>
                 if (IElement::class == clz && key is Path) return database!!.readElements(key, fullLoad) as List<T>
+                if (IElement::class == clz && key == null) return database!!.readElements(key, fullLoad) as List<T>
                 if (Walkthrough::class == clz && (key == null || key is Scenario)) return database!!.readWalkthroughs(key as String?) as List<T>
             }
         }

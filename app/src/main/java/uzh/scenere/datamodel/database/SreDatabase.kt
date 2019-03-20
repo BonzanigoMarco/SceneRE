@@ -737,20 +737,21 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun readElements(path: Path, fullLoad: Boolean = false): List<IElement> {
-        val cursor = getCursor(ElementTableEntry.TABLE_NAME, arrayOf(ElementTableEntry.ID, ElementTableEntry.PREV_ID, ElementTableEntry.TYPE, ElementTableEntry.TITLE, ElementTableEntry.TEXT), ElementTableEntry.PATH_ID + LIKE + QUOTES + path.id + QUOTES, null, null, null, null, null)
+    fun readElements(path: Path?, fullLoad: Boolean = false): List<IElement> {
+        val cursor = getCursor(ElementTableEntry.TABLE_NAME, arrayOf(ElementTableEntry.ID, ElementTableEntry.PATH_ID, ElementTableEntry.PREV_ID, ElementTableEntry.TYPE, ElementTableEntry.TITLE, ElementTableEntry.TEXT), if (path != null) (ElementTableEntry.PATH_ID + LIKE + QUOTES + path.id + QUOTES) else (ONE + EQ + ONE), null, null, null, null, null)
         val elements = ArrayList<IElement>()
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getString(0)
-                val prevId = cursor.getString(1)
-                val type = cursor.getString(2)
-                val additionalInfo = cursor.getString(3)
-                val text = cursor.getString(4)
+                val pathId = cursor.getString(0)
+                val prevId = cursor.getString(2)
+                val type = cursor.getString(3)
+                val additionalInfo = cursor.getString(4)
+                val text = cursor.getString(5)
                 when (type) {
                     //STEPS
                     TYPE_STANDARD_STEP -> {
-                        val step = StandardStep(id, prevId, path.id).withText(text).withTitle(additionalInfo)
+                        val step = StandardStep(id, prevId, pathId).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
                                 step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
@@ -761,7 +762,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                         elements.add(step)
                     }
                     TYPE_JUMP_STEP -> {
-                        val step = JumpStep(id, prevId, path.id).withTargetStep(readString(TARGET_STEP_UID_IDENTIFIER.plus(id), NOTHING)).withText(text).withTitle(additionalInfo)
+                        val step = JumpStep(id, prevId, pathId).withTargetStep(readString(TARGET_STEP_UID_IDENTIFIER.plus(id), NOTHING)).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
                                 step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
@@ -772,7 +773,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                         elements.add(step)
                     }
                     TYPE_SOUND_STEP -> {
-                        val step = SoundStep(id, prevId, path.id).withText(text).withTitle(additionalInfo)
+                        val step = SoundStep(id, prevId, pathId).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
                                 step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
@@ -783,7 +784,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                         elements.add(step)
                     }
                     TYPE_VIBRATION_STEP -> {
-                        val step = VibrationStep(id, prevId, path.id).withText(text).withTitle(additionalInfo)
+                        val step = VibrationStep(id, prevId, pathId).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
                                 step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
@@ -799,7 +800,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                         if (attributes.size == 1) {
                             resource = readObject(attributes.first().key!!, NullHelper.get(Resource::class), true) as Resource
                         }
-                        val step = ResourceStep(id, prevId, path.id).withChange(readInt(CHANGE_UID_IDENTIFIER.plus(id), Constants.ZERO)).withResource(resource).withText(text).withTitle(additionalInfo)
+                        val step = ResourceStep(id, prevId, pathId).withChange(readInt(CHANGE_UID_IDENTIFIER.plus(id), Constants.ZERO)).withResource(resource).withText(text).withTitle(additionalInfo)
                         if (fullLoad) {
                             for (linkAttribute in readAttributes(id, TYPE_OBJECT)) {
                                 step.withObject(readObject(linkAttribute.key as String, NullHelper.get(AbstractObject::class)))
@@ -811,12 +812,12 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                     }
                     //TRIGGERS
                     TYPE_BUTTON_TRIGGER -> {
-                        val trigger = ButtonTrigger(id, prevId, path.id).withButtonLabel(additionalInfo)
+                        val trigger = ButtonTrigger(id, prevId, pathId).withButtonLabel(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_IF_ELSE_TRIGGER -> {
-                        val trigger = IfElseTrigger(id, prevId, path.id, text, additionalInfo)
+                        val trigger = IfElseTrigger(id, prevId, pathId, text, additionalInfo)
                         var readByteArray = readByteArray(HASH_MAP_OPTIONS_IDENTIFIER.plus(id), byteArrayOf())
                         if (!readByteArray.isEmpty()) {
                             trigger.withPathOptions(
@@ -833,12 +834,12 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                         elements.add(trigger)
                     }
                     TYPE_STAKEHOLDER_INTERACTION_TRIGGER -> {
-                        val trigger = StakeholderInteractionTrigger(id, prevId, path.id).withText(text).withInteractedStakeholderId(additionalInfo)
+                        val trigger = StakeholderInteractionTrigger(id, prevId, pathId).withText(text).withInteractedStakeholderId(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_INPUT_TRIGGER -> {
-                        val trigger = InputTrigger(id, prevId, path.id).withText(text).withInput(additionalInfo)
+                        val trigger = InputTrigger(id, prevId, pathId).withText(text).withInput(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
@@ -848,49 +849,49 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                         if (attributes.size == 1) {
                             resource = readObject(attributes.first().key!!, NullHelper.get(Resource::class), true) as Resource
                         }
-                        val trigger = ResourceCheckTrigger(id, prevId, path.id).withButtonLabel(additionalInfo)
+                        val trigger = ResourceCheckTrigger(id, prevId, pathId).withButtonLabel(additionalInfo)
                                 .withFalseStepId(text).withResource(resource).withCheckValue(readInt(CHECK_VALUE_UID_IDENTIFIER.plus(id), Constants.ZERO)).withMode(readString(CHECK_MODE_UID_IDENTIFIER.plus(id), NOTHING))
                         trigger.changeTimeMs = readVersioning(id)
 
                         elements.add(trigger)
                     }
                     TYPE_TIME_TRIGGER -> {
-                        val trigger = TimeTrigger(id, prevId, path.id).withText(text).withTimeMillisecondSecond(additionalInfo)
+                        val trigger = TimeTrigger(id, prevId, pathId).withText(text).withTimeMillisecondSecond(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_SOUND_TRIGGER -> {
-                        val trigger = SoundTrigger(id, prevId, path.id).withText(text).withDb(additionalInfo)
+                        val trigger = SoundTrigger(id, prevId, pathId).withText(text).withDb(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_BLUETOOTH_TRIGGER -> {
-                        val trigger = BluetoothTrigger(id, prevId, path.id).withText(text).withDeviceId(additionalInfo)
+                        val trigger = BluetoothTrigger(id, prevId, pathId).withText(text).withDeviceId(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_GPS_TRIGGER -> {
-                        val trigger = GpsTrigger(id, prevId, path.id).withText(text).withGpsData(additionalInfo)
+                        val trigger = GpsTrigger(id, prevId, pathId).withText(text).withGpsData(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_NFC_TRIGGER -> {
-                        val trigger = NfcTrigger(id, prevId, path.id).withText(text).withMessage(additionalInfo)
+                        val trigger = NfcTrigger(id, prevId, pathId).withText(text).withMessage(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_WIFI_TRIGGER -> {
-                        val trigger = WifiTrigger(id, prevId, path.id).withText(text).withSsidAndStrength(additionalInfo)
+                        val trigger = WifiTrigger(id, prevId, pathId).withText(text).withSsidAndStrength(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_CALL_TRIGGER -> {
-                        val trigger = CallTrigger(id, prevId, path.id).withText(text).withTelephoneNr(additionalInfo)
+                        val trigger = CallTrigger(id, prevId, pathId).withText(text).withTelephoneNr(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
                     TYPE_SMS_TRIGGER -> {
-                        val trigger = SmsTrigger(id, prevId, path.id).withText(text).withTelephoneNr(additionalInfo)
+                        val trigger = SmsTrigger(id, prevId, pathId).withText(text).withTelephoneNr(additionalInfo)
                         trigger.changeTimeMs = readVersioning(id)
                         elements.add(trigger)
                     }
