@@ -403,11 +403,11 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             wifiP2pScanActive = true
             wifiP2pManager!!.discoverPeers(channel, object: WifiP2pManager.ActionListener {
                 override fun onSuccess() {
-//                    notify("Started Device-Discovery")
+                    //NOP
                 }
 
                 override fun onFailure(reason: Int) {
-//                    notify("Device-Discovery failed")
+                    //NOP
                 }
             })
         }
@@ -426,11 +426,11 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             wifiP2pScanActive = false
             wifiP2pManager?.stopPeerDiscovery(channel, object : WifiP2pManager.ActionListener {
                 override fun onSuccess() {
-//                    notify("Stopped Device-Discovery")
+                    //NOP
                 }
 
                 override fun onFailure(reason: Int) {
-//                    notify("Stopping Device-Discovery failed")
+                    //NOP
                 }
             })
         }

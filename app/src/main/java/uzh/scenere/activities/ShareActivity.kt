@@ -414,11 +414,11 @@ class ShareActivity : AbstractManagementActivity() {
                     }
                     getWifiP2pManager()?.connect(channel, config, object : WifiP2pManager.ActionListener {
                         override fun onSuccess() {
-//                            notify("Connected successfully")
+                            //NOP
                         }
 
                         override fun onFailure(reason: Int) {
-//                            notify("Connection failed")
+                            //NOP
                         }
                     })
                     activeDeviceButton = button
