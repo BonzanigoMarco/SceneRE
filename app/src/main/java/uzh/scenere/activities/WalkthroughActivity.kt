@@ -118,7 +118,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
                     if (CollectionHelper.oneOf(value,WalkthroughPlayLayout.WalkthroughState.STARTED,WalkthroughPlayLayout.WalkthroughState.FINISHED)) null else R.string.icon_input,
                     if (value != WalkthroughPlayLayout.WalkthroughState.PLAYING) null else  R.string.icon_object, null)
         }else{
-            customizeToolbarId(R.string.icon_back, null, null, R.string.icon_info, null)
+            customizeToolbarId(R.string.icon_back, null, null, R.string.icon_glossary, null)
         }
     }
 
@@ -174,7 +174,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario,NONE)
         walkthrough_layout_selection_orientation.addView(projectLabel)
         walkthrough_layout_selection_orientation.addView(scenarioLabel)
-        tutorialOpen = SreTutorialLayoutDialog(this, screenWidth, "info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        tutorialOpen = SreTutorialLayoutDialog(this@WalkthroughActivity, screenWidth, "info_walkthrough").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         restoreWalkthroughIfPossible()
     }
 
@@ -274,9 +274,9 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
     private fun showSave() {
         if (ShortcutHelper.enabled){
             if (pointer != null) {
-                customizeToolbarId(R.string.icon_back, R.string.icon_save, null, R.string.icon_info, null)
+                customizeToolbarId(R.string.icon_back, R.string.icon_save, null, R.string.icon_glossary, null)
             } else {
-                customizeToolbarId(R.string.icon_back, null, null, R.string.icon_info, null)
+                customizeToolbarId(R.string.icon_back, null, null, R.string.icon_glossary, null)
             }
         }
     }
@@ -394,7 +394,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         }
         activeWalkthrough?.connectActivity(this)
         getContentHolderLayout().addView(activeWalkthrough?.prepareLayout())
-        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_walkthrough_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        tutorialOpen = SreTutorialLayoutDialog(this@WalkthroughActivity,screenWidth,"info_walkthrough_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun stop() {

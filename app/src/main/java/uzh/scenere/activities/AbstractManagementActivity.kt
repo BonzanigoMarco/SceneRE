@@ -3,7 +3,6 @@ package uzh.scenere.activities
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.content.ContextCompat
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
@@ -400,7 +399,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                     }
                 }
             }
-            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,if (isLandscapeOrientation()) "info_lookup_landscape" else "info_lookup").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            tutorialOpen = SreTutorialLayoutDialog(this@AbstractManagementActivity,screenWidth,if (isLandscapeOrientation()) "info_lookup_landscape" else "info_lookup").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             return outerWrapper
         } else if (inputType == LineInputType.MULTI_TEXT){
             val wrapperParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
@@ -475,7 +474,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             if (!readOnly && !noCompleteRemoval){
                 addClearSelectionButton(getString(R.string.literal_remove_all), selectionCarrier, labelText)
             }
-            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,if (isLandscapeOrientation()) "info_multitext_landscape" else "info_multitext").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            tutorialOpen = SreTutorialLayoutDialog(this@AbstractManagementActivity,screenWidth,if (isLandscapeOrientation()) "info_multitext_landscape" else "info_multitext").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             return outerWrapper
         }
         return null
@@ -664,7 +663,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     }
 
     open fun resetToolbar() {
-        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), resources.getText(R.string.icon_info).toString(), null)
+        customizeToolbarText(resources.getText(R.string.icon_back).toString(), null, getLockIcon(), resources.getText(R.string.icon_glossary).toString(), null)
     }
 
     //*************
@@ -676,7 +675,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
 
     private var infoState: InfoState? = null
 
-    protected fun execMorphInfoBar(state: InfoState? = null): CharSequence {
+    protected fun execMorphInfoBar(state: InfoState? = null, maxLines: Int = 10): CharSequence {
         if (state != null) {
             infoState = state
         } else {
@@ -688,11 +687,11 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 } //NOP
             }
         }
-        return execMorphInfoBarInternal()
+        return execMorphInfoBarInternal(maxLines)
     }
 
     protected var contentDefaultMaxLines = 2
-    private fun execMorphInfoBarInternal(): CharSequence {
+    private fun execMorphInfoBarInternal(maxLines: Int): CharSequence {
         when (infoState) {
             InfoState.INITIALIZE -> {
                 getContentWrapperLayout().layoutParams = createLayoutParams(1f)
@@ -724,7 +723,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 WeightAnimator(getInfoWrapper(), 0f, 250).play()
                 createLayoutParams(2.7f, getInfoTitle(), 1)
                 getInfoContentWrap().layoutParams = createLayoutParams(0.3f)
-                getInfoContent().maxLines = 10
+                getInfoContent().maxLines = maxLines
                 return resources.getText(R.string.icon_win_max)
             }
         }

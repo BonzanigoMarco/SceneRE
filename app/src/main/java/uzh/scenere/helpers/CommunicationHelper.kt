@@ -82,6 +82,16 @@ class CommunicationHelper private constructor () {
             }
         }
 
+        fun supportsNfcAndEnabled(context: Context, communications: Communications): Boolean{
+            return when (communications){
+                Communications.NFC -> {
+                    val nfcAdapter = NfcAdapter.getDefaultAdapter(context) ?: return false
+                    return nfcAdapter.isEnabled
+                }
+                else -> true
+            }
+        }
+
         fun requestBeamActivation(context: Context, open: Boolean = false): Boolean {
             val nfcAdapter = NfcAdapter.getDefaultAdapter(context) ?: return false
             if (open && !nfcAdapter.isNdefPushEnabled){

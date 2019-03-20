@@ -214,15 +214,19 @@ class ShareActivity : AbstractManagementActivity() {
         when (mode) {
             ShareMode.FILE_EXPORT -> {
                 execLoadFileExport()
+                tutorialOpen = SreTutorialLayoutDialog(this@ShareActivity,screenWidth,"info_share","info_export").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
             ShareMode.FILE_IMPORT -> {
                 execLoadFileImport()
+                tutorialOpen = SreTutorialLayoutDialog(this@ShareActivity,screenWidth,"info_share","info_import").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
             ShareMode.WIFI_EXPORT -> {
                 execLoadFileExport()
+                tutorialOpen = SreTutorialLayoutDialog(this@ShareActivity,screenWidth,"info_share","info_p2p_export").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
             ShareMode.WIFI_IMPORT -> {
                 execLoadWifiImport()
+                tutorialOpen = SreTutorialLayoutDialog(this@ShareActivity,screenWidth,"info_share","info_p2p_import").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
         }
     }
@@ -282,7 +286,6 @@ class ShareActivity : AbstractManagementActivity() {
         getContentHolderLayout().addView(controlButton)
         getContentHolderLayout().addView(walkthroughSwitch)
         getInfoTitle().text = NOTHING
-        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_share","info_export").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun createStatisticsFromCachedBinary(export: Boolean, addView: Boolean = true): ShareWrapper {
@@ -323,7 +326,6 @@ class ShareActivity : AbstractManagementActivity() {
         getContentHolderLayout().addView(controlInput)
         val files = loadImportFolder()
         getInfoTitle().text = if (files == 0) NOTHING else getString(R.string.share_click_to_import,files)
-        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_share","info_import").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun loadImportFolder(): Int{
@@ -371,14 +373,14 @@ class ShareActivity : AbstractManagementActivity() {
     }
 
     private fun prepareButtonForScan() {
-        controlButton?.text = "Scan for Devices"
+        controlButton?.text = getString(R.string.share_scan_for_devices)
         controlButton?.setExecutable {
             execLoadWifiExport()
         }
     }
 
     private fun prepareButtonForCancel() {
-        controlButton?.text = "Cancel Scan"
+        controlButton?.text = getString(R.string.share_cancel_scan)
         controlButton?.setExecutable {
             detachProgressBar()
             stopWifiP2pDeviceDiscovery()
@@ -402,7 +404,7 @@ class ShareActivity : AbstractManagementActivity() {
         if (mode == ShareMode.WIFI_EXPORT) {
             getContentHolderLayout().removeAllViews()
             for (device in it!!.deviceList) {
-                val button = SreButton(applicationContext, getContentHolderLayout(), "Send to ${device.deviceName}")
+                val button = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_send_to,device.deviceName))
                 button.data = device
                 button.setExecutable {
                     activeSocket?.close()
@@ -432,7 +434,7 @@ class ShareActivity : AbstractManagementActivity() {
     override val handleOwnData: (WifiP2pDevice?) -> Unit = {
         if (mode == ShareMode.WIFI_IMPORT && it != null){
             getContentHolderLayout().removeAllViews()
-            val button = SreButton(applicationContext, getContentHolderLayout(), "Your Device-ID: ${it.deviceName}")
+            val button = SreButton(applicationContext, getContentHolderLayout(), getString(R.string.share_your_device_id,it.deviceName))
             getContentHolderLayout().addView(button)
             attachProgressBar(getContentHolderLayout())
         }
@@ -443,7 +445,7 @@ class ShareActivity : AbstractManagementActivity() {
     }
 
     override val handleWifiP2pData: (ByteArray) -> Unit = {
-        notify("Received ${it.size/1000} kB!")
+        notify(getString(R.string.share_received_kb,it.size/1000))
         cachedBinary = it
         execPrepareDataImport()
     }

@@ -72,7 +72,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         }
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(R.string.icon_explain_projects),fontAwesome)
         resetToolbar()
-        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_creation","info_bars", "info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        tutorialOpen = SreTutorialLayoutDialog(this@ProjectsActivity,screenWidth,"info_creation","info_bars", "info_toolbar","info_lock_glossary").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun addProjectToList(project: Project) {
@@ -134,7 +134,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         val project = projectBuilder.build()
         DatabaseHelper.getInstance(applicationContext).write(project.id,project)
         addProjectToList(project)
-        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_entity_item").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        tutorialOpen = SreTutorialLayoutDialog(this@ProjectsActivity,screenWidth,"info_entity_item").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun openInput(projectsMode: ProjectsMode, project: Project? = null) {

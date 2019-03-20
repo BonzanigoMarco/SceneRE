@@ -80,7 +80,7 @@ class EditorActivity : AbstractManagementActivity() {
     }
 
     override fun resetToolbar() {
-        customizeToolbarId(R.string.icon_back,null,null,R.string.icon_info,null)
+        customizeToolbarId(R.string.icon_back,null,null,R.string.icon_glossary,null)
     }
 
     override fun isUsingNfc(): Boolean {
@@ -161,9 +161,9 @@ class EditorActivity : AbstractManagementActivity() {
                 }
 
             })
-            tutorialOpen = SreTutorialLayoutDialog(applicationContext, screenWidth, "info_editor_stakeholder", "info_editor_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             getContentHolderLayout().removeView(progressBar)
         })
+        tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity, screenWidth, "info_editor_stakeholder", "info_editor_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
 
     private fun visualizeActivePath() {
@@ -192,17 +192,17 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun renderElement(iElement: IElement) {
         var title: String? = null
-        var tutorialDrawable: String? = null
+        val tutorialDrawable = ArrayList<String>()
         if (iElement is AbstractStep) {
             title = BOLD_START + iElement.readableClassName() + BOLD_END+ BREAK + iElement.title
-            tutorialDrawable = "info_what_if"
+            tutorialDrawable.add("info_what_if")
         }
         if (iElement is AbstractTrigger) title = BOLD_START + iElement.readableClassName() + BOLD_END
         val previousAvailable = getContentHolderLayout().childCount != 0
         if (previousAvailable) {
             connectPreviousToNext()
         }else{
-            tutorialDrawable = "info_element"
+            tutorialDrawable.add("info_element")
         }
         val (right, left) = resolveLeftRight(iElement)
         val element = Element(applicationContext, iElement, previousAvailable, left, right, false).withLabel(StringHelper.fromHtml(title))
@@ -236,9 +236,10 @@ class EditorActivity : AbstractManagementActivity() {
                         .setInitSelectionExecutable(onPathSelectionInit)
                         .setAddExecutable {onPathAdded(iElement)}
                         .setRemoveExecutable {onPathRemoved(iElement)}
-                tutorialDrawable = "info_if_else_config"
+                tutorialDrawable.add("info_if_else_config")
             }
             is NfcTrigger -> {
+                tutorialDrawable.add("info_nfc_writing")
                 element.setNfcExecutable { toggleNfcData(iElement,element) }
             }
             is AbstractStep -> {
@@ -247,8 +248,8 @@ class EditorActivity : AbstractManagementActivity() {
         }
         getContentHolderLayout().addView(element)
         colorizeZebraPattern()
-        if (tutorialDrawable != null){
-            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,tutorialDrawable).addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        if (!tutorialDrawable.isEmpty()){
+            tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,*tutorialDrawable.toTypedArray()).addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }
     }
 
@@ -290,26 +291,32 @@ class EditorActivity : AbstractManagementActivity() {
         }
     }
 
-    private var nfcLoaded = false
     private var activeNfcTriggerElement: Element? = null
     private fun toggleNfcData(nfcTrigger: NfcTrigger, element: Element) {
-        activeNfcTriggerElement = element
-        nfcLoaded = if (nfcLoaded) {
-            setDataToWrite(null)
-            element.setNfcLoaded(false)
-            false
-        } else {
-            setDataToWrite(nfcTrigger.id)
-            element.setNfcLoaded(true)
-            true
+        var enabledPrior = element.nfcDataLoaded
+        var enabled = true
+        for (view in 0 until getContentHolderLayout().childCount){
+            val child = getContentHolderLayout().getChildAt(view)
+            if (child is Element){
+                child.setNfcLoaded(false)
+                enabled = child.checkNfcEnabled()
+            }
         }
-        notify(getString(R.string.editor_nfc_data),if (nfcLoaded) getString(R.string.editor_nfc_loaded) else getString(R.string.editor_nfc_cleared))
+        if (enabled){
+            if (!enabledPrior){
+                setDataToWrite(nfcTrigger.id)
+                element.setNfcLoaded(true)
+            }
+            activeNfcTriggerElement = element
+            notify(getString(R.string.editor_nfc_data), if (element.nfcDataLoaded) getString(R.string.editor_nfc_loaded) else getString(R.string.editor_nfc_cleared))
+        } else {
+            notify(getString(R.string.editor_nfc_data), getString(R.string.editor_nfc_disabled))
+        }
     }
 
     override fun onDataWriteExecuted(returnValues: Pair<Boolean, String>){
         super.onDataWriteExecuted(returnValues)
         activeNfcTriggerElement?.setNfcLoaded(false)
-        nfcLoaded = false
     }
 
     private val onPathSelectionInit: (String) -> Unit = {
@@ -340,7 +347,7 @@ class EditorActivity : AbstractManagementActivity() {
                 renderAndNotifyPath(true)
             }
             if (layer != 0){
-                tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_path_switch").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_path_switch").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
         }
     }
@@ -544,6 +551,9 @@ class EditorActivity : AbstractManagementActivity() {
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is ResourceStep -> {
+                    if (allResources.size == 0){
+                        notify(getString(R.string.editor_no_resources_title),getString(R.string.editor_no_resource_step_text))
+                    }
                     creationUnitClass = ResourceStep::class
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
@@ -587,7 +597,7 @@ class EditorActivity : AbstractManagementActivity() {
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     if (tutorialDrawable != null){
-                        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth, tutorialDrawable).addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                        tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth, tutorialDrawable).addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                     }
                 }
                 is StakeholderInteractionTrigger -> {
@@ -606,6 +616,9 @@ class EditorActivity : AbstractManagementActivity() {
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is ResourceCheckTrigger -> {
+                    if (allResources.size == 0){
+                        notify(getString(R.string.editor_no_resources_title),getString(R.string.editor_no_resource_trigger_text))
+                    }
                     creationUnitClass = ResourceCheckTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_resource))
                     val resPos = allResources.indexOf(element.resource)+1
@@ -699,9 +712,12 @@ class EditorActivity : AbstractManagementActivity() {
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
                     (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
-                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                    tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
                 resources.getString(R.string.step_jump) -> {
+                    if (activeStepIds.size == 0){
+                        notify(getString(R.string.editor_no_steps_title), getString(R.string.editor_no_steps_text))
+                    }
                     creationUnitClass = JumpStep::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_jump))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
@@ -709,7 +725,7 @@ class EditorActivity : AbstractManagementActivity() {
                     (inputMap[elementAttributes[index++]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT, false, -1,addToArrayBefore(stepTitles.toTypedArray(),NOTHING)))
                     execMorphInfoBar(InfoState.MAXIMIZED)
-                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                    tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
                 resources.getString(R.string.step_sound) -> {
                     creationUnitClass = SoundStep::class
@@ -718,7 +734,7 @@ class EditorActivity : AbstractManagementActivity() {
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
                     (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
-                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                    tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
                 resources.getString(R.string.step_vibration) -> {
                     creationUnitClass = VibrationStep::class
@@ -727,9 +743,12 @@ class EditorActivity : AbstractManagementActivity() {
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
                     (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
-                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                    tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
                 resources.getString(R.string.step_resource) -> {
+                    if (allResources.size == 0){
+                        notify(getString(R.string.editor_no_resources_title),getString(R.string.editor_no_resource_step_text))
+                    }
                     creationUnitClass = ResourceStep::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_resource))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
@@ -738,7 +757,7 @@ class EditorActivity : AbstractManagementActivity() {
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
                     (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
                     execMorphInfoBar(InfoState.MAXIMIZED)
-                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                    tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
                 //TRIGGER
                 resources.getString(R.string.trigger_button) -> {
@@ -753,7 +772,7 @@ class EditorActivity : AbstractManagementActivity() {
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
-                    tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_if_else_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                    tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_if_else_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
                 resources.getString(R.string.trigger_stakeholder_interaction) -> {
                     creationUnitClass = StakeholderInteractionTrigger::class
@@ -770,6 +789,9 @@ class EditorActivity : AbstractManagementActivity() {
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_resource) -> {
+                    if (allResources.size == 0){
+                        notify(getString(R.string.editor_no_resources_title),getString(R.string.editor_no_resource_trigger_text))
+                    }
                     creationUnitClass = ResourceCheckTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_resource))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))

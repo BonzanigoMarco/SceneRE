@@ -87,7 +87,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
         analytics_layout_button_holder.addView(creationButton)
         customizeToolbarId(R.string.icon_back, null, null, null, null)
         getInfoTitle().textSize = DipHelper.get(resources).dip2_5.toFloat()
-        tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_analytics","info_analytics_type").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        tutorialOpen = SreTutorialLayoutDialog(this@AnalyticsActivity,screenWidth,"info_analytics","info_analytics_type").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         createOverviewLayout()
     }
 

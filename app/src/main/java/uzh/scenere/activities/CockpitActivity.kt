@@ -94,9 +94,9 @@ class CockpitActivity : AbstractManagementActivity() {
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         recreateViews()
         if (PermissionHelper.getRequiredPermissions(this).isEmpty()){
-            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_bars","info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            tutorialOpen = SreTutorialLayoutDialog(this@CockpitActivity,screenWidth,"info_bars","info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }else{
-            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_bars", "info_toolbar","info_permissions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            tutorialOpen = SreTutorialLayoutDialog(this@CockpitActivity,screenWidth,"info_bars", "info_toolbar","info_permissions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }
     }
 
@@ -188,7 +188,7 @@ class CockpitActivity : AbstractManagementActivity() {
                         getContentHolderLayout().addView(swipeButton)
                     }
                 }
-                tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_communications").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                tutorialOpen = SreTutorialLayoutDialog(this@CockpitActivity,screenWidth,"info_communications").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
             CockpitMode.SENSORS -> {
                 for (sensor in SensorHelper.getInstance(this).getSensorArray()) {
@@ -204,7 +204,7 @@ class CockpitActivity : AbstractManagementActivity() {
                     swipeButton.setExecutable(generateSensorExecutable(sensor, swipeButton))
                     getContentHolderLayout().addView(swipeButton)
                 }
-                tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_sensors").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                tutorialOpen = SreTutorialLayoutDialog(this@CockpitActivity,screenWidth,"info_sensors").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
             CockpitMode.FUNCTIONS -> {
                 val resetTutorial = SwipeButton(this, getString(R.string.cockpit_tutorial_reset))
@@ -348,7 +348,7 @@ class CockpitActivity : AbstractManagementActivity() {
                 getContentHolderLayout().addView(modeSwitch)
                 getContentHolderLayout().addView(wipeWalkthroughs)
                 getContentHolderLayout().addView(wipeData)
-                tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_functions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+                tutorialOpen = SreTutorialLayoutDialog(this@CockpitActivity,screenWidth,"info_functions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
         }
     }

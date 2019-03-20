@@ -45,6 +45,8 @@ class Element (context: Context, private var element: IElement, private val top:
     private var dpiConnectorWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt()
     private var dpiConnectorHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50f, resources.displayMetrics).toInt()
 
+    var nfcDataLoaded:Boolean = false
+
     init {
         //PARENT
         layoutParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
@@ -149,6 +151,7 @@ class Element (context: Context, private var element: IElement, private val top:
             is NfcTrigger -> {
                 nfcButton = IconButton(context, bottomWrapper, R.string.icon_nfc,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
                 bottomWrapper?.addView(nfcButton)
+                checkNfcEnabled()
             }
             is AbstractStep -> {
                 whatIfButton = IconButton(context, bottomWrapper, R.string.icon_question,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
@@ -292,11 +295,20 @@ class Element (context: Context, private var element: IElement, private val top:
     }
 
     fun setNfcLoaded(loaded: Boolean) {
+        nfcDataLoaded = loaded
         if (loaded){
             nfcButton?.setTextColor(getColorWithStyle(context, R.color.srePrimaryAttention))
         }else{
             nfcButton?.setTextColor(getColorWithStyle(context, R.color.srePrimaryPastel))
         }
+    }
+
+    fun checkNfcEnabled(): Boolean {
+        val nfcEnabled = CommunicationHelper.supportsNfcAndEnabled(context, CommunicationHelper.Companion.Communications.NFC)
+        if (!nfcEnabled){
+            nfcButton?.setTextColor(getColorWithStyle(context, R.color.srePrimaryDisabled))
+        }
+        return nfcEnabled
     }
 
     fun resetSelectCount(): Element{

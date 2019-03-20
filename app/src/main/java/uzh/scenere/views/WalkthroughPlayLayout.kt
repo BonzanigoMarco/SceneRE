@@ -729,7 +729,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
         if (state != WalkthroughState.STARTED){
             walkthrough.addStep(currentStep?.withTime(getTime())?.withComments(comments),info)
             comments.clear()
-            if (currentStep is JumpStep){
+            if (currentStep is JumpStep && !pathSwitch){
                 val (s,p) = scenario.getPathAndStepToStepId(stakeholder, currentStep.targetStepId!!)
                 first = s!!
                 layer = p!!.layer

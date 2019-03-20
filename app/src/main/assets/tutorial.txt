@@ -257,3 +257,31 @@ App or selecting an Import-Folder
 via the internal option, you get
 to analyze and then import
 shared Data to your Application.
+
+
+NFC-Tag Writing
+
+The        Button lets you write
+Data to an NFC-Tag which you
+want to assign to the Step.
+After enabling it, place your
+Smartphone over the specific Tag.
+
+
+Wi-Fi P2P Export
+
+If your Device supports Wi-Fi P2P,
+you can directly share your Data
+by first gathering it, scan for
+Devices and send it by selecting
+one of the listed Devices.
+
+
+Wi-Fi P2P Import
+
+If your Device supports Wi-Fi P2P,
+you can receive data wirelessly.
+Wait until the sender pairs with
+your Device, accept and import
+the Data after successful
+transmission and analyzation.

@@ -85,7 +85,7 @@ class MainMenuActivity : AbstractBaseActivity() {
             for (button in buttons){
                 button.isEnabled = false
             }
-            tutorialOpen = SreTutorialLayoutDialog(this,screenWidth,"info_cockpit").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            tutorialOpen = SreTutorialLayoutDialog(this@MainMenuActivity,screenWidth,"info_cockpit").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }else{
             for (button in buttons){
                 button.isEnabled = true
