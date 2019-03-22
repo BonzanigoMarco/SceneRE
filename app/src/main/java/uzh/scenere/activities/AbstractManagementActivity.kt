@@ -30,6 +30,7 @@ import android.text.InputFilter
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.inputmethod.EditorInfo
+import android.widget.LinearLayout.VERTICAL
 import uzh.scenere.const.Constants.Companion.ZERO_S
 import java.io.Serializable
 import kotlin.collections.ArrayList
@@ -193,7 +194,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         MULTI_LINE_CONTEXT_EDIT,
         NUMBER_EDIT,
         NUMBER_SIGNED_EDIT,
-        MULTI_TEXT
+        MULTI_TEXT,
+        BUTTON
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -284,8 +286,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.setSize(WRAP_CONTENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val input = SreMultiAutoCompleteTextView(this, ArrayList())
-//            input.setBackgroundColor(getColorWithStyle(this, R.color.srePrimary))
-//            input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             input.layoutParams = childParams
             input.textSize = textSize!!
@@ -324,6 +324,21 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             wrapper.addView(label)
             wrapper.addView(scrollWrapper)
             inputMap[labelText] = text
+            return wrapper
+        } else if (CollectionHelper.oneOf(inputType, LineInputType.BUTTON)) {
+            val layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            layoutParams.setMargins(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+            val wrapper = LinearLayout(this)
+            wrapper.layoutParams = layoutParams
+            wrapper.orientation = VERTICAL
+            val button = SreButton(this, wrapper, labelText,null,null, SreButton.ButtonStyle.ATTENTION)
+            button.setSize(WRAP_CONTENT, MATCH_PARENT)
+            if (data is Function0<*>){
+                button.setExecutable { data.invoke()}
+            }
+            val scrollWrapper = ScrollView(this)
+            wrapper.addView(button)
+            wrapper.addView(scrollWrapper)
             return wrapper
         } else if (inputType == LineInputType.LOOKUP && data != null) {
             val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)

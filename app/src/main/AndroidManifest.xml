@@ -42,6 +42,10 @@
         android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning">
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDb2v0aDZFKRkZ619cdoJYZzNemTb6EbG4"/>
+
         <activity android:name=".activities.MainMenuActivity"
             android:theme="@style/SceneReToolbarTheme">
             <intent-filter>
@@ -192,6 +196,12 @@
             android:screenOrientation="portrait"/>
 
         <activity android:name=".activities.GlossaryActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/SceneReToolbarTheme"
+            android:screenOrientation="portrait"/>
+
+
+        <activity android:name=".activities.PickerActivity"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/SceneReToolbarTheme"
             android:screenOrientation="portrait"/>

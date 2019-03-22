@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import com.google.android.gms.maps.model.LatLng
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NULL_CLASS
@@ -15,6 +16,7 @@ import uzh.scenere.const.Constants.Companion.REFLECTION
 import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.const.Constants.Companion.STYLE
 import uzh.scenere.const.Constants.Companion.ZERO
+import uzh.scenere.datastructures.SreLatLng
 import java.io.File
 import java.util.*
 import kotlin.random.Random
@@ -217,3 +219,5 @@ fun <K,V: Comparable<V>> Map<K,V>.sort(): TreeMap<K, V> {
     sorted.putAll(this)
     return sorted
 }
+
+fun LatLng.toSreLatLng() = SreLatLng(this)

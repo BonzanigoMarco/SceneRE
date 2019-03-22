@@ -445,6 +445,7 @@ class ShareActivity : AbstractManagementActivity() {
                         resetWifiP2p(false)
                     }
                     val config = WifiP2pConfig().apply {
+                        groupOwnerIntent = 15
                         deviceAddress = device.deviceAddress
                         wps.setup = WpsInfo.PBC
                     }

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -20,6 +21,7 @@ import uzh.scenere.const.Constants.Companion.BOLD_START
 import uzh.scenere.const.Constants.Companion.BREAK
 import uzh.scenere.const.Constants.Companion.COMMA
 import uzh.scenere.const.Constants.Companion.COORDINATES_PATTERN
+import uzh.scenere.const.Constants.Companion.HALF_SEC_MS
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.OBJECT_TOKEN
@@ -29,6 +31,7 @@ import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.const.Constants.Companion.STAKEHOLDER_1_TOKEN
 import uzh.scenere.const.Constants.Companion.STAKEHOLDER_2_TOKEN
 import uzh.scenere.const.Constants.Companion.STATIC_TOKEN
+import uzh.scenere.const.Constants.Companion.THIRD_SEC_MS
 import uzh.scenere.const.Constants.Companion.WHAT_IF_DATA
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.*
@@ -661,7 +664,8 @@ class EditorActivity : AbstractManagementActivity() {
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_gps))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.NUMBER_EDIT, element.getRadius().toString(), false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, element.getLatitudeLongitude(), false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.getLatitudeLongitude(), false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.BUTTON, null, false, -1,{startActivity(Intent(this, PickerActivity::class.java))}))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is NfcTrigger -> {
@@ -825,8 +829,10 @@ class EditorActivity : AbstractManagementActivity() {
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_gps))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.NUMBER_EDIT, null, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
-                    execMorphInfoBar(InfoState.MAXIMIZED) }
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.BUTTON, null, false, -1,{startActivity(Intent(this, PickerActivity::class.java))}))
+                    execMorphInfoBar(InfoState.MAXIMIZED)
+                }
                 resources.getString(R.string.trigger_nfc) -> {
                     creationUnitClass = NfcTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_nfc))

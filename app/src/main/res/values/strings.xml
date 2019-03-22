@@ -136,6 +136,7 @@
         <item>Instruction Text</item>
         <item>Radius (m)</item>
         <item>Latitude/Longitude</item>
+        <item>Open Location-Picker</item>
     </string-array>
 
     <string-array name="editor_attributes_trigger_wifi">
@@ -397,7 +398,7 @@
     Number of Admissions</string>
     <string name="glossary_scenario">Scenarios consist of a continuous sequence of Steps and Triggers for each Stakeholder and can be seen as Theater Scripts. Together they build a Path which will be played while conducting a Walkthrough. The main-Path can branch out in different Paths by including If-Else Triggers.</string>
     <string name="glossary_walkthrough">Walkthroughs are the actual conduction of playing through a Scenario and can be seen as Theater Performance. While playing through Scenarios,  What-If Questions  and contextual Information about Objects are sometimes available. Since the Walkthroughs should spark ideas, Input can be added at any given point.</string>
-    <string name="glossary_what_if">What-Ifs are questions that can be configured on Steps. If done so, these questions will appear in the Walkthrough. They serve the purpose to inspire the thought-process of the user during a walkthrough. If no What-Ifs are configured on a Step, opening the Dialog for their configuration will propose several generated Questions. These can be cleared or complemented at will. The type of Suggestions can be configured in the Cockpit (All, Dynamic, Stakeholder only, Objects only, Static or None). On every Restart of Scene-RE, your What-Ifs are being analyzed and the Suggestions expanded or narrowed, based on your actions. Suggestions can be reset in the Cockpit.</string>
+    <string name="glossary_what_if">What-Ifs are questions that can be configured on Steps. If done so, these questions will appear in the Walkthrough. They serve the purpose to inspire the thought-process of the user during a walkthrough. If no What-Ifs are configured on a Step, opening the Dialog for their configuration will propose several generated Questions. These can be cleared or complemented at will. Writing your own is also possible, and is assisted by proposal of related Stakeholders and Objects. The type of Suggestions can be configured in the Cockpit (All, Dynamic, Stakeholder only, Objects only, Static or None). On every Restart of Scene-RE, your What-Ifs are being analyzed and the Suggestions expanded or narrowed, based on your actions. Suggestions can be reset in the Cockpit.</string>
     <string name="glossary_step">Steps are Elements that make up a Path in a Scenario. They guide the Stakeholder through the Walkthrough and provide Information.<![CDATA[<br>]]>
     <![CDATA[<br>]]>
     <![CDATA[<b>]]><![CDATA[<u>]]>Standard Step:<![CDATA[</u>]]><![CDATA[</b>]]> Step with Title- and Content-Text.<![CDATA[<br>]]>
@@ -413,15 +414,15 @@
     <![CDATA[<b>]]><![CDATA[<u>]]>If-Else Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Trigger with multiple Buttons to create alternate Paths.<![CDATA[<br>]]>
     <![CDATA[<b>]]><![CDATA[<u>]]>Stakeholder Interaction Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Requires an interaction of the involved Stakeholders and Exchange of a Code to continue.<![CDATA[<br>]]>
     <![CDATA[<b>]]><![CDATA[<u>]]>Passphrase-Input Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Trigger with Passphrase, required to continue.<![CDATA[<br>]]>
-    <![CDATA[<b>]]><![CDATA[<u>]]>Resource-Check Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Checks if a Resource-Value is below, above, equal or not equal to a certain Value. The Resource has to be modified before.<![CDATA[<br>]]>
-    <![CDATA[<b>]]><![CDATA[<u>]]>NFC Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after the correct NFC-Tag is scanned. NFC-Tags can be written in the Editor, on this specific Trigger.<![CDATA[<br>]]>
-    <![CDATA[<b>]]><![CDATA[<u>]]>Bluetooth Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after your Smartphone discovers a specific Bluetooth-Device matching a Name or Regex.<![CDATA[<br>]]>
-    <![CDATA[<b>]]><![CDATA[<u>]]>Wi-Fi Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after your Smartphone discovers a certain Wi-Fi Network matching a Name or Regex.<![CDATA[<br>]]>
-    <![CDATA[<b>]]><![CDATA[<u>]]>GPS Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after getting in a predefined distance to a configured Location<![CDATA[<br>]]>
-    <![CDATA[<b>]]><![CDATA[<u>]]>Call Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after receiving a Call from a certain Number or Number-Pattern. Finishes Call automatically.<![CDATA[<br>]]>
+    <![CDATA[<b>]]><![CDATA[<u>]]>Resource-Check Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Checks if a Resource-Value is below, above, equal or not equal to a certain Value. The Resource has to be modified by a Step before to be checked. Only Resources from the Scenario-Scope can be checked.<![CDATA[<br>]]>
+    <![CDATA[<b>]]><![CDATA[<u>]]>NFC Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after the correct NFC-Tag is scanned. NFC-Tags can be written in the Editor, on this specific Trigger-Element.<![CDATA[<br>]]>
+    <![CDATA[<b>]]><![CDATA[<u>]]>Bluetooth Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after your Smartphone discovers a specific Bluetooth-Device whose name matches a specific Text or Regex-Pattern.<![CDATA[<br>]]>
+    <![CDATA[<b>]]><![CDATA[<u>]]>Wi-Fi Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after your Smartphone discovers a certain Wi-Fi Network whose SSID matches a specific Text or Regex-Pattern.<![CDATA[<br>]]>
+    <![CDATA[<b>]]><![CDATA[<u>]]>GPS Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after getting in a predefined distance to a configured Location. The integrated Location-Picker allows you to select a Point on the Map and copy the coordinates to the Clipboard.<![CDATA[<br>]]>
+    <![CDATA[<b>]]><![CDATA[<u>]]>Call Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after receiving a Call from a certain Number or Number-Pattern. This will finish the Call automatically.<![CDATA[<br>]]>
     <![CDATA[<b>]]><![CDATA[<u>]]>SMS Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after receiving an SMS from a certain Number or Number-Pattern.<![CDATA[<br>]]>
     <![CDATA[<b>]]><![CDATA[<u>]]>Timer Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after a set amount of Time.<![CDATA[<br>]]>
-    <![CDATA[<b>]]><![CDATA[<u>]]>Sound Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after the recorded Sound-Amplitude surpassed a defined Threshold (positive or negative).<![CDATA[<br>]]>
+    <![CDATA[<b>]]><![CDATA[<u>]]>Sound Trigger:<![CDATA[</u>]]><![CDATA[</b>]]> Continuation after the recorded Sound-Amplitude surpassed a defined Threshold (positive or negative). The relative amplitude can be adjusted in the Walkthrough.<![CDATA[<br>]]>
     </string>
     <string name="glossary_editor">The Editor provides the Tools to put together the Paths contained in a Scenario.<![CDATA[<br>]]>
     <![CDATA[<br>]]>
@@ -592,4 +593,12 @@
     <string name="share_disconnected">Disconnected</string>
     <string name="share_connected">Connected to Device: %1$s</string>
     <string name="share_connected_unknown">Connected to Device</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoibWFyY29ib256YW5pZ28iLCJhIjoiY2p0andvbWN3MDR6bjN5b2kwajJmaGliZCJ9.EfwdaT0qB9W_KePTU1AXfg</string>
+    <string name="picker_copy_to_clipboard">Copy Location to Clipboard</string>
+    <string name="picker_position">Position</string>
+    <string name="picker_no_location_title">No Location</string>
+    <string name="picker_no_location_content">Tap on the Map to specify a Location!</string>
+    <string name="picker_cancel">Cancel</string>
+    <string name="picker_no_location_copied">No Location copied!</string>
+    <string name="picker_location_picked">Location copied to Clipboard!</string>
 </resources>

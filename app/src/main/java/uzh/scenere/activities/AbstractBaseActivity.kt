@@ -7,10 +7,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.res.Configuration
 import android.graphics.Typeface
 import android.net.NetworkInfo
@@ -18,7 +15,6 @@ import android.net.Uri
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.net.wifi.p2p.*
-import android.net.wifi.p2p.WifiP2pManager.WIFI_P2P_DISCOVERY_STOPPED
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
@@ -793,6 +789,17 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         Toast.makeText(this, toast, Toast.LENGTH_SHORT).show()
     }
 
+    fun copyToClipboard(str: String){
+        val clipboard =  getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(str, str);
+        clipboard.primaryClip = clip;
+    }
+
+    fun getFromClipboard(): String{
+        val clipboard =  getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val str = StringHelper.nvl(clipboard.primaryClip?.getItemAt(0)?.text?.toString(),NOTHING)
+        return str
+    }
 
     protected val notifyExecutable: (String) -> Unit = {
         notify(it)
@@ -1151,7 +1158,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         }
     }
 
-    open fun handleBluetoothData(deviceName: List<BluetoothDevice>): Boolean {
+    open fun handleBluetoothData(devices: List<BluetoothDevice>): Boolean {
         return false
     }
 
