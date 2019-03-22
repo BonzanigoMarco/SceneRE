@@ -2,10 +2,9 @@ package uzh.scenere.views
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v4.content.ContextCompat
 import android.text.*
 import android.util.Log
-import android.view.ViewGroup
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
 import uzh.scenere.R
@@ -21,8 +20,9 @@ import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NEW_LINE_C
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.SPACE_C
-import uzh.scenere.datamodel.Attribute
 import uzh.scenere.datamodel.AbstractObject
+import uzh.scenere.datamodel.Attribute
+import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.helpers.DipHelper
 import uzh.scenere.helpers.StringHelper
 import uzh.scenere.helpers.getColorWithStyle
@@ -32,7 +32,14 @@ import kotlin.reflect.KClass
 
 
 @SuppressLint("ViewConstructor")
-class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Serializable>, val style: AutoCompleteStyle = AutoCompleteStyle.DARK) : MultiAutoCompleteTextView(context) {
+class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Serializable>, val style: AutoCompleteStyle = AutoCompleteStyle.DARK) : MultiAutoCompleteTextView(context), ISreView {
+
+    override var parentLayout = ISreView.ParentLayout.UNKNOWN
+
+    override fun getView(): View {
+        return this
+    }
+
     private val colorArray = arrayOf(MATERIAL_100_RED, MATERIAL_100_VIOLET, MATERIAL_100_BLUE, MATERIAL_100_TURQUOISE, MATERIAL_100_GREEN, MATERIAL_100_LIME, MATERIAL_100_YELLOW, MATERIAL_100_ORANGE)
     private var objectPointer = 0
     private val objectMap = HashMap<String, Serializable>()
@@ -82,36 +89,36 @@ class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Seri
         return split[split.size - 1]
     }
 
-    fun <T: Serializable>addObjects(objects: ArrayList<T>): SreMultiAutoCompleteTextView {
+    fun <T: Serializable> addObjects(objects: ArrayList<T>): SreMultiAutoCompleteTextView {
         if (objectPointer >= colorArray.size){
             Log.e("AutoComplete","Not enough Colors defined.")
             return this
         }
-        when (objects[0]) {
-            is AbstractObject -> {
-                for (obj in objects) {
+        for (obj in objects){
+            when (obj) {
+                is AbstractObject -> {
                     val name = (obj as AbstractObject).name
                     objectMap[name] = obj
                     objectLabels[name] = fontBegin.replace(placeholder, colorArray[objectPointer]) + name + fontEnd
                 }
-            }
-            is Attribute -> {
-                for (obj in objects) {
+                is Attribute -> {
                     val key = (obj as Attribute).key
                     if (key != null) {
                         objectMap[key] = obj
                         objectLabels[key] = fontBegin.replace(placeholder, colorArray[objectPointer]) + key + fontEnd
                     }
                 }
-            }
-
-            is String -> {
-                for (obj in objects) {
+                is Stakeholder -> {
+                    val name = (obj as Stakeholder).name
+                    objectMap[name] = obj
+                    objectLabels[name] = fontBegin.replace(placeholder, colorArray[objectPointer]) + name + fontEnd
+                }
+                is String -> {
                     objectMap[(obj as String)] = obj
                     objectLabels[obj] = fontBegin.replace(placeholder, colorArray[objectPointer]) + obj + fontEnd
                 }
+                else -> throw ClassNotFoundException("No Mapping for this Class available")
             }
-            else -> throw ClassNotFoundException("No Mapping for this Class available")
         }
         objectPointer++
         return this

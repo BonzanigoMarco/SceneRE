@@ -585,24 +585,25 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
         return valueIfNull
     }
 
-    fun readObjects(scenario: Scenario, fullLoad: Boolean = false): List<AbstractObject> {
-        val cursor = getCursor(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID, ObjectTableEntry.NAME, ObjectTableEntry.DESCRIPTION, ObjectTableEntry.IS_RESOURCE), ObjectTableEntry.SCENARIO_ID + LIKE + QUOTES + scenario.id + QUOTES, null, null, null, null, null)
+    fun readObjects(scenario: Scenario?, fullLoad: Boolean = false): List<AbstractObject> {
+        val cursor = getCursor(ObjectTableEntry.TABLE_NAME, arrayOf(ObjectTableEntry.ID, ObjectTableEntry.SCENARIO_ID, ObjectTableEntry.NAME, ObjectTableEntry.DESCRIPTION, ObjectTableEntry.IS_RESOURCE), if (scenario != null) (ObjectTableEntry.SCENARIO_ID + LIKE + QUOTES + scenario.id + QUOTES) else (ONE + EQ + ONE), null, null, null, null, null)
         val objects = ArrayList<AbstractObject>()
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getString(0)
-                val name = cursor.getString(1)
-                val description = cursor.getString(2)
-                val isResource = cursor.getBoolean(3)
+                val scenarioId = cursor.getString(1)
+                val name = cursor.getString(2)
+                val description = cursor.getString(3)
+                val isResource = cursor.getBoolean(4)
                 val objectBuilder: AbstractObject.AbstractObjectBuilder
                 if (isResource) {
-                    objectBuilder = Resource.ResourceBuilder(id, scenario, name, description).configure(
+                    objectBuilder = Resource.ResourceBuilder(id, scenarioId, name, description).configure(
                             readInt(MIN_IDENTIFIER.plus(id), 0),
                             readInt(MAX_IDENTIFIER.plus(id), 0),
                             readInt(INIT_IDENTIFIER.plus(id), 0)
                     )
                 } else {
-                    objectBuilder = ContextObject.ContextObjectBuilder(id, scenario, name, description)
+                    objectBuilder = ContextObject.ContextObjectBuilder(id, scenarioId, name, description)
                 }
                 if (fullLoad) {
                     objectBuilder.addAttributes(attributes = *readAttributes(id).toTypedArray())
@@ -743,7 +744,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getString(0)
-                val pathId = cursor.getString(0)
+                val pathId = cursor.getString(1)
                 val prevId = cursor.getString(2)
                 val type = cursor.getString(3)
                 val additionalInfo = cursor.getString(4)

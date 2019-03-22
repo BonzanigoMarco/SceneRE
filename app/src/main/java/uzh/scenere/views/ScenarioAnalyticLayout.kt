@@ -87,7 +87,7 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                 stepTimes[stakeholder] = TreeMap()
                 paths[stakeholder] = StatisticArrayList()
             }
-            walkthroughAmount[stakeholder] = NumberHelper.nvl(walkthroughAmount[stakeholder],0)+1
+            walkthroughAmount.addOne(stakeholder)
             val pathSteps = TreeMap<Int,String>()
             var path = NOTHING
             var stepNumber = 1

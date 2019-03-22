@@ -154,7 +154,7 @@ class Element (context: Context, private var element: IElement, private val top:
                 checkNfcEnabled()
             }
             is AbstractStep -> {
-                whatIfButton = IconButton(context, bottomWrapper, R.string.icon_question,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
+                whatIfButton = IconButton(context, bottomWrapper, R.string.icon_what_if,dpiConnectorHeight,dpiConnectorHeight).addRule(RelativeLayout.RIGHT_OF, connectionBottom!!.id).addRule(CENTER_VERTICAL, TRUE)
                 bottomWrapper?.addView(whatIfButton)
             }
         }

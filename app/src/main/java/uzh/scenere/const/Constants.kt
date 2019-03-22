@@ -26,6 +26,7 @@ class Constants {
         const val EARTH_RADIUS_M: Double = 6371000.0
         const val MILLION_D: Double = 1000000.0
         const val MILLION: Int = 1000000
+        const val WIFI_DIRECT_PORT: Int = 8118
         const val FIVE_MIN_MS: Long = 300000
         const val TEN_SEC_MS: Long = 10000
         const val FIVE_SEC_MS: Long = 5000
@@ -35,6 +36,8 @@ class Constants {
         const val THIRD_SEC_MS: Long = 300
         const val THOUSAND: Double = 1000.0
         const val HUNDRED: Double = 100.0
+        const val EIGHT_KB: Int = 8192
+        const val ONE: Int = 1
         const val FRACTION: Float = 0.1f
         const val ZERO_S: String = "0"
         const val ZERO_D: Double = 0.0
@@ -48,6 +51,7 @@ class Constants {
         //PERMISSIONS
         const val PERMISSION_REQUEST_ALL: Int = 888
         const val PERMISSION_REQUEST_GPS: Int = 666
+        const val UNKNOWN_RESPONSE: Int = 404
         //REQUESTS
         const val IMPORT_DATA_FILE: Int = 111
         const val IMPORT_DATA_FOLDER: Int = 222
@@ -114,6 +118,9 @@ class Constants {
         const val ARROW_LEFT: String = "<-"
         const val NONE: String = "None"
         const val NO_DATA: String = "No Data"
+        const val MASTER: String = "MASTER"
+        const val TRY_AGAIN: String = "Connection invalid, try again on both Devices!"
+        const val CONNECTION_ESTABLISHED: String = "Connection established, please wait!"
         const val NOT_CONSULTED: String = "Not consulted"
         //XML
         const val EMPTY_LIST: String = "EmptyList"

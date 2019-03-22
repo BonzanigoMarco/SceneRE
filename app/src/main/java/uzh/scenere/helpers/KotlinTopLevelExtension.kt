@@ -8,13 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
-import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NULL_CLASS
 import uzh.scenere.const.Constants.Companion.REFLECTION
 import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.const.Constants.Companion.STYLE
+import uzh.scenere.const.Constants.Companion.ZERO
 import java.io.File
+import java.util.*
 import kotlin.random.Random
 
 inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int)->INNER): Array<Array<INNER>> = Array(sizeOuter) { Array<INNER>(sizeInner, innerInit) }
@@ -187,4 +189,31 @@ private fun reStyleTextColor(context: Context, view: View, sreStyle: SreStyle){
 
 enum class WhatIfMode(){
     ALL, DYNAMIC, STAKEHOLDER, OBJECTS, STATIC, NONE
+}
+
+fun <T: Any?> T?.notNull(f: ()-> Unit): T?{
+    if (this != null){
+        f()
+    }
+    return this
+}
+
+fun <T: Any> HashMap<T,Int>.addOne(key: T){
+    this[key] = NumberHelper.nvl(this[key], ZERO).plus(Constants.ONE)
+}
+
+fun <K,V: Comparable<V>> Map<K,V>.sortByValue(): TreeMap<K, V> {
+    val comparator = Comparator<K> { k1, k2 ->
+        val compare = get(k1)!!.compareTo(get(k2)!!)
+        if (compare == 0) 1 else compare
+    }
+    val sorted = TreeMap<K,V>(comparator)
+    sorted.putAll(this)
+    return sorted
+}
+
+fun <K,V: Comparable<V>> Map<K,V>.sort(): TreeMap<K, V> {
+    val sorted = TreeMap<K,V>()
+    sorted.putAll(this)
+    return sorted
 }

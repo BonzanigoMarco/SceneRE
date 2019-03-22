@@ -582,10 +582,6 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         }
     }
 
-    private val notifyExecutable: (String) -> Unit = {
-        notify(it)
-    }
-
     private val notifyExtendedExecutable: (String,String?) -> Unit = { title: String, content:String? ->
         notify(title,content)
     }

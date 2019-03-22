@@ -31,6 +31,8 @@ import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.inputmethod.EditorInfo
 import uzh.scenere.const.Constants.Companion.ZERO_S
+import java.io.Serializable
+import kotlin.collections.ArrayList
 
 
 abstract class AbstractManagementActivity : AbstractBaseActivity() {
@@ -282,8 +284,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.setSize(WRAP_CONTENT, if (inputType == LineInputType.MULTI_LINE_EDIT) MATCH_PARENT else WRAP_CONTENT)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val input = SreMultiAutoCompleteTextView(this, ArrayList())
-            input.setBackgroundColor(getColorWithStyle(this, R.color.srePrimary))
-            input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
+//            input.setBackgroundColor(getColorWithStyle(this, R.color.srePrimary))
+//            input.setPadding(marginSmall!!, marginSmall!!, marginSmall!!, marginSmall!!)
             input.textAlignment = if (inputType == LineInputType.MULTI_LINE_CONTEXT_EDIT) View.TEXT_ALIGNMENT_TEXT_START else View.TEXT_ALIGNMENT_TEXT_END
             input.layoutParams = childParams
             input.textSize = textSize!!
@@ -431,7 +433,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             addButtonParams.setMargins(0,marginSmall!!,0,marginSmall!!)
             addButtonParams.weight = 1f
             addButton.layoutParams = addButtonParams
-            val input = SreEditText(this, wrapper, null, getString(R.string.input, labelText))
+            val objects = if (data is ArrayList<*>) data as ArrayList<Serializable> else ArrayList<Serializable>()
+            val input = SreMultiAutoCompleteTextView(this, objects)
             input.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             input.textSize = textSize!!
             input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
@@ -474,6 +477,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             if (!readOnly && !noCompleteRemoval){
                 addClearSelectionButton(getString(R.string.literal_remove_all), selectionCarrier, labelText)
             }
+            uncheckedMap[labelText] = input
             tutorialOpen = SreTutorialLayoutDialog(this@AbstractManagementActivity,screenWidth,if (isLandscapeOrientation()) "info_multitext_landscape" else "info_multitext").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             return outerWrapper
         }

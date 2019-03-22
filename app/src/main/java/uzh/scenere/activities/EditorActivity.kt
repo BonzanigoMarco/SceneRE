@@ -293,7 +293,7 @@ class EditorActivity : AbstractManagementActivity() {
 
     private var activeNfcTriggerElement: Element? = null
     private fun toggleNfcData(nfcTrigger: NfcTrigger, element: Element) {
-        var enabledPrior = element.nfcDataLoaded
+        val enabledPrior = element.nfcDataLoaded
         var enabled = true
         for (view in 0 until getContentHolderLayout().childCount){
             val child = getContentHolderLayout().getChildAt(view)
@@ -501,11 +501,12 @@ class EditorActivity : AbstractManagementActivity() {
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
+                        (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
                     }else{
                         var pointer = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_standard))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title, false, -1))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text, false, -1))
-                        (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                        (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
@@ -514,12 +515,13 @@ class EditorActivity : AbstractManagementActivity() {
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
+                        (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
                     }else{
                         val stepId = activeStepIds.indexOf(element.targetStepId)+1
                         var pointer = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_jump))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title, false, -1))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text, false, -1))
-                        (inputMap[elementAttributes[pointer++]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                        (inputMap[elementAttributes[pointer++]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.LOOKUP, if (stepId > 0) SINGLE_SELECT_WITH_PRESET_POSITION.plus(stepId) else null, false, -1,addToArrayBefore(stepTitles.toTypedArray(),NOTHING)))
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
@@ -529,11 +531,12 @@ class EditorActivity : AbstractManagementActivity() {
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
+                        (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
                     }else{
                         var pointer = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_sound))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title, false, -1))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text, false, -1))
-                        (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                        (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
@@ -542,11 +545,12 @@ class EditorActivity : AbstractManagementActivity() {
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
+                        (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
                     }else{
                         var pointer = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_vibration))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer++], LineInputType.SINGLE_LINE_EDIT, element.title, false, -1))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text, false, -1))
-                        (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                        (inputMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
@@ -558,6 +562,7 @@ class EditorActivity : AbstractManagementActivity() {
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
+                        (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
                     }else {
                         var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_resource))
                         val position = allResources.indexOf(element.resource)+1
@@ -565,7 +570,7 @@ class EditorActivity : AbstractManagementActivity() {
                         getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.LOOKUP, SINGLE_SELECT_WITH_PRESET_POSITION.plus(position), false, -1,addToArrayBefore(allResources.toStringArray(),NOTHING)))
                         getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.NUMBER_SIGNED_EDIT, element.change.toString(), true, 9))
                         getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, element.text, false, -1))
-                        (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                        (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                     }
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
@@ -710,7 +715,7 @@ class EditorActivity : AbstractManagementActivity() {
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_standard))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
-                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
@@ -722,7 +727,7 @@ class EditorActivity : AbstractManagementActivity() {
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_jump))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
-                    (inputMap[elementAttributes[index++]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    (inputMap[elementAttributes[index++]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT, false, -1,addToArrayBefore(stepTitles.toTypedArray(),NOTHING)))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
@@ -732,7 +737,7 @@ class EditorActivity : AbstractManagementActivity() {
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_sound))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
-                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
@@ -741,7 +746,7 @@ class EditorActivity : AbstractManagementActivity() {
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_step_vibration))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
-                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
@@ -755,7 +760,7 @@ class EditorActivity : AbstractManagementActivity() {
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.LOOKUP, SINGLE_SELECT, false, -1,addToArrayBefore(allResources.toStringArray(),NOTHING)))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.NUMBER_SIGNED_EDIT, null, true, 9))
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_CONTEXT_EDIT, null, false, -1))
-                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(activeScenario?.objects!!)
+                    (inputMap[elementAttributes[index]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects())
                     execMorphInfoBar(InfoState.MAXIMIZED)
                     tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity,screenWidth,"info_editor_context").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
                 }
@@ -865,6 +870,15 @@ class EditorActivity : AbstractManagementActivity() {
                 resources.getString(R.string.trigger_magnetic) -> {/*TODO*/ }
             }
         }
+    }
+
+    private fun collectContextObjects(includeStakeholder: Boolean = false): ArrayList<java.io.Serializable>{
+        val list = ArrayList<java.io.Serializable>()
+        list.addAll(activeScenario?.objects!!)
+        if (includeStakeholder){
+            list.addAll(projectContext!!.stakeholders)
+        }
+        return list
     }
 
     @Suppress("UNCHECKED_CAST")

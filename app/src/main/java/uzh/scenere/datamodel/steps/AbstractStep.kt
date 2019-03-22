@@ -41,7 +41,7 @@ abstract class AbstractStep(val id: String, var previousId: String?, val pathId:
     }
 
     fun withWhatIfs(whatIfs: List<String>? = null): AbstractStep{
-        if (!whatIfs.isNullOrEmpty()){
+        if (whatIfs != null){
             this.whatIfs.clear()
             this.whatIfs.addAll(whatIfs)
         }

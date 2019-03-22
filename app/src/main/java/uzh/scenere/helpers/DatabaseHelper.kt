@@ -310,12 +310,14 @@ class DatabaseHelper private constructor(context: Context) {
                 if (Project::class == clz) return database!!.readProjects() as List<T>
                 if (Stakeholder::class == clz && key is Project) return database!!.readStakeholder(key) as List<T>
                 if (AbstractObject::class == clz && key is Scenario) return database!!.readObjects(key, fullLoad) as List<T>
+                if (AbstractObject::class == clz && key == null) return database!!.readObjects(key, fullLoad) as List<T>
                 if (Attribute::class == clz && key is String) return database!!.readAttributes(key) as List<T>
                 if (Scenario::class == clz && key is Project) return database!!.readScenarios(key, fullLoad) as List<T>
                 if (Path::class == clz && key is Scenario) return database!!.readPaths(key, fullLoad) as List<T>
                 if (IElement::class == clz && key is Path) return database!!.readElements(key, fullLoad) as List<T>
                 if (IElement::class == clz && key == null) return database!!.readElements(key, fullLoad) as List<T>
-                if (Walkthrough::class == clz && (key == null || key is Scenario)) return database!!.readWalkthroughs(key as String?) as List<T>
+                if (Walkthrough::class == clz && key is String?) return database!!.readWalkthroughs(key) as List<T>
+                if (Walkthrough::class == clz && key is Scenario) return database!!.readWalkthroughs(key.id) as List<T>
             }
         }
         return emptyList()
@@ -399,7 +401,7 @@ class DatabaseHelper private constructor(context: Context) {
                 else -> false
             }
             if (new){
-                map[item::class] = NumberHelper.nvl(map[item::class],0)+1
+                map.addOne(item::class)
             }
         }
         return map

@@ -1,7 +1,6 @@
 package uzh.scenere.activities
 
 import android.os.Bundle
-import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.ScrollView
@@ -62,16 +61,17 @@ class GlossaryActivity: AbstractManagementActivity() {
         super.onCreate(savedInstanceState)
         val topic = intent.getStringExtra(Constants.BUNDLE_GLOSSARY_TOPIC)
         val additional = intent.getStringArrayExtra(Constants.BUNDLE_GLOSSARY_ADDITIONAL_TOPICS)
-        buttonMap["Project"] = createGlossaryButton("Project",R.string.icon_project, R.string.glossary_project)
-        buttonMap["Stakeholder"] = createGlossaryButton("Stakeholder",R.string.icon_stakeholder, R.string.glossary_stakeholder)
-        buttonMap["Scenario"] = createGlossaryButton("Scenario",R.string.icon_scenario, R.string.glossary_scenario)
-        buttonMap["Object"] = createGlossaryButton("Object",R.string.icon_object, R.string.glossary_object)
-        buttonMap["Attribute"] = createGlossaryButton("Attribute",R.string.icon_attributes, R.string.glossary_attribute)
-        buttonMap["Resource"] = createGlossaryButton("Resource",R.string.icon_resource, R.string.glossary_resource)
-        buttonMap["Walkthrough"] = createGlossaryButton("Walkthrough",R.string.icon_walkthrough, R.string.glossary_walkthrough)
-        buttonMap["Step"] = createGlossaryButton("Step",R.string.icon_step, R.string.glossary_step)
-        buttonMap["Trigger"] = createGlossaryButton("Trigger",R.string.icon_trigger, R.string.glossary_trigger)
-        buttonMap["Editor"] = createGlossaryButton("Editor",R.string.icon_path_editor, R.string.glossary_editor)
+        buttonMap[getString(R.string.literal_project)] = createGlossaryButton(getString(R.string.literal_project),R.string.icon_project, R.string.glossary_project)
+        buttonMap[getString(R.string.literal_stakeholder)] = createGlossaryButton(getString(R.string.literal_stakeholder),R.string.icon_stakeholder, R.string.glossary_stakeholder)
+        buttonMap[getString(R.string.literal_scenario)] = createGlossaryButton(getString(R.string.literal_scenario),R.string.icon_scenario, R.string.glossary_scenario)
+        buttonMap[getString(R.string.literal_object)] = createGlossaryButton(getString(R.string.literal_object),R.string.icon_object, R.string.glossary_object)
+        buttonMap[getString(R.string.literal_attribute)] = createGlossaryButton(getString(R.string.literal_attribute),R.string.icon_attributes, R.string.glossary_attribute)
+        buttonMap[getString(R.string.literal_resource)] = createGlossaryButton(getString(R.string.literal_resource),R.string.icon_resource, R.string.glossary_resource)
+        buttonMap[getString(R.string.literal_walkthrough)] = createGlossaryButton(getString(R.string.literal_walkthrough),R.string.icon_walkthrough, R.string.glossary_walkthrough)
+        buttonMap[getString(R.string.literal_step)] = createGlossaryButton(getString(R.string.literal_step),R.string.icon_step, R.string.glossary_step)
+        buttonMap[getString(R.string.literal_trigger)] = createGlossaryButton(getString(R.string.literal_trigger),R.string.icon_trigger, R.string.glossary_trigger)
+        buttonMap[getString(R.string.literal_editor)] = createGlossaryButton(getString(R.string.literal_editor),R.string.icon_path_editor, R.string.glossary_editor)
+        buttonMap[getString(R.string.literal_what_if)] = createGlossaryButton(getString(R.string.literal_what_if),R.string.icon_what_if, R.string.glossary_what_if)
 
         var button: SwipeButton? = null
         for (entry in buttonMap.entries){
@@ -102,7 +102,7 @@ class GlossaryActivity: AbstractManagementActivity() {
         return SwipeButton(this, label)
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonStates(false, true, false, false)
-                .setButtonIcons(R.string.icon_null, R.string.icon_question, null, null, icon)
+                .setButtonIcons(R.string.icon_null, R.string.icon_glossary_entry, null, null, icon)
                 .setExecutable(object: SwipeButton.SwipeButtonExecution{
                     override fun execRight() {
                         inputOpen = true
