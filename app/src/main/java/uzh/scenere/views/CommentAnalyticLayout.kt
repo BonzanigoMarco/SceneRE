@@ -14,7 +14,9 @@ import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.datastructures.StatisticArrayList
 import uzh.scenere.helpers.DipHelper
+import uzh.scenere.helpers.NumberHelper
 import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.addOne
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -24,6 +26,7 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
 
     private lateinit var comments: HashMap<String,ArrayList<CommentWrapper>>
     private lateinit var sortedStepList: ArrayList<String>
+    private lateinit var stepRuns: HashMap<String,Int>
     private var activeStepName: String = NOTHING
 
     private var stepPointer: Int = 0
@@ -59,6 +62,7 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
 
     private fun createOverview() {
         comments = HashMap()
+        stepRuns = HashMap()
         sortedStepList = ArrayList()
         val sortingMap = TreeMap<Float,String>()
         for (walkthrough in walkthroughs){
@@ -72,7 +76,9 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
                     comments[stepId] = ArrayList()
                 }
                 val stepComments = Walkthrough.WalkthroughStepProperty.STEP_COMMENTS.getAll(stepId, String::class)
+                stepRuns.addOne(stepId)
                 if (stepComments.isNullOrEmpty()){
+                    stepNumber++
                     continue
                 }
                 val restoredComments = ArrayList<String>()
@@ -138,7 +144,7 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
         if (!wrapperList.isNullOrEmpty()){
             val commentWrapper = wrapperList.first()
             activeStepName = commentWrapper.title
-            addView(createLine(context.getString(R.string.analytics_step_number),false, (stepPointer+1).toString()))
+            addView(createLine(context.getString(R.string.analytics_step_number),false, wrapperList.get(0).stepNumber.toString()))
             addView(createLine(context.getString(R.string.analytics_step_title),false, commentWrapper.title))
             addView(createLine(context.getString(R.string.analytics_step_text),false, commentWrapper.text))
             val times = StatisticArrayList<Long>()
@@ -154,7 +160,7 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
             if (StringHelper.hasText(stakeholderName)){
                 addView(createLine(context.getString(R.string.analytics_step_stakeholder),false, stakeholderName))
             }
-            addView(createLine(context.getString(R.string.analytics_step_runs),false, runs.toString()))
+            addView(createLine(context.getString(R.string.analytics_step_runs),false, NumberHelper.nvl(stepRuns[stepId],0).toString()))
             val avg = times.avg()
             addView(createLine(context.getString(R.string.analytics_avg_time),false, context.getString(R.string.analytics_x_seconds,avg)))
             for (wrapper in wrapperList){

@@ -320,6 +320,7 @@
     <string name="walkthrough_intro_text">In this Walkthrough you play as %1$s<![CDATA[<br>]]>Description: %2$s<![CDATA[<br>]]>Introduction: %3$s</string>
     <string name="walkthrough_question_option">Question [%1$d Option(s)]:</string>
     <string name="walkthrough_outro">Outro</string>
+    <string name="walkthrough_intro">Intro</string>
     <string name="walkthrough_statistics">Statistics</string>
     <string name="walkthrough_finish_scenario">Finish Scenario</string>
     <string name="walkthrough_concat_br">%1$s<![CDATA[<br>]]>%2$s</string>
@@ -343,11 +344,13 @@
     <string name="walkthrough_transition_nfc_scanned">NFC-Tag Scanned</string>
     <string name="walkthrough_what_if_browse">Browse available What-If Questions</string>
     <string name="walkthrough_contribute_comments">Write down your Comment and press "Add" to contribute it</string>
-    <string name="walkthrough_final_state_cancelled_nfc">Cancelled on the %1$s Step, \"%2$s\" (NFC not supported)</string>
-    <string name="walkthrough_final_state_cancelled_audio">Cancelled on the %1$s Step, \"%2$s\" (Audio not supported)</string>
-    <string name="walkthrough_final_state_cancelled_gps">Cancelled on the %1$s Step, \"%2$s\" (GPS not supported)</string>
-    <string name="walkthrough_final_state_cancelled">Cancelled on the %1$s Step, \"%2$s\"</string>
-    <string name="walkthrough_final_state_cancelled_check">Cancelled on the "</string>
+    <string name="walkthrough_final_state_cancelled_nfc">Cancelled during the %1$s Step, \"%2$s\" (NFC not supported)</string>
+    <string name="walkthrough_final_state_cancelled_audio">Cancelled during the %1$s Step, \"%2$s\" (Audio not supported)</string>
+    <string name="walkthrough_final_state_cancelled_gps">Cancelled during the %1$s Step, \"%2$s\" (GPS not supported)</string>
+    <string name="walkthrough_final_state_cancelled_intro">Cancelled during the Intro</string>
+    <string name="walkthrough_final_state_cancelled_outro">Cancelled during the Outro</string>
+    <string name="walkthrough_final_state_cancelled">Cancelled during the %1$s Step, \"%2$s\"</string>
+    <string name="walkthrough_final_state_cancelled_check">Cancelled during the "</string>
     <string name="walkthrough_final_state_complete">Walkthrough completed successfully</string>
 
     <!--Literal and related-->

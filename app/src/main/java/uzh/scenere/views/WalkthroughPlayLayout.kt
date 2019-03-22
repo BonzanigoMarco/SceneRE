@@ -182,7 +182,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                 ArrayList(),arrayListOf(stakeholder.name,context.getString(R.string.walkthrough_initiation),context.getString(R.string.walkthrough_description),context.getString(R.string.walkthrough_introduction)))
         val button = generateButton(context.getString(R.string.walkthrough_start_scenario))
         button.setExecutable {
-            Walkthrough.WalkthroughProperty.INTRO_TIME.set(getTime())
+            addIntroStep()
             loadNextStep(context.getString(R.string.walkthrough_start_scenario))
         }
         stepLayout.addView(text)
@@ -589,7 +589,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                             scroll.addScrollElement(alertText)
                             scroll.addScrollElement(button)
                         }
-                        val openButton = generateButton(context.getString(R.string.walkthrough_open_location))
+                        val openButton = generateButton(context.getString(R.string.walkthrough_open_location),true)
                         openButton.setExecutable {
                             context.startActivity(CommunicationHelper.getMapIntent(latitude,longitude))
                         }
@@ -677,6 +677,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
         val text = generateText(context.getString(R.string.walkthrough_outro), cutHtml, ArrayList(), arrayListOf(context.getString(R.string.walkthrough_outro),context.getString(R.string.walkthrough_statistics)))
         val button = generateButton(context.getString(R.string.walkthrough_finish_scenario))
         button.setExecutable {
+            addOutroStep()
             saveAndLoadNew()
         }
         stepLayout.addView(text)
@@ -716,10 +717,11 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
         return text
     }
 
-    private fun generateButton(label: String?): SreButton {
-        val button = SreButton(context,triggerLayout,label)
-        button.addRule(RelativeLayout.CENTER_IN_PARENT)
-        return button
+    private fun generateButton(label: String?, attention: Boolean = false): SreButton {
+        if (attention){
+            return SreButton(context,triggerLayout,label,null,null,SreButton.ButtonStyle.ATTENTION).addRule(RelativeLayout.CENTER_IN_PARENT)
+        }
+        return SreButton(context,triggerLayout,label).addRule(RelativeLayout.CENTER_IN_PARENT)
     }
 
     private fun loadNextStep(info: String, pathSwitch: Boolean = false, specificStepId: String? = null) {
@@ -830,14 +832,37 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
     fun saveAndLoadNew(interrupted: Boolean = false, reason: String? = null) {
         onPause()
         if (interrupted){
-            walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments),context.getString(R.string.analytics_walkthrough_cancelled))
-            Walkthrough.WalkthroughProperty.FINAL_STATE.set(reason?: context.getString(R.string.walkthrough_final_state_cancelled, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
+            if (state == WalkthroughState.STARTED){
+                addIntroStep(context.getString(R.string.walkthrough_final_state_cancelled_intro))
+            }else if (state == WalkthroughState.FINISHED){
+                addOutroStep(context.getString(R.string.walkthrough_final_state_cancelled_outro))
+            }else {
+                walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments),context.getString(R.string.analytics_walkthrough_cancelled))
+                Walkthrough.WalkthroughProperty.FINAL_STATE.set(reason?: context.getString(R.string.walkthrough_final_state_cancelled, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size),getCurrentStep()?.title))
+            }
         }else{
             Walkthrough.WalkthroughProperty.FINAL_STATE.set(context.getString(R.string.walkthrough_final_state_complete))
         }
         CommunicationHelper.unregisterGpsListener(activityLink)
         walkthrough.toXml(context)
         stopFunction()
+    }
+
+    private fun addOutroStep(reason: String? = null) {
+        if (reason != null) {
+            Walkthrough.WalkthroughProperty.FINAL_STATE.set(reason)
+        }
+        val introStep = OutroStep(context, scenario.id, ObjectHelper.nvl(paths?.get(layer)?.id, NOTHING), scenario.outro)
+        walkthrough.addStep(introStep.withTime(getTime()).withComments(comments), context.getString(R.string.analytics_walkthrough_cancelled))
+    }
+
+    private fun addIntroStep(reason: String? = null) {
+        if (reason != null){
+            Walkthrough.WalkthroughProperty.FINAL_STATE.set(reason)
+        }
+        Walkthrough.WalkthroughProperty.INTRO_TIME.set(getTime())
+        val introStep = IntroStep(context, scenario.id, ObjectHelper.nvl(getCurrentStep()!!.pathId, NOTHING), context.getString(R.string.walkthrough_intro_text, stakeholder.name, stakeholder.description, scenario.intro))
+        walkthrough.addStep(introStep.withTime(Walkthrough.WalkthroughProperty.INTRO_TIME.get(Long::class)).withComments(comments), context.getString(R.string.analytics_walkthrough_cancelled))
     }
 
     fun resetActiveness() {

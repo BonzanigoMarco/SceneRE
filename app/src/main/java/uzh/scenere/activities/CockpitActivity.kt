@@ -90,13 +90,31 @@ class CockpitActivity : AbstractManagementActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        customizeToolbarId(R.string.icon_back, R.string.icon_backward, R.string.icon_win_min, R.string.icon_forward, null)
+        creationButton = SwipeButton(this, "Cockpit-Mode")
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_null, null)
+                .setButtonStates(true,true, false, false)
+                .adaptMasterLayoutParams(true)
+                .setFirstPosition()
+                .setExecutable(object: SwipeButton.SwipeButtonExecution{
+                    override fun execLeft() {
+                        onLeftClicked()
+                    }
+                    override fun execRight() {
+                        onRightClicked()
+                    }
+                })
+                .setAutoCollapse(true)
+                .updateViews(true)
+        getContentHolderLayout().addView(creationButton)
+        customizeToolbarId(R.string.icon_back, R.string.icon_null, R.string.icon_win_min, R.string.icon_null, null)
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         recreateViews()
         if (PermissionHelper.getRequiredPermissions(this).isEmpty()){
-            tutorialOpen = SreTutorialLayoutDialog(this@CockpitActivity,screenWidth,"info_bars","info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            tutorialOpen = SreTutorialLayoutDialog(this@CockpitActivity,screenWidth,"info_navigate","info_toolbar").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }else{
-            tutorialOpen = SreTutorialLayoutDialog(this@CockpitActivity,screenWidth,"info_bars", "info_toolbar","info_permissions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            tutorialOpen = SreTutorialLayoutDialog(this@CockpitActivity,screenWidth,"info_navigate", "info_toolbar","info_permissions").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }
     }
 
@@ -133,14 +151,14 @@ class CockpitActivity : AbstractManagementActivity() {
         recreateViews()
     }
 
-    override fun onToolbarCenterRightClicked() {
+    fun onRightClicked() {
         SensorHelper.getInstance(this).unregisterTextGraphListener()
         mode = mode.next()
         getInfoContent().text = mode.getDescription(applicationContext)
         recreateViews()
     }
 
-    override fun onToolbarCenterLeftClicked() {
+    fun onLeftClicked() {
         SensorHelper.getInstance(this).unregisterTextGraphListener()
         mode = mode.previous()
         getInfoContent().text = mode.getDescription(applicationContext)
@@ -153,9 +171,9 @@ class CockpitActivity : AbstractManagementActivity() {
 
     private fun recreateViews() {
         getInfoContent().text = mode.getDescription(applicationContext)
-        getContentHolderLayout().removeAllViews()
+        removeExcept(getContentHolderLayout(),creationButton)
         getContentWrapperLayout().scrollTo(0,0)
-        createTitle(mode.label,getContentHolderLayout())
+        creationButton?.setText(mode.label)
         when (this.mode) {
             CockpitMode.PERMISSIONS -> {
                 for (permission in PermissionHelper.getRequiredPermissions(this)) {

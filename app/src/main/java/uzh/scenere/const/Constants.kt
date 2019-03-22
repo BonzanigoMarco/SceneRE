@@ -94,6 +94,8 @@ class Constants {
         const val MIN_IDENTIFIER: String = "min_"
         const val MAX_IDENTIFIER: String = "max_"
         const val INIT_IDENTIFIER: String = "init_"
+        const val OUTRO_IDENTIFIER: String = "outro_"
+        const val INTRO_IDENTIFIER: String = "intro_"
         //GENERAL
         const val NEW_LINE_C: Char = '\n'
         const val SPACE_C: Char = ' '

@@ -14,8 +14,8 @@ class SreLatLng(private val latitude: Double,private val longitude: Double): Ser
         val latSplit = latitude.toString().split(".")
         val lonSplit = longitude.toString().split(".")
         if (latSplit.size == 2 && lonSplit.size == 2){
-            return "${latSplit[0]}.${latSplit[1].substring(0,NumberHelper.capAtHigh(8,latSplit[1].length-1))}" +
-                    ",${lonSplit[0]}.${lonSplit[1].substring(0, NumberHelper.capAtHigh(8, lonSplit[1].length - 1))}"
+            return "${latSplit[0]}.${latSplit[1].substring(0,NumberHelper.capAtHigh(6,latSplit[1].length-1))}" +
+                    ",${lonSplit[0]}.${lonSplit[1].substring(0, NumberHelper.capAtHigh(6, lonSplit[1].length - 1))}"
 
         }
         return "${latitude.toFloat()},${longitude.toFloat()}"

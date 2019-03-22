@@ -22,6 +22,17 @@ while the Bottom Bar shows
 the functionality for each Icon.
 
 
+Info Bar & Navigation
+
+The Info Bar on the bottom shows
+the functionality for each Icon.
+Swiping left and right on Modules
+with                Icons allows
+you to swap through different
+Modes of each Section.
+
+
+
 Toolbar
 
 Depending on your Location

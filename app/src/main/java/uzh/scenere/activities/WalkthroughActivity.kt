@@ -284,19 +284,24 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
     private fun execSelect() {
         when (mode) {
             WalkthroughMode.SELECT_PROJECT -> {
+                creationButton?.setButtonStates(false,false,false, false)
+                        ?.updateViews(false)
                 executeAsyncTask({
                     mode = WalkthroughMode.SELECT_SCENARIO
                     loadedScenarios.clear()
                     loadedScenarios.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Scenario::class, loadedProjects[pointer!!]))
                     projectPointer = pointer
                     pointer = null
+                },{
                     projectLabel?.text = getString(R.string.walkthrough_selected_project, loadedProjects[projectPointer!!].title)
                     creationButton?.setButtonStates(!loadedScenarios.isEmpty(), !loadedScenarios.isEmpty(), true, false)
                             ?.setText(createButtonLabel(loadedScenarios, "Scenarios"))
                             ?.updateViews(false)
-                },{})
+                })
             }
             WalkthroughMode.SELECT_SCENARIO -> {
+                creationButton?.setButtonStates(false,false,false, false)
+                        ?.updateViews(false)
                 executeAsyncTask({
                 mode = WalkthroughMode.SELECT_STAKEHOLDER
                 loadedStakeholders.clear()
@@ -309,12 +314,13 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
                         loadedStakeholders.add(stakeholder)
                     }
                 }
-                scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario, loadedScenarios[scenarioPointer!!].title)
-                creationButton?.setButtonStates(!loadedStakeholders.isEmpty(), !loadedStakeholders.isEmpty(), true, false)
-                        ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_play, null)
-                        ?.setText(createButtonLabel(loadedStakeholders, getString(R.string.literal_stakeholders)))
-                        ?.updateViews(false)
-                },{})
+                },{
+                    scenarioLabel?.text = getString(R.string.walkthrough_selected_scenario, loadedScenarios[scenarioPointer!!].title)
+                    creationButton?.setButtonStates(!loadedStakeholders.isEmpty(), !loadedStakeholders.isEmpty(), true, false)
+                            ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_play, null)
+                            ?.setText(createButtonLabel(loadedStakeholders, getString(R.string.literal_stakeholders)))
+                            ?.updateViews(false)
+                })
             }
             WalkthroughMode.SELECT_STAKEHOLDER -> play()
             else -> return
