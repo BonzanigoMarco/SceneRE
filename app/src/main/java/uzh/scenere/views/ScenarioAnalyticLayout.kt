@@ -6,13 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.datastructures.StatisticArrayList
 import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.helpers.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 @SuppressLint("ViewConstructor")
 class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
@@ -44,7 +47,7 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         return walkthroughAmount.size
     }
 
-    fun nextStakeholder(){
+    fun nextStakeholder(collectOnly: Boolean = false): ArrayList<Pair<String,String>>{
         if (!steps.isEmpty()) {
             if (stakeholderPointer < steps.size - 1) {
                 stakeholderPointer++
@@ -52,7 +55,7 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                 stakeholderPointer = 0
             }
         }
-        visualizeOverview()
+        return visualizeOverview(collectOnly)
     }
 
     fun previousStakeholder(){
@@ -114,37 +117,71 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         visualizeOverview()
     }
 
-    private fun visualizeOverview() {
-        removeAllViews()
-        var pointer = 0
-        for (entry in steps) { //Iterate Stakeholders
-            if (pointer == stakeholderPointer){
-                addView(createLine(context.getString(R.string.literal_stakeholder),false, entry.key.name))
-                val walkthroughCount = walkthroughAmount[entry.key]
-                addView(createLine(context.getString(R.string.literal_walkthroughs),false,"$walkthroughCount"))
-                var dark = true
-                for (step in entry.value.entries){
-                    addView(createLine(context.getString(R.string.analytics_transition_x,step.key), false, step.value.getStatistics(),dark))
-                    val times = stepTimes[entry.key]?.get(step.key)
-                    if (times != null) {
-                        val avg = times.avg()
-                        addView(createLine(context.getString(R.string.analytics_avg_time), false, context.getString(R.string.analytics_x_seconds,avg),dark))
-                    }
-                    dark = !dark
-                }
-                val paths = paths[entry.key]
-                if (paths != null){
-                    var counter = 1
-                    for (path in paths.getDesc()){
-                        val percentage = NumberHelper.floor(paths.getPercentage(path), 2)
-                        addView(createLine(context.getString(R.string.analytics_path_version_x,counter).plus(", $percentage%"), false, path,dark))
-                        counter++
+    private fun visualizeOverview(collectOnly: Boolean = false): ArrayList<Pair<String,String>> {
+        val list = ArrayList<Pair<String,String>>()
+        if (collectOnly){
+            var pointer = 0
+            for (entry in steps) { //Iterate Stakeholders
+                if (pointer == stakeholderPointer){
+                    list.add(createListEntry(context.getString(R.string.literal_stakeholder), entry.key.name))
+                    val walkthroughCount = walkthroughAmount[entry.key]
+                    list.add(createListEntry(context.getString(R.string.literal_walkthroughs),"$walkthroughCount"))
+                    var dark = true
+                    for (step in entry.value.entries){
+                        list.add(createListEntry(context.getString(R.string.analytics_transition_x,step.key),  step.value.getStatistics()))
+                        val times = stepTimes[entry.key]?.get(step.key)
+                        if (times != null) {
+                            val avg = times.avg()
+                            list.add(createListEntry(context.getString(R.string.analytics_avg_time), context.getString(R.string.analytics_x_seconds,avg)))
+                        }
                         dark = !dark
                     }
+                    val paths = paths[entry.key]
+                    if (paths != null){
+                        var counter = 1
+                        for (path in paths.getDesc()){
+                            val percentage = NumberHelper.floor(paths.getPercentage(path), 2)
+                            list.add(createListEntry(context.getString(R.string.analytics_path_version_x,counter).plus(", $percentage%"), path))
+                            counter++
+                            dark = !dark
+                        }
+                    }
                 }
+                pointer++
             }
-            pointer++
+        }else{
+            removeAllViews()
+            var pointer = 0
+            for (entry in steps) { //Iterate Stakeholders
+                if (pointer == stakeholderPointer){
+                    addView(createLine(context.getString(R.string.literal_stakeholder),false, entry.key.name))
+                    val walkthroughCount = walkthroughAmount[entry.key]
+                    addView(createLine(context.getString(R.string.literal_walkthroughs),false,"$walkthroughCount"))
+                    var dark = true
+                    for (step in entry.value.entries){
+                        addView(createLine(context.getString(R.string.analytics_transition_x,step.key), false, step.value.getStatistics(),dark))
+                        val times = stepTimes[entry.key]?.get(step.key)
+                        if (times != null) {
+                            val avg = times.avg()
+                            addView(createLine(context.getString(R.string.analytics_avg_time), false, context.getString(R.string.analytics_x_seconds,avg),dark))
+                        }
+                        dark = !dark
+                    }
+                    val paths = paths[entry.key]
+                    if (paths != null){
+                        var counter = 1
+                        for (path in paths.getDesc()){
+                            val percentage = NumberHelper.floor(paths.getPercentage(path), 2)
+                            addView(createLine(context.getString(R.string.analytics_path_version_x,counter).plus(", $percentage%"), false, path,dark))
+                            counter++
+                            dark = !dark
+                        }
+                    }
+                }
+                pointer++
+            }
         }
+        return list
     }
 
     private fun createLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null, dark: Boolean = true): View? {
@@ -172,5 +209,32 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
             return true
         }
         return false
+    }
+    
+    private fun createListEntry(labelText: String, presetValue: String): Pair<String,String>{
+        return Pair(labelText,presetValue)
+    }
+
+    fun getExportIntroduction(): String{
+        val list = ArrayList<Stakeholder>()
+        for (entry in steps){
+            list.add(entry.key)
+        }
+        return context.getString(R.string.analytics_statistics_export,steps.size,StringHelper.toListString(list))
+    }
+
+    fun getExportData(): ArrayList<Array<String>>{
+        val list = ArrayList<Array<String>>()
+        list.add(arrayOf(SPACE,SPACE))
+        if (!steps.isEmpty()){
+            do{
+                for (line in nextStakeholder(true)){
+                    list.add(arrayOf(line.first,line.second))
+                }
+                list.add(arrayOf(SPACE,SPACE))
+            }while(stakeholderPointer != 0)
+        }
+        list.removeAt(list.size-1)
+        return list
     }
 }

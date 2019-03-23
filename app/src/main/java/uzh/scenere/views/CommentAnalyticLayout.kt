@@ -11,6 +11,7 @@ import uzh.scenere.const.Constants.Companion.FRACTION
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NEW_LINE_TOKEN
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.datamodel.Walkthrough
 import uzh.scenere.datastructures.StatisticArrayList
 import uzh.scenere.helpers.DipHelper
@@ -31,16 +32,6 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
 
     private var stepPointer: Int = 0
 
-    fun nextStep(){
-        if (!comments.isEmpty()) {
-            if (stepPointer < comments.size-1) {
-                stepPointer++
-            } else {
-                stepPointer = 0
-            }
-        }
-        visualizeOverview()
-    }
     fun previousStep(){
         if (!comments.isEmpty()){
             if (stepPointer>0){
@@ -51,13 +42,23 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
         }
         visualizeOverview()
     }
-
     init {
         orientation = VERTICAL
         val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         params.setMargins(DipHelper.get(resources).dip5,0, DipHelper.get(resources).dip15,0)
         layoutParams = params
         createOverview()
+    }
+
+    fun nextStep(collectOnly: Boolean = false): ArrayList<Pair<String,String>> {
+        if (!comments.isEmpty()) {
+            if (stepPointer < comments.size-1) {
+                stepPointer++
+            } else {
+                stepPointer = 0
+            }
+        }
+        return visualizeOverview(collectOnly)
     }
 
     private fun createOverview() {
@@ -134,43 +135,87 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
         }
     }
 
-    private fun visualizeOverview() {
-        removeAllViews()
-        if (sortedStepList.isEmpty()){
-            return
-        }
-        val stepId = sortedStepList[stepPointer]
-        val wrapperList = comments[stepId]
-        if (!wrapperList.isNullOrEmpty()){
-            val commentWrapper = wrapperList.first()
-            activeStepName = commentWrapper.title
-            addView(createLine(context.getString(R.string.analytics_step_number),false, wrapperList.get(0).stepNumber.toString()))
-            addView(createLine(context.getString(R.string.analytics_step_title),false, commentWrapper.title))
-            addView(createLine(context.getString(R.string.analytics_step_text),false, commentWrapper.text))
-            val times = StatisticArrayList<Long>()
-            var runs = 0
-            var stakeholderName = NOTHING
-            for (wrapper in wrapperList) {
-                times.add(wrapper.time)
-                runs += wrapper.stepRuns
-                if (StringHelper.hasText(wrapper.stakeholderName)){
-                    stakeholderName = wrapper.stakeholderName
+    private fun visualizeOverview(collectOnly: Boolean = false): ArrayList<Pair<String,String>> {
+        val list = ArrayList<Pair<String,String>>()
+        if (collectOnly){
+            if (sortedStepList.isEmpty()) {
+                return list
+            }
+            val stepId = sortedStepList[stepPointer]
+            val wrapperList = comments[stepId]
+            if (!wrapperList.isNullOrEmpty()) {
+                val commentWrapper = wrapperList.first()
+                activeStepName = commentWrapper.title
+                list.add(createListEntry(context.getString(R.string.analytics_step_title), commentWrapper.title))
+                list.add(createListEntry(context.getString(R.string.analytics_step_text), commentWrapper.text))
+                val times = StatisticArrayList<Long>()
+                var runs = 0
+                var stakeholderName = NOTHING
+                for (wrapper in wrapperList) {
+                    times.add(wrapper.time)
+                    runs += wrapper.stepRuns
+                    if (StringHelper.hasText(wrapper.stakeholderName)) {
+                        stakeholderName = wrapper.stakeholderName
+                    }
+                }
+                if (StringHelper.hasText(stakeholderName)) {
+                    list.add(createListEntry(context.getString(R.string.analytics_step_stakeholder), stakeholderName))
+                }
+                list.add(createListEntry(context.getString(R.string.analytics_step_number), wrapperList[0].stepNumber.toString()))
+                list.add(createListEntry(context.getString(R.string.analytics_step_runs), NumberHelper.nvl(stepRuns[stepId], 0).toString()))
+                val avg = times.avg()
+                list.add(createListEntry(context.getString(R.string.analytics_avg_time), context.getString(R.string.analytics_x_seconds, avg)))
+                for (wrapper in wrapperList) {
+                    if (!wrapper.comments.isNullOrEmpty()) {
+                        val comments = StringHelper.concatList(NEW_LINE, wrapper.comments)
+                        list.add(createListEntry(context.getString(R.string.analytics_comment_of, wrapper.author), comments))
+                        list.add(createListEntry(context.getString(R.string.analytics_comment_timestamp), wrapper.timestamp))
+                    }
                 }
             }
-            if (StringHelper.hasText(stakeholderName)){
-                addView(createLine(context.getString(R.string.analytics_step_stakeholder),false, stakeholderName))
+        }else {
+            removeAllViews()
+            if (sortedStepList.isEmpty()) {
+                return list
             }
-            addView(createLine(context.getString(R.string.analytics_step_runs),false, NumberHelper.nvl(stepRuns[stepId],0).toString()))
-            val avg = times.avg()
-            addView(createLine(context.getString(R.string.analytics_avg_time),false, context.getString(R.string.analytics_x_seconds,avg)))
-            for (wrapper in wrapperList){
-                if (!wrapper.comments.isNullOrEmpty()){
-                    val comments = StringHelper.concatList(NEW_LINE,wrapper.comments)
-                    addView(createLine(context.getString(R.string.analytics_comment_of,wrapper.author),false, comments,SreTextView.TextStyle.MEDIUM))
-                    addView(createLine(context.getString(R.string.analytics_comment_timestamp),false, wrapper.timestamp))
+            val stepId = sortedStepList[stepPointer]
+            val wrapperList = comments[stepId]
+            if (!wrapperList.isNullOrEmpty()) {
+                val commentWrapper = wrapperList.first()
+                activeStepName = commentWrapper.title
+                addView(createLine(context.getString(R.string.analytics_step_title), false, commentWrapper.title))
+                addView(createLine(context.getString(R.string.analytics_step_text), false, commentWrapper.text))
+                val times = StatisticArrayList<Long>()
+                var runs = 0
+                var stakeholderName = NOTHING
+                for (wrapper in wrapperList) {
+                    times.add(wrapper.time)
+                    runs += wrapper.stepRuns
+                    if (StringHelper.hasText(wrapper.stakeholderName)) {
+                        stakeholderName = wrapper.stakeholderName
+                    }
+                }
+                if (StringHelper.hasText(stakeholderName)) {
+                    addView(createLine(context.getString(R.string.analytics_step_stakeholder), false, stakeholderName))
+                }
+                addView(createLine(context.getString(R.string.analytics_step_number), false, wrapperList[0].stepNumber.toString()))
+                addView(createLine(context.getString(R.string.analytics_step_runs), false, NumberHelper.nvl(stepRuns[stepId], 0).toString()))
+                val avg = times.avg()
+                addView(createLine(context.getString(R.string.analytics_avg_time), false, context.getString(R.string.analytics_x_seconds, avg)))
+                for (wrapper in wrapperList) {
+                    if (!wrapper.comments.isNullOrEmpty()) {
+                        val comments = StringHelper.concatList(NEW_LINE, wrapper.comments)
+                        addView(createLine(context.getString(R.string.analytics_comment_of, wrapper.author), false, comments, SreTextView.TextStyle.MEDIUM))
+                        addView(createLine(context.getString(R.string.analytics_comment_timestamp), false, wrapper.timestamp))
+                    }
                 }
             }
         }
+        return list
+    }
+
+    private fun createListEntry(labelText: String, presetValue: String): Pair<String,String>{
+        return Pair(labelText,presetValue)
     }
 
     private fun createLine(labelText: String, multiLine: Boolean = false, presetValue: String? = null, specialStyle: SreTextView.TextStyle = SreTextView.TextStyle.DARK): View? {
@@ -233,5 +278,24 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
             result = 31 * result + text.hashCode()
             return result
         }
+    }
+
+    fun getExportIntroduction(): String{
+        return context.getString(R.string.analytics_comments_export,comments.size,sortedStepList.size)
+    }
+    
+    fun getExportData(): ArrayList<Array<String>>{
+        val list = ArrayList<Array<String>>()
+        list.add(arrayOf(SPACE,SPACE))
+        if (!comments.isEmpty()){
+            do{
+                for (line in nextStep(true)){
+                    list.add(arrayOf(line.first,line.second))
+                }
+                list.add(arrayOf(SPACE,SPACE))
+            }while(stepPointer != 0)
+        }
+        list.removeAt(list.size-1)
+        return list
     }
 }

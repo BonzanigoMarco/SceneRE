@@ -10,6 +10,8 @@ import android.widget.EditText
 import android.widget.TextView
 import com.google.android.gms.maps.model.LatLng
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.FILE_TYPE_TFF
+import uzh.scenere.const.Constants.Companion.FILE_TYPE_TXT
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NULL_CLASS
 import uzh.scenere.const.Constants.Companion.REFLECTION
@@ -17,7 +19,9 @@ import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.const.Constants.Companion.STYLE
 import uzh.scenere.const.Constants.Companion.ZERO
 import uzh.scenere.datastructures.SreLatLng
+import java.io.BufferedReader
 import java.io.File
+import java.io.InputStreamReader
 import java.util.*
 import kotlin.random.Random
 
@@ -221,3 +225,33 @@ fun <K,V: Comparable<V>> Map<K,V>.sort(): TreeMap<K, V> {
 }
 
 fun LatLng.toSreLatLng() = SreLatLng(this)
+
+fun getDrawableIdByName(context: Context, drawableName: String): Int {
+    return context.resources.getIdentifier(drawableName, "drawable", context.packageName)
+}
+
+fun readTextFileFromAsset(context: Context, fileName: String): String{
+    var reader: BufferedReader? = null
+    try {
+        reader = BufferedReader(InputStreamReader(context.assets.open(fileName+ FILE_TYPE_TXT)));
+
+        val builder = StringBuilder()
+        var line: String? = null
+        do {
+            line = reader.readLine()
+            if (line != null){
+                builder.append(line)
+            }
+        }while (line != null)
+        return builder.toString()
+    } catch (e: Exception) {
+    } finally {
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (e: Exception) {
+            }
+        }
+    }
+    return NOTHING
+}

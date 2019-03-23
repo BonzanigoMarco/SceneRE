@@ -1,5 +1,6 @@
 package uzh.scenere.helpers
 
+import android.graphics.Bitmap
 import uzh.scenere.const.Constants.Companion.BOOLEAN
 import uzh.scenere.const.Constants.Companion.DOUBLE
 import uzh.scenere.const.Constants.Companion.EQUALS
@@ -30,6 +31,12 @@ class DataHelper {
                 }
                 ByteArray(0)
             }
+        }
+
+        fun toByteArray(bitmap: Bitmap): ByteArray{
+            val stream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            return stream.toByteArray()
         }
 
         @Suppress("UNCHECKED_CAST")

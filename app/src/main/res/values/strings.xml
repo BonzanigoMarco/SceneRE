@@ -596,7 +596,6 @@
     <string name="share_disconnected">Disconnected</string>
     <string name="share_connected">Connected to Device: %1$s</string>
     <string name="share_connected_unknown">Connected to Device</string>
-    <string name="mapbox_access_token">pk.eyJ1IjoibWFyY29ib256YW5pZ28iLCJhIjoiY2p0andvbWN3MDR6bjN5b2kwajJmaGliZCJ9.EfwdaT0qB9W_KePTU1AXfg</string>
     <string name="picker_copy_to_clipboard">Copy Location to Clipboard</string>
     <string name="picker_position">Position</string>
     <string name="picker_no_location_title">No Location</string>
@@ -604,4 +603,7 @@
     <string name="picker_cancel">Cancel</string>
     <string name="picker_no_location_copied">No Location copied!</string>
     <string name="picker_location_picked">Location copied to Clipboard!</string>
+    <string name="analytics_comments_export">A total of %1$d Comments in %2$d Steps were written.</string>
+    <string name="analytics_statistics_export">Walkthroughs were conducted by a total of %1$d Stakeholder(s): %2$s.</string>
+    <string name="analytics_export_walkthrough">A total of %1$d Walkthrough(s) have been conducted in this Scenario.</string>
 </resources>

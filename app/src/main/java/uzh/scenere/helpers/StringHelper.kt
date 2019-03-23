@@ -1,74 +1,81 @@
 package uzh.scenere.helpers
 
-import android.bluetooth.le.AdvertiseData
 import android.content.Context
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.os.Build
 import android.text.*
 import android.text.style.MetricAffectingSpan
-import java.io.Serializable
-import android.text.Html
-import android.os.Build
-import android.text.Spanned
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.COMMA
+import uzh.scenere.const.Constants.Companion.COMMA_DELIM
 import uzh.scenere.const.Constants.Companion.DAY_MS
 import uzh.scenere.const.Constants.Companion.HOUR_MS
 import uzh.scenere.const.Constants.Companion.MIN_MS
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.SEC_MS
-import uzh.scenere.const.Constants.Companion.ZERO
+import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.const.Constants.Companion.ZERO_L
-import java.lang.reflect.Array.getShort
-import java.nio.ByteOrder.LITTLE_ENDIAN
-import android.R.attr.order
-import java.util.*
-import java.io.UnsupportedEncodingException
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import uzh.scenere.datamodel.AbstractObject
+import uzh.scenere.datamodel.Stakeholder
+import uzh.scenere.datamodel.steps.AbstractStep
+import java.io.Serializable
 
 
 class StringHelper{
     companion object { //Static Reference
-        fun <T: Serializable> concatTokens(delimiter: String, obj: List<T>): String{
-            var conc = ""
-            for (o in obj){
-                conc += if (o is String){
-                    o+delimiter
-                }else{
-                    o.toString()+delimiter
+        fun <T : Serializable> concatTokens(delimiter: String, obj: List<T>): String {
+            if (!obj.isEmpty()) {
+                var conc = ""
+                for (o in obj) {
+                    conc += if (o is String) {
+                        o + delimiter
+                    } else {
+                        o.toString() + delimiter
+                    }
                 }
+                return conc.substring(0, conc.length - delimiter.length)
             }
-            return conc.substring(0,conc.length-delimiter.length)
+            return NOTHING
         }
 
-        fun concatTokens(delimiter: String, vararg obj: Serializable): String{
-            var conc = ""
-            for (o in obj){
-                conc += if (o is String){
-                    o+delimiter
-                }else{
-                    o.toString()+delimiter
+        fun concatTokens(delimiter: String, vararg obj: Serializable): String {
+            if (!obj.isEmpty()) {
+                var conc = ""
+                for (o in obj) {
+                    conc += if (o is String) {
+                        o + delimiter
+                    } else {
+                        o.toString() + delimiter
+                    }
                 }
+                return conc.substring(0, conc.length - delimiter.length)
             }
-            return conc.substring(0,conc.length-delimiter.length)
+            return NOTHING
         }
 
         fun concatList(delimiter: String, obj: List<String>): String{
-            var conc = ""
-            for (o in obj){
-                conc += o+delimiter
+            if (!obj.isEmpty()) {
+                var conc = ""
+                for (o in obj) {
+                    conc += o + delimiter
+                }
+                return conc.substring(0, conc.length - delimiter.length)
             }
-            return conc.substring(0,conc.length-delimiter.length)
+            return NOTHING
         }
 
-        fun concatListWithoutIdBrackets(delimiter: String, obj: List<String>): String{
-            var conc = ""
-            for (o in obj){
-                val split = o.split("[")
-                conc += split[0]+delimiter
+        fun concatListWithoutIdBrackets(delimiter: String, obj: List<String>): String {
+            if (!obj.isEmpty()) {
+                var conc = ""
+                for (o in obj) {
+                    val split = o.split("[")
+                    conc += split[0] + delimiter
+                }
+                return conc.substring(0, conc.length - delimiter.length)
             }
-            return conc.substring(0,conc.length-delimiter.length)
+            return NOTHING
         }
 
         fun concatWithIdBrackets(str: String, id: Int): String{
@@ -93,11 +100,11 @@ class StringHelper{
         }
 
         fun hasText(text: String?): Boolean {
-            return (text != null && text.isNotEmpty())
+            return (text != null && text.isNotBlank())
         }
 
         fun hasText(text: CharSequence?): Boolean {
-            return (text != null && text.isNotEmpty())
+            return (text != null && text.isNotBlank())
         }
 
         fun extractNameFromClassString(className: String): String{
@@ -261,6 +268,18 @@ class StringHelper{
                 minutes != ZERO_L -> "$minutes min, $seconds sec"
                 else -> "$seconds sec"
             })
+        }
+
+        fun toListString(entries: ArrayList<out Serializable>): String {
+            val list = ArrayList<String>()
+            for (entry in entries){
+                when (entry){
+                    is AbstractStep -> if (entry.title != null) list.add(entry.title!!)
+                    is AbstractObject -> list.add(entry.name)
+                    is Stakeholder -> list.add(entry.name)
+                }
+            }
+            return concatList(COMMA_DELIM,list)
         }
     }
 }

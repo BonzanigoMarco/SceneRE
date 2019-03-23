@@ -61,6 +61,8 @@
     <string name="icon_share">&#xf1e0;</string>
     <string name="icon_analytics">&#xf002;</string>
     <string name="icon_nfc">&#xf09e;</string>
+    <string name="icon_csv">&#xf6dd;</string>
+    <string name="icon_pdf">&#xf1c1;</string>
 
     <string name="connect_left"><annotation font="font_awesome">&#xf060;</annotation> </string>
     <string name="connect_right"> <annotation font="font_awesome">&#xf061;</annotation></string>

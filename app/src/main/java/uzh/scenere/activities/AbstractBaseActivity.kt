@@ -30,12 +30,11 @@ import android.telephony.TelephonyManager
 import android.text.SpannedString
 import android.util.DisplayMetrics
 import android.view.Gravity
+import android.view.Gravity.CENTER
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
@@ -924,6 +923,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             try{
                 asyncFunction.invoke()
             }catch(e: Exception){
+                val a = 1
                 //NOP
             }
             return null
@@ -1167,5 +1167,18 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             //NOP
         }
         true
+    }
+
+    protected fun createLoadingCircle(): RelativeLayout {
+        val progressBar = ProgressBar(applicationContext)
+        val progressLayout = RelativeLayout(applicationContext)
+        val layoutParams = RelativeLayout.LayoutParams(screenWidth,screenHeight)
+        progressLayout.layoutParams = layoutParams
+        progressLayout.gravity = CENTER
+        val progressBarParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        progressBarParams.addRule(RelativeLayout.CENTER_IN_PARENT)
+        progressBar.layoutParams = progressBarParams
+        progressLayout.addView(progressBar,progressBarParams)
+        return progressLayout
     }
 }

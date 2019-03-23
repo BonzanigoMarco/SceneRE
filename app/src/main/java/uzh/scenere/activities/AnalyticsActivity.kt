@@ -6,16 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.activity_analytics.*
 import kotlinx.android.synthetic.main.activity_walkthrough.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.COMMA_DELIM
 import uzh.scenere.const.Constants.Companion.NONE
 import uzh.scenere.const.Constants.Companion.NOTHING
-import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.datamodel.Walkthrough
+import uzh.scenere.datamodel.pdf.PdfContentBean
 import uzh.scenere.helpers.*
 import uzh.scenere.views.*
 import java.io.Serializable
@@ -73,24 +76,29 @@ class AnalyticsActivity : AbstractManagementActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
-        loadData()
-        creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) getString(R.string.analytics_no_walkthrough) else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
-                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
-                .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
-                .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
-                .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)
-                .adaptMasterLayoutParams(true)
-                .setFirstPosition()
-                .setAutoCollapse(true)
-                .updateViews(true)
-        creationButton?.setExecutable(createControlExecutable())
-        analytics_layout_button_holder.addView(creationButton)
-        customizeToolbarId(R.string.icon_back, null, null, null, null)
-        getInfoTitle().textSize = DipHelper.get(resources).dip2_5.toFloat()
-        tutorialOpen = SreTutorialLayoutDialog(this@AnalyticsActivity,screenWidth,"info_analytics","info_analytics_type").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
-        createOverviewLayout()
+        val progressLayout = createLoadingCircle()
+        analytics_layout_button_holder.addView(progressLayout)
+        executeAsyncTask({
+            loadData()
+        }, {
+            analytics_layout_button_holder.removeView(progressLayout)
+            creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) getString(R.string.analytics_no_walkthrough) else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
+                    .setColors(getColorWithStyle(applicationContext, R.color.srePrimaryPastel), getColorWithStyle(applicationContext, R.color.srePrimaryDisabled))
+                    .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
+                    .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
+                    .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)
+                    .adaptMasterLayoutParams(true)
+                    .setFirstPosition()
+                    .setAutoCollapse(true)
+                    .updateViews(true)
+            creationButton?.setExecutable(createControlExecutable())
+            analytics_layout_button_holder.addView(creationButton)
+            customizeToolbarId(R.string.icon_back, null, null, null, null)
+            getInfoTitle().textSize = DipHelper.get(resources).dip2_5.toFloat()
+            tutorialOpen = SreTutorialLayoutDialog(this@AnalyticsActivity, screenWidth, "info_analytics", "info_analytics_type").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            createOverviewLayout()
+        })
     }
-
 
     private var projectLabel: SreContextAwareTextView? =  null
     private var scenarioLabel: SreContextAwareTextView? = null
@@ -283,6 +291,8 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_chart_bar, null)
                         ?.setText(createButtonLabel(activeWalkthroughs, getString(R.string.literal_walkthroughs)))
                         ?.updateViews(false)
+
+                customizeToolbarId(R.string.icon_back, R.string.icon_pdf,null , R.string.icon_csv, null)
             }
             AnalyticsMode.SELECT_WALKTHROUGH-> {
                 mode = AnalyticsMode.SELECT_STATISTICS
@@ -328,6 +338,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         ?.updateViews(false)
                 getContentHolderLayout().removeAllViews()
                 updateLabelWrapper(null,NONE)
+                customizeToolbarId(R.string.icon_back, null, null, null, null)
             }
             AnalyticsMode.SELECT_STATISTICS -> {
                 mode = AnalyticsMode.SELECT_WALKTHROUGH
@@ -426,6 +437,72 @@ class AnalyticsActivity : AbstractManagementActivity() {
                     })
                 }, 500)
             }
+        }
+    }
+
+    var creating = false
+    override fun onToolbarCenterLeftClicked() {
+        if (!creating && CollectionHelper.oneOf(mode, AnalyticsMode.SELECT_WALKTHROUGH, AnalyticsMode.SELECT_STATISTICS, AnalyticsMode.SELECT_COMMENTS)){
+            notify("PDF-Export","Your PDF-File is being generated in the Background!")
+            creating = true
+            cancelAsyncTask()
+            executeAsyncTask({
+                val user = DatabaseHelper.getInstance(applicationContext).read(Constants.USER_NAME, String::class, NOTHING)
+                val contentBean = PdfContentBean().addEntry("user", user)
+                if (!activeScenarios.isNullOrEmpty() && scenarioPointer != null) {
+                    //SCENARIO RELATED
+                    contentBean.addEntry("scenario", activeScenarios[scenarioPointer!!].title)
+                            .addEntry("paths", activeScenarios[scenarioPointer!!].getAllPaths().size.toString())
+                            .addEntry("steps", StringHelper.concatTokens(COMMA_DELIM, activeScenarios[scenarioPointer!!].getAllSteps().size.toString()))
+                            .addEntry("objects", StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllContextObject()))
+                            .addEntry("resources", StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllResources()))
+                            .addEntry("intro", activeScenarios[scenarioPointer!!].intro)
+                            .addEntry("outro", activeScenarios[scenarioPointer!!].outro)
+                            .addEntry("stakeholders", StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllStakeholdersWithPaths(applicationContext)))
+                }
+                if (!activeWalkthroughs.isNullOrEmpty()){
+                    //WALKTHROUGH RELATED
+                    val walkthroughs = ArrayList<WalkthroughAnalyticLayout>()
+                    val walkthroughsExportData = ArrayList<Array<String>>()
+                    for (walkthrough in activeWalkthroughs){
+                        val element = WalkthroughAnalyticLayout(applicationContext, walkthrough, true) {}
+                        walkthroughsExportData.addAll(element.getExportData())
+                        walkthroughs.add(element)
+                    }
+                    val statistics = ScenarioAnalyticLayout(applicationContext, *activeWalkthroughs.toTypedArray())
+                    val comments = CommentAnalyticLayout(applicationContext, *activeWalkthroughs.toTypedArray())
+                    contentBean.addEntry("walkthroughs", walkthroughs[0].getExportIntroduction(walkthroughs.size))
+                            .addTable("walkthroughs_table", walkthroughsExportData)
+                            .addEntry("statistics", statistics.getExportIntroduction())
+                            .addTable("statistics_table", statistics.getExportData())
+                            .addEntry("comments", comments.getExportIntroduction())
+                            .addTable("comments_table", comments.getExportData())
+                }
+                val pdfFileBean = PdfHelper(applicationContext).renderPdf(
+                        contentBean
+                )
+                val path = pdfFileBean.write(applicationContext)
+                creating = false
+                if (StringHelper.hasText(path)) {
+                    FileHelper.openFolder(applicationContext, FileHelper.removeFileFromPath(path))
+                }
+            },{
+                creating = false
+                notify("PDF-Export Complete!")
+            })
+        }
+    }
+    override fun onToolbarCenterRightClicked() {
+        if (!creating && CollectionHelper.oneOf(mode, AnalyticsMode.SELECT_WALKTHROUGH, AnalyticsMode.SELECT_STATISTICS, AnalyticsMode.SELECT_COMMENTS)){
+            notify("CSV Export","Your CSV-File is being created in the Background")
+            creating = true
+            cancelAsyncTask()
+            executeAsyncTask({
+                //TODO
+            },{
+                notify("CSV-Export Complete!")
+                creating = false
+            })
         }
     }
 }

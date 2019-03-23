@@ -9,6 +9,7 @@ import android.os.Environment
 import uzh.scenere.const.Constants.Companion.NOTHING
 import java.lang.Exception
 import android.os.Environment.getExternalStorageDirectory
+import uzh.scenere.const.Constants.Companion.FOLDER_ANALYTICS
 import uzh.scenere.const.Constants.Companion.FOLDER_DATABASE
 import uzh.scenere.const.Constants.Companion.FOLDER_EXPORT
 import uzh.scenere.const.Constants.Companion.FOLDER_IMPORT
@@ -151,7 +152,7 @@ class FileHelper {
             if (!rootFile.exists()){
                 rootFile.mkdirs()
             }
-            for (folder in arrayOf(FOLDER_EXPORT, FOLDER_IMPORT, FOLDER_TEMP, FOLDER_DATABASE)){
+            for (folder in arrayOf(FOLDER_EXPORT, FOLDER_IMPORT, FOLDER_TEMP, FOLDER_DATABASE, FOLDER_ANALYTICS)){
                 val folderFile = File(rootPath.plus(folder))
                 if (!folderFile.exists()){
                     folderFile.mkdirs()

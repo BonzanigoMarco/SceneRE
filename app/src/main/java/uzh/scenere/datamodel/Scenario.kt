@@ -159,12 +159,47 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         return Pair(stepTitles, stepIds)
     }
 
+    fun getAllSteps(): ArrayList<String> {
+        val stepTitles = ArrayList<String>()
+        val stepIds = ArrayList<String>()
+        val allPaths = getAllPaths()
+        for (path in allPaths) {
+            for (entry in path.elements){
+                val element = entry.value
+                if (element is AbstractStep && element.title != null) {
+                    stepTitles.add(element.title!!)
+                }
+            }
+        }
+        return stepTitles
+    }
 
     fun getAllResources(): ArrayList<Resource> {
         val list = ArrayList<Resource>()
         for (obj in objects){
             if (obj.isResource){
                 list.add(obj as Resource)
+            }
+        }
+        return list
+    }
+
+    fun getAllStakeholdersWithPaths(context: Context): ArrayList<Stakeholder> {
+        val list = ArrayList<Stakeholder>()
+        for (entry in paths){
+            val stakeholder = DatabaseHelper.getInstance(context).read(entry.key, Stakeholder::class)
+            if (stakeholder !is Stakeholder.NullStakeholder){
+                list.add(stakeholder)
+            }
+        }
+        return list
+    }
+
+    fun getAllContextObject(): ArrayList<ContextObject> {
+        val list = ArrayList<ContextObject>()
+        for (obj in objects){
+            if (!obj.isResource){
+                list.add(obj as ContextObject)
             }
         }
         return list

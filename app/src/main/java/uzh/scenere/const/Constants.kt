@@ -110,9 +110,13 @@ class Constants {
         const val PERCENT: String = "%"
         const val SPACE: String = " "
         const val COMMA: String = ","
+        const val COMMA_DELIM: String = ", "
         const val SEMI_COLON: String = ";"
         const val DOLLAR_STRING: Char = '$'
         const val NOTHING: String = ""
+        const val QUOTE: Char = '"'
+        const val BRACKET_OPEN: Char = '<'
+        const val BRACKET_CLOSE: Char = '>'
         const val DASH: String = "-"
         const val SLASH: String = "/"
         const val BOLD_START: String = "<b>"
@@ -149,6 +153,7 @@ class Constants {
         const val SRE_FILE: String = ".sre"
         //FILE LOCATIONS
         const val FOLDER_ROOT: String = "/SceneRe"
+        const val FOLDER_ANALYTICS: String = "/Analytics"
         const val FOLDER_EXPORT: String = "/Export"
         const val FOLDER_IMPORT: String = "/Import"
         const val FOLDER_DATABASE: String = "/Database"
@@ -181,6 +186,20 @@ class Constants {
         const val TYPE_GYROSCOPE_TRIGGER: String = "GyroscopeTrigger"
         const val TYPE_LIGHT_TRIGGER: String = "LightTrigger"
         const val TYPE_MAGNETOMETER_TRIGGER: String = "MagnetometerTrigger"
+        //PDF
+        const val LIST_BEGIN = "- "
+        const val FONT_HELVETICA_NORMAL = "Helvetica"
+        const val FONT_HELVETICA_BOLD = "Helvetica-Bold"
+        const val FILE_TYPE_TFF = ".ttf"
+        const val FILE_TYPE_TXT = ".txt"
+        const val FILE_TYPE_PNG = ".png"
+        const val PART_TOKEN = "<part_"
+        const val BREAK_TOKEN = "<breakbelow_"
+        const val MARGIN_TOKEN = "<margin_"
+        const val TABLE_TOKEN = "<table_"
+        const val BOLD_TOKEN = "<b_"
+        const val IMAGE_TOKEN = "<image_"
+
         //COLORS
         const val CRIMSON: String = "#DC143C"
         const val DARK_RED: String = "#8B0000"

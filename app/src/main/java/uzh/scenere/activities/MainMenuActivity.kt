@@ -9,9 +9,7 @@ import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.activity_main_menu.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants.Companion.NOTHING
-import uzh.scenere.helpers.DipHelper
-import uzh.scenere.helpers.PermissionHelper
-import uzh.scenere.helpers.StringHelper
+import uzh.scenere.helpers.*
 import uzh.scenere.views.SreButton
 import uzh.scenere.views.SreTutorialLayoutDialog
 
@@ -92,7 +90,7 @@ class MainMenuActivity : AbstractBaseActivity() {
             }
         }
     }
-    
+
     override fun onBackPressed() {
         this.finishAffinity();
     }
