@@ -309,10 +309,12 @@ class DatabaseHelper private constructor(context: Context) {
             DataMode.DATABASE -> {
                 if (Project::class == clz) return database!!.readProjects() as List<T>
                 if (Stakeholder::class == clz && key is Project) return database!!.readStakeholder(key) as List<T>
+                if (Stakeholder::class == clz && key == null) return database!!.readStakeholder(key) as List<T>
                 if (AbstractObject::class == clz && key is Scenario) return database!!.readObjects(key, fullLoad) as List<T>
                 if (AbstractObject::class == clz && key == null) return database!!.readObjects(key, fullLoad) as List<T>
                 if (Attribute::class == clz && key is String) return database!!.readAttributes(key) as List<T>
                 if (Scenario::class == clz && key is Project) return database!!.readScenarios(key, fullLoad) as List<T>
+                if (Scenario::class == clz && key == null) return database!!.readScenarios(key, fullLoad) as List<T>
                 if (Path::class == clz && key is Scenario) return database!!.readPaths(key, fullLoad) as List<T>
                 if (IElement::class == clz && key is Path) return database!!.readElements(key, fullLoad) as List<T>
                 if (IElement::class == clz && key == null) return database!!.readElements(key, fullLoad) as List<T>
@@ -464,6 +466,7 @@ class DatabaseHelper private constructor(context: Context) {
                 database!!.openWritable()
                 if (Project::class == clz) {
                     val project = readFull(key, Project::class)
+                    database!!.openWritable()
                     database!!.deleteProject(key)
                     if (project != null) {
                         for (stakeholder in project.stakeholders) {
@@ -479,6 +482,7 @@ class DatabaseHelper private constructor(context: Context) {
                 }
                 if (AbstractObject::class == clz || ContextObject::class == clz || Resource::class == clz) {
                     val obj = readFull(key, AbstractObject::class)
+                    database!!.openWritable()
                     database!!.deleteObject(key)
                     database!!.deleteAttributeByKey(key)
                     if (obj != null) {
@@ -497,6 +501,7 @@ class DatabaseHelper private constructor(context: Context) {
                 }
                 if (Scenario::class == clz) {
                     val scenario = readFull(key, Scenario::class)
+                    database!!.openWritable()
                     database!!.deleteScenario(key)
                     if (scenario != null) {
                         for (obj in scenario.objects) {
@@ -509,12 +514,14 @@ class DatabaseHelper private constructor(context: Context) {
                 }
                 if (Path::class == clz) {
                     val path = readFull(key, Path::class)
+                    database!!.openWritable()
                     database!!.deletePath(key)
                     if (path != null) {
                         for (element in path.elements) {
                             if (element.value is IfElseTrigger) {
                                 //Recursively delete
                                 val scenario = readFull(path.scenarioId, Scenario::class)
+                                database!!.openWritable()
                                 for (entry in (element.value as IfElseTrigger).optionLayerLink.entries) {
                                     val p = scenario?.removePath(path.stakeholder, entry.value)
                                     if (p != null) {

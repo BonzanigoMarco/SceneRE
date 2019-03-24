@@ -112,7 +112,7 @@ class GlossaryActivity: AbstractManagementActivity() {
                         scrollContainer?.removeAllViews()
                         scrollContainer?.addView(info)
                         execMorphInfoBar(InfoState.MAXIMIZED,100)
-                        customizeToolbarId(R.string.icon_back,null,null,null,R.string.icon_cross)
+                        customizeToolbarId(R.string.icon_null,null,null,null,R.string.icon_cross)
                     }
                 })
                 .setAutoCollapse(true)
@@ -134,5 +134,11 @@ class GlossaryActivity: AbstractManagementActivity() {
 
     override fun getIsFirstScrollUp(): Boolean {
         return false
+    }
+
+    override fun onToolbarLeftClicked() {
+        if (!inputOpen){
+            super.onToolbarLeftClicked()
+        }
     }
 }

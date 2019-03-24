@@ -59,12 +59,6 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
     //*********
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //Debug
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Path::class)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Attribute::class)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(Element::class)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreate(AbstractObject::class)
-//        DatabaseHelper.getInstance(applicationContext).dropAndRecreateAll()
     }
 
     override fun onResume() {

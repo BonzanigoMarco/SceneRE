@@ -163,6 +163,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         pauseBluetoothListener()
         unregisterWifiP2pReceiver()
         cancelAsyncTask()
+        clearAllActiveNotifications()
         super.onPause()
     }
 
@@ -804,7 +805,15 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         notify(it)
     }
 
+    private  fun clearAllActiveNotifications(){
+        for (id in notificationIdQueue){
+            val notificationManager = NotificationManagerCompat.from(this)
+            notificationManager.cancel(id)
+        }
+    }
+
     private val notificationQueue = ArrayList<Pair<String?,String?>>()
+    private val notificationIdQueue = ArrayList<Int>()
     fun notify(title: String? = null, content: String? = null, clearNotificationId: Int? = null){
         val notificationManager = NotificationManagerCompat.from(this)
         if (clearNotificationId == null){
@@ -815,6 +824,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         }else{
             notificationQueue.removeFirst()
             notificationManager.cancel(clearNotificationId)
+            notificationIdQueue.remove(clearNotificationId)
         }
         if (notificationQueue.isEmpty()){
             return
@@ -836,6 +846,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         val text = StringHelper.nvl(notificationQueue.first().first,NOTHING).plus(StringHelper.nvl(notificationQueue.first().second,NOTHING))
         val id = Random(System.currentTimeMillis()).nextInt(ZERO, MILLION)
         Handler().postDelayed( {
+            notificationIdQueue.add(id)
             notificationManager.notify(id, notification.build())
         },100)
         Handler().postDelayed( {
@@ -923,7 +934,6 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
             try{
                 asyncFunction.invoke()
             }catch(e: Exception){
-                val a = 1
                 //NOP
             }
             return null

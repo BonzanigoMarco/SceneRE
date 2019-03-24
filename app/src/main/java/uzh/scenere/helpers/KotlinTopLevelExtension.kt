@@ -15,6 +15,7 @@ import uzh.scenere.const.Constants.Companion.FILE_TYPE_TXT
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NULL_CLASS
 import uzh.scenere.const.Constants.Companion.REFLECTION
+import uzh.scenere.const.Constants.Companion.REPLACEMENT_TOKEN
 import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.const.Constants.Companion.STYLE
 import uzh.scenere.const.Constants.Companion.ZERO
@@ -254,4 +255,26 @@ fun readTextFileFromAsset(context: Context, fileName: String): String{
         }
     }
     return NOTHING
+}
+
+fun String.replaceAllIgnoreCase(str: String, replaceWith: String): String{
+    if (str == replaceWith){
+        return this
+    }
+    var returnString = this
+    val strLowerCase = str.toLowerCase()
+    var thisLowerCase = this.toLowerCase()
+    var replacement = replaceWith
+    var identity = false
+    if (replaceWith.toLowerCase().contains(strLowerCase)){
+        replacement = REPLACEMENT_TOKEN
+        identity = true
+    }
+    var index = thisLowerCase.indexOf(strLowerCase)
+    while (index >= 0){
+        returnString = returnString.replaceRange(index,index+str.length,replacement)
+        thisLowerCase = thisLowerCase.replaceRange(index,index+str.length,replacement)
+        index = thisLowerCase.indexOf(strLowerCase)
+    }
+    return if (identity) returnString.replace(REPLACEMENT_TOKEN, replaceWith) else returnString
 }

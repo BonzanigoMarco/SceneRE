@@ -523,15 +523,16 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
         return valueIfNull
     }
 
-    fun readStakeholder(project: Project): List<Stakeholder> {
-        val cursor = getCursor(StakeholderTableEntry.TABLE_NAME, arrayOf(StakeholderTableEntry.ID, StakeholderTableEntry.NAME, StakeholderTableEntry.DESCRIPTION), StakeholderTableEntry.PROJECT_ID + LIKE + QUOTES + project.id + QUOTES, null, null, null, null, null)
+    fun readStakeholder(project: Project?): List<Stakeholder> {
+        val cursor = getCursor(StakeholderTableEntry.TABLE_NAME, arrayOf(StakeholderTableEntry.ID,StakeholderTableEntry.PROJECT_ID, StakeholderTableEntry.NAME, StakeholderTableEntry.DESCRIPTION), if (project != null) StakeholderTableEntry.PROJECT_ID + LIKE + QUOTES + project.id + QUOTES else ONE + EQ + ONE, null, null, null, null, null)
         val stakeholders = ArrayList<Stakeholder>()
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getString(0)
-                val name = cursor.getString(1)
-                val description = cursor.getString(2)
-                val stakeholder = Stakeholder.StakeholderBuilder(id, project, name, description).build()
+                val projectId = cursor.getString(1)
+                val name = cursor.getString(2)
+                val description = cursor.getString(3)
+                val stakeholder = Stakeholder.StakeholderBuilder(id, projectId, name, description).build()
                 stakeholder.changeTimeMs = readVersioning(id)
                 stakeholders.add(stakeholder)
             } while (cursor.moveToNext())
@@ -672,8 +673,8 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
         return valueIfNull
     }
 
-    fun readScenarios(project: Project, fullLoad: Boolean = false): List<Scenario> {
-        val cursor = getCursor(ScenarioTableEntry.TABLE_NAME, arrayOf(ScenarioTableEntry.ID, ScenarioTableEntry.PROJECT_ID, ScenarioTableEntry.TITLE, ScenarioTableEntry.INTRO, ScenarioTableEntry.OUTRO), ScenarioTableEntry.PROJECT_ID + LIKE + QUOTES + project.id + QUOTES, null, null, null, null, null)
+    fun readScenarios(project: Project?, fullLoad: Boolean = false): List<Scenario> {
+        val cursor = getCursor(ScenarioTableEntry.TABLE_NAME, arrayOf(ScenarioTableEntry.ID, ScenarioTableEntry.PROJECT_ID, ScenarioTableEntry.TITLE, ScenarioTableEntry.INTRO, ScenarioTableEntry.OUTRO), if (project != null) ScenarioTableEntry.PROJECT_ID + LIKE + QUOTES + project.id + QUOTES else ONE + EQ + ONE, null, null, null, null, null)
         val scenarios = ArrayList<Scenario>()
         if (cursor.moveToFirst()) {
             do {
@@ -1095,9 +1096,11 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
     public fun dropAndRecreateTable(table: String) {
         val collectTables = collectTables(table)
         if (!collectTables.isEmpty()) {
+            openWritable()
             for (statement in collectTables) {
                 getDb().execSQL(statement)
             }
+            close()
         }
     }
 

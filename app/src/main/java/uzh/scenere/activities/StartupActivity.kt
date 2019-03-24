@@ -54,7 +54,6 @@ class StartupActivity : AbstractBaseActivity() {
             userId = UUID.randomUUID().toString()
             DatabaseHelper.getInstance(applicationContext).write(Constants.USER_ID, userId)
         }
-        WhatIfAiHelper.think(applicationContext)
     }
 
     private fun morphRandom(text: TextView, returnChar: Char, init: Boolean = true, offset: Int = 0) {

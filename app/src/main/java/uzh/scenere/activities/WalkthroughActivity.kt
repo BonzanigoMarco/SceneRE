@@ -178,24 +178,26 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         restoreWalkthroughIfPossible()
     }
 
-    override fun onDestroy() {
-        backupWalkthroughIfNecessary()
-        super.onDestroy()
-    }
-
     private fun restoreWalkthroughIfPossible() {
-        val shortcutSave = intent.getByteArrayExtra(WALKTHROUGH_PLAY_STATE_SHORTCUT)
-        val bytes = DatabaseHelper.getInstance(applicationContext).read(WALKTHROUGH_PLAY_STATE, ByteArray::class, NullHelper.get(ByteArray::class), DatabaseHelper.DataMode.PREFERENCES)
-        if (ShortcutHelper.enabled && shortcutSave != null && shortcutSave.isNotEmpty()){
-            play(DataHelper.toObject(shortcutSave, PlayState::class))
-        }else if (bytes.isNotEmpty()) {
-            play(DataHelper.toObject(bytes, PlayState::class))
-            DatabaseHelper.getInstance(applicationContext).delete(WALKTHROUGH_PLAY_STATE, ByteArray::class, DatabaseHelper.DataMode.PREFERENCES)
+        if (activeWalkthrough == null) {
+            val shortcutSave = intent.getByteArrayExtra(WALKTHROUGH_PLAY_STATE_SHORTCUT)
+            val bytes = DatabaseHelper.getInstance(applicationContext).read(WALKTHROUGH_PLAY_STATE, ByteArray::class, NullHelper.get(ByteArray::class), DatabaseHelper.DataMode.PREFERENCES)
+            if (ShortcutHelper.enabled && shortcutSave != null && shortcutSave.isNotEmpty()) {
+                play(DataHelper.toObject(shortcutSave, PlayState::class))
+            } else if (bytes.isNotEmpty()) {
+                play(DataHelper.toObject(bytes, PlayState::class))
+            }
+        }else{
+            if (!CollectionHelper.oneOf(activeWalkthrough?.state,WalkthroughPlayLayout.WalkthroughState.STARTED,WalkthroughPlayLayout.WalkthroughState.FINISHED)){
+                activeWalkthrough?.resolveStepAndTrigger()
+            }
         }
+        DatabaseHelper.getInstance(applicationContext).delete(WALKTHROUGH_PLAY_STATE, ByteArray::class, DatabaseHelper.DataMode.PREFERENCES)
     }
 
     private fun backupWalkthroughIfNecessary() {
         if (activeWalkthrough != null && activeWalkthrough?.state != WalkthroughPlayLayout.WalkthroughState.FINISHED) {
+            activeWalkthrough?.onPause()
             val serialized = DataHelper.toByteArray(WalkthroughPlayLayout.saveState(activeWalkthrough!!))
             if (serialized.isNotEmpty()) {
                 DatabaseHelper.getInstance(applicationContext).write(WALKTHROUGH_PLAY_STATE, serialized, DatabaseHelper.DataMode.PREFERENCES)
@@ -203,26 +205,33 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         }
     }
 
+    override fun onDestroy() {
+        backupWalkthroughIfNecessary()
+        super.onDestroy()
+    }
+
     override fun onPause() {
-        activeWalkthrough?.onPause()
+        backupWalkthroughIfNecessary()
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        if (activeWalkthrough?.state == WalkthroughPlayLayout.WalkthroughState.PLAYING){
-            activeWalkthrough?.resolveStepAndTrigger()
-        }
+        restoreWalkthroughIfPossible()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        activeWalkthrough?.resolveStepAndTrigger()
+        restoreWalkthroughIfPossible()
     }
 
     private fun <T : Serializable> createButtonLabel(selectedList: ArrayList<T>, label: String): String {
         if (selectedList.isEmpty()) {
-            return getString(R.string.walkthrough_button_label_failure, label)
+            var l = label
+            if (mode == WalkthroughMode.SELECT_STAKEHOLDER){
+                l = getString(R.string.literal_paths)
+            }
+            return getString(R.string.walkthrough_button_label_failure, l)
         }
         return getString(R.string.walkthrough_button_label, selectedList.size, label)
     }

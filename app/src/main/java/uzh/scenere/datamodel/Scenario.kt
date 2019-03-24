@@ -2,6 +2,7 @@ package uzh.scenere.datamodel
 
 import android.content.Context
 import uzh.scenere.datamodel.steps.AbstractStep
+import uzh.scenere.datamodel.steps.ResourceStep
 import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.NumberHelper
@@ -141,7 +142,7 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         return objectList
     }
 
-    fun getAllSteps(stakeholder: Stakeholder, exceptId: String? = null): Pair<ArrayList<String>, ArrayList<String>> {
+    fun getAllStepTitlesAndIds(stakeholder: Stakeholder, exceptId: String? = null): Pair<ArrayList<String>, ArrayList<String>> {
         val stepTitles = ArrayList<String>()
         val stepIds = ArrayList<String>()
         val allPaths = getAllPaths(stakeholder)
@@ -159,9 +160,8 @@ open class Scenario private constructor(val id: String, val projectId: String, v
         return Pair(stepTitles, stepIds)
     }
 
-    fun getAllSteps(): ArrayList<String> {
+    fun getAllStepTitles(): ArrayList<String> {
         val stepTitles = ArrayList<String>()
-        val stepIds = ArrayList<String>()
         val allPaths = getAllPaths()
         for (path in allPaths) {
             for (entry in path.elements){
@@ -172,6 +172,20 @@ open class Scenario private constructor(val id: String, val projectId: String, v
             }
         }
         return stepTitles
+    }
+
+    fun getAllUsedResources(): ArrayList<Resource> {
+        val resources = ArrayList<Resource>()
+        val allPaths = getAllPaths()
+        for (path in allPaths) {
+            for (entry in path.elements){
+                val element = entry.value
+                if (element is ResourceStep && element.resource != null) {
+                    resources.add(element.resource!!)
+                }
+            }
+        }
+        return resources
     }
 
     fun getAllResources(): ArrayList<Resource> {

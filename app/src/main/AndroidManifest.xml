@@ -46,7 +46,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_api_key"/>
 
-        <activity android:name=".activities.MainMenuActivity"
+        <activity android:name=".activities.StartupActivity"
             android:theme="@style/SceneReToolbarTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -62,7 +62,7 @@
             android:theme="@style/SceneReToolbarTheme"
             android:screenOrientation="portrait"/>
 
-        <activity android:name=".activities.StartupActivity"
+        <activity android:name=".activities.MainMenuActivity"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/SceneReToolbarTheme"
             android:screenOrientation="portrait"/>

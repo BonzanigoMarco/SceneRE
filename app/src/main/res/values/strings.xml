@@ -365,6 +365,7 @@
     <string name="literal_walkthroughs">Walkthroughs</string>
     <string name="literal_walkthrough">Walkthrough</string>
     <string name="literal_what_if">What-If</string>
+    <string name="literal_what_ifs">What-Ifs</string>
     <string name="literal_comment">Comment</string>
     <string name="literal_remove_all">Remove All</string>
     <string name="project_anonymous">Anonymous Project</string>
@@ -401,7 +402,7 @@
     Number of Admissions</string>
     <string name="glossary_scenario">Scenarios consist of a continuous sequence of Steps and Triggers for each Stakeholder and can be seen as Theater Scripts. Together they build a Path which will be played while conducting a Walkthrough. The main-Path can branch out in different Paths by including If-Else Triggers.</string>
     <string name="glossary_walkthrough">Walkthroughs are the actual conduction of playing through a Scenario and can be seen as Theater Performance. While playing through Scenarios,  What-If Questions  and contextual Information about Objects are sometimes available. Since the Walkthroughs should spark ideas, Input can be added at any given point.</string>
-    <string name="glossary_what_if">What-Ifs are questions that can be configured on Steps. If done so, these questions will appear in the Walkthrough. They serve the purpose to inspire the thought-process of the user during a walkthrough. If no What-Ifs are configured on a Step, opening the Dialog for their configuration will propose several generated Questions. These can be cleared or complemented at will. Writing your own is also possible, and is assisted by proposal of related Stakeholders and Objects. The type of Suggestions can be configured in the Cockpit (All, Dynamic, Stakeholder only, Objects only, Static or None). On every Restart of Scene-RE, your What-Ifs are being analyzed and the Suggestions expanded or narrowed, based on your actions. Suggestions can be reset in the Cockpit.</string>
+    <string name="glossary_what_if">What-Ifs are questions that can be configured on Steps. If done so, these questions will appear in the Walkthrough. They serve the purpose to inspire the thought-process of the user during a walkthrough. If no What-Ifs are configured on a Step, opening the Dialog for their configuration will propose several generated Questions. These can be cleared or complemented at will. Writing your own is also possible, and is assisted by proposal of related Stakeholders and Objects. The type of Suggestions can be configured in the Cockpit (All, Dynamic, Stakeholder only, Objects only, Static or None). After a set amount of Suggestions, configurable in the Cockpit, the list gets expanded or narrowed based on your actions and preferences. Suggestions can be reset in the Cockpit.</string>
     <string name="glossary_step">Steps are Elements that make up a Path in a Scenario. They guide the Stakeholder through the Walkthrough and provide Information.<![CDATA[<br>]]>
     <![CDATA[<br>]]>
     <![CDATA[<b>]]><![CDATA[<u>]]>Standard Step:<![CDATA[</u>]]><![CDATA[</b>]]> Step with Title- and Content-Text.<![CDATA[<br>]]>
@@ -560,7 +561,10 @@
     <string name="resource_check_success">Resource-Check succeeded, %1$s</string>
     <string name="resource_check_failed">Resource-Check failed</string>
     <string name="walkthrough_resource_does_not_exist_continue">The checked Resource does not exist anymore, continue!</string>
-    <string name="what_if_wipe">Wipe All What-Ifs</string>
+    <string name="what_if_wipe">Wipe All What-If Suggestions</string>
+    <string name="what_if_frequency_x">What-If AI Trigger Frequency: %1$d</string>
+    <string name="what_if_frequency_set">What-If AI Trigger Frequency set to: Every %1$s Time.</string>
+    <string name="what_if_frequency_set_to_1">What-If AI Trigger Frequency set to: Every Time.</string>
     <string name="what_if_all">What-If Suggestions: All</string>
     <string name="what_if_dynamic">What-If Suggestions: Dynamic</string>
     <string name="what_if_stakeholder">What-If Suggestions: Stakeholders</string>
@@ -577,11 +581,11 @@
     <string name="share_loading">Loading…</string>
     <string name="share_collection_failed">Data Collection failed!</string>
     <string name="editor_nfc_disabled">NFC disabled!</string>
-    <string name="editor_no_steps_text">You will not be able to configure the Jump Step</string>
+    <string name="editor_no_steps_text">You will not be able to configure this Step</string>
     <string name="editor_no_steps_title">No Steps created yet</string>
     <string name="editor_no_resources_title">No Resources created yet</string>
-    <string name="editor_no_resource_trigger_text">You will not be able to configure this Resource-Check Trigger</string>
-    <string name="editor_no_resource_step_text">You will not be able to configure this Resource Step</string>
+    <string name="editor_no_resource_trigger_text">You will not be able to configure this Trigger</string>
+    <string name="editor_no_resource_step_text">You will not be able to configure this Step</string>
     <string name="share_received_kb">Received %1$d kB!</string>
     <string name="share_your_device_id">Your Device-ID: %1$s</string>
     <string name="share_send_to">Send to %1$s</string>
@@ -614,6 +618,8 @@
     <string name="analytics_csv_start_title">CSV Export started in Background</string>
     <string name="analytics_csv_complete">CSV-Export Complete!</string>
     <string name="literal_user">User</string>
+    <string name="literal_administrator">Administrator</string>
+    <string name="cockpit_user_mode">Scene-RE Mode:  %1$s</string>
     <string name="literal_date">Date</string>
     <string name="literal_paths">Paths</string>
     <string name="literal_steps">Steps</string>

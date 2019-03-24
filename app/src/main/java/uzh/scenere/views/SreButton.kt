@@ -128,7 +128,6 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
         try {
             function()
         } catch (e: Exception) {
-            val a = 1
             //NOP
         }
     }

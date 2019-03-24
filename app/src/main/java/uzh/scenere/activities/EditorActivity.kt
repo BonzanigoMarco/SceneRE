@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -21,17 +20,23 @@ import uzh.scenere.const.Constants.Companion.BOLD_START
 import uzh.scenere.const.Constants.Companion.BREAK
 import uzh.scenere.const.Constants.Companion.COMMA
 import uzh.scenere.const.Constants.Companion.COORDINATES_PATTERN
-import uzh.scenere.const.Constants.Companion.HALF_SEC_MS
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.OBJECT_TOKEN
+import uzh.scenere.const.Constants.Companion.O_A_TOKEN
+import uzh.scenere.const.Constants.Companion.S1_A_TOKEN
+import uzh.scenere.const.Constants.Companion.S1_O_A_TOKEN
+import uzh.scenere.const.Constants.Companion.S1_O_TOKEN
+import uzh.scenere.const.Constants.Companion.S1_S2_A_TOKEN
+import uzh.scenere.const.Constants.Companion.S1_S2_O_A_TOKEN
+import uzh.scenere.const.Constants.Companion.S1_S2_O_TOKEN
+import uzh.scenere.const.Constants.Companion.S1_S2_TOKEN
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT
 import uzh.scenere.const.Constants.Companion.SINGLE_SELECT_WITH_PRESET_POSITION
 import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.const.Constants.Companion.STAKEHOLDER_1_TOKEN
 import uzh.scenere.const.Constants.Companion.STAKEHOLDER_2_TOKEN
 import uzh.scenere.const.Constants.Companion.STATIC_TOKEN
-import uzh.scenere.const.Constants.Companion.THIRD_SEC_MS
 import uzh.scenere.const.Constants.Companion.WHAT_IF_DATA
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.*
@@ -48,6 +53,7 @@ import uzh.scenere.datamodel.trigger.sensor.AccelerationTrigger
 import uzh.scenere.datamodel.trigger.sensor.GyroscopeTrigger
 import uzh.scenere.datamodel.trigger.sensor.LightTrigger
 import uzh.scenere.datamodel.trigger.sensor.MagnetometerTrigger
+import uzh.scenere.datastructures.MultiValueMap
 import uzh.scenere.helpers.*
 import uzh.scenere.views.*
 import java.util.*
@@ -107,6 +113,7 @@ class EditorActivity : AbstractManagementActivity() {
     private var activeStepIds: ArrayList<String> = ArrayList()
     private val pathList = ArrayList<Int>()
     private val pathNameList = ArrayList<String>()
+    private var whatIfProposal = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,11 +125,6 @@ class EditorActivity : AbstractManagementActivity() {
             if (activeScenario != null) {
                 projectContext = DatabaseHelper.getInstance(applicationContext).readFull(activeScenario!!.projectId, Project::class)
                 activeScenario = DatabaseHelper.getInstance(applicationContext).readFull(activeScenario!!.id, Scenario::class)
-            } else {
-                //DEV
-                projectContext = DatabaseHelper.getInstance(applicationContext).readFull("cdbf3429-1e49-4147-b099-71c76a416aa9", Project::class)
-                activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("ec5c16cf-5e0d-4b4c-abf6-773bc37e0169", Scenario::class)
-//            activeScenario = DatabaseHelper.getInstance(applicationContext).readFull("64fd2449-085b-4ad0-b804-ba392c73b855", Scenario::class)
             }
             if (projectContext != null && !projectContext!!.stakeholders.isNullOrEmpty()) {
                 stakeholder = projectContext?.getNextStakeholder()
@@ -398,6 +400,9 @@ class EditorActivity : AbstractManagementActivity() {
                                 .updateLeft(left)
                                 .updateInteraction(iElement.interactedStakeholderId!!)
                     }
+                    is AbstractStep -> {
+                        (getContentHolderLayout().getChildAt(v) as Element).setWhatIfExecutable { openWhatIfCreation(iElement) }
+                    }
                 }
             }
         }
@@ -491,8 +496,9 @@ class EditorActivity : AbstractManagementActivity() {
         creationButton?.visibility = View.GONE
         //All Resources
         val allResources = activeScenario!!.getAllResources()
+        val allUsedResources = activeScenario!!.getAllUsedResources()
         //All Steps
-        val (stepTitles, stepIds) = activeScenario!!.getAllSteps(activePath!!.stakeholder)
+        val (stepTitles, stepIds) = activeScenario!!.getAllStepTitlesAndIds(activePath!!.stakeholder)
         activeStepIds = stepIds
         if (element != null) {//LOAD
             cleanInfoHolder("Edit " + element.readableClassName())
@@ -502,6 +508,7 @@ class EditorActivity : AbstractManagementActivity() {
                 is StandardStep -> {
                     creationUnitClass = StandardStep::class
                     if (inputMode == InputMode.WHAT_IF){
+                        cleanInfoHolder("Edit " + getString(R.string.literal_what_ifs))
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
                         (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
@@ -517,6 +524,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = JumpStep::class
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
+                        cleanInfoHolder("Edit " + getString(R.string.literal_what_ifs))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
                         (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
                     }else{
@@ -533,6 +541,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = SoundStep::class
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
+                        cleanInfoHolder("Edit " + getString(R.string.literal_what_ifs))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
                         (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
                     }else{
@@ -547,6 +556,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = VibrationStep::class
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
+                        cleanInfoHolder("Edit " + getString(R.string.literal_what_ifs))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
                         (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
                     }else{
@@ -564,6 +574,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = ResourceStep::class
                     if (inputMode == InputMode.WHAT_IF){
                         val pointer = adaptAttributes(getString(R.string.literal_what_if))
+                        cleanInfoHolder("Edit " + getString(R.string.literal_what_ifs))
                         getInfoContentWrap().addView(createLine(elementAttributes[pointer], LineInputType.MULTI_TEXT, null, false, -1, createWhatIfs(element)))
                         (uncheckedMap[elementAttributes[pointer]] as SreMultiAutoCompleteTextView).setObjects(collectContextObjects(true))
                     }else {
@@ -624,7 +635,7 @@ class EditorActivity : AbstractManagementActivity() {
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is ResourceCheckTrigger -> {
-                    if (allResources.size == 0){
+                    if (allUsedResources.size == 0){
                         notify(getString(R.string.editor_no_resources_title),getString(R.string.editor_no_resource_trigger_text))
                     }
                     creationUnitClass = ResourceCheckTrigger::class
@@ -798,7 +809,7 @@ class EditorActivity : AbstractManagementActivity() {
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_resource) -> {
-                    if (allResources.size == 0){
+                    if (allUsedResources.size == 0){
                         notify(getString(R.string.editor_no_resources_title),getString(R.string.editor_no_resource_trigger_text))
                     }
                     creationUnitClass = ResourceCheckTrigger::class
@@ -880,7 +891,10 @@ class EditorActivity : AbstractManagementActivity() {
 
     private fun collectContextObjects(includeStakeholder: Boolean = false): ArrayList<java.io.Serializable>{
         val list = ArrayList<java.io.Serializable>()
-        list.addAll(activeScenario?.objects!!)
+        for (obj in activeScenario?.objects!!){
+            list.add(obj)
+            list.addAll(obj.attributes)
+        }
         if (includeStakeholder){
             list.addAll(projectContext!!.stakeholders)
         }
@@ -890,87 +904,131 @@ class EditorActivity : AbstractManagementActivity() {
     @Suppress("UNCHECKED_CAST")
     private fun createWhatIfs(element: AbstractStep): Array<String>{
         if (element.whatIfs.isEmpty()) {
+            whatIfProposal = true
             val whatIfMode = WhatIfMode.valueOf(DatabaseHelper.getInstance(applicationContext).read(Constants.WHAT_IF_MODE, String::class, WhatIfMode.ALL.toString(),DatabaseHelper.DataMode.PREFERENCES))
             val initialized = DatabaseHelper.getInstance(applicationContext).read(Constants.WHAT_IF_INITIALIZED, Boolean::class, false,DatabaseHelper.DataMode.PREFERENCES)
-            val map = HashMap<String,ArrayList<String>>()
-            map[OBJECT_TOKEN] = ArrayList<String>()
-            map["$ATTRIBUTE_TOKEN$OBJECT_TOKEN"] = ArrayList<String>()
-            map["$STAKEHOLDER_1_TOKEN$STAKEHOLDER_2_TOKEN"] = ArrayList<String>()
-            map[STAKEHOLDER_1_TOKEN] = ArrayList<String>()
-            map[STATIC_TOKEN] = ArrayList<String>()
+            var map = MultiValueMap<String,String>()
             val bytes = DatabaseHelper.getInstance(applicationContext).read(WHAT_IF_DATA,ByteArray::class,NullHelper.get(ByteArray::class))
             if (bytes.isNotEmpty()){
                 try{
-                    map.putAll(DataHelper.toObject(bytes,HashMap::class) as HashMap<String,ArrayList<String>>)
+                    map = (DataHelper.toObject(bytes,MultiValueMap::class) as MultiValueMap<String,String>)
                 }catch(e: Exception){/*NOP*/}
             }
             if (!initialized){
                 //OBJECTS
                 for (i in 1 .. 4){
-                    map[OBJECT_TOKEN]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_object_0, OBJECT_TOKEN))
+                    map.put(OBJECT_TOKEN,getGenericStringWithIdAndTemplate(i,R.string.what_if_object_0, OBJECT_TOKEN))
                 }
                 //ATTRIBUTES
                 for (i in 1 .. 2){
-                    map["$ATTRIBUTE_TOKEN$OBJECT_TOKEN"]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_attribute_0, ATTRIBUTE_TOKEN, OBJECT_TOKEN))
+                    map.put(O_A_TOKEN,getGenericStringWithIdAndTemplate(i,R.string.what_if_attribute_0, ATTRIBUTE_TOKEN, OBJECT_TOKEN))
                 }
                 //STAKEHOLDER RELATION
                 for (i in 1 .. 3){
-                    map["$STAKEHOLDER_1_TOKEN$STAKEHOLDER_2_TOKEN"]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_2_0, STAKEHOLDER_1_TOKEN, STAKEHOLDER_2_TOKEN))
+                    map.put(S1_S2_TOKEN,getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_2_0, STAKEHOLDER_1_TOKEN, STAKEHOLDER_2_TOKEN))
                 }
                 //STAKEHOLDER
                 for (i in 1 .. 1){
-                    map[STAKEHOLDER_1_TOKEN]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_1_0,STAKEHOLDER_1_TOKEN))
+                    map.put(STAKEHOLDER_1_TOKEN,getGenericStringWithIdAndTemplate(i,R.string.what_if_stakeholder_1_0,STAKEHOLDER_1_TOKEN))
                 }
                 //FIXED
                 for (i in 1 .. 22){
-                    map[STATIC_TOKEN]!!.add(getGenericStringWithIdAndTemplate(i,R.string.what_if_0))
+                    map.put(STATIC_TOKEN,getGenericStringWithIdAndTemplate(i,R.string.what_if_0))
                 }
-                for (whatIf in map){
-                    DatabaseHelper.getInstance(applicationContext).write(WHAT_IF_DATA,DataHelper.toByteArray(map))
-                }
+                DatabaseHelper.getInstance(applicationContext).write(WHAT_IF_DATA,DataHelper.toByteArray(map))
                 DatabaseHelper.getInstance(applicationContext).write(Constants.WHAT_IF_INITIALIZED, true, DatabaseHelper.DataMode.PREFERENCES)
             }
             val stakeholder1 = StringHelper.nvl(activePath?.stakeholder?.name,NOTHING)
             var stakeholder2 = "Stakeholder2"
             val whatIfList = ArrayList<String>()
+            val stakeholderCount = NumberHelper.nvl(projectContext?.stakeholders?.size, 0)
             //Objects & Attributes
-            if (CollectionHelper.oneOf(whatIfMode,WhatIfMode.ALL,WhatIfMode.DYNAMIC,WhatIfMode.OBJECTS)) {
-                for (o in element.objects) {
-                    for (whatIf in map[OBJECT_TOKEN]!!) {
-                        whatIfList.add(whatIf.replace(OBJECT_TOKEN, o.name))
+            when (whatIfMode) {
+                WhatIfMode.ALL -> {
+                    whatIfList.addAll(map.get(STATIC_TOKEN))
+                    whatIfList.addAll(map.get(STAKEHOLDER_1_TOKEN))
+                    if (stakeholderCount > 1){
+                        whatIfList.addAll(map.get(S1_S2_TOKEN))
                     }
+                    if (element.objects.isNotEmpty()){
+                        whatIfList.addAll(map.get(OBJECT_TOKEN))
+                        whatIfList.addAll(map.get(ATTRIBUTE_TOKEN))
+                        whatIfList.addAll(map.get(O_A_TOKEN))
+                        if (stakeholderCount > 1) {
+                            whatIfList.addAll(map.get(S1_S2_O_TOKEN))
+                            whatIfList.addAll(map.get(S1_S2_A_TOKEN))
+                            whatIfList.addAll(map.get(S1_S2_O_A_TOKEN))
+                        }
+                        whatIfList.addAll(map.get(S1_O_TOKEN))
+                        whatIfList.addAll(map.get(S1_A_TOKEN))
+                        whatIfList.addAll(map.get(S1_O_A_TOKEN))
+                    }
+                }
+                WhatIfMode.DYNAMIC -> {
+                    whatIfList.addAll(map.get(STAKEHOLDER_1_TOKEN))
+                    if (stakeholderCount > 1){
+                        whatIfList.addAll(map.get(S1_S2_TOKEN))
+                    }
+                    if (element.objects.isNotEmpty()){
+                        whatIfList.addAll(map.get(OBJECT_TOKEN))
+                        whatIfList.addAll(map.get(ATTRIBUTE_TOKEN))
+                        whatIfList.addAll(map.get(O_A_TOKEN))
+                        if (stakeholderCount > 1) {
+                            whatIfList.addAll(map.get(S1_S2_O_TOKEN))
+                            whatIfList.addAll(map.get(S1_S2_A_TOKEN))
+                            whatIfList.addAll(map.get(S1_S2_O_A_TOKEN))
+                        }
+                        whatIfList.addAll(map.get(S1_O_TOKEN))
+                        whatIfList.addAll(map.get(S1_A_TOKEN))
+                        whatIfList.addAll(map.get(S1_O_A_TOKEN))
+                    }
+                }
+                WhatIfMode.STAKEHOLDER -> {
+                    whatIfList.addAll(map.get(STAKEHOLDER_1_TOKEN))
+                    if (stakeholderCount > 1){
+                        whatIfList.addAll(map.get(S1_S2_TOKEN))
+                    }
+                }
+                WhatIfMode.OBJECTS -> {
+                    if (element.objects.isNotEmpty()){
+                        whatIfList.addAll(map.get(OBJECT_TOKEN))
+                        whatIfList.addAll(map.get(ATTRIBUTE_TOKEN))
+                        whatIfList.addAll(map.get(O_A_TOKEN))
+                    }
+                }
+                WhatIfMode.STATIC -> {
+                    whatIfList.addAll(map.get(STATIC_TOKEN))
+                }
+                WhatIfMode.NONE -> {
+                    //Do Nothing
+                }
+            }
+            //Fill Data
+            val finalWhatIfs = ArrayList<String>()
+            for (whatIf in whatIfList) {
+                var replacedWhatIf = whatIf
+                //Objects
+                for (o in element.objects) {
+                    replacedWhatIf = replacedWhatIf.replace(OBJECT_TOKEN,o.name)
                     for (a in activeScenario!!.getAttributesToObject(o)) {
-                        for (whatIf in map["$ATTRIBUTE_TOKEN$OBJECT_TOKEN"]!!){
-                            if (a.key != null){
-                                whatIfList.add(whatIf.replace(OBJECT_TOKEN, o.name).replace(ATTRIBUTE_TOKEN, a.key))
-                            }
+                        if (a.key != null){
+                            replacedWhatIf = replacedWhatIf.replace(ATTRIBUTE_TOKEN, a.key)
                         }
                     }
                 }
-            }
-            //Stakeholders
-            if (CollectionHelper.oneOf(whatIfMode,WhatIfMode.ALL,WhatIfMode.DYNAMIC,WhatIfMode.STAKEHOLDER)) {
-                val stakeholderCount = NumberHelper.nvl(projectContext?.stakeholders?.size, 0)
+                //Stakeholders
+                replacedWhatIf = replacedWhatIf.replace(STAKEHOLDER_1_TOKEN, stakeholder1)
                 if (stakeholderCount > 1){
                     for (s in 0 until stakeholderCount){
                         stakeholder2 = projectContext!!.stakeholders[s].name
                         if (stakeholder2 != stakeholder1) {
-                            for (whatIf in map["$STAKEHOLDER_1_TOKEN$STAKEHOLDER_2_TOKEN"]!!){
-                                whatIfList.add(whatIf.replace(STAKEHOLDER_1_TOKEN, stakeholder1).replace(STAKEHOLDER_2_TOKEN, stakeholder2))
-                            }
+                            replacedWhatIf = replacedWhatIf.replace(STAKEHOLDER_2_TOKEN, stakeholder2)
                         }
                     }
                 }
-                for (whatIf in map[STAKEHOLDER_1_TOKEN]!!){
-                    whatIfList.add(whatIf.replace(STAKEHOLDER_1_TOKEN, stakeholder1))
-                }
+                finalWhatIfs.add(replacedWhatIf)
             }
-            if (CollectionHelper.oneOf(whatIfMode,WhatIfMode.ALL,WhatIfMode.STATIC)) {
-                for (whatIf in map[STATIC_TOKEN]!!){
-                    whatIfList.add(whatIf)
-                }
-            }
-            return whatIfList.toTypedArray()
+            return finalWhatIfs.toTypedArray()
         }
         return element.whatIfs.toTypedArray()
     }
@@ -1008,6 +1066,10 @@ class EditorActivity : AbstractManagementActivity() {
         }
         if ( editUnit is AbstractStep && (!whatIfs.isEmpty() || //Add new What-Ifs
                 (whatIfs.isEmpty() && inputMap[elementAttributes[0]] == null))){ //Clear What-Ifs
+            if (whatIfProposal){
+                WhatIfAiHelper.process(applicationContext)
+            }
+            whatIfProposal = false
             DatabaseHelper.getInstance(applicationContext).write(editUnit!!.getElementId(),(editUnit as AbstractStep).withWhatIfs(whatIfs))
             return
         }

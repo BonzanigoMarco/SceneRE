@@ -11,7 +11,6 @@ import kotlinx.android.synthetic.main.activity_walkthrough.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.ANALYTICS_EXPORT_NAME
-import uzh.scenere.const.Constants.Companion.COMMA
 import uzh.scenere.const.Constants.Companion.COMMA_DELIM
 import uzh.scenere.const.Constants.Companion.COMMA_TOKEN
 import uzh.scenere.const.Constants.Companion.FILE_TYPE_CSV
@@ -457,7 +456,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                     //SCENARIO RELATED
                     contentBean.addEntry("scenario", activeScenarios[scenarioPointer!!].title)
                             .addEntry("paths", activeScenarios[scenarioPointer!!].getAllPaths().size.toString())
-                            .addEntry("steps", StringHelper.concatTokens(COMMA_DELIM, activeScenarios[scenarioPointer!!].getAllSteps().size.toString()))
+                            .addEntry("steps", StringHelper.concatTokens(COMMA_DELIM, activeScenarios[scenarioPointer!!].getAllStepTitles().size.toString()))
                             .addEntry("objects", StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllContextObject()))
                             .addEntry("resources", StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllResources()))
                             .addEntry("intro", activeScenarios[scenarioPointer!!].intro)
@@ -517,7 +516,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                     //SCENARIO RELATED
                     content.add(arrayOf(getString(R.string.literal_scenario), activeScenarios[scenarioPointer!!].title))
                     content.add(arrayOf(getString(R.string.literal_paths), activeScenarios[scenarioPointer!!].getAllPaths().size.toString()))
-                    content.add(arrayOf(getString(R.string.literal_steps), StringHelper.concatTokens(COMMA_TOKEN, activeScenarios[scenarioPointer!!].getAllSteps().size.toString())))
+                    content.add(arrayOf(getString(R.string.literal_steps), StringHelper.concatTokens(COMMA_TOKEN, activeScenarios[scenarioPointer!!].getAllStepTitles().size.toString())))
                     content.add(arrayOf(getString(R.string.literal_objects), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllContextObject()), COMMA_TOKEN))
                     content.add(arrayOf(getString(R.string.literal_resources), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllResources()), COMMA_TOKEN))
                     content.add(arrayOf(getString(R.string.literal_introduction), activeScenarios[scenarioPointer!!].intro))

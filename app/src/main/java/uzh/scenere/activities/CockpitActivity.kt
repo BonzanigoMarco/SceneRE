@@ -11,6 +11,7 @@ import kotlinx.android.synthetic.main.activity_cockpit.*
 import kotlinx.android.synthetic.main.sre_toolbar.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.IS_ADMINISTRATOR
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_ALL
 import uzh.scenere.const.Constants.Companion.PERMISSION_REQUEST_GPS
@@ -251,6 +252,20 @@ class CockpitActivity : AbstractManagementActivity() {
                         })
                         .setAutoCollapse(true)
                         .updateViews(true)
+                val isAdmin = DatabaseHelper.getInstance(applicationContext).read(IS_ADMINISTRATOR, Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
+                val userMode = SwipeButton(this, getString(R.string.cockpit_user_mode, if (isAdmin) getString(R.string.literal_administrator) else getString(R.string.literal_user)))
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
+                        .setButtonStates(false, true, false, false)
+                        .setAutoCollapse(true)
+                        .updateViews(true)
+                userMode.setExecutable(object : SwipeButton.SwipeButtonExecution{
+                            override fun execRight() {
+                                val administrator = !DatabaseHelper.getInstance(applicationContext).read(IS_ADMINISTRATOR, Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
+                                DatabaseHelper.getInstance(applicationContext).write(IS_ADMINISTRATOR, administrator, DatabaseHelper.DataMode.PREFERENCES)
+                                userMode.setText(getString(R.string.cockpit_user_mode, if (administrator) getString(R.string.literal_administrator) else getString(R.string.literal_user)))
+                            }
+                        })
                 val sreStyle = getSreStyle(applicationContext)
                 val whatIfMode = WhatIfMode.valueOf(DatabaseHelper.getInstance(applicationContext).read(WHAT_IF_MODE, String::class, WhatIfMode.ALL.toString(),DatabaseHelper.DataMode.PREFERENCES))
                 val whatIfSwitch = SwipeButton(this,
@@ -298,6 +313,35 @@ class CockpitActivity : AbstractManagementActivity() {
                         DatabaseHelper.getInstance(applicationContext).write(WHAT_IF_MODE,newMode.toString(),DatabaseHelper.DataMode.PREFERENCES)
                     }
                 })
+                val frequency = DatabaseHelper.getInstance(applicationContext).read(Constants.WHAT_IF_PROPOSAL_CHECK, Int::class, 1, DatabaseHelper.DataMode.PREFERENCES)
+                val whatIfFrequency = SwipeButton(this,getString(R.string.what_if_frequency_x,frequency))
+                        .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
+                        .setButtonIcons(R.string.icon_minus, R.string.icon_plus, null, null, null)
+                        .setButtonStates(true, true, false, false)
+                        .setAutoCollapse(true)
+                        .updateViews(true)
+                whatIfFrequency.setExecutable(object : SwipeButton.SwipeButtonExecution{
+                    override fun execRight() {
+                        val f = DatabaseHelper.getInstance(applicationContext).read(Constants.WHAT_IF_PROPOSAL_CHECK, Int::class, 3, DatabaseHelper.DataMode.PREFERENCES)+1
+                        DatabaseHelper.getInstance(applicationContext).write(Constants.WHAT_IF_PROPOSAL_CHECK, f, DatabaseHelper.DataMode.PREFERENCES)
+                        if (f == 1){
+                            showInfoText(getString(R.string.what_if_frequency_set_to_1))
+                        }else{
+                            showInfoText(getString(R.string.what_if_frequency_set,StringHelper.numberToPositionString(f)))
+                        }
+                        whatIfFrequency.setText(getString(R.string.what_if_frequency_x,f))
+                    }
+                    override fun execLeft() {
+                        val f = NumberHelper.capAtLow(DatabaseHelper.getInstance(applicationContext).read(Constants.WHAT_IF_PROPOSAL_CHECK, Int::class, 3, DatabaseHelper.DataMode.PREFERENCES)-1,1)
+                        DatabaseHelper.getInstance(applicationContext).write(Constants.WHAT_IF_PROPOSAL_CHECK, f, DatabaseHelper.DataMode.PREFERENCES)
+                        if (f == 1){
+                            showInfoText(getString(R.string.what_if_frequency_set_to_1))
+                        }else{
+                            showInfoText(getString(R.string.what_if_frequency_set,StringHelper.numberToPositionString(f)))
+                        }
+                        whatIfFrequency.setText(getString(R.string.what_if_frequency_x,f))
+                    }
+                })
                 val whatIfWipe = SwipeButton(this,getString(R.string.what_if_wipe))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setButtonIcons(R.string.icon_null, R.string.icon_cogwheels, null, null, null)
@@ -309,6 +353,7 @@ class CockpitActivity : AbstractManagementActivity() {
                     override fun execRight() {
                         DatabaseHelper.getInstance(applicationContext).delete(WHAT_IF_DATA,ByteArray::class)
                         DatabaseHelper.getInstance(applicationContext).write(Constants.WHAT_IF_INITIALIZED, false, DatabaseHelper.DataMode.PREFERENCES)
+                        DatabaseHelper.getInstance(applicationContext).write(Constants.WHAT_IF_PROPOSAL_COUNT, 0, DatabaseHelper.DataMode.PREFERENCES)
                         showInfoText(getString(R.string.what_if_wipe))
                     }
                 })
@@ -362,6 +407,8 @@ class CockpitActivity : AbstractManagementActivity() {
                 getContentHolderLayout().addView(resetTutorial)
                 getContentHolderLayout().addView(disableTutorial)
                 getContentHolderLayout().addView(whatIfSwitch)
+                getContentHolderLayout().addView(whatIfFrequency)
+                getContentHolderLayout().addView(userMode)
                 getContentHolderLayout().addView(whatIfWipe)
                 getContentHolderLayout().addView(modeSwitch)
                 getContentHolderLayout().addView(wipeWalkthroughs)

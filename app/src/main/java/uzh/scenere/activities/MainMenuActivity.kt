@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.activity_main_menu.*
 import uzh.scenere.R
+import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.helpers.*
 import uzh.scenere.views.SreButton
@@ -89,9 +90,15 @@ class MainMenuActivity : AbstractBaseActivity() {
                 button.isEnabled = true
             }
         }
+        val isAdmin = DatabaseHelper.getInstance(applicationContext).read(Constants.IS_ADMINISTRATOR, Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
+        if (!isAdmin){
+            projectsButton?.isEnabled = false
+            analyticsButton?.isEnabled = false
+        }
     }
 
     override fun onBackPressed() {
         this.finishAffinity();
     }
+
 }
