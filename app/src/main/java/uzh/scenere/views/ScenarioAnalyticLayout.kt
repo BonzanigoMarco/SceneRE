@@ -6,7 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import uzh.scenere.R
-import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.COMMA
+import uzh.scenere.const.Constants.Companion.COMMA_TOKEN
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.SPACE
@@ -18,7 +19,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 @SuppressLint("ViewConstructor")
-class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
+class ScenarioAnalyticLayout(context: Context, val csv: Boolean = false, vararg  val walkthroughs: Walkthrough) : LinearLayout(context) {
 
     enum class ScenarioMode {
         STEPS, COMMENTS
@@ -102,7 +103,7 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                 val stepTitle = Walkthrough.WalkthroughStepProperty.STEP_TITLE.get(stepId, String::class)
                 val stepTime = Walkthrough.WalkthroughStepProperty.STEP_TIME.get(stepId, Long::class)
                 val triggerInfoList = Walkthrough.WalkthroughStepProperty.TRIGGER_INFO.getAll(stepId, String::class)
-                path += "($stepNumber) $stepTitle".plus(NEW_LINE)
+                path += "($stepNumber) $stepTitle".plus(if (csv) COMMA_TOKEN else NEW_LINE)
                 for (triggerInfo in triggerInfoList){
                     steps[stakeholder]!![stepNumber]!!.add(triggerInfo)
                 }
@@ -110,8 +111,8 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                 pathSteps[stepNumber] = stepTitle
                 stepNumber++
             }
-            if (path.length > NEW_LINE.length){
-                paths[stakeholder]?.add(path.substring(0,path.length- NEW_LINE.length))
+            if (path.length > (if (csv) COMMA_TOKEN else NEW_LINE).length){
+                paths[stakeholder]?.add(path.substring(0,path.length - (if (csv) COMMA_TOKEN else NEW_LINE).length))
             }
         }
         visualizeOverview()
@@ -128,7 +129,7 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                     list.add(createListEntry(context.getString(R.string.literal_walkthroughs),"$walkthroughCount"))
                     var dark = true
                     for (step in entry.value.entries){
-                        list.add(createListEntry(context.getString(R.string.analytics_transition_x,step.key),  step.value.getStatistics()))
+                        list.add(createListEntry(context.getString(R.string.analytics_transition_x,step.key),  step.value.getStatistics(if (csv) COMMA_TOKEN else NEW_LINE)))
                         val times = stepTimes[entry.key]?.get(step.key)
                         if (times != null) {
                             val avg = times.avg()
@@ -159,7 +160,7 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
                     addView(createLine(context.getString(R.string.literal_walkthroughs),false,"$walkthroughCount"))
                     var dark = true
                     for (step in entry.value.entries){
-                        addView(createLine(context.getString(R.string.analytics_transition_x,step.key), false, step.value.getStatistics(),dark))
+                        addView(createLine(context.getString(R.string.analytics_transition_x,step.key), false, step.value.getStatistics(if (csv) COMMA_TOKEN else NEW_LINE),dark))
                         val times = stepTimes[entry.key]?.get(step.key)
                         if (times != null) {
                             val avg = times.avg()
@@ -223,18 +224,31 @@ class ScenarioAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthr
         return context.getString(R.string.analytics_statistics_export,steps.size,StringHelper.toListString(list))
     }
 
-    fun getExportData(): ArrayList<Array<String>>{
+    fun getExportData(transpose: Boolean = false): ArrayList<Array<String>>{
         val list = ArrayList<Array<String>>()
         list.add(arrayOf(SPACE,SPACE))
         if (!steps.isEmpty()){
             do{
-                for (line in nextStakeholder(true)){
-                    list.add(arrayOf(line.first,line.second))
+                if (transpose){
+                    val first = ArrayList<String>()
+                    val second = ArrayList<String>()
+                    for (line in nextStakeholder(true)){
+                        first.add(line.first)
+                        second.add(line.second)
+                    }
+                    list.add(first.toTypedArray())
+                    list.add(second.toTypedArray())
+                }else{
+                    for (line in nextStakeholder(true)){
+                        list.add(arrayOf(line.first,line.second))
+                    }
+                    list.add(arrayOf(SPACE,SPACE))
                 }
-                list.add(arrayOf(SPACE,SPACE))
             }while(stakeholderPointer != 0)
         }
-        list.removeAt(list.size-1)
+        if (!transpose){
+            list.removeAt(list.size-1)
+        }
         return list
     }
 }

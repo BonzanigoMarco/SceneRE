@@ -55,6 +55,7 @@ class PdfHelper(val context: Context) {
     private val sizePattern = Pattern.compile("<s[0-9]*>") // e.g. <s10>
     private val boldPattern = Pattern.compile("<b>")
     private val boldSegmentPattern = Pattern.compile("<b_[0-9]*,[0-9]*>") // e.g. <b_0,1> first word bold
+    private val pageBreakPattern = Pattern.compile("<pb>")
     private val breakBelowPattern = Pattern.compile("<breakbelow_[0-9]*>") // adds a new page if added content is too low
     // Files
 
@@ -196,6 +197,10 @@ class PdfHelper(val context: Context) {
             }
             if (tablePattern.matcher(str).find()) {
                 handleTable(pdfConstructor, str)
+                continue
+            }
+            if (pageBreakPattern.matcher(str).find()) {
+                handlePageBreak(pdfConstructor)
                 continue
             }
             if (sizePattern.matcher(str).find()) {
@@ -505,16 +510,20 @@ class PdfHelper(val context: Context) {
         val breakMargin = substring.substring(0, substring.indexOf(BRACKET_CLOSE))
         if (pdfConstructor.getConfig().getLine() < Integer.valueOf(breakMargin)) {
             // Add new Page
-            pdfConstructor.getConfig().setLine(pdfConstructor.getPage().mediaBox.height - pdfConstructor.getConfig().getMarginTop())
-            if (pdfConstructor.getDocument().getPages().getCount() == 1) {
-                drawPageNumber(pdfConstructor)
-            }
-            pdfConstructor.getContentStream().close()
-            val nextPage = PDPage()
-            pdfConstructor.getDocument().addPage(nextPage)
-            pdfConstructor.setContentStream(PDPageContentStream(pdfConstructor.getDocument(), nextPage))
+            addPage(pdfConstructor)
+        }
+    }
+
+    private fun addPage(pdfConstructor: PdfConstructor) {
+        pdfConstructor.getConfig().setLine(pdfConstructor.getPage().mediaBox.height - pdfConstructor.getConfig().getMarginTop())
+        if (pdfConstructor.getDocument().getPages().getCount() == 1) {
             drawPageNumber(pdfConstructor)
         }
+        pdfConstructor.getContentStream().close()
+        val nextPage = PDPage()
+        pdfConstructor.getDocument().addPage(nextPage)
+        pdfConstructor.setContentStream(PDPageContentStream(pdfConstructor.getDocument(), nextPage))
+        drawPageNumber(pdfConstructor)
     }
 
     private fun handleMargin(pdfConstructor: PdfConstructor, str: String) {
@@ -551,6 +560,11 @@ class PdfHelper(val context: Context) {
         val substring = str.substring(str.lastIndexOf(TABLE_TOKEN) + TABLE_TOKEN.length, str.length)
         val tableName = substring.substring(0, substring.indexOf(BRACKET_CLOSE))
         drawTable(pdfConstructor, tableName)
+    }
+
+    @Throws(IOException::class)
+    private fun handlePageBreak(pdfConstructor: PdfConstructor) {
+        addPage(pdfConstructor)
     }
 
     @Throws(IOException::class)
@@ -728,21 +742,31 @@ class PdfHelper(val context: Context) {
             var nextY = linePointer
             val emptyCoordinates = ArrayList<Pair<Float,Float>>()
             var contentPointer = 0
+            var linesAfterSpace = 0 //Up to 3 lines should be pushed to the next page
+            var yBeforeEmptyLine = 0f
+            var pointerOfSpace = 0
+            val postponedLines = ArrayList<Float>()
+            var previousY = nextY
             for (i in NumberHelper.nvl(pdfConstructor.getTablePointer(tableName),0) .. rowCount) {
-                val previousY = nextY
-                drawLine(contentStream, pdfConstructor.getConfig().getMarginLeft(), nextY, completeLength, nextY)
+                previousY = nextY
+                if (emptyCoordinates.isNotEmpty()){
+                    postponedLines.add(nextY)
+                }else{
+                    drawLine(contentStream, pdfConstructor.getConfig().getMarginLeft(), nextY, completeLength, nextY)
+                }
                 if (i == pdfConstructor.getTablePointer(tableName)) {
                     nextY -= rowHeight
                 } else {
                     nextY -= rowHeight * NumberHelper.nvl(multiLines[i],1)
                 }
-                var emptyLine = false
-                val offset = 0// pdfConstructor.getAppendedPagesForTable(tableName)+1
-                if (i+offset >= 0){
-                    emptyLine = ObjectHelper.nvl(emptyLines[i+offset],false)
-                    if (emptyLine){
-                        emptyCoordinates.add(Pair(previousY,nextY))
-                    }
+                if (emptyCoordinates.isNotEmpty()){
+                    linesAfterSpace++
+                }
+                val emptyLine = ObjectHelper.nvl(emptyLines[i],false)
+                if (emptyLine){
+                    pointerOfSpace = i
+                    emptyCoordinates.add(Pair(previousY,nextY))
+                    yBeforeEmptyLine = previousY
                 }
                 if (nextY < pdfConstructor.getConfig().getMarginBottom() && i != rowCount) {
                     contentPointer = i - 1
@@ -751,6 +775,23 @@ class PdfHelper(val context: Context) {
                         emptyCoordinates.removeAt(emptyCoordinates.size-1)
                     }
                     break
+                }
+            }
+            if (linesAfterSpace <= 3 && emptyCoordinates.isNotEmpty()){ //Rollback if only small amount of Lines would come after Space
+                emptyCoordinates.removeAt(emptyCoordinates.size-1)
+                nextY = yBeforeEmptyLine
+                contentPointer -= linesAfterSpace
+                content.removeAt(pointerOfSpace)
+                pdfConstructor.addTableData(tableName,content)
+            }else{
+                var endOfLastSpace = 0f
+                if (emptyCoordinates.isNotEmpty()){
+                    endOfLastSpace = emptyCoordinates.get(emptyCoordinates.lastIndex).second
+                }
+                for (y in postponedLines){
+                    if (y != endOfLastSpace){
+                        drawLine(contentStream, pdfConstructor.getConfig().getMarginLeft(), y, completeLength, y)
+                    }
                 }
             }
             // draw the columns
@@ -770,13 +811,19 @@ class PdfHelper(val context: Context) {
                         nextX += colWidths[i]
                         drawLine(contentStream, nextX, tempY, nextX, entry.first)
                     }
-                    tempY = entry.second
+                    tempY = entry.second + rowHeight
+                    if (tempY - nextY > rowHeight*1.2){
+                        drawLine(contentStream, pdfConstructor.getConfig().getMarginLeft(), tempY, completeLength, tempY)
+                        drawLine(contentStream, pdfConstructor.getConfig().getMarginLeft(), tempY-rowHeight, completeLength, tempY-rowHeight)
+                    }
                     nextX = tempX
                 }
-                drawLine(contentStream, nextX, tempY, nextX, nextY + (if (contentPointer == 0) rowHeight else 0f))
-                for (i in 0 until colCount) {
-                    nextX += colWidths[i]
+                if (tempY - nextY > rowHeight*1.2) {
                     drawLine(contentStream, nextX, tempY, nextX, nextY + (if (contentPointer == 0) rowHeight else 0f))
+                    for (i in 0 until colCount) {
+                        nextX += colWidths[i]
+                        drawLine(contentStream, nextX, tempY, nextX, nextY + (if (contentPointer == 0) rowHeight else 0f))
+                    }
                 }
             }
             var textX = pdfConstructor.getConfig().getMarginLeft()

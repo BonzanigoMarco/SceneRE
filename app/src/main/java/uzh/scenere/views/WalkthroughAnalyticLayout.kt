@@ -127,11 +127,22 @@ class WalkthroughAnalyticLayout(context: Context, val walkthrough: Walkthrough, 
         return context.getString(R.string.analytics_export_walkthrough,total)
     }
 
-    fun getExportData(): ArrayList<Array<String>>{
+    fun getExportData(transpose: Boolean = false): ArrayList<Array<String>>{
         val list = ArrayList<Array<String>>()
         list.add(arrayOf(Constants.SPACE, Constants.SPACE))
-        for (line in createOverview(true)){
-            list.add(arrayOf(line.first,line.second))
+        if (transpose){
+            val first = ArrayList<String>()
+            val second = ArrayList<String>()
+            for (line in createOverview(true)){
+                first.add(line.first)
+                second.add(line.second)
+            }
+            list.add(first.toTypedArray())
+            list.add(second.toTypedArray())
+        }else{
+            for (line in createOverview(true)){
+                list.add(arrayOf(line.first,line.second))
+            }
         }
         return list
     }

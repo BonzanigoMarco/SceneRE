@@ -8,11 +8,14 @@ import android.text.*
 import android.text.style.MetricAffectingSpan
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.CARRIAGE_RETURN
 import uzh.scenere.const.Constants.Companion.COMMA
 import uzh.scenere.const.Constants.Companion.COMMA_DELIM
+import uzh.scenere.const.Constants.Companion.COMMA_TOKEN
 import uzh.scenere.const.Constants.Companion.DAY_MS
 import uzh.scenere.const.Constants.Companion.HOUR_MS
 import uzh.scenere.const.Constants.Companion.MIN_MS
+import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.SEC_MS
 import uzh.scenere.const.Constants.Companion.SPACE
@@ -53,6 +56,17 @@ class StringHelper{
                 return conc.substring(0, conc.length - delimiter.length)
             }
             return NOTHING
+        }
+
+        fun concatTokensForCsv(vararg tokens: String): String {
+            if (tokens.isEmpty()){
+                return NEW_LINE
+            }
+            var str = NOTHING
+            for (token in tokens){
+                str += token.replace(COMMA, NOTHING).replace(NEW_LINE, SPACE).replace(CARRIAGE_RETURN, SPACE).replace(COMMA_TOKEN, COMMA)+COMMA
+            }
+            return str.substring(0, str.length - COMMA.length)+ NEW_LINE
         }
 
         fun concatList(delimiter: String, obj: List<String>): String{
@@ -270,7 +284,7 @@ class StringHelper{
             })
         }
 
-        fun toListString(entries: ArrayList<out Serializable>): String {
+        fun toListString(entries: ArrayList<out Serializable>, delim: String = COMMA_DELIM): String {
             val list = ArrayList<String>()
             for (entry in entries){
                 when (entry){
@@ -279,7 +293,7 @@ class StringHelper{
                     is Stakeholder -> list.add(entry.name)
                 }
             }
-            return concatList(COMMA_DELIM,list)
+            return concatList(delim,list)
         }
     }
 }

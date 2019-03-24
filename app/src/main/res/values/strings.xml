@@ -606,4 +606,20 @@
     <string name="analytics_comments_export">A total of %1$d Comments in %2$d Steps were written.</string>
     <string name="analytics_statistics_export">Walkthroughs were conducted by a total of %1$d Stakeholder(s): %2$s.</string>
     <string name="analytics_export_walkthrough">A total of %1$d Walkthrough(s) have been conducted in this Scenario.</string>
+    <string name="analytics_pdf_cancel">PDF-Export Cancelled!</string>
+    <string name="analytics_pdf_complete">PDF-Export Complete!</string>
+    <string name="analytics_pdf_csv_start_text">This can take a few Minutes!</string>
+    <string name="pdf_start_title">PDF-Export started in Background</string>
+    <string name="analytics_csv_cancelled">CSV-Export Cancelled!</string>
+    <string name="analytics_csv_start_title">CSV Export started in Background</string>
+    <string name="analytics_csv_complete">CSV-Export Complete!</string>
+    <string name="literal_user">User</string>
+    <string name="literal_date">Date</string>
+    <string name="literal_paths">Paths</string>
+    <string name="literal_steps">Steps</string>
+    <string name="literal_objects">Objects</string>
+    <string name="literal_resources">Resources</string>
+    <string name="literal_introduction">Introduction</string>
+    <string name="literal_conclusion">Conclusion</string>
+    <string name="analytics_export_walkthrough_x">Walkthrough #%1$d</string>
 </resources>

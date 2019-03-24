@@ -101,9 +101,11 @@ class Constants {
         const val SPACE_C: Char = ' '
         const val EQUALS: String = "="
         const val NEW_LINE: String = "\n"
+        const val CARRIAGE_RETURN: String = "\r"
         const val NEW_LINE_TOKEN: String = "!!NEW_LINE_TOKEN!!"
         const val STAKEHOLDER_1_TOKEN: String = "!!STAKEHOLDER_1!!"
         const val STAKEHOLDER_2_TOKEN: String = "!!STAKEHOLDER_2!!"
+        const val COMMA_TOKEN: String = "!!COMMA!!"
         const val OBJECT_TOKEN: String = "!!OBJECT!!"
         const val ATTRIBUTE_TOKEN: String = "!!ATTRIBUTE!!"
         const val STATIC_TOKEN: String = "!!STATIC!!"
@@ -186,13 +188,15 @@ class Constants {
         const val TYPE_GYROSCOPE_TRIGGER: String = "GyroscopeTrigger"
         const val TYPE_LIGHT_TRIGGER: String = "LightTrigger"
         const val TYPE_MAGNETOMETER_TRIGGER: String = "MagnetometerTrigger"
-        //PDF
+        //PDF,CSV
+        const val ANALYTICS_EXPORT_NAME = "SceneRE-Analytics-Export_"
         const val LIST_BEGIN = "- "
         const val FONT_HELVETICA_NORMAL = "Helvetica"
         const val FONT_HELVETICA_BOLD = "Helvetica-Bold"
         const val FILE_TYPE_TFF = ".ttf"
         const val FILE_TYPE_TXT = ".txt"
         const val FILE_TYPE_PNG = ".png"
+        const val FILE_TYPE_CSV = ".csv"
         const val PART_TOKEN = "<part_"
         const val BREAK_TOKEN = "<breakbelow_"
         const val MARGIN_TOKEN = "<margin_"

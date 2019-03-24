@@ -16,13 +16,13 @@ class StatisticArrayList<E> : ArrayList<E>() {
         return super.add(element)
     }
 
-    fun getStatistics(): String{
+    fun getStatistics(delim: String = NEW_LINE): String{
         val part = 100f/size
         var statistics = NOTHING
         for (entry in stats.entries){
-            statistics += "".plus(entry.key).plus(SPACE).plus(NumberHelper.floor(part*entry.value,2)).plus(PERCENT).plus(NEW_LINE)
+            statistics += "".plus(entry.key).plus(SPACE).plus(NumberHelper.floor(part*entry.value,2)).plus(PERCENT).plus(delim)
         }
-        return if (statistics.length > NEW_LINE.length) statistics.substring(0,statistics.length- NEW_LINE.length) else statistics
+        return if (statistics.length > delim.length) statistics.substring(0,statistics.length- delim.length) else statistics
     }
 
     fun getAsc(): List<E>{

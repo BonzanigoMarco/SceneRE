@@ -6,15 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.activity_analytics.*
 import kotlinx.android.synthetic.main.activity_walkthrough.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.ANALYTICS_EXPORT_NAME
+import uzh.scenere.const.Constants.Companion.COMMA
 import uzh.scenere.const.Constants.Companion.COMMA_DELIM
+import uzh.scenere.const.Constants.Companion.COMMA_TOKEN
+import uzh.scenere.const.Constants.Companion.FILE_TYPE_CSV
+import uzh.scenere.const.Constants.Companion.FOLDER_ANALYTICS
 import uzh.scenere.const.Constants.Companion.NONE
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.datamodel.Walkthrough
@@ -95,7 +99,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
             analytics_layout_button_holder.addView(creationButton)
             customizeToolbarId(R.string.icon_back, null, null, null, null)
             getInfoTitle().textSize = DipHelper.get(resources).dip2_5.toFloat()
-            tutorialOpen = SreTutorialLayoutDialog(this@AnalyticsActivity, screenWidth, "info_analytics", "info_analytics_type").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+            tutorialOpen = SreTutorialLayoutDialog(this@AnalyticsActivity, screenWidth, "info_analytics", "info_analytics_type", "info_pdf_csv").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             createOverviewLayout()
         })
     }
@@ -292,7 +296,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         ?.setText(createButtonLabel(activeWalkthroughs, getString(R.string.literal_walkthroughs)))
                         ?.updateViews(false)
 
-                customizeToolbarId(R.string.icon_back, R.string.icon_pdf,null , R.string.icon_csv, null)
+                customizeToolbarId(R.string.icon_back, null,R.string.icon_pdf, null, R.string.icon_csv)
             }
             AnalyticsMode.SELECT_WALKTHROUGH-> {
                 mode = AnalyticsMode.SELECT_STATISTICS
@@ -366,7 +370,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
 
     private fun createScenarioStatistics() {
         getContentHolderLayout().removeAllViews()
-        scenarioAnalytics = ScenarioAnalyticLayout(applicationContext, *activeWalkthroughs.toTypedArray())
+        scenarioAnalytics = ScenarioAnalyticLayout(applicationContext, false, *activeWalkthroughs.toTypedArray())
     }
 
     private fun createStepStatistics() {
@@ -441,9 +445,9 @@ class AnalyticsActivity : AbstractManagementActivity() {
     }
 
     var creating = false
-    override fun onToolbarCenterLeftClicked() {
+    override fun onToolbarCenterClicked() {
         if (!creating && CollectionHelper.oneOf(mode, AnalyticsMode.SELECT_WALKTHROUGH, AnalyticsMode.SELECT_STATISTICS, AnalyticsMode.SELECT_COMMENTS)){
-            notify("PDF-Export","Your PDF-File is being generated in the Background!")
+            notify(getString(R.string.pdf_start_title),getString(R.string.analytics_pdf_csv_start_text))
             creating = true
             cancelAsyncTask()
             executeAsyncTask({
@@ -469,7 +473,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
                         walkthroughsExportData.addAll(element.getExportData())
                         walkthroughs.add(element)
                     }
-                    val statistics = ScenarioAnalyticLayout(applicationContext, *activeWalkthroughs.toTypedArray())
+                    val statistics = ScenarioAnalyticLayout(applicationContext, false, *activeWalkthroughs.toTypedArray())
                     val comments = CommentAnalyticLayout(applicationContext, *activeWalkthroughs.toTypedArray())
                     contentBean.addEntry("walkthroughs", walkthroughs[0].getExportIntroduction(walkthroughs.size))
                             .addTable("walkthroughs_table", walkthroughsExportData)
@@ -488,20 +492,98 @@ class AnalyticsActivity : AbstractManagementActivity() {
                 }
             },{
                 creating = false
-                notify("PDF-Export Complete!")
+                notify(getString(R.string.analytics_pdf_complete))
+            },{
+                if (creating){
+                    notify(getString(R.string.analytics_pdf_cancel))
+                    creating = false
+                }
             })
         }
     }
-    override fun onToolbarCenterRightClicked() {
+    override fun onToolbarRightClicked() {
         if (!creating && CollectionHelper.oneOf(mode, AnalyticsMode.SELECT_WALKTHROUGH, AnalyticsMode.SELECT_STATISTICS, AnalyticsMode.SELECT_COMMENTS)){
-            notify("CSV Export","Your CSV-File is being created in the Background")
+            notify(getString(R.string.analytics_csv_start_title),getString(R.string.analytics_pdf_csv_start_text))
             creating = true
             cancelAsyncTask()
             executeAsyncTask({
-                //TODO
-            },{
-                notify("CSV-Export Complete!")
+                val content = ArrayList<Array<String>>()
+                val user = DatabaseHelper.getInstance(applicationContext).read(Constants.USER_NAME, String::class, NOTHING)
+                content.add(arrayOf(getString(R.string.literal_user),user))
+                content.add(arrayOf(getString(R.string.literal_date),DateHelper.getCurrentTimestamp("dd.MM.yyyy HH:mm")))
+                if (!activeScenarios.isNullOrEmpty() && scenarioPointer != null) {
+                    content.add(arrayOf(SPACE))
+                    content.add(arrayOf(SPACE))
+                    //SCENARIO RELATED
+                    content.add(arrayOf(getString(R.string.literal_scenario), activeScenarios[scenarioPointer!!].title))
+                    content.add(arrayOf(getString(R.string.literal_paths), activeScenarios[scenarioPointer!!].getAllPaths().size.toString()))
+                    content.add(arrayOf(getString(R.string.literal_steps), StringHelper.concatTokens(COMMA_TOKEN, activeScenarios[scenarioPointer!!].getAllSteps().size.toString())))
+                    content.add(arrayOf(getString(R.string.literal_objects), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllContextObject()), COMMA_TOKEN))
+                    content.add(arrayOf(getString(R.string.literal_resources), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllResources()), COMMA_TOKEN))
+                    content.add(arrayOf(getString(R.string.literal_introduction), activeScenarios[scenarioPointer!!].intro))
+                    content.add(arrayOf(getString(R.string.literal_conclusion), activeScenarios[scenarioPointer!!].outro))
+                    content.add(arrayOf(getString(R.string.literal_stakeholders), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllStakeholdersWithPaths(applicationContext)), COMMA_TOKEN))
+                }
+                if (!activeWalkthroughs.isNullOrEmpty()){
+                    content.add(arrayOf(SPACE))
+                    content.add(arrayOf(SPACE))
+                    //WALKTHROUGH RELATED
+                    val walkthroughs = ArrayList<WalkthroughAnalyticLayout>()
+                    val walkthroughsExportData = ArrayList<Array<String>>()
+                    for (walkthrough in activeWalkthroughs){
+                        val element = WalkthroughAnalyticLayout(applicationContext, walkthrough, true) {}
+                        walkthroughsExportData.addAll(element.getExportData(true))
+                        walkthroughs.add(element)
+                    }
+                    val statistics = ScenarioAnalyticLayout(applicationContext, true, *activeWalkthroughs.toTypedArray())
+                    val comments = CommentAnalyticLayout(applicationContext, *activeWalkthroughs.toTypedArray())
+                    content.add(arrayOf(SPACE))
+                    content.add(arrayOf(walkthroughs[0].getExportIntroduction(walkthroughs.size)))
+                    content.add(arrayOf(SPACE))
+                    var pointer = 0
+                    var walkthroughCount = 1
+                    for (entry in walkthroughsExportData){
+                        if (pointer == 1){
+                            content.add(addToArrayBefore(entry, SPACE))
+                        }
+                        if (pointer % 3 == 2){
+                            content.add(addToArrayBefore(entry,getString(R.string.analytics_export_walkthrough_x,walkthroughCount)))
+                            walkthroughCount++
+                        }
+                        pointer++
+                    }
+                    content.add(arrayOf(SPACE))
+                    content.add(arrayOf(SPACE))
+                    content.add(arrayOf(SPACE))
+                    content.add(arrayOf(statistics.getExportIntroduction()))
+                    for (entry in statistics.getExportData()){
+                        content.add(entry)
+                    }
+                    content.add(arrayOf(SPACE))
+                    content.add(arrayOf(SPACE))
+                    content.add(arrayOf(SPACE))
+                    content.add(arrayOf(comments.getExportIntroduction()))
+                    for (entry in comments.getExportData()){
+                        content.add(entry)
+                    }
+                }
+                val builder = StringBuilder()
+                for (line in content){
+                    builder.append(StringHelper.concatTokensForCsv(*line))
+                }
+                val path = FileHelper.writeFile(applicationContext, builder.toString().toByteArray(), ANALYTICS_EXPORT_NAME + System.currentTimeMillis() + FILE_TYPE_CSV, FOLDER_ANALYTICS)
                 creating = false
+                if (StringHelper.hasText(path)) {
+                    FileHelper.openFolder(applicationContext, FileHelper.removeFileFromPath(path))
+                }
+            },{
+                notify(getString(R.string.analytics_csv_complete))
+                creating = false
+            },{
+                if (creating){
+                    notify(getString(R.string.analytics_csv_cancelled))
+                    creating = false
+                }
             })
         }
     }

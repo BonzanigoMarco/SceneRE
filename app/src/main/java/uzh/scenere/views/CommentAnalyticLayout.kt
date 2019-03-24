@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import uzh.scenere.R
-import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.FRACTION
 import uzh.scenere.const.Constants.Companion.NEW_LINE
 import uzh.scenere.const.Constants.Companion.NEW_LINE_TOKEN
@@ -284,18 +283,31 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
         return context.getString(R.string.analytics_comments_export,comments.size,sortedStepList.size)
     }
     
-    fun getExportData(): ArrayList<Array<String>>{
+    fun getExportData(transpose: Boolean = false): ArrayList<Array<String>>{
         val list = ArrayList<Array<String>>()
         list.add(arrayOf(SPACE,SPACE))
         if (!comments.isEmpty()){
             do{
-                for (line in nextStep(true)){
-                    list.add(arrayOf(line.first,line.second))
+                if (transpose){
+                    val first = ArrayList<String>()
+                    val second = ArrayList<String>()
+                    for (line in nextStep(true)){
+                        first.add(line.first)
+                        second.add(line.second)
+                    }
+                    list.add(first.toTypedArray())
+                    list.add(second.toTypedArray())
+                }else{
+                    for (line in nextStep(true)){
+                        list.add(arrayOf(line.first,line.second))
+                    }
                 }
                 list.add(arrayOf(SPACE,SPACE))
             }while(stepPointer != 0)
         }
-        list.removeAt(list.size-1)
+        if (!transpose){
+            list.removeAt(list.size-1)
+        }
         return list
     }
 }

@@ -1,6 +1,7 @@
 package uzh.scenere.datamodel.pdf
 
 import android.content.Context
+import uzh.scenere.const.Constants.Companion.ANALYTICS_EXPORT_NAME
 import uzh.scenere.const.Constants.Companion.FOLDER_ANALYTICS
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.helpers.FileHelper
@@ -76,7 +77,7 @@ class PdfFileBean {
         var path: String? = null
         try{
             if (content != null){
-                path = FileHelper.writeFile(context,content!!,"SceneRE-Analytics-Export_"+System.currentTimeMillis()+getType(), FOLDER_ANALYTICS)
+                path = FileHelper.writeFile(context,content!!,ANALYTICS_EXPORT_NAME+System.currentTimeMillis()+getType(), FOLDER_ANALYTICS)
             }
         }catch(e: Exception){
             return NOTHING

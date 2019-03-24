@@ -296,3 +296,13 @@ Wait until the sender pairs with
 your Device, accept and import
 the Data after successful
 transmission and analyzation.
+
+
+PDF & CSV
+
+Once you drilled down to the
+Scenario-Level, Exports to PDF-
+and CSV-Files become available
+in the Toolbar on Top.
+The Exports contain Data about
+the active Scenario.

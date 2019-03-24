@@ -17,19 +17,21 @@
 <b_0,1>Stakeholders: <part_stakeholders><br>
 <br>
 <br>
-<s10><b>Statistics for each Stakeholder<br>
+<s12><b>Statistics for each Stakeholder<br>
 <part_statistics><br>
 <br>
 <table_statistics_table>
 <br>
+<pb>
 <br>
-<s10><b>Comments for each Step<br>
+<s12><b>Comments for each Step<br>
 <part_comments><br>
 <br>
 <table_comments_table>
 <br>
+<pb>
 <br>
-<s10><b>Walkthroughs<br>
+<s12><b>Walkthroughs<br>
 <part_walkthroughs><br>
 <br>
 <table_walkthroughs_table>
