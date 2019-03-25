@@ -31,7 +31,7 @@ class WhatIfAiHelper {
         @Suppress("UNCHECKED_CAST")
         fun process(context: Context) {
             try {
-                val count = DatabaseHelper.getInstance(context).read(Constants.WHAT_IF_PROPOSAL_COUNT, Int::class, 0,DatabaseHelper.DataMode.PREFERENCES)+1
+                val count = DatabaseHelper.getInstance(context).read(Constants.WHAT_IF_PROPOSAL_COUNT, Int::class, 3,DatabaseHelper.DataMode.PREFERENCES)+1
                 DatabaseHelper.getInstance(context).write(Constants.WHAT_IF_PROPOSAL_COUNT, count, DatabaseHelper.DataMode.PREFERENCES)
                 val check = DatabaseHelper.getInstance(context).read(Constants.WHAT_IF_PROPOSAL_CHECK, Int::class, 1, DatabaseHelper.DataMode.PREFERENCES)
                 val initialized = DatabaseHelper.getInstance(context).read(Constants.WHAT_IF_INITIALIZED, Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)

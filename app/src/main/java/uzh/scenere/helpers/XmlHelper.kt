@@ -106,7 +106,7 @@ class XmlHelper(private var context: Context) {/**
         protected var propertiesMap: HashMap<String, Serializable> = HashMap()
         abstract fun getProperties(): Array<String>
         fun getProperty(key: String): Serializable? {
-            return propertiesMap[key];
+            return propertiesMap[key]
         }
     }
     */

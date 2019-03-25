@@ -791,8 +791,8 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
 
     fun copyToClipboard(str: String){
         val clipboard =  getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText(str, str);
-        clipboard.primaryClip = clip;
+        val clip = ClipData.newPlainText(str, str)
+        clipboard.primaryClip = clip
     }
 
     fun getFromClipboard(): String{

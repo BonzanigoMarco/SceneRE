@@ -86,7 +86,7 @@ class SreSpinner(context: Context, parent: ViewGroup?, lookupData: Array<String>
                     nothingSelectedExecutable?.invoke()
                 }
             }
-        };
+        }
     }
 
     fun updateLookupData(lookupData: Array<String>){

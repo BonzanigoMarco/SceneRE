@@ -313,7 +313,7 @@ class CockpitActivity : AbstractManagementActivity() {
                         DatabaseHelper.getInstance(applicationContext).write(WHAT_IF_MODE,newMode.toString(),DatabaseHelper.DataMode.PREFERENCES)
                     }
                 })
-                val frequency = DatabaseHelper.getInstance(applicationContext).read(Constants.WHAT_IF_PROPOSAL_CHECK, Int::class, 1, DatabaseHelper.DataMode.PREFERENCES)
+                val frequency = DatabaseHelper.getInstance(applicationContext).read(Constants.WHAT_IF_PROPOSAL_CHECK, Int::class, 3, DatabaseHelper.DataMode.PREFERENCES)
                 val whatIfFrequency = SwipeButton(this,getString(R.string.what_if_frequency_x,frequency))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setButtonIcons(R.string.icon_minus, R.string.icon_plus, null, null, null)

@@ -2,6 +2,7 @@ package uzh.scenere.datamodel.trigger.communication
 
 import android.content.Context
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.SEMI_COLON
 import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.datamodel.trigger.ICommunicationTrigger
 import uzh.scenere.helpers.NumberHelper
@@ -29,7 +30,7 @@ class GpsTrigger(id: String?, previousId: String?, pathId: String): AbstractTrig
 
     fun getRadius(): Long{
         if (gpsData != null){
-            val split = gpsData!!.split(";")
+            val split = gpsData!!.split(SEMI_COLON)
             if (split.size == 3){
                 return NumberHelper.safeToNumber(split[0],0)
             }
@@ -40,7 +41,7 @@ class GpsTrigger(id: String?, previousId: String?, pathId: String): AbstractTrig
 
     fun getLatitude(): String{
         if (gpsData != null){
-            val split = gpsData!!.split(";")
+            val split = gpsData!!.split(SEMI_COLON)
             if (split.size == 3){
                 return split[1]
             }
@@ -50,7 +51,7 @@ class GpsTrigger(id: String?, previousId: String?, pathId: String): AbstractTrig
 
     fun getLongitude(): String{
         if (gpsData != null){
-            val split = gpsData!!.split(";")
+            val split = gpsData!!.split(SEMI_COLON)
             if (split.size == 3){
                 return split[2]
             }

@@ -35,9 +35,18 @@ class StartupActivity : AbstractBaseActivity() {
     private var userId: String = NOTHING
     private var interrupted: Boolean = false
     private var closing: Boolean = false
+    private var cleanupFinished = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        userName = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_NAME, String::class, NOTHING, false)
+        userId = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_ID, String::class, NOTHING, false)
+
+        executeAsyncTask({
+            DatabaseHelper.getInstance(applicationContext).recreateTableStatistics()
+            cleanupFinished = true
+        },{cleanupFinished = true},{cleanupFinished = true})
 
         morphRandom(startup_text_1 as TextView,'S')
         morphRandom(startup_text_2 as TextView,'c')
@@ -48,8 +57,6 @@ class StartupActivity : AbstractBaseActivity() {
         morphRandom(startup_text_7 as TextView,'R')
         morphRandom(startup_text_8 as TextView,'E')
 
-        userName = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_NAME, String::class, NOTHING, false)
-        userId = DatabaseHelper.getInstance(applicationContext).readAndMigrate(Constants.USER_ID, String::class, NOTHING, false)
         if (!StringHelper.hasText(userId)){
             userId = UUID.randomUUID().toString()
             DatabaseHelper.getInstance(applicationContext).write(Constants.USER_ID, userId)
@@ -124,14 +131,14 @@ class StartupActivity : AbstractBaseActivity() {
         startup_edit_name.visibility = VISIBLE
         startup_text_name.visibility = VISIBLE
         val fadeIn = AlphaAnimation(0.0f, 1.0f)
-        fadeIn.duration = 1000;
+        fadeIn.duration = 1000
         startup_text_name.startAnimation(fadeIn)
         startup_edit_name.startAnimation(fadeIn)
     }
 
     private fun fadeOut() {
         val fadeOut = AlphaAnimation(1.0f, 0.0f)
-        fadeOut.duration = 1000;
+        fadeOut.duration = 1000
         startup_text_name.startAnimation(fadeOut)
         startup_edit_name.startAnimation(fadeOut)
         startup_edit_name.visibility = INVISIBLE
@@ -164,9 +171,17 @@ class StartupActivity : AbstractBaseActivity() {
             startup_edit_name.isEnabled = false
             DatabaseHelper.getInstance(applicationContext).write(Constants.USER_NAME, startup_edit_name.text.toString())
             fadeOut()
-            Handler().postDelayed({startActivity(Intent(this, MainMenuActivity::class.java))},1000)
+            Handler().postDelayed({startMainMenu()},1000)
         }else{
+            startMainMenu()
+        }
+    }
+
+    private fun startMainMenu(){
+        if (cleanupFinished){
             startActivity(Intent(this, MainMenuActivity::class.java))
+        }else{
+            Handler().postDelayed({startMainMenu()},300)
         }
     }
 }

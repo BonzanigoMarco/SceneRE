@@ -121,6 +121,10 @@ class StringHelper{
             return (text != null && text.isNotBlank())
         }
 
+        fun stripBlank(text: String): String{
+            return text.replace(SPACE,NOTHING).replace(CARRIAGE_RETURN,NOTHING).replace(NEW_LINE,NOTHING)
+        }
+
         fun extractNameFromClassString(className: String): String{
             val split = className.split(".")
             return split[split.size-1]

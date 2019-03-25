@@ -119,7 +119,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
     override fun createEntity() {
         val name = inputMap[inputLabelName]!!.getStringValue()
         val introduction = inputMap[inputLabelDescription]!!.getStringValue()
-        val stakeholderBuilder = Stakeholder.StakeholderBuilder(activeProject!!,name, introduction) //TODO Link to Project
+        val stakeholderBuilder = Stakeholder.StakeholderBuilder(activeProject!!,name, introduction)
         if (activeStakeholder != null){
             removeStakeholder(activeStakeholder!!)
             stakeholderBuilder.copyId(activeStakeholder!!)

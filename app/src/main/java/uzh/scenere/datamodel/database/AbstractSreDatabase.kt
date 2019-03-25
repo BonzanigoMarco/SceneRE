@@ -89,7 +89,7 @@ abstract class AbstractSreDatabase {
             val restoration = composeRestorationStatement(tableName, columns, idColumnExists)
             val cleanup = DROP_TABLE_IF_EXISTS_TEMP + tableName
             if (specificTable != null && tableName != specificTable){
-                continue;
+                continue
             }else if (specificTable != null && tableName == specificTable) {
                 val listOfStatements = ArrayList<String>()
                 listOfStatements.add(drop)

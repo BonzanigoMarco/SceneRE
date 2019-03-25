@@ -31,6 +31,7 @@ import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout.VERTICAL
+import uzh.scenere.const.Constants.Companion.SEMI_COLON
 import uzh.scenere.const.Constants.Companion.ZERO_S
 import java.io.Serializable
 import kotlin.collections.ArrayList
@@ -404,7 +405,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 }
             }else {
                 if (StringHelper.hasText(realPresetValue)) {
-                    val split = realPresetValue!!.split(";")
+                    val split = realPresetValue!!.split(SEMI_COLON)
                     for (value in split) {
                         addSelection(value, selectionCarrier, labelText, spinner)
                     }

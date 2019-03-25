@@ -53,12 +53,12 @@ class SreScrollView(context: Context, parent: ViewGroup): ScrollView(context), S
 
 
         try {
-            val mScrollCacheField = View::class.java.getDeclaredField("mScrollCache")
-            mScrollCacheField.isAccessible = true
-            val mScrollCache = mScrollCacheField.get(this)
-            val scrollBarField = mScrollCache.javaClass.getDeclaredField("scrollBar")
+            val scrollCacheField = View::class.java.getDeclaredField("mScrollCache")
+            scrollCacheField.isAccessible = true
+            val scrollCache = scrollCacheField.get(this)
+            val scrollBarField = scrollCache.javaClass.getDeclaredField("scrollBar")
             scrollBarField.isAccessible = true
-            val scrollBar = scrollBarField.get(mScrollCache)
+            val scrollBar = scrollBarField.get(scrollCache)
             val method = scrollBar.javaClass.getDeclaredMethod("setVerticalThumbDrawable", Drawable::class.java)
             method.isAccessible = true
             method.invoke(scrollBar, ContextCompat.getDrawable(context,R.drawable.sre_scrollbar))

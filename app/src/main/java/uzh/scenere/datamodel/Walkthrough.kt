@@ -413,7 +413,7 @@ open class Walkthrough private constructor(val id: String, val owner: String, va
         var stepId = NOTHING
         for (line in lines) {
             if (line.startsWith("<?")) {
-                continue;
+                continue
             } else if (line.contains(" type=")) {
                 val enumString = line.substring(1, line.indexOf(" type=")).replace("[0-9]+".toRegex(), NOTHING)
                 if (StringHelper.hasText(stepId)) {

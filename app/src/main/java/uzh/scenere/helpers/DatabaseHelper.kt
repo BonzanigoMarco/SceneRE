@@ -123,7 +123,6 @@ class DatabaseHelper private constructor(context: Context) {
         return true
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T : Serializable> read(key: String, clz: KClass<T>, valIfNull: T = NullHelper.get(clz), internalMode: DataMode = mode): T {
         return when (internalMode) {
             DataMode.PREFERENCES -> readInternal(key,clz,valIfNull,internalMode)
@@ -135,6 +134,7 @@ class DatabaseHelper private constructor(context: Context) {
             }
         }
     }
+    @Suppress("UNCHECKED_CAST")
     fun <T : Serializable> readInternal(key: String, clz: KClass<T>, valIfNull: T = NullHelper.get(clz), internalMode: DataMode = mode): T {
         try {
             when (internalMode) {
@@ -551,6 +551,12 @@ class DatabaseHelper private constructor(context: Context) {
                 }
                 database!!.close()
             }
+        }
+    }
+
+    fun recreateTableStatistics(){
+        if (mode == DataMode.DATABASE){
+            database!!.reCreateIndices()
         }
     }
 

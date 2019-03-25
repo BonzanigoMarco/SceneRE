@@ -148,7 +148,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         getInfoTitle().text = StringHelper.styleString(getSpannedStringFromId(getConfiguredInfoString()), fontAwesome)
         loadedProjects.clear()
         loadedProjects.addAll(DatabaseHelper.getInstance(applicationContext).readBulk(Project::class, null))

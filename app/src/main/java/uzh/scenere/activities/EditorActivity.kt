@@ -1284,7 +1284,7 @@ class EditorActivity : AbstractManagementActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 //NOP
             }
-        };
+        }
     }
 
     override fun execAdaptToOrientationChange() {

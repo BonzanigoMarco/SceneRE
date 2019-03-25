@@ -138,6 +138,7 @@ class Constants {
         const val BRACKET_OPEN: Char = '<'
         const val BRACKET_CLOSE: Char = '>'
         const val DASH: String = "-"
+        const val GROUND_DASH: String = "_"
         const val SLASH: String = "/"
         const val BOLD_START: String = "<b>"
         const val BOLD_END: String = "</b>"

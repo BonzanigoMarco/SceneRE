@@ -471,7 +471,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         }
         masterLayoutParams.weight = 12f
         layoutParams = masterLayoutParams
-        return this;
+        return this
     }
 
     fun updateViews(init: Boolean): SwipeButton {

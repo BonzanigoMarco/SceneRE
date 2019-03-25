@@ -249,7 +249,7 @@ fun readTextFileFromAsset(context: Context, fileName: String): String{
     } finally {
         if (reader != null) {
             try {
-                reader.close();
+                reader.close()
             } catch (e: Exception) {
             }
         }

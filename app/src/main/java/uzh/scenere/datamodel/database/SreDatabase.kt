@@ -10,6 +10,8 @@ import uzh.scenere.const.Constants.Companion.ARRAY_LIST_WHAT_IF_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.CHANGE_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.CHECK_MODE_UID_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.CHECK_VALUE_UID_IDENTIFIER
+import uzh.scenere.const.Constants.Companion.COMMA
+import uzh.scenere.const.Constants.Companion.GROUND_DASH
 import uzh.scenere.const.Constants.Companion.HASH_MAP_LINK_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.HASH_MAP_OPTIONS_IDENTIFIER
 import uzh.scenere.const.Constants.Companion.INIT_IDENTIFIER
@@ -58,6 +60,7 @@ import uzh.scenere.datamodel.trigger.sensor.GyroscopeTrigger
 import uzh.scenere.datamodel.trigger.sensor.LightTrigger
 import uzh.scenere.datamodel.trigger.sensor.MagnetometerTrigger
 import uzh.scenere.helpers.*
+import java.lang.Exception
 import java.util.*
 
 class SreDatabase private constructor(val context: Context) : AbstractSreDatabase() {
@@ -635,7 +638,7 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
     }
 
     fun readAttributes(refId: String, type: String? = null): List<Attribute> {
-        val cursor = getCursor(AttributeTableEntry.TABLE_NAME, arrayOf(AttributeTableEntry.ID, AttributeTableEntry.KEY, AttributeTableEntry.VALUE), (AttributeTableEntry.REF_ID + LIKE + QUOTES + refId + QUOTES) + if (type == null) "" else (AND + AttributeTableEntry.TYPE + LIKE + QUOTES + type + QUOTES), null, null, null, null, null)
+        val cursor = getCursor(AttributeTableEntry.TABLE_NAME, arrayOf(AttributeTableEntry.ID, AttributeTableEntry.KEY, AttributeTableEntry.VALUE), (AttributeTableEntry.REF_ID + LIKE + QUOTES + refId + QUOTES) + if (type == null) NOTHING else (AND + AttributeTableEntry.TYPE + LIKE + QUOTES + type + QUOTES), null, null, null, null, null)
         val attributes = ArrayList<Attribute>()
         if (cursor.moveToFirst()) {
             do {
@@ -1101,6 +1104,74 @@ class SreDatabase private constructor(val context: Context) : AbstractSreDatabas
                 getDb().execSQL(statement)
             }
             close()
+        }
+    }
+
+    public fun reCreateIndices() {
+        reCreateIndicesInternal(
+                IndexCreationWrapper(TextTableEntry.TABLE_NAME,arrayOf(TextTableEntry.KEY)),
+                IndexCreationWrapper(NumberTableEntry.TABLE_NAME,arrayOf(NumberTableEntry.KEY)),
+                IndexCreationWrapper(DataTableEntry.TABLE_NAME,arrayOf(DataTableEntry.KEY)),
+                IndexCreationWrapper(ProjectTableEntry.TABLE_NAME,arrayOf(ProjectTableEntry.ID)),
+                IndexCreationWrapper(StakeholderTableEntry.TABLE_NAME,arrayOf(StakeholderTableEntry.PROJECT_ID)),
+                IndexCreationWrapper(ScenarioTableEntry.TABLE_NAME,arrayOf(ScenarioTableEntry.ID)),
+                IndexCreationWrapper(ScenarioTableEntry.TABLE_NAME,arrayOf(ScenarioTableEntry.PROJECT_ID)),
+                IndexCreationWrapper(ObjectTableEntry.TABLE_NAME,arrayOf(ObjectTableEntry.ID)),
+                IndexCreationWrapper(ObjectTableEntry.TABLE_NAME,arrayOf(ObjectTableEntry.SCENARIO_ID)),
+                IndexCreationWrapper(AttributeTableEntry.TABLE_NAME,arrayOf(AttributeTableEntry.ID)),
+                IndexCreationWrapper(AttributeTableEntry.TABLE_NAME,arrayOf(AttributeTableEntry.REF_ID)),
+                IndexCreationWrapper(AttributeTableEntry.TABLE_NAME,arrayOf(AttributeTableEntry.REF_ID,AttributeTableEntry.TYPE)),
+                IndexCreationWrapper(PathTableEntry.TABLE_NAME,arrayOf(PathTableEntry.ID)),
+                IndexCreationWrapper(PathTableEntry.TABLE_NAME,arrayOf(PathTableEntry.SCENARIO_ID)),
+                IndexCreationWrapper(ElementTableEntry.TABLE_NAME,arrayOf(ElementTableEntry.PATH_ID)),
+                IndexCreationWrapper(WalkthroughTableEntry.TABLE_NAME,arrayOf(WalkthroughTableEntry.ID)),
+                IndexCreationWrapper(WalkthroughTableEntry.TABLE_NAME,arrayOf(WalkthroughTableEntry.SCENARIO_ID))
+        )
+    }
+
+    private fun reCreateIndicesInternal(vararg indexWrapper: IndexCreationWrapper){
+        openWritable()
+        try{
+        for (wrapper in indexWrapper){
+            getDb().execSQL(wrapper.getDeletionSql())
+            getDb().execSQL(wrapper.getCreationSql())
+            getDb().execSQL(wrapper.getStatisticsSql())
+        }
+        }catch (e: Exception){
+            //NOP
+        }
+    }
+
+    class IndexCreationWrapper(tableName: String, columnNames: Array<String>){
+
+        private var tableNameProcessed = StringHelper.stripBlank(tableName).toUpperCase()
+        private var columnNamesProcessed = Array<String>(columnNames.size) { columnIndex -> StringHelper.stripBlank(columnNames[columnIndex]).toUpperCase()}
+
+
+        private fun getIndexName(): String {
+            var indexName = tableNameProcessed
+            for (column in columnNamesProcessed) {
+                indexName += (GROUND_DASH + column)
+            }
+            return indexName
+        }
+
+        fun getDeletionSql(): String{
+            if (columnNamesProcessed.isNotEmpty()) {
+                return " DROP INDEX IF EXISTS ${getIndexName()} "
+            }
+            return NOTHING
+        }
+
+        fun getCreationSql(): String {
+            if (columnNamesProcessed.isNotEmpty()) {
+                return " CREATE INDEX IF NOT EXISTS ${getIndexName()} ON $tableNameProcessed (${StringHelper.concatTokens(COMMA,*columnNamesProcessed)}) "
+            }
+            return NOTHING
+        }
+
+        fun getStatisticsSql(): String {
+            return " ANALYZE $tableNameProcessed "
         }
     }
 

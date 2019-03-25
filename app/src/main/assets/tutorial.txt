@@ -6,6 +6,21 @@ some Permissions.
 Head to the Cockpit to do so.
 
 
+Scene-RE Mode
+
+Scene-RE is currently in
+User-Mode. To switch into
+Administrator-Mode, you
+need to enable it in the
+"Administator Functions"-
+Tab found in the Cockpit.
+
+
+In this Mode, you can
+conduct Walkthroughs. If
+you want to create
+
+
 Creation Button
 
 Swipe right to open

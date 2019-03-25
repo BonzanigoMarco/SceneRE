@@ -4,34 +4,31 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import uzh.scenere.helpers.NumberHelper
-import java.util.*
 
 
 class SwipeButtonScrollView(context: Context, attributeSet: AttributeSet) : ScrollView(context, attributeSet) {
 
-    private var mLocked = false
-    private var mLockedInternal = false
+    private var locked = false
+    private var lockedInternal = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent): Boolean {
-        return !mLockedInternal && !mLocked && super.onTouchEvent(ev);
+        return !lockedInternal && !locked && super.onTouchEvent(ev)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        mLockedInternal = false
+        lockedInternal = false
         if (childCount == 1 && getChildAt(0) is LinearLayout) {
             val innerLinearLayout = getChildAt(0) as LinearLayout
             for (i in 0..innerLinearLayout.childCount) {
                 if (innerLinearLayout.getChildAt(i) is SwipeButton && (innerLinearLayout.getChildAt(i) as SwipeButton).interacted) {
-                    mLockedInternal = true
-                    return false;
+                    lockedInternal = true
+                    return false
                 }
             }
         }
-        return !mLocked && super.onInterceptTouchEvent(ev)
+        return !locked && super.onInterceptTouchEvent(ev)
     }
 }

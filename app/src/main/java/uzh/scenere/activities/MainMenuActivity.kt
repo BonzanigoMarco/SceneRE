@@ -32,7 +32,7 @@ class MainMenuActivity : AbstractBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         projectsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).setExecutable { startActivity(Intent(this, ProjectsActivity::class.java)) }
         walkthroughButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).setExecutable { startActivity(Intent(this, WalkthroughActivity::class.java)) }
         analyticsButton = SreButton(applicationContext, main_menu_layout_button_holder, NOTHING,RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT).setExecutable { startActivity(Intent(this, AnalyticsActivity::class.java)) }
@@ -58,6 +58,10 @@ class MainMenuActivity : AbstractBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        val isAdmin = DatabaseHelper.getInstance(applicationContext).read(Constants.IS_ADMINISTRATOR, Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
+        if (!isAdmin){
+            tutorialOpen = SreTutorialLayoutDialog(this@MainMenuActivity,screenWidth,"info_administrator").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
+        }
         setButtonStates(arrayOf(projectsButton!!,
                 walkthroughButton!!,
                 analyticsButton!!,
@@ -98,7 +102,7 @@ class MainMenuActivity : AbstractBaseActivity() {
     }
 
     override fun onBackPressed() {
-        this.finishAffinity();
+        this.finishAffinity()
     }
 
 }

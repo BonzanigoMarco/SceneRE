@@ -6,7 +6,7 @@ class CollectionHelper private constructor() {
     companion object { //Static Reference
         fun <T : Any> oneOf(value: T?, vararg values: T): Boolean {
             if (value == null || values.isEmpty()){
-                return false;
+                return false
             }
             for (v in values){
                 if (value == v){
@@ -19,7 +19,7 @@ class CollectionHelper private constructor() {
 
         fun containsOneOf(value: String, vararg values: String): Boolean {
             if (values.isEmpty()){
-                return false;
+                return false
             }
             for (v in values){
                 if (value.contains(v)){

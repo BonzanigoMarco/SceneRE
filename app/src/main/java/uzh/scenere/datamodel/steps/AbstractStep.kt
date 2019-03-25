@@ -1,6 +1,7 @@
 package uzh.scenere.datamodel.steps
 
 import uzh.scenere.const.Constants.Companion.NOTHING
+import uzh.scenere.const.Constants.Companion.SEMI_COLON
 import uzh.scenere.datamodel.*
 import uzh.scenere.helpers.StringHelper
 import kotlin.collections.ArrayList
@@ -78,7 +79,7 @@ abstract class AbstractStep(val id: String, var previousId: String?, val pathId:
         if (objects.isEmpty()){
             return NOTHING
         }
-        return StringHelper.concatTokens(";", *objects.toTypedArray())
+        return StringHelper.concatTokens(SEMI_COLON, *objects.toTypedArray())
     }
 
     class NullStep(): AbstractStep("","","") {

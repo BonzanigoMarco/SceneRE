@@ -817,7 +817,7 @@ class ShareActivity : AbstractManagementActivity() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         val finalIntent = Intent.createChooser(intent, getString(R.string.share_import_folder))
         if (finalIntent.resolveActivity(packageManager) != null) {
-            startActivityForResult(finalIntent, IMPORT_DATA_FOLDER);
+            startActivityForResult(finalIntent, IMPORT_DATA_FOLDER)
         }
     }
 
