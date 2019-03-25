@@ -222,16 +222,16 @@
     <string name="permission_description_telephony_title">Telephony-Permissions</string>
     <string name="permission_description_device_title">Device-Permissions</string>
     <string name="permission_description_shortcuts_title">Shortcut-Permissions</string>
-    <string name="permission_description_network">Network-Permissions\n\nUsed to connect to the Internet.</string>
-    <string name="permission_description_storage">Storage-Permissions\n\nUsed to store Data and Settings.</string>
-    <string name="permission_description_audio">Audio-Permissions\n\nUsed for Sound-induced Triggers.</string>
-    <string name="permission_description_bluetooth">Bluetooth-Permissions\n\nUsed to scan and connect to other Devices for Transmission.</string>
-    <string name="permission_description_wifi">Wi-Fi-Permissions\n\nUsed to scan for Access-Points.</string>
-    <string name="permission_description_nfc">NFC-Permissions\n\nUsed to interact with other Stakeholders.</string>
-    <string name="permission_description_sms">SMS-Permissions\n\nUsed for special Triggers.</string>
-    <string name="permission_description_gps">GPS-Permissions\n\nUsed for special Triggers.</string>
-    <string name="permission_description_telephony">Telephony-Permissions\n\nUsed for special Triggers.</string>
-    <string name="permission_description_device">Device-Permissions\n\nUsed for Vibration and Sound.</string>
+    <string name="permission_description_network">Used to connect to the Internet.</string>
+    <string name="permission_description_storage">Used to store Data and Settings.</string>
+    <string name="permission_description_audio">Used for special Triggers.</string>
+    <string name="permission_description_bluetooth">Used to scan for other Devices.</string>
+    <string name="permission_description_wifi">Used to scan for Access-Points and Sharing.</string>
+    <string name="permission_description_nfc">Used to interact with NFC Tags.</string>
+    <string name="permission_description_sms">Used for special Triggers.</string>
+    <string name="permission_description_gps">Used for special Triggers.</string>
+    <string name="permission_description_telephony">Used for special Triggers.</string>
+    <string name="permission_description_device">Used for Vibration and Sound.</string>
 
     <!--General-->
     <string name="empty" />
@@ -628,4 +628,5 @@
     <string name="literal_introduction">Introduction</string>
     <string name="literal_conclusion">Conclusion</string>
     <string name="analytics_export_walkthrough_x">Walkthrough #%1$d</string>
+    <string name="cockpit_mode">Cockpit-Mode</string>
 </resources>

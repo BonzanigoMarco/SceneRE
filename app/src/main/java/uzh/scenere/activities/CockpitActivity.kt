@@ -1,10 +1,12 @@
 package uzh.scenere.activities
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
+import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.activity_cockpit.*
@@ -91,7 +93,7 @@ class CockpitActivity : AbstractManagementActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        creationButton = SwipeButton(this, "Cockpit-Mode")
+        creationButton = SwipeButton(this, getString(R.string.cockpit_mode))
                 .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_null, null)
@@ -122,18 +124,17 @@ class CockpitActivity : AbstractManagementActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_ALL && permissions.isNotEmpty()) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                activeButton?.setIndividualButtonColors(getColorWithStyle(applicationContext,R.color.srePrimarySafe), getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
-                        ?.setButtonIcons(R.string.icon_check, R.string.icon_sign, null, null, null)
-                        ?.updateViews(false)
+            var granted = true
+            if (grantResults.isNotEmpty()) {
+                for (result in grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        granted = false
+                    }
+                }
             } else {
-                activeButton?.setIndividualButtonColors(getColorWithStyle(applicationContext,R.color.srePrimaryWarn), getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
-                        ?.setButtonIcons(R.string.icon_cross, R.string.icon_sign, null, null, null)
-                        ?.updateViews(false)
+                granted = false
             }
-            activeButton?.collapse()
         }
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -180,7 +181,7 @@ class CockpitActivity : AbstractManagementActivity() {
                 for (permission in PermissionHelper.getRequiredPermissions(this)) {
                     val swipeButton = SwipeButton(applicationContext, permission.label)
                             .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                            .setButtonIcons(R.string.icon_null,R.string.icon_check, null, null, null)
+                            .setButtonIcons(R.string.icon_info,R.string.icon_check, null, null, null)
                             .setButtonStates(true, true, false, false)
                             .setAutoCollapse(true)
                             .updateViews(true)
@@ -427,10 +428,7 @@ class CockpitActivity : AbstractManagementActivity() {
                 }
             }
             override fun execLeft() {
-                getInfoContent().text = permission.getDescription(applicationContext)
-            }
-            override fun execReset() {
-                getInfoContent().text = mode.getDescription(applicationContext)
+                showInfoText(permission.getDescription(applicationContext))
             }
         }
     }

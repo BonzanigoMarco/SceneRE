@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import uzh.scenere.R
@@ -65,13 +66,12 @@ class PermissionHelper private constructor () {
             val permissions = permissionHolder[permissionGroup] ?: return false
             return check(context, *permissions)
         }
-        fun request(activity: Activity, permission: String){
-            ActivityCompat.requestPermissions(activity, arrayOf(permission), PERMISSION_REQUEST_ALL)
-        }
         fun request(activity: Activity, permissionGroup: PermissionGroups) {
             val permissions = permissionHolder[permissionGroup] ?: return
-            for (permission in permissions){
-                request(activity,permission)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                activity.requestPermissions(permissions,PERMISSION_REQUEST_ALL)
+            }else{
+                ActivityCompat.requestPermissions(activity, permissions, PERMISSION_REQUEST_ALL)
             }
         }
     }

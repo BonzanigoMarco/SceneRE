@@ -58,10 +58,6 @@ class MainMenuActivity : AbstractBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        val isAdmin = DatabaseHelper.getInstance(applicationContext).read(Constants.IS_ADMINISTRATOR, Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
-        if (!isAdmin){
-            tutorialOpen = SreTutorialLayoutDialog(this@MainMenuActivity,screenWidth,"info_administrator").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
-        }
         setButtonStates(arrayOf(projectsButton!!,
                 walkthroughButton!!,
                 analyticsButton!!,
@@ -92,6 +88,10 @@ class MainMenuActivity : AbstractBaseActivity() {
         }else{
             for (button in buttons){
                 button.isEnabled = true
+            }
+            val isAdmin = DatabaseHelper.getInstance(applicationContext).read(Constants.IS_ADMINISTRATOR, Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
+            if (!isAdmin){
+                tutorialOpen = SreTutorialLayoutDialog(this@MainMenuActivity,screenWidth,"info_administrator").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
             }
         }
         val isAdmin = DatabaseHelper.getInstance(applicationContext).read(Constants.IS_ADMINISTRATOR, Boolean::class, false, DatabaseHelper.DataMode.PREFERENCES)
