@@ -110,11 +110,44 @@ class CommunicationHelper private constructor () {
             } catch (e: SettingNotFoundException) {
                 return false
             }
-            if (locationMode == Settings.Secure.LOCATION_MODE_OFF){
+            if (locationMode > Settings.Secure.LOCATION_MODE_OFF){
                 return true
             }
             val locationRequest = LocationRequest.create()
             locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            locationRequest.interval = 30 * 1000
+            locationRequest.fastestInterval = 5 * 1000
+            val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest).setAlwaysShow(true)
+            val locationSettingsResponse = LocationServices.getSettingsClient(activity).checkLocationSettings(builder.build())
+            locationSettingsResponse.addOnCompleteListener { task ->
+                try {
+                    task.getResult(ApiException::class.java)
+                } catch (exception: ApiException) {
+                    when (exception.statusCode) {
+                        LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> try {
+                            val resolvable = exception as ResolvableApiException
+                            resolvable.startResolutionForResult(activity, Constants.PERMISSION_REQUEST_GPS)
+                        } catch (e: java.lang.Exception){
+                            //NOP
+                        }
+                    }
+                }
+            }
+            return true
+        }
+
+        fun enableLocationForWifiDiscovery(activity: Activity): Boolean{
+            var locationMode = 0
+            try {
+                locationMode = Settings.Secure.getInt(activity.contentResolver, Settings.Secure.LOCATION_MODE)
+            } catch (e: SettingNotFoundException) {
+                return false
+            }
+            if (locationMode > Settings.Secure.LOCATION_MODE_OFF){
+                return true
+            }
+            val locationRequest = LocationRequest.create()
+            locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
             locationRequest.interval = 30 * 1000
             locationRequest.fastestInterval = 5 * 1000
             val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest).setAlwaysShow(true)

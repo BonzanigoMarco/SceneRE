@@ -3,7 +3,6 @@ package uzh.scenere.views
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
-import android.content.res.ColorStateList
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.net.wifi.ScanResult
@@ -12,7 +11,6 @@ import android.os.Handler
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.text.InputType
-import android.text.method.DigitsKeyListener
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
@@ -532,6 +530,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         if (!isWifiAlreadyEnabled){
                             CommunicationHelper.enable(activityLink, CommunicationHelper.Companion.Communications.WIFI)
                         }
+                        CommunicationHelper.enableLocationForWifiDiscovery(activityLink)
                         val wifiAllowed = PermissionHelper.check(activityLink,PermissionHelper.Companion.PermissionGroups.WIFI)
                         val scroll = SreScrollView(context,triggerLayout)
                         scroll.addScrollElement(titleText)
