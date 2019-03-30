@@ -30,6 +30,7 @@ class Constants {
         //NUMBERS
         val COORDINATES_PATTERN: Regex = "-?[1]?[0-9]{1,2}\\.[0-9]{1,6},-?[1]?[0-9]{1,2}\\.[0-9]{1,6}".toRegex()
         const val EARTH_RADIUS_M: Double = 6371000.0
+        const val COLOR_BOUND: Int = 16777215
         const val MILLION_D: Double = 1000000.0
         const val MILLION: Int = 1000000
         const val WIFI_DIRECT_PORT: Int = 8118
