@@ -855,7 +855,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = WifiTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_wifi))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
                     val array = addToArrayBefore(CommunicationHelper.Companion.WiFiStrength.getStringValues().toTypedArray(),NOTHING)
                     getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, SINGLE_SELECT, false, -1, array))
                     execMorphInfoBar(InfoState.MAXIMIZED)
