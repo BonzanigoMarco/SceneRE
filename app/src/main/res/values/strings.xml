@@ -251,6 +251,7 @@
     <string name="stakeholders_create">Creating a new Stakeholder</string>
     <string name="stakeholders_edit">Edit Stakeholder</string>
     <string name="scenarios_create">Creating a new Scenario</string>
+    <string name="scenarios_copy">Copy Scenario</string>
     <string name="scenarios_edit">Edit Scenario</string>
     <string name="objects_create">Creating a new Object</string>
     <string name="objects_edit">Edit Object</string>
@@ -352,6 +353,39 @@
     <string name="walkthrough_final_state_cancelled">Cancelled during the %1$s Step, \"%2$s\"</string>
     <string name="walkthrough_final_state_cancelled_check">Cancelled during the "</string>
     <string name="walkthrough_final_state_complete">Walkthrough completed successfully</string>
+    <string name="walkthrough_gps_destination_reached">Destination reached!</string>
+    <string name="walkthrough_sound_threshold_reached">Threshold surpassed!</string>
+    <string name="walkthrough_transition_sound">Sound-Threshold surpassed</string>
+    <string name="walkthrough_timer_expired">Timer expired!</string>
+    <string name="walkthrough_gps_evaluation">Evaluating Distance</string>
+    <string name="walkthrough_gps_distance">Distance: %1$s m</string>
+    <string name="walkthrough_calibrating">Calibrating…</string>
+    <string name="walkthrough_shortcut_created">Shortcut created!</string>
+    <string name="walkthrough_shortcut_creation_failed">Shortcut creation failed!</string>
+    <string name="walkthrough_shortcut_creation">Walkthrough state saved to "%1$s"!</string>
+    <string name="walkthrough_transition_wifi_discovered">Wi-Fi discovered</string>
+    <string name="walkthrough_transition_call">Call received</string>
+    <string name="walkthrough_transition_sms">SMS received</string>
+    <string name="walkthrough_transition_bluetooth">In proximity to Device</string>
+    <string name="walkthrough_transition_timer">Timer expired</string>
+    <string name="walkthrough_resource_state">After %1$s %2$s %3$s, you have a total of %4$d %5$s.</string>
+    <string name="walkthrough_resource_input">Enter an Amount to subtract from / add to your %1$s.<![CDATA[<br>]]>Lower Bound: %2$d, Upper Bound: %3$d, Current: %4$d</string>
+    <string name="walkthrough_resource_deleted">The Resource from this Step no longer exists. Continuation without Resource.</string>
+    <string name="walkthrough_resource_adding">adding</string>
+    <string name="walkthrough_resource_subtracting">subtracting</string>
+    <string name="walkthrough_resource_unchanged">You did not change the Amount of %1$s!</string>
+    <string name="walkthrough_resource_change_equal">You changed the amount of %1$s to %2$d</string>
+    <string name="walkthrough_resource_change_too_low">Number too small, adjusted change to: %1$d, current: %2$d</string>
+    <string name="walkthrough_resource_change_too_high">Number too big, adjusted change to: %1$d, current:  %2$d</string>
+    <string name="walkthrough_resource_does_not_exist_continue">The checked Resource does not exist anymore, continue!</string>
+    <string name="walkthrough_nfc_tag_wrong">Wrong NFC-Tag scanned!</string>
+
+    <string name="resource_check_above">%1$s was above %2$d (%3$d)</string>
+    <string name="resource_check_below">%1$s was below %2$d (%3$d)</string>
+    <string name="resource_check_equal">%1$s was equal to %2$d (%3$d)</string>
+    <string name="resource_check_not_equal">%1$s was not equal to %2$d (%3$d)</string>
+    <string name="resource_check_success">Resource-Check succeeded, %1$s</string>
+    <string name="resource_check_failed">Resource-Check failed</string>
 
     <!--Literal and related-->
     <string name="literal_object">Object</string>
@@ -368,6 +402,22 @@
     <string name="literal_what_ifs">What-Ifs</string>
     <string name="literal_comment">Comment</string>
     <string name="literal_remove_all">Remove All</string>
+    <string name="literal_project">Project</string>
+    <string name="literal_scenario">Scenario</string>
+    <string name="literal_resource">Resource</string>
+    <string name="literal_step">Step</string>
+    <string name="literal_trigger">Trigger</string>
+    <string name="literal_editor">Editor</string>
+    <string name="literal_user">User</string>
+    <string name="literal_administrator">Administrator</string>
+    <string name="literal_date">Date</string>
+    <string name="literal_paths">Paths</string>
+    <string name="literal_steps">Steps</string>
+    <string name="literal_objects">Objects</string>
+    <string name="literal_resources">Resources</string>
+    <string name="literal_introduction">Introduction</string>
+    <string name="literal_conclusion">Conclusion</string>
+    <string name="literal_copy">Copy</string>
     <string name="project_anonymous">Anonymous Project</string>
     <string name="scenario_anonymous">Anonymous Scenario</string>
     <string name="objects_similar_alert">An AbstractObject with similar Name already exists.</string>
@@ -462,7 +512,17 @@
     <string name="share_include_walkthroughs">Data-Mode: Include Walkthroughs</string>
     <string name="share_exclude_walkthroughs">Data-Mode: Exclude Walkthroughs</string>
     <string name="share_only_walkthroughs">Data-Mode: Only Walkthroughs</string>
-
+    <string name="share_received_kb">Received %1$d kB!</string>
+    <string name="share_your_device_id">Your Device-ID: %1$s</string>
+    <string name="share_send_to">Send to %1$s</string>
+    <string name="share_cancel_scan">Cancel Scan</string>
+    <string name="share_scan_for_devices">Scan for Devices</string>
+    <string name="share_disconnected">Disconnected</string>
+    <string name="share_connected">Connected to Device: %1$s</string>
+    <string name="share_connected_unknown">Connected to Device</string>
+    <string name="share_loading">Loading…</string>
+    <string name="share_collection_failed">Data Collection failed!</string>
+    <string name="share_no_dropbox">Dropbox not supported yet!</string>
 
     <!--Analytics-->
     <string name="analytics_statistics">Statistics</string>
@@ -484,6 +544,16 @@
     <string name="analytics_walkthrough_cancelled">Cancelled</string>
     <string name="analytics_unknown">Unknown</string>
     <string name="analytics_no_walkthrough">No Walkthroughs found</string>
+    <string name="analytics_comments_export">A total of %1$d Comments in %2$d Steps were written.</string>
+    <string name="analytics_statistics_export">Walkthroughs were conducted by a total of %1$d Stakeholder(s): %2$s.</string>
+    <string name="analytics_export_walkthrough">A total of %1$d Walkthrough(s) have been conducted in this Scenario.</string>
+    <string name="analytics_pdf_cancel">PDF-Export Cancelled!</string>
+    <string name="analytics_pdf_complete">PDF-Export Complete!</string>
+    <string name="analytics_pdf_csv_start_text">This can take a few Minutes!</string>
+    <string name="analytics_csv_cancelled">CSV-Export Cancelled!</string>
+    <string name="analytics_csv_start_title">CSV Export started in Background</string>
+    <string name="analytics_csv_complete">CSV-Export Complete!</string>
+    <string name="analytics_export_walkthrough_x">Walkthrough #%1$d</string>
 
     <!--Startup-->
     <string name="startup_name_change">Do you want to change your Name?</string>
@@ -493,11 +563,23 @@
     <string name="startup_enter_name_title">Enter your Name</string>
     <string name="startup_confirm">Confirm</string>
 
-    <string name="share_no_dropbox">Dropbox not supported yet!</string>
-
+    <!--Editor-->
     <string name="editor_no_stakeholder">No Stakeholders, Path cannot be built.</string>
     <string name="editor_main_path">Currently on the main-Path</string>
     <string name="editor_alternative_path">Currently on an alternative-Path</string>
+    <string name="editor_nfc_disabled">NFC disabled!</string>
+    <string name="editor_no_steps_text">You will not be able to configure this Step</string>
+    <string name="editor_no_steps_title">No Steps created yet</string>
+    <string name="editor_no_resources_title">No Resources created yet</string>
+    <string name="editor_no_resource_trigger_text">You will not be able to configure this Trigger</string>
+    <string name="editor_no_resource_step_text">You will not be able to configure this Step</string>
+    <string name="editor_gps_warning">Latitude/Longitude</string>
+    <string name="editor_gps_warning_replace">Input Latitude/Longitude</string>
+    <string name="editor_gps_formatting">e.g. 47.123456,8.123456</string>
+    <string name="editor_gps_warning_text">Wrong format. Expected: "47.123456,8.123456"</string>
+    <string name="editor_nfc_data">NFC Data</string>
+    <string name="editor_nfc_loaded">Loaded, place your Phone on the Tag!</string>
+    <string name="editor_nfc_cleared">NFC Data cleared!</string>
 
     <string name="nfc">NFC</string>
     <string name="nfc_too_large">Data too large for NFC-Tag!</string>
@@ -513,54 +595,16 @@
     <string name="filter_dB">(+/-dB)</string>
     <string name="filter_next_step"> Check false</string>
 
-    <string name="editor_nfc_data">NFC Data</string>
-    <string name="editor_nfc_loaded">Loaded, place your Phone on the Tag!</string>
-    <string name="editor_nfc_cleared">NFC Data cleared!</string>
-    <string name="walkthrough_nfc_tag_wrong">Wrong NFC-Tag scanned!</string>
     <string name="x_not_supported">not supported</string>
     <string name="x_disabled">disabled</string>
     <string name="x_not_granted">not granted</string>
-    <string name="walkthrough_transition_wifi_discovered">Wi-Fi discovered</string>
-    <string name="walkthrough_transition_call">Call received</string>
-    <string name="walkthrough_transition_sms">SMS received</string>
-    <string name="walkthrough_transition_bluetooth">In proximity to Device</string>
-    <string name="walkthrough_transition_timer">Timer expired</string>
-    <string name="editor_gps_warning">Latitude/Longitude</string>
-    <string name="editor_gps_warning_replace">Input Latitude/Longitude</string>
-    <string name="editor_gps_formatting">e.g. 47.123456,8.123456</string>
-    <string name="editor_gps_warning_text">Wrong format. Expected: "47.123456,8.123456"</string>
-    <string name="walkthrough_gps_destination_reached">Destination reached!</string>
-    <string name="walkthrough_sound_threshold_reached">Threshold surpassed!</string>
-    <string name="walkthrough_transition_sound">Sound-Threshold surpassed</string>
-    <string name="walkthrough_timer_expired">Timer expired!</string>
-    <string name="walkthrough_gps_evaluation">Evaluating Distance</string>
-    <string name="walkthrough_gps_distance">Distance: %1$s m</string>
-    <string name="walkthrough_calibrating">Calibrating…</string>
-    <string name="walkthrough_shortcut_created">Shortcut created!</string>
-    <string name="walkthrough_shortcut_creation_failed">Shortcut creation failed!</string>
-    <string name="walkthrough_shortcut_creation">Walkthrough state saved to "%1$s"!</string>
     <string name="cockpit_normal_mode">Contrast-Mode Off</string>
-    <string name="cockpit_contrast_mode">Contrast-Mode On</string>
-    <string name="walkthrough_resource_state">After %1$s %2$s %3$s, you have a total of %4$d %5$s.</string>
-    <string name="walkthrough_resource_input">Enter an Amount to subtract from / add to your %1$s.<![CDATA[<br>]]>Lower Bound: %2$d, Upper Bound: %3$d, Current: %4$d</string>
-    <string name="objects_min_max_alert">The Maximum must be greater than the Minimum!</string>
+    <string name="cockpit_contrast_mode">Contrast-Mode On</string><string name="objects_min_max_alert">The Maximum must be greater than the Minimum!</string>
     <string name="objects_init_max_alert">The Initial-Value must be less than or equal the Maximum!</string>
     <string name="objects_init_min_alert">The Initial-Value must be greater than or equal the Minimum!</string>
     <string name="objects_min_max_alert_title">Invalid Numbers</string>
-    <string name="walkthrough_resource_deleted">The Resource from this Step no longer exists. Continuation without Resource.</string>
-    <string name="walkthrough_resource_adding">adding</string>
-    <string name="walkthrough_resource_subtracting">subtracting</string>
-    <string name="walkthrough_resource_unchanged">You did not change the Amount of %1$s!</string>
-    <string name="walkthrough_resource_change_equal">You changed the amount of %1$s to %2$d</string>
-    <string name="walkthrough_resource_change_too_low">Number too small, adjusted change to: %1$d, current: %2$d</string>
-    <string name="walkthrough_resource_change_too_high">Number too big, adjusted change to: %1$d, current:  %2$d</string>
-    <string name="resource_check_above">%1$s was above %2$d (%3$d)</string>
-    <string name="resource_check_below">%1$s was below %2$d (%3$d)</string>
-    <string name="resource_check_equal">%1$s was equal to %2$d (%3$d)</string>
-    <string name="resource_check_not_equal">%1$s was not equal to %2$d (%3$d)</string>
-    <string name="resource_check_success">Resource-Check succeeded, %1$s</string>
-    <string name="resource_check_failed">Resource-Check failed</string>
-    <string name="walkthrough_resource_does_not_exist_continue">The checked Resource does not exist anymore, continue!</string>
+
+    <!--WHAT IF-->
     <string name="what_if_wipe">Wipe All What-If Suggestions</string>
     <string name="what_if_frequency_x">What-If AI Trigger Frequency: %1$d</string>
     <string name="what_if_frequency_set">What-If AI Trigger Frequency set to: Every %1$s Time.</string>
@@ -578,28 +622,7 @@
     <string name="what_if_static_text">Displaying only unspecific Suggestions</string>
     <string name="what_if_none_text">Displaying no Suggestions</string>
     <string name="what_if_wipe_confirm">All What-Ifs reset!</string>
-    <string name="share_loading">Loading…</string>
-    <string name="share_collection_failed">Data Collection failed!</string>
-    <string name="editor_nfc_disabled">NFC disabled!</string>
-    <string name="editor_no_steps_text">You will not be able to configure this Step</string>
-    <string name="editor_no_steps_title">No Steps created yet</string>
-    <string name="editor_no_resources_title">No Resources created yet</string>
-    <string name="editor_no_resource_trigger_text">You will not be able to configure this Trigger</string>
-    <string name="editor_no_resource_step_text">You will not be able to configure this Step</string>
-    <string name="share_received_kb">Received %1$d kB!</string>
-    <string name="share_your_device_id">Your Device-ID: %1$s</string>
-    <string name="share_send_to">Send to %1$s</string>
-    <string name="share_cancel_scan">Cancel Scan</string>
-    <string name="share_scan_for_devices">Scan for Devices</string>
-    <string name="literal_project">Project</string>
-    <string name="literal_scenario">Scenario</string>
-    <string name="literal_resource">Resource</string>
-    <string name="literal_step">Step</string>
-    <string name="literal_trigger">Trigger</string>
-    <string name="literal_editor">Editor</string>
-    <string name="share_disconnected">Disconnected</string>
-    <string name="share_connected">Connected to Device: %1$s</string>
-    <string name="share_connected_unknown">Connected to Device</string>
+
     <string name="picker_copy_to_clipboard">Copy Location to Clipboard</string>
     <string name="picker_position">Position</string>
     <string name="picker_no_location_title">No Location</string>
@@ -607,26 +630,35 @@
     <string name="picker_cancel">Cancel</string>
     <string name="picker_no_location_copied">No Location copied!</string>
     <string name="picker_location_picked">Location copied to Clipboard!</string>
-    <string name="analytics_comments_export">A total of %1$d Comments in %2$d Steps were written.</string>
-    <string name="analytics_statistics_export">Walkthroughs were conducted by a total of %1$d Stakeholder(s): %2$s.</string>
-    <string name="analytics_export_walkthrough">A total of %1$d Walkthrough(s) have been conducted in this Scenario.</string>
-    <string name="analytics_pdf_cancel">PDF-Export Cancelled!</string>
-    <string name="analytics_pdf_complete">PDF-Export Complete!</string>
-    <string name="analytics_pdf_csv_start_text">This can take a few Minutes!</string>
+
     <string name="pdf_start_title">PDF-Export started in Background</string>
-    <string name="analytics_csv_cancelled">CSV-Export Cancelled!</string>
-    <string name="analytics_csv_start_title">CSV Export started in Background</string>
-    <string name="analytics_csv_complete">CSV-Export Complete!</string>
-    <string name="literal_user">User</string>
-    <string name="literal_administrator">Administrator</string>
     <string name="cockpit_user_mode">Scene-RE Mode:  %1$s</string>
-    <string name="literal_date">Date</string>
-    <string name="literal_paths">Paths</string>
-    <string name="literal_steps">Steps</string>
-    <string name="literal_objects">Objects</string>
-    <string name="literal_resources">Resources</string>
-    <string name="literal_introduction">Introduction</string>
-    <string name="literal_conclusion">Conclusion</string>
-    <string name="analytics_export_walkthrough_x">Walkthrough #%1$d</string>
     <string name="cockpit_mode">Cockpit-Mode</string>
+
+    <!--Scenario-->
+    <string name="scenario_name">Scenario Name</string>
+    <string name="scenario_intro">Scenario Intro</string>
+    <string name="scenario_outro">Scenario Outro</string>
+    <string name="scenario_create">Create New Scenario</string>
+
+    <!--Project-->
+    <string name="project_title">Project Title</string>
+    <string name="project_description">Project Description</string>
+    <string name="project_create">Create New Project</string>
+
+    <!--Object-->
+    <string name="object_name">Object Name</string>
+    <string name="object_description">Object Description</string>
+    <string name="object_create">Create New Object</string>
+    <string name="object_resource">Resource</string>
+
+    <!--Stakeholder-->
+    <string name="stakeholder_name">Stakeholder Name</string>
+    <string name="stakeholder_description">Stakeholder Description</string>
+    <string name="stakeholder_create">Create New Stakeholder</string>
+
+    <!--Attribute-->
+    <string name="attribute_name">Attribute Name</string>
+    <string name="attribute_description">Attribute Description</string>
+    <string name="attribute_create">Create New Attribute</string>
 </resources>

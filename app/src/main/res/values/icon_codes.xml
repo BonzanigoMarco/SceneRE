@@ -63,6 +63,7 @@
     <string name="icon_nfc">&#xf09e;</string>
     <string name="icon_csv">&#xf6dd;</string>
     <string name="icon_pdf">&#xf1c1;</string>
+    <string name="icon_copy">&#xf0c5;</string>
 
     <string name="connect_left"><annotation font="font_awesome">&#xf060;</annotation> </string>
     <string name="connect_right"> <annotation font="font_awesome">&#xf061;</annotation></string>
@@ -96,6 +97,7 @@
         <annotation font="font_awesome">&#xf044;</annotation> Create/Edit,
         <annotation font="font_awesome">&#xf1b2;</annotation> Objects,
         <annotation font="font_awesome">&#xf542;</annotation> Path-Editor,
+        <annotation font="font_awesome">&#xf0c5;</annotation> Copy-Mode,
         <annotation font="font_awesome">&#xf023;/&#xf3c1;</annotation> Lock/Unlock Deletion</string>
     <string name="icon_explain_objects">
         <annotation font="font_awesome">&#xf2ed;</annotation> Delete,

@@ -53,9 +53,9 @@ class ObjectsActivity : AbstractManagementActivity() {
         objectsMode = ObjectMode.VIEW
     }
 
-    private val inputLabelName = "Object Name"
-    private val inputLabelDescription = "Object Description"
-    private val inputLabelResource = "Resource"
+    private lateinit var inputLabelName: String
+    private lateinit var inputLabelDescription: String
+    private lateinit var inputLabelResource: String
     private var activeScenario: Scenario? = null
     private var activeObject: AbstractObject? = null
     private var isResourceSpinner: View? = null
@@ -64,9 +64,13 @@ class ObjectsActivity : AbstractManagementActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inputLabelName = getString(R.string.object_name)
+        inputLabelDescription = getString(R.string.object_description)
+        inputLabelResource = getString(R.string.object_resource)
+        
         activeScenario = intent.getSerializableExtra(BUNDLE_SCENARIO) as Scenario
         creationButton =
-                SwipeButton(this,"Create New Object")
+                SwipeButton(this,getString(R.string.object_create))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false,true,false,false)

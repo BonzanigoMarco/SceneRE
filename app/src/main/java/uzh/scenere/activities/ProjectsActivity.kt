@@ -50,14 +50,16 @@ class ProjectsActivity : AbstractManagementActivity() {
         projectsMode = ProjectsMode.VIEW
     }
 
-    private val inputLabelTitle = "Project Title"
-    private val inputLabelDescription = "Project Description"
+    private lateinit var inputLabelTitle: String
+    private lateinit var inputLabelDescription: String
     private var activeProject: Project? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inputLabelTitle = getString(uzh.scenere.R.string.project_title)
+        inputLabelDescription = getString(uzh.scenere.R.string.project_description)
         creationButton =
-                SwipeButton(this,"Create New Project")
+                SwipeButton(this,getString(R.string.project_create))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false,true,false,false)

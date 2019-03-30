@@ -321,3 +321,13 @@ and CSV-Files become available
 in the Toolbar on Top.
 The Exports contain Data about
 the active Scenario.
+
+
+Copy
+
+Scenarios can be copied.
+To do so, click the      Button
+in the upper Toolbox to toggle
+the Copy-Mode. Swiping Elements
+to the right in this mode
+enables you to copy them

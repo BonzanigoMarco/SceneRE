@@ -48,16 +48,18 @@ class AttributesActivity : AbstractManagementActivity() {
         attributesMode = AttributeMode.VIEW
     }
 
-    private val inputLabelKey = "Attribute Name"
-    private val inputLabelValue = "Attribute Description"
+    private lateinit var inputLabelKey: String
+    private lateinit var inputLabelValue: String
     private var activeObject: AbstractObject? = null
     private var activeAttribute: Attribute? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inputLabelKey = getString(R.string.attribute_name)
+        inputLabelValue = getString(R.string.attribute_description)
         activeObject = intent.getSerializableExtra(Constants.BUNDLE_OBJECT) as AbstractObject
         creationButton =
-                SwipeButton(this, "Create New Attribute")
+                SwipeButton(this, getString(R.string.attribute_create))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false, true, false, false)

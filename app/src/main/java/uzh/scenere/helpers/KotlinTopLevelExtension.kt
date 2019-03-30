@@ -23,7 +23,9 @@ import uzh.scenere.datastructures.SreLatLng
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import java.lang.reflect.Field
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int)->INNER): Array<Array<INNER>> = Array(sizeOuter) { Array<INNER>(sizeInner, innerInit) }
@@ -277,4 +279,14 @@ fun String.replaceAllIgnoreCase(str: String, replaceWith: String): String{
         index = thisLowerCase.indexOf(strLowerCase)
     }
     return if (identity) returnString.replace(REPLACEMENT_TOKEN, replaceWith) else returnString
+}
+
+fun Any.getAllDeclaredFields(): ArrayList<Field>{
+    val fields = ArrayList<Field>()
+    var currentClass: Class<in Any> = javaClass
+    while(currentClass.superclass !=null){
+        fields.addAll(currentClass.declaredFields)
+        currentClass = currentClass.superclass
+    }
+    return fields
 }

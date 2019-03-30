@@ -51,16 +51,18 @@ class StakeholdersActivity : AbstractManagementActivity() {
         stakeholdersMode = StakeholderMode.VIEW
     }
 
-    private val inputLabelName = "Stakeholder Name"
-    private val inputLabelDescription = "Stakeholder Description"
+    private lateinit var inputLabelName: String
+    private lateinit var inputLabelDescription: String
     private var activeProject: Project? = null
     private var activeStakeholder: Stakeholder? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inputLabelName = getString(R.string.stakeholder_name)
+        inputLabelDescription = getString(R.string.stakeholder_description)
         activeProject = intent.getSerializableExtra(BUNDLE_PROJECT) as Project
         creationButton =
-                SwipeButton(this,"Create New Stakeholder")
+                SwipeButton(this,getString(R.string.stakeholder_create))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                         .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false,true,false,false)

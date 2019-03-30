@@ -466,8 +466,6 @@ class DatabaseHelper private constructor(context: Context) {
                 database!!.openWritable()
                 if (Project::class == clz) {
                     val project = readFull(key, Project::class)
-                    database!!.openWritable()
-                    database!!.deleteProject(key)
                     if (project != null) {
                         for (stakeholder in project.stakeholders) {
                             delete(stakeholder.id, Stakeholder::class)
@@ -476,6 +474,8 @@ class DatabaseHelper private constructor(context: Context) {
                             delete(scenario.id, Scenario::class)
                         }
                     }
+                    database!!.openWritable()
+                    database!!.deleteProject(key)
                 }
                 if (Stakeholder::class == clz) {
                     database!!.deleteStakeholder(key)
@@ -501,8 +501,6 @@ class DatabaseHelper private constructor(context: Context) {
                 }
                 if (Scenario::class == clz) {
                     val scenario = readFull(key, Scenario::class)
-                    database!!.openWritable()
-                    database!!.deleteScenario(key)
                     if (scenario != null) {
                         for (obj in scenario.objects) {
                             delete(obj.id, AbstractObject::class)
@@ -511,6 +509,8 @@ class DatabaseHelper private constructor(context: Context) {
                             delete(path.id, Path::class)
                         }
                     }
+                    database!!.openWritable()
+                    database!!.deleteScenario(key)
                 }
                 if (Path::class == clz) {
                     val path = readFull(key, Path::class)
