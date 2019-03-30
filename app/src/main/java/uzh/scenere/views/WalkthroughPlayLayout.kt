@@ -150,6 +150,10 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
     private var activeResources = HashMap<Resource,Int>()
     private var activeResource: Resource? = null
     private var activeResourceInput: SreEditText? = null
+    //Energy Consumption
+    private var isWifiAlreadyEnabled = false
+    private var isBluetoothAlreadyEnabled = false
+
 
     fun prepareLayout(): WalkthroughPlayLayout {
         removeAllViews()
@@ -414,7 +418,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                                 if (!nfcSupported){
                                     saveAndLoadNew(true,context.getString(R.string.walkthrough_final_state_cancelled_nfc, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
                                 }else{
-                                    CommunicationHelper.toggle(activityLink, CommunicationHelper.Companion.Communications.NFC)
+                                    CommunicationHelper.enable(activityLink, CommunicationHelper.Companion.Communications.NFC)
                                 }
                             }
                             scroll.addScrollElement(alertText)
@@ -500,6 +504,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         val text = (second as BluetoothTrigger).text!!
                         val deviceId = (second as BluetoothTrigger).deviceId!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_bluetooth_text,text,deviceId), ArrayList(), arrayListOf(text,deviceId))
+                        isBluetoothAlreadyEnabled = CommunicationHelper.check(activityLink, CommunicationHelper.Companion.Communications.BLUETOOTH)
                         val scroll = SreScrollView(context,triggerLayout)
                         scroll.addScrollElement(titleText)
                         val bluetoothAllowed = PermissionHelper.check(activityLink,PermissionHelper.Companion.PermissionGroups.BLUETOOTH)
@@ -523,24 +528,29 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         val text = (second as WifiTrigger).text!!
                         val ssid = (second as WifiTrigger).ssidAndStrength!!
                         val titleText = generateText(null, context.getString(R.string.walkthrough_wifi_text,text), ArrayList(), arrayListOf(text,ssid))
-                        val wifiOn = CommunicationHelper.check(activityLink, CommunicationHelper.Companion.Communications.WIFI)
+                        isWifiAlreadyEnabled = CommunicationHelper.check(activityLink, CommunicationHelper.Companion.Communications.WIFI)
+                        if (!isWifiAlreadyEnabled){
+                            CommunicationHelper.enable(activityLink, CommunicationHelper.Companion.Communications.WIFI)
+                        }
+                        val wifiAllowed = PermissionHelper.check(activityLink,PermissionHelper.Companion.PermissionGroups.WIFI)
                         val scroll = SreScrollView(context,triggerLayout)
                         scroll.addScrollElement(titleText)
-                        if (!wifiOn){
-                            val state = context.getString(R.string.x_disabled)
+                        if (!wifiAllowed){
+                            val state = context.getString(R.string.x_not_granted)
                             val alertText = generateText(null, "Wi-Fi $state!",arrayListOf(state),ArrayList())
-                            val button = generateButton(context.getString(R.string.walkthrough_enable_wifi))
+                            val button = generateButton(context.getString(R.string.walkthrough_grant_permission))
                             button.setExecutable {
-                                CommunicationHelper.toggle(activityLink, CommunicationHelper.Companion.Communications.WIFI)
+                                PermissionHelper.request(activityLink,PermissionHelper.Companion.PermissionGroups.WIFI)
                             }
                             scroll.addScrollElement(alertText)
                             scroll.addScrollElement(button)
+                        }else{
+                            wifiDiscovered = false
+                            activityLink.startWifiScan()
                         }
                         loadingBar = SreLoadingBar(context,scroll)
                         scroll.addScrollElement(loadingBar!!)
                         triggerLayout.addView(scroll)
-                        wifiDiscovered = false
-                        activityLink.startWifiScan()
                     }
                     is GpsTrigger -> {
                         val text = (second as GpsTrigger).text!!
@@ -578,7 +588,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                             val button = generateButton(context.getString(R.string.walkthrough_enable_gps))
                             button.setExecutable {
                                 if (gpsAllowed) {
-                                    val toggle = CommunicationHelper.toggle(activityLink, CommunicationHelper.Companion.Communications.GPS)
+                                    val toggle = CommunicationHelper.enable(activityLink, CommunicationHelper.Companion.Communications.GPS)
                                     if (toggle) {
                                         scroll.removeScrollElement(button)
                                     }
@@ -726,6 +736,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
 
     private fun loadNextStep(info: String, pathSwitch: Boolean = false, specificStepId: String? = null) {
         collectData()
+        restoreCommunicationState()
         onPause()
         val currentStep = getCurrentStep()
         if (state != WalkthroughState.STARTED){
@@ -987,6 +998,25 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
             activeResourceInput = null
         }
         return newValue
+    }
+
+    private fun restoreCommunicationState(){
+        if (state == WalkthroughState.PLAYING && getCurrentTrigger() is WifiTrigger) {
+            if (!isWifiAlreadyEnabled) {
+                CommunicationHelper.disable(activityLink, CommunicationHelper.Companion.Communications.WIFI)
+            } else {
+                CommunicationHelper.enable(activityLink, CommunicationHelper.Companion.Communications.WIFI)
+            }
+        }
+        if (state == WalkthroughState.PLAYING && getCurrentTrigger() is BluetoothTrigger) {
+            if (!isBluetoothAlreadyEnabled) {
+                CommunicationHelper.disable(activityLink, CommunicationHelper.Companion.Communications.BLUETOOTH)
+            } else {
+                CommunicationHelper.enable(activityLink, CommunicationHelper.Companion.Communications.BLUETOOTH)
+            }
+        }
+        isWifiAlreadyEnabled = false
+        isBluetoothAlreadyEnabled = false
     }
 
     fun onPause() {
