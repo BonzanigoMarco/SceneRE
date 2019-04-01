@@ -400,6 +400,8 @@ class CockpitActivity : AbstractManagementActivity() {
                                 DatabaseHelper.getInstance(applicationContext).dropAndRecreateAll()
                                 DatabaseHelper.getInstance(applicationContext).write(Constants.USER_NAME,userName)
                                 showInfoText(getString(R.string.cockpit_wipe_data_confirm), R.color.srePrimaryWarn)
+                                recreateViews()
+                                reStyleText(applicationContext,getConfiguredRootLayout())
                             }
                         })
                         .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
