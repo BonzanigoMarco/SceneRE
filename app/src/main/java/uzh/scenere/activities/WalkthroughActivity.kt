@@ -18,9 +18,11 @@ import kotlinx.android.synthetic.main.holder.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
 import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED
+import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED_WITH_PRESET
 import uzh.scenere.const.Constants.Companion.NONE
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.READ_ONLY
+import uzh.scenere.const.Constants.Companion.SPACE
 import uzh.scenere.const.Constants.Companion.WALKTHROUGH_PLAY_STATE
 import uzh.scenere.const.Constants.Companion.WALKTHROUGH_PLAY_STATE_SHORTCUT
 import uzh.scenere.datamodel.*
@@ -61,6 +63,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         selectedAttributeInfoLayout = null
         selectedObject = null
         selectedAttribute = null
+        selectedWhatIf = null
         getInfoContent().visibility = VISIBLE
         activeWalkthrough?.resetActiveness()
         resetToolbar()
@@ -114,7 +117,7 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
         if (mode == WalkthroughMode.PLAY){
             val value = ObjectHelper.nvl(activeWalkthrough?.state,WalkthroughPlayLayout.WalkthroughState.STARTED)
             customizeToolbarId(R.string.icon_back,
-                    if (activeWalkthrough?.getActiveWhatIfs().isNullOrEmpty()) null else R.string.icon_what_if,
+                    if (ObjectHelper.nvl(activeWalkthrough?.getActiveWhatIfs()?.isNotEmpty(),false) && activeWalkthrough?.state != WalkthroughPlayLayout.WalkthroughState.STARTED) R.string.icon_what_if else null,
                     if (CollectionHelper.oneOf(value,WalkthroughPlayLayout.WalkthroughState.STARTED,WalkthroughPlayLayout.WalkthroughState.FINISHED)) null else R.string.icon_input,
                     if (value != WalkthroughPlayLayout.WalkthroughState.PLAYING) null else  R.string.icon_object, null)
         }else{
@@ -524,13 +527,13 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
     }
 
     override fun onToolbarCenterLeftClicked() {
-        //WHAT IFS
         if (ShortcutHelper.enabled && mode == WalkthroughMode.SELECT_STAKEHOLDER){
             if (scenarioPointer != null && pointer != null){
                 val saveState = WalkthroughPlayLayout.saveState(WalkthroughPlayLayout(applicationContext, NullHelper.get(Scenario::class), NullHelper.get(Stakeholder::class), { resetToolbar() }, { stop() }, notifyExecutable))
                 ShortcutHelper.addShortcut(applicationContext,"${loadedScenarios[scenarioPointer!!].title}-${loadedStakeholders[pointer!!].name}",saveState,notifyExtendedExecutable)
             }
-        }else  if (CollectionHelper.oneOf(mode,WalkthroughMode.PLAY,WalkthroughMode.INPUT)) {
+            //WHAT IFS
+        }else  if (CollectionHelper.oneOf(mode,WalkthroughMode.PLAY,WalkthroughMode.INPUT) && activeWalkthrough?.state != WalkthroughPlayLayout.WalkthroughState.STARTED) {
             if (mode == WalkthroughMode.INPUT){
                 activeWalkthrough?.resetActiveness()
             }
@@ -539,9 +542,10 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
             customizeToolbarId(null, null, R.string.icon_input, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
             getInfoContentWrap().removeAllViews()
-            getInfoContentWrap().addView(createLine(getString(R.string.literal_what_if), LineInputType.MULTI_TEXT, READ_ONLY, false, -1, activeWalkthrough?.getActiveWhatIfs()?.toTypedArray()))
+            getInfoContentWrap().addView(createLine(getString(R.string.literal_what_if), LineInputType.MULTI_TEXT, READ_ONLY, false, -1, activeWalkthrough?.getActiveWhatIfs()?.toTypedArray(),null, answerWhatIf))
             activeWalkthrough?.setWhatIfActive(true)
             mode = WalkthroughMode.WHAT_IF
+            tutorialOpen = SreTutorialLayoutDialog(this@WalkthroughActivity, screenWidth, "info_what_if_reply").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
         }
     }
 
@@ -554,11 +558,20 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
             }
             getInfoContent().visibility = GONE
             getInfoTitle().text = getString(R.string.walkthrough_contribute_comments)
+            holder_text_info_title.text = getString(R.string.walkthrough_contribute_comments)
             customizeToolbarId(null, if (activeWalkthrough?.getActiveWhatIfs().isNullOrEmpty()) null else R.string.icon_what_if, null, null, R.string.icon_cross)
             execMorphInfoBar(InfoState.MAXIMIZED)
             getInfoContentWrap().removeAllViews()
-            getInfoContentWrap().addView(createLine(getString(R.string.literal_comment), LineInputType.MULTI_TEXT, COMPLETE_REMOVAL_DISABLED, false, -1, activeWalkthrough?.getComments(), addComment, removeComment))
+            if (selectedWhatIf != null){
+                getInfoTitle().text = getString(R.string.walkthrough_contribute_what_if_reply)
+                holder_text_info_title.text = getString(R.string.walkthrough_contribute_what_if_reply)
+                val preset = COMPLETE_REMOVAL_DISABLED_WITH_PRESET.plus(getString(R.string.literal_what_if_x,selectedWhatIf, SPACE))
+                getInfoContentWrap().addView(createLine(getString(R.string.literal_comment), LineInputType.MULTI_TEXT, preset, false, -1, activeWalkthrough?.getComments(), addComment, removeComment))
+            }else{
+                getInfoContentWrap().addView(createLine(getString(R.string.literal_comment), LineInputType.MULTI_TEXT, COMPLETE_REMOVAL_DISABLED, false, -1, activeWalkthrough?.getComments(), addComment, removeComment))
+            }
             activeWalkthrough?.setInputActive(true)
+            selectedWhatIf = null
             mode = WalkthroughMode.INPUT
         }
     }
@@ -582,6 +595,14 @@ class WalkthroughActivity : AbstractManagementActivity(), Serializable {
             val intent = Intent(this, GlossaryActivity::class.java)
             intent.putExtra(Constants.BUNDLE_GLOSSARY_TOPIC, getText(R.string.literal_walkthrough))
             startActivity(intent)
+        }
+    }
+
+    var selectedWhatIf: String? = null
+    private val answerWhatIf: (String?) -> Unit = {
+        if (StringHelper.hasText(it)){
+            selectedWhatIf = it
+            onToolbarCenterClicked()
         }
     }
 

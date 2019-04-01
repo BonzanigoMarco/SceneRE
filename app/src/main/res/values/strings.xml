@@ -197,6 +197,20 @@
     <string name="trigger_proximity">Proximity Trigger</string>
     <string name="trigger_temperature">Temperature Trigger</string>
 
+
+    <!--Questions-->
+
+    <string-array name="question_words">
+        <item>what</item>
+        <item>when</item>
+        <item>where</item>
+        <item>which</item>
+        <item>who</item>
+        <item>whom</item>
+        <item>whose</item>
+        <item>why</item>
+        <item>how</item>
+    </string-array>
     <!--Cockpit-->
     <string name="cockpit_info_title">Info Text</string>
     <string name="cockpit_info_permissions">This view shows you all missing Permissions\nSwipe left to see further Details\nSwipe right to grant the Permission\nNote:\nMost of these Permissions are needed for the App to function</string>
@@ -344,14 +358,15 @@
     <string name="walkthrough_transition_interaction">Entered Interaction-Code</string>
     <string name="walkthrough_transition_nfc_scanned">NFC-Tag Scanned</string>
     <string name="walkthrough_what_if_browse">Browse available What-If Questions</string>
-    <string name="walkthrough_contribute_comments">Write down your Comment and press "Add" to contribute it</string>
+    <string name="walkthrough_contribute_comments">Write down your Comment and press \"Add\" to contribute it</string>
+    <string name="walkthrough_contribute_what_if_reply">Write down your What-If Reply and press \"Add\" to contribute it</string>
     <string name="walkthrough_final_state_cancelled_nfc">Cancelled during the %1$s Step, \"%2$s\" (NFC not supported)</string>
     <string name="walkthrough_final_state_cancelled_audio">Cancelled during the %1$s Step, \"%2$s\" (Audio not supported)</string>
     <string name="walkthrough_final_state_cancelled_gps">Cancelled during the %1$s Step, \"%2$s\" (GPS not supported)</string>
     <string name="walkthrough_final_state_cancelled_intro">Cancelled during the Intro</string>
     <string name="walkthrough_final_state_cancelled_outro">Cancelled during the Outro</string>
     <string name="walkthrough_final_state_cancelled">Cancelled during the %1$s Step, \"%2$s\"</string>
-    <string name="walkthrough_final_state_cancelled_check">Cancelled during the "</string>
+    <string name="walkthrough_final_state_cancelled_check">Cancelled during the </string>
     <string name="walkthrough_final_state_complete">Walkthrough completed successfully</string>
     <string name="walkthrough_gps_destination_reached">Destination reached!</string>
     <string name="walkthrough_sound_threshold_reached">Threshold surpassed!</string>
@@ -399,6 +414,7 @@
     <string name="literal_walkthroughs">Walkthroughs</string>
     <string name="literal_walkthrough">Walkthrough</string>
     <string name="literal_what_if">What-If</string>
+    <string name="literal_what_if_x">What-if: %1$s Reply:%2$s</string>
     <string name="literal_what_ifs">What-Ifs</string>
     <string name="literal_comment">Comment</string>
     <string name="literal_remove_all">Remove All</string>
@@ -576,7 +592,7 @@
     <string name="editor_gps_warning">Latitude/Longitude</string>
     <string name="editor_gps_warning_replace">Input Latitude/Longitude</string>
     <string name="editor_gps_formatting">e.g. 47.123456,8.123456</string>
-    <string name="editor_gps_warning_text">Wrong format. Expected: "47.123456,8.123456"</string>
+    <string name="editor_gps_warning_text">Wrong format. Expected: 47.123456,8.123456</string>
     <string name="editor_nfc_data">NFC Data</string>
     <string name="editor_nfc_loaded">Loaded, place your Phone on the Tag!</string>
     <string name="editor_nfc_cleared">NFC Data cleared!</string>

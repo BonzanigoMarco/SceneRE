@@ -330,4 +330,13 @@ To do so, click the      Button
 in the upper Toolbox to toggle
 the Copy-Mode. Swiping Elements
 to the right in this mode
-enables you to copy them
+enables you to copy them.
+
+
+What-If Reply
+
+You can answer What-If questions by long-clicking on
+one of the proposed What-Ifs. This will open the Comment-
+Input which lets you reply to the selected statement.
+By clicking "Add", your input will then be contributed
+to your current Walkthrough.

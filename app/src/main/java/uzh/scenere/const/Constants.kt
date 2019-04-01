@@ -169,6 +169,7 @@ class Constants {
         const val SINGLE_SELECT_WITH_PRESET_POSITION: String = "singleSelect="
         const val READ_ONLY: String = "readOnly"
         const val COMPLETE_REMOVAL_DISABLED: String = "completeRemovalDisabled"
+        const val COMPLETE_REMOVAL_DISABLED_WITH_PRESET: String = "completeRemovalDisabled="
         const val SIMPLE_LOOKUP: String = "simpleLookup"
         //FILE FORMATS
         const val PNG_FILE: String = ".png"

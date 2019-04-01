@@ -414,7 +414,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                             val button = generateButton(context.getString(if (!nfcSupported) R.string.walkthrough_end_scenario else R.string.walkthrough_enable_nfc))
                             button.setExecutable {
                                 if (!nfcSupported){
-                                    saveAndLoadNew(true,context.getString(R.string.walkthrough_final_state_cancelled_nfc, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
+                                    saveAndLoadNew(true,context.getString(R.string.walkthrough_final_state_cancelled_nfc, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size),getCurrentStep()?.title))
                                 }else{
                                     CommunicationHelper.enable(activityLink, CommunicationHelper.Companion.Communications.NFC)
                                 }
@@ -464,7 +464,7 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                                 if (recorder.audioPossible){
                                     PermissionHelper.request(activityLink, PermissionHelper.Companion.PermissionGroups.AUDIO)
                                 }else{
-                                    saveAndLoadNew(true,context.getString(R.string.walkthrough_final_state_cancelled_audio, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size+1),getCurrentStep()?.title))
+                                    saveAndLoadNew(true,context.getString(R.string.walkthrough_final_state_cancelled_audio, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size),getCurrentStep()?.title))
                                 }
                             }
                             scroll.addScrollElement(alertText)
@@ -847,8 +847,8 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
             }else if (state == WalkthroughState.FINISHED){
                 addOutroStep(context.getString(R.string.walkthrough_final_state_cancelled_outro))
             }else {
-                walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments),context.getString(R.string.analytics_walkthrough_cancelled))
                 Walkthrough.WalkthroughProperty.FINAL_STATE.set(reason?: context.getString(R.string.walkthrough_final_state_cancelled, StringHelper.numberToPositionString(Walkthrough.WalkthroughProperty.STEP_ID_LIST.getAll(String::class).size),getCurrentStep()?.title))
+                walkthrough.addStep(getCurrentStep()?.withTime(getTime())?.withComments(comments),context.getString(R.string.analytics_walkthrough_cancelled))
             }
         }else{
             Walkthrough.WalkthroughProperty.FINAL_STATE.set(context.getString(R.string.walkthrough_final_state_complete))

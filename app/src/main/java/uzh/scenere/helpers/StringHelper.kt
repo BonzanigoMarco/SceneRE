@@ -299,5 +299,17 @@ class StringHelper{
             }
             return concatList(delim,list)
         }
+
+        fun isAQuestion(context: Context, text: String): Boolean{
+            var isQuestion = false
+            val lowerCase = text.toLowerCase()
+            for (word in context.resources.getStringArray(R.array.question_words)){
+                if (lowerCase.contains(word)){
+                    isQuestion = true
+                }
+            }
+            val qMark = lowerCase.contains("?")
+            return qMark || isQuestion
+        }
     }
 }

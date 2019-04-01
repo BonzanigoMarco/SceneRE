@@ -31,6 +31,7 @@ import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout.VERTICAL
+import uzh.scenere.const.Constants.Companion.COMPLETE_REMOVAL_DISABLED_WITH_PRESET
 import uzh.scenere.const.Constants.Companion.SEMI_COLON
 import uzh.scenere.const.Constants.Companion.ZERO_S
 import java.io.Serializable
@@ -198,12 +199,14 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
         //Codes
         val singleSelect = SINGLE_SELECT == presetValue || SINGLE_SELECT_WITH_PRESET_POSITION.isContainedIn(presetValue)
         val readOnly = READ_ONLY == presetValue
-        val noCompleteRemoval = COMPLETE_REMOVAL_DISABLED == presetValue
+        val noCompleteRemoval = COMPLETE_REMOVAL_DISABLED == presetValue || COMPLETE_REMOVAL_DISABLED_WITH_PRESET.isContainedIn(presetValue)
         val simpleLookup = SIMPLE_LOOKUP == presetValue
         var realPresetValue: String? = presetValue
         if (singleSelect && SINGLE_SELECT_WITH_PRESET_POSITION.length < presetValue!!.length){
             realPresetValue = presetValue.replace(SINGLE_SELECT_WITH_PRESET_POSITION,NOTHING)
-        }else if (singleSelect || readOnly || noCompleteRemoval || simpleLookup){
+        }else if (noCompleteRemoval && COMPLETE_REMOVAL_DISABLED_WITH_PRESET.length < presetValue!!.length ){
+            realPresetValue = presetValue.replace(COMPLETE_REMOVAL_DISABLED_WITH_PRESET,NOTHING)
+        }else if (singleSelect || readOnly || noCompleteRemoval|| simpleLookup){
             realPresetValue = null
         }
         if (CollectionHelper.oneOf(inputType, LineInputType.SINGLE_LINE_EDIT, LineInputType.MULTI_LINE_EDIT, LineInputType.NUMBER_EDIT, LineInputType.NUMBER_SIGNED_EDIT)) {
@@ -480,7 +483,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
                 for (option in data as Array<String>){
                     val addSelection = addSelection(option, selectionCarrier, labelText,null, removalExecutable)
                     if (readOnly) {
-                        addSelection.setExecutable {  } //Override
+                        addSelection.setExecutable { removalExecutable?.invoke(option) } //Override
                     }
                 }
             }
