@@ -142,7 +142,7 @@ class EditorActivity : AbstractManagementActivity() {
                     .setColors(getColorWithStyle(applicationContext, R.color.srePrimaryPastel), getColorWithStyle(applicationContext, R.color.srePrimaryDisabled))
                     .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                     .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
-                    .setButtonStates(true, true, false, false)
+                    .setButtonStates(sideEnabled(), sideEnabled(), false, false)
                     .adaptMasterLayoutParams(true)
                     .setFirstPosition()
                     .setAutoCollapse(true)
@@ -170,6 +170,8 @@ class EditorActivity : AbstractManagementActivity() {
         })
         tutorialOpen = SreTutorialLayoutDialog(this@EditorActivity, screenWidth, "info_editor_stakeholder", "info_editor_element").addEndExecutable { tutorialOpen = false }.show(tutorialOpen)
     }
+
+    private fun sideEnabled() = ObjectHelper.nvl(projectContext?.stakeholders?.size, 0) > 1
 
     private fun visualizeActivePath() {
         if (activePath != null) {
@@ -344,7 +346,7 @@ class EditorActivity : AbstractManagementActivity() {
             activePath = activeScenario?.getPath(activePath!!.stakeholder,this, layer)
             visualizeActivePath()
             creationButton?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, if (layer != 0) R.string.icon_undo else R.string.icon_null, R.string.icon_plus, null)
-                    ?.setButtonStates(true, true, (layer != 0), false)
+                    ?.setButtonStates(sideEnabled(), sideEnabled(), (layer != 0), false)
                     ?.updateViews(true)
             val pathName = data.pathOptions[layer]
             if (pathName != null && !pathNameList.contains(StringHelper.concatWithIdBrackets(pathName,layer))){
@@ -446,7 +448,7 @@ class EditorActivity : AbstractManagementActivity() {
                     pathNameList.clear()
                     creationButton?.setText(stakeholder.name)
                             ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
-                            ?.setButtonStates(true, true, false, false)
+                            ?.setButtonStates(sideEnabled(), sideEnabled(), false, false)
                             ?.updateViews(true)
                     visualizeActivePath()
                 }
@@ -460,7 +462,7 @@ class EditorActivity : AbstractManagementActivity() {
                     pathNameList.clear()
                     creationButton?.setText(stakeholder.name)
                             ?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
-                            ?.setButtonStates(true, true, false, false)
+                            ?.setButtonStates(sideEnabled(), sideEnabled(), false, false)
                             ?.updateViews(true)
                     visualizeActivePath()
                 }
@@ -1278,7 +1280,7 @@ class EditorActivity : AbstractManagementActivity() {
         editor_spinner_selection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 creationButton?.setButtonIcons(R.string.icon_backward, R.string.icon_forward, if (pathList.isEmpty()) R.string.icon_null else R.string.icon_undo, R.string.icon_plus, null)
-                        ?.setButtonStates(true, true, !pathList.isEmpty(), activePath != null && !(editor_spinner_selection.selectedItem as String).contains("["))?.updateViews(false)
+                        ?.setButtonStates(sideEnabled(), sideEnabled(), !pathList.isEmpty(), activePath != null && !(editor_spinner_selection.selectedItem as String).contains("["))?.updateViews(false)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
