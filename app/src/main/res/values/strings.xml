@@ -275,7 +275,7 @@
     <!--Titles-->
     <string name="cockpit_title"><b>Cockpit</b></string>
     <string name="projects_title"><b>Projects</b></string>
-    <string name="stakeholders_title">Projects/<b>Scenarios</b></string>
+    <string name="stakeholders_title">Projects/<b>Stakeholders</b></string>
     <string name="objects_title">Projects/Scenarios/<b>Objects</b></string>
     <string name="scenarios_title">Projects/<b>Scenarios</b></string>
     <string name="attributes_title">Projects/Scenarios/Objects/<b>Attributes</b></string>
