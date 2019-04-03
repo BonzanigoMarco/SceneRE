@@ -25,6 +25,7 @@ import uzh.scenere.views.SreTextView.TextStyle.BORDERLESS_DARK
 import uzh.scenere.views.SreTextView.TextStyle.MEDIUM
 import java.util.*
 import android.content.res.Configuration
+import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
@@ -359,7 +360,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.setWeight(1f)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             val spinner = Spinner(applicationContext)
-            val viewResource = if (isContrastStyle(applicationContext)) R.layout.sre_spinner_item_contrast else R.layout.sre_spinner_item
+            val viewResource = resolveSpinnerLayoutStyle(applicationContext)
             val spinnerArrayAdapter = ArrayAdapter<String>(this, viewResource, data as Array<String>)
             spinnerArrayAdapter.setDropDownViewResource(viewResource)
             spinner.adapter = spinnerArrayAdapter
@@ -442,10 +443,8 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             label.setWeight(1f)
             label.setSize(WRAP_CONTENT, MATCH_PARENT)
             label.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-            val addButtonParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT,1f)
-            addButtonParams.setMargins(0,marginSmall!!,0,marginSmall!!)
-            addButtonParams.weight = 1f
-            addButton.layoutParams = addButtonParams
+            addButton.setWeight(1f)
+            addButton.setSize(WRAP_CONTENT, MATCH_PARENT)
             val objects = if (data is ArrayList<*>) data as ArrayList<Serializable> else ArrayList<Serializable>()
             val input = SreMultiAutoCompleteTextView(this, objects)
             input.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
@@ -608,7 +607,7 @@ abstract class AbstractManagementActivity : AbstractBaseActivity() {
             infoShowing = true
         }
         getInfoTitle().text = resources.getString(R.string.x_deleted, objectName)
-        getInfoTitle().setTextColor(getColorWithStyle(applicationContext,R.color.srePrimaryWarn))
+        getInfoTitle().setTextColor(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn))
         resetInfo()
     }
 

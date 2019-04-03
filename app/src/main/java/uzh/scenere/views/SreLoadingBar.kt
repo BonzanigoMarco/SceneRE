@@ -35,6 +35,7 @@ class SreLoadingBar(context: Context, parent: ViewGroup?, height: Int = DipHelpe
         progress.orientation = VERTICAL
         progress.background = ContextCompat.getDrawable(context, R.drawable.sre_progress_bar)
         addView(progress)
+        adaptStyle(context)
     }
 
     fun setProgress(percent: Float){

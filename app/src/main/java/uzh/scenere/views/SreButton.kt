@@ -11,7 +11,10 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import uzh.scenere.R
+import uzh.scenere.helpers.SreStyle
+import uzh.scenere.helpers.StyleHelper
 import uzh.scenere.helpers.getColorWithStyle
+import uzh.scenere.helpers.getSreStyle
 import java.io.Serializable
 
 @SuppressLint("ViewConstructor")
@@ -28,6 +31,7 @@ open class SreButton(context: Context, parent: ViewGroup?, label: String?, heigh
     init {
         text = label
         create(context, parent, height, width)
+        adaptStyle(context)
     }
 
     enum class ButtonStyle{

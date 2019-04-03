@@ -59,6 +59,7 @@ class SreMultiAutoCompleteTextView(context: Context, objects: ArrayList<out Seri
 
     init {
         initInternal(objects, context)
+        adaptStyle(context)
     }
 
     private fun initInternal(objects: ArrayList<out Serializable>, context: Context) {

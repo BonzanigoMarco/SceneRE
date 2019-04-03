@@ -12,6 +12,7 @@ class Constants {
         //Storage
         const val SHARED_PREFERENCES: String = "scenereSharedPreferences"
         const val USER_NAME: String = "scenereUserName"
+        const val IS_RELOAD: String = "scenereReload"
         const val IS_ADMINISTRATOR: String = "scenereIsAdministrator"
         const val USER_ID: String = "scenereUserId"
         const val STYLE: String = "scenereStyle"
@@ -29,6 +30,7 @@ class Constants {
         const val WALKTHROUGH_PLAY_STATE_SHORTCUT: String = "scenereWalkthroughPlayStateShortcut"
         //NUMBERS
         val COORDINATES_PATTERN: Regex = "-?[1]?[0-9]{1,2}\\.[0-9]{1,6},-?[1]?[0-9]{1,2}\\.[0-9]{1,6}".toRegex()
+        val ICON_PATTERN: Regex = ".*[^\\x20-\\x7E].*".toRegex()
         const val EARTH_RADIUS_M: Double = 6371000.0
         const val COLOR_BOUND: Int = 16777215
         const val MILLION_D: Double = 1000000.0

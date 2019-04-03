@@ -8,10 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import uzh.scenere.R
-import uzh.scenere.helpers.DipHelper
-import uzh.scenere.helpers.StringHelper
-import uzh.scenere.helpers.getColorWithStyle
-import uzh.scenere.helpers.isContrastStyle
+import uzh.scenere.helpers.*
 
 @SuppressLint("ViewConstructor")
 class SreSpinner(context: Context, parent: ViewGroup?, lookupData: Array<String>): Spinner(context) {
@@ -25,7 +22,7 @@ class SreSpinner(context: Context, parent: ViewGroup?, lookupData: Array<String>
     private var indexExecutable: ((index: Int, data: Any?)-> Unit?)? = null
     private var nothingSelectedExecutable: (()-> Unit)? = null
     private var dataObject: Any? = null
-    private val viewResource = if (isContrastStyle(context)) R.layout.sre_spinner_item_contrast else R.layout.sre_spinner_item
+    private val viewResource = resolveSpinnerLayoutStyle(context)
     var selectCount = 0
 
     enum class ParentLayout{
@@ -36,7 +33,6 @@ class SreSpinner(context: Context, parent: ViewGroup?, lookupData: Array<String>
     private var parentLayout: ParentLayout = if (parent is LinearLayout) ParentLayout.LINEAR else if (parent is RelativeLayout) ParentLayout.RELATIVE else if (parent is FrameLayout) ParentLayout.FRAME else ParentLayout.UNKNOWN
 
     init{
-
         updateLookupData(data)
         dropDownVerticalOffset = DipHelper.get(resources).dip3_5.toFloat().toInt()
         val padding = context.resources.getDimension(R.dimen.dpi5).toInt()

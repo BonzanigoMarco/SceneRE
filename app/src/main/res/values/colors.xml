@@ -4,6 +4,7 @@
     <color name="srePrimaryDisabled">#999999</color>
     <color name="srePrimaryDisabledText">#dddddd</color>
     <color name="srePrimaryPastel">#B2DFDB</color>  <!-- 100 teal -->
+    <color name="srePrimaryPastelZebra">#B2DFDC</color>  <!-- 100 teal -->
     <color name="srePrimaryLight">#4DB6AC</color>  <!-- 300 teal -->
     <color name="srePrimary">#009688</color>  <!-- 500 teal -->
     <color name="srePrimaryDark">#00796B</color>  <!-- 700 teal -->
@@ -25,12 +26,12 @@
     <color name="sreBlack_V">#000005</color>
     <color name="sreBlack_VI">#000006</color>
     <color name="sreGray">#7B7B7B</color>
+    <color name="sreOLEDBlack">#222222</color>
     <color name="sreWhite">#FFFFFF</color>
-    <color name="sreWhite_I">#FFFFFE</color>
-    <color name="sreWhite_II">#FFFFFD</color>
-    <color name="sreWhite_III">#FFFFFC</color>
-    <color name="sreWhite_IV">#FFFFFB</color>
-    <color name="sreWhite_V">#FFFFFA</color>
+    <color name="sreWhiteZebra">#FFFFFE</color>
+    <color name="sreWhite_I">#FFFFFD</color>
+    <color name="sreWhite_II">#FFFFFC</color>
+    <color name="sreWhite_III">#FFFFFB</color>
     <!--APPLICATION CONTRAST-->
     <color name="sreContrastPrimaryDeepDark">#B2DFDB</color>  <!-- 100 teal -->
     <color name="sreContrastPrimaryDark">#4DB6AC</color>  <!-- 300 teal -->

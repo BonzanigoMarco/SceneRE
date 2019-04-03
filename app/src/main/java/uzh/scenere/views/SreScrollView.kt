@@ -13,6 +13,9 @@ import android.widget.RelativeLayout
 import android.widget.ScrollView
 import uzh.scenere.R
 import java.io.Serializable
+import java.lang.reflect.AccessibleObject.setAccessible
+
+
 
 @SuppressLint("ViewConstructor")
 class SreScrollView(context: Context, parent: ViewGroup): ScrollView(context), Serializable {
@@ -90,4 +93,30 @@ class SreScrollView(context: Context, parent: ViewGroup): ScrollView(context), S
     fun removeScrollElement(view: View){
         contentHolder.removeView(view)
     }
+
+    fun setScrollbarDrawable(drawable: Drawable){
+        SreScrollView.setScrollbarDrawable(this,drawable)
+    }
+
+    companion object {
+        fun setScrollbarDrawable(scrollView: ScrollView, drawable: Drawable){
+            try {
+                val mScrollCacheField = View::class.java.getDeclaredField("mScrollCache")
+                mScrollCacheField.isAccessible = true
+                val mScrollCache = mScrollCacheField.get(scrollView)
+
+                val scrollBarField = mScrollCache.javaClass.getDeclaredField("scrollBar")
+                scrollBarField.isAccessible = true
+                val scrollBar = scrollBarField.get(mScrollCache)
+
+                val method = scrollBar.javaClass.getDeclaredMethod("setVerticalThumbDrawable", Drawable::class.java)
+                method.isAccessible = true
+
+                method.invoke(scrollBar, drawable)
+            } catch (e: Exception) {
+                //NOP
+            }
+        }
+    }
+
 }

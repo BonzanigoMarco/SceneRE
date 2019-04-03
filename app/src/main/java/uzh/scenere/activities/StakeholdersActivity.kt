@@ -64,7 +64,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this,getString(R.string.stakeholder_create))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false,true,false,false)
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_stakeholder)
                         .setFirstPosition()
@@ -81,7 +81,7 @@ class StakeholdersActivity : AbstractManagementActivity() {
 
     private fun addStakeholderToList(stakeholder: Stakeholder) {
         val swipeButton = SwipeButton(this, stakeholder.name)
-                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit, null, null, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, false, false)

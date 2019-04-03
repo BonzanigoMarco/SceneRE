@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -139,7 +140,7 @@ class EditorActivity : AbstractManagementActivity() {
 
             creationButton = SwipeButton(this, stakeholder?.name
                     ?: getString(R.string.editor_no_stakeholder))
-                    .setColors(getColorWithStyle(applicationContext, R.color.srePrimaryPastel), getColorWithStyle(applicationContext, R.color.srePrimaryDisabled))
+                    .setColors(getColorWithStyle(applicationContext, R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                     .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                     .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_plus, null)
                     .setButtonStates(sideEnabled(), sideEnabled(), false, false)
@@ -1273,7 +1274,7 @@ class EditorActivity : AbstractManagementActivity() {
     }
 
     private fun updateSpinner(arrayResource: Int) {
-        val viewResource = if (isContrastStyle(applicationContext)) R.layout.sre_spinner_item_contrast else R.layout.sre_spinner_item
+        val viewResource = resolveSpinnerLayoutStyle(applicationContext)
         val spinnerArrayAdapter = ArrayAdapter<String>(this, viewResource, resources.getStringArray(arrayResource))
         spinnerArrayAdapter.setDropDownViewResource(viewResource)
         editor_spinner_selection.adapter = spinnerArrayAdapter

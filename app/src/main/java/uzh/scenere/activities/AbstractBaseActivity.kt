@@ -24,6 +24,7 @@ import android.nfc.tech.NdefFormatable
 import android.os.*
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
@@ -152,6 +153,11 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
         resumeSmsListener()
         resumeBluetoothListener()
         registerWifiP2pReceiver()
+        val sreStyle = getSreStyle(this)
+        if (sreStyle != SreStyle.NORMAL){
+            reStyle(applicationContext,getConfiguredRootLayout())
+            window.statusBarColor = StyleHelper.get(this).getStatusBarColor(this,sreStyle)
+        }
     }
 
     override fun onPause() {
@@ -739,7 +745,7 @@ abstract class AbstractBaseActivity : AppCompatActivity() {
     }
 
     open fun onLayoutRendered(){
-        reStyleText(applicationContext,getConfiguredRootLayout())
+        //NOP
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {

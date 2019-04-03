@@ -33,6 +33,7 @@ open class SreEditText(context: Context, parent: ViewGroup?, text: String? = nul
         setHint(StringHelper.applyFilters(hint,context))
         setText(text)
         create(context, parent)
+        adaptStyle(context)
     }
 
     enum class EditStyle {

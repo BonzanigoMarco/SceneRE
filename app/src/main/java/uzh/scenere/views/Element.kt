@@ -318,9 +318,9 @@ class Element (context: Context, private var element: IElement, private val top:
 
     fun setZebraPattern(enabled: Boolean = false){
         if (enabled){
-            setBackgroundColor(getColorWithStyle(context,R.color.srePrimaryPastel))
+            setBackgroundColor(getColorWithStyle(context,R.color.srePrimaryPastelZebra))
         }else{
-            setBackgroundColor(getColorWithStyle(context,R.color.sreWhite))
+            setBackgroundColor(getColorWithStyle(context,R.color.sreWhiteZebra))
         }
     }
 }

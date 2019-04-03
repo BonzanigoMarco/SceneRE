@@ -1,6 +1,7 @@
 package uzh.scenere.activities
 
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.ScrollView
@@ -77,12 +78,12 @@ class GlossaryActivity: AbstractManagementActivity() {
         for (entry in buttonMap.entries){
             if (entry.key == topic){
                 button = entry.value
-                entry.value.setIndividualButtonColors(getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryWarn),getColorWithStyle(applicationContext,R.color.srePrimaryWarn)).updateViews(false)
+                entry.value.setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn),ContextCompat.getColor(applicationContext,R.color.srePrimaryWarn)).updateViews(false)
             }
             if (additional != null){
                 for (add in additional){
                     if (entry.key == add) {
-                        entry.value.setIndividualButtonColors(getColorWithStyle(applicationContext,R.color.srePrimaryAttention), getColorWithStyle(applicationContext,R.color.srePrimaryAttention), getColorWithStyle(applicationContext,R.color.srePrimaryAttention), getColorWithStyle(applicationContext,R.color.srePrimaryAttention), getColorWithStyle(applicationContext,R.color.srePrimaryAttention)).updateViews(false)
+                        entry.value.setIndividualButtonColors(ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention), ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention), ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention), ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention), ContextCompat.getColor(applicationContext,R.color.srePrimaryAttention)).updateViews(false)
                     }
                 }
             }

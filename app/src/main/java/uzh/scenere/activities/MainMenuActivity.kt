@@ -3,12 +3,14 @@ package uzh.scenere.activities
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.activity_main_menu.*
 import uzh.scenere.R
 import uzh.scenere.const.Constants
+import uzh.scenere.const.Constants.Companion.IS_RELOAD
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.helpers.*
 import uzh.scenere.views.SreButton
@@ -57,13 +59,19 @@ class MainMenuActivity : AbstractBaseActivity() {
     }
 
     override fun onResume() {
-        super.onResume()
+        if (DatabaseHelper.getInstance(applicationContext).read(IS_RELOAD,Boolean::class,true,DatabaseHelper.DataMode.PREFERENCES)){
+            DatabaseHelper.getInstance(applicationContext).write(IS_RELOAD,false,DatabaseHelper.DataMode.PREFERENCES)
+            main_menu_image.setImageDrawable(ContextCompat.getDrawable(applicationContext,R.drawable.sre_logo))
+            finish()
+            startActivity(intent)
+        }
         setButtonStates(arrayOf(projectsButton!!,
                 walkthroughButton!!,
                 analyticsButton!!,
                 shareButton!!,
                 glossaryButton!!
         ))
+        super.onResume()
     }
 
     private fun prepareButton(textIds: Array<Int>, buttons: Array<SreButton>){

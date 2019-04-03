@@ -2,6 +2,7 @@ package uzh.scenere.activities
 
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -86,7 +87,7 @@ class AnalyticsActivity : AbstractManagementActivity() {
         }, {
             analytics_layout_button_holder.removeView(progressLayout)
             creationButton = SwipeButton(this, if (loadedProjects.isEmpty()) getString(R.string.analytics_no_walkthrough) else if (loadedProjects[0] is Project.NullProject) getString(R.string.project_anonymous) else createButtonLabel(loadedProjects, getString(R.string.literal_projects)))
-                    .setColors(getColorWithStyle(applicationContext, R.color.srePrimaryPastel), getColorWithStyle(applicationContext, R.color.srePrimaryDisabled))
+                    .setColors(getColorWithStyle(applicationContext, R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                     .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                     .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_undo, R.string.icon_check, null)
                     .setButtonStates(!loadedProjects.isEmpty(), !loadedProjects.isEmpty(), false, false)

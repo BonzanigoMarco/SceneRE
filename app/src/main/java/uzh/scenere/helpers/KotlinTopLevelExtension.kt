@@ -4,13 +4,14 @@ import android.app.Activity
 import android.content.Context
 import android.database.Cursor
 import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import com.google.android.gms.maps.model.LatLng
+import uzh.scenere.R
 import uzh.scenere.const.Constants
-import uzh.scenere.const.Constants.Companion.FILE_TYPE_TFF
 import uzh.scenere.const.Constants.Companion.FILE_TYPE_TXT
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NULL_CLASS
@@ -149,16 +150,21 @@ fun ArrayList<*>.removeFirst(){
 }
 
 enum class SreStyle{
-    NORMAL, CONTRAST
+    NORMAL, CONTRAST, OLED
 }
 fun getColorWithStyle(context: Context, id: Int): Int{
+    val sreStyle = getSreStyle(context)
     return when {
-        getSreStyle(context) == SreStyle.NORMAL -> {
+        sreStyle == SreStyle.NORMAL -> {
             ContextCompat.getColor(context,id)
         }
-        getSreStyle(context) == SreStyle.CONTRAST -> {
+        sreStyle == SreStyle.CONTRAST -> {
             val color = StyleHelper.get(context).switchToContrastMode[id]
             color ?: ContextCompat.getColor(context,id)
+        }
+         sreStyle == SreStyle.OLED-> {
+             val color = StyleHelper.get(context).switchToOledMode[id]
+             color ?: ContextCompat.getColor(context,id)
         }
         else -> ContextCompat.getColor(context,id)
     }
@@ -169,11 +175,16 @@ fun getSreStyle(context: Context): SreStyle{
     return SreStyle.valueOf(enum)
 }
 
-fun isContrastStyle(context: Context): Boolean{
-    return getSreStyle(context) == SreStyle.CONTRAST
+fun resolveSpinnerLayoutStyle(context: Context): Int {
+    val sreStyle = getSreStyle(context)
+    when (sreStyle){
+        SreStyle.NORMAL -> return R.layout.sre_spinner_item
+        SreStyle.CONTRAST -> return R.layout.sre_spinner_item_contrast
+        SreStyle.OLED -> return R.layout.sre_spinner_item_oled
+    }
 }
 
-fun reStyleText(context: Context, root: ViewGroup?, sreStyle: SreStyle? = null) {
+fun reStyle(context: Context, root: ViewGroup?, sreStyle: SreStyle? = null) {
     var style = sreStyle
     if (sreStyle == null){
         style = getSreStyle(context)
@@ -182,18 +193,18 @@ fun reStyleText(context: Context, root: ViewGroup?, sreStyle: SreStyle? = null) 
         for (view in 0 until root.childCount){
             val childAt = root.getChildAt(view)
             if (childAt is ViewGroup){
-                reStyleText(context, childAt, style)
-            }else{
-                reStyleTextColor(context, childAt, style!!)
+                reStyle(context, childAt, style)
             }
+            reStyleColors(context, childAt, style!!)
         }
+        reStyleColors(context, root, style!!)
+    }else if (root != null){
+        reStyleColors(context, root, style!!)
     }
 }
 
-private fun reStyleTextColor(context: Context, view: View, sreStyle: SreStyle){
-    if (view is TextView){
-        StyleHelper.get(context).switch(view,sreStyle)
-    }
+private fun reStyleColors(context: Context, view: View, sreStyle: SreStyle){
+    StyleHelper.get(context).switchColors(context,view,sreStyle)
 }
 
 enum class WhatIfMode(){

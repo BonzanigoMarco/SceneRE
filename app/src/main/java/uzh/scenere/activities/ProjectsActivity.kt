@@ -2,6 +2,7 @@ package uzh.scenere.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.activity_projects.*
 import uzh.scenere.R
@@ -61,7 +62,7 @@ class ProjectsActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this,getString(R.string.project_create))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel),getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel),ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false,true,false,false)
                         .setButtonIcons(R.string.icon_null,R.string.icon_edit,null,null,R.string.icon_project)
                         .setFirstPosition()
@@ -79,7 +80,7 @@ class ProjectsActivity : AbstractManagementActivity() {
 
     private fun addProjectToList(project: Project) {
         val swipeButton = SwipeButton(this, project.title)
-                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_stakeholder, R.string.icon_scenario, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, true, true)
                 .updateViews(true)

@@ -30,6 +30,7 @@ open class SreTextView(context: Context, parent: ViewGroup?, label: String? = nu
     init {
         text = label
         create(context,parent)
+        adaptStyle(context)
     }
 
     enum class TextStyle{

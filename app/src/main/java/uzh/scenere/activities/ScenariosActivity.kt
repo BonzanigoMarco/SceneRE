@@ -3,6 +3,7 @@ package uzh.scenere.activities
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.activity_scenarios.*
 import uzh.scenere.R
@@ -80,7 +81,7 @@ class ScenariosActivity : AbstractManagementActivity() {
         creationButton =
                 SwipeButton(this, getString(R.string.scenario_create))
                         .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
-                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                        .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                         .setButtonStates(false, true, false, false)
                         .setButtonIcons(R.string.icon_null, R.string.icon_edit, null, null, R.string.icon_scenario)
                         .setFirstPosition()
@@ -98,7 +99,7 @@ class ScenariosActivity : AbstractManagementActivity() {
 
     private fun addScenarioToList(scenario: Scenario) {
         val swipeButton = SwipeButton(this, scenario.title)
-                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.QUADRUPLE)
                 .setButtonIcons(R.string.icon_delete, R.string.icon_edit, R.string.icon_object, R.string.icon_path_editor, null)
                 .setButtonStates(lockState == LockState.UNLOCKED, true, true, true)

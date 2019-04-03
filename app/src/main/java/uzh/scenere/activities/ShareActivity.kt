@@ -8,6 +8,7 @@ import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.*
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -171,7 +172,7 @@ class ShareActivity : AbstractManagementActivity() {
             }
         }
         creationButton = SwipeButton(this, getString(R.string.share_mode_file_export))
-                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), getColorWithStyle(applicationContext,R.color.srePrimaryDisabled))
+                .setColors(getColorWithStyle(applicationContext,R.color.srePrimaryPastel), ContextCompat.getColor(applicationContext,R.color.srePrimaryDisabled))
                 .setButtonMode(SwipeButton.SwipeButtonMode.DOUBLE)
                 .setButtonIcons(R.string.icon_backward, R.string.icon_forward, R.string.icon_null, R.string.icon_null, null)
                 .setButtonStates(true,true, false, false)

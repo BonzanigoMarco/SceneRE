@@ -19,9 +19,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import uzh.scenere.R
-import uzh.scenere.helpers.CollectionHelper
-import uzh.scenere.helpers.NumberHelper
-import uzh.scenere.helpers.getColorWithStyle
+import uzh.scenere.helpers.*
 
 
 class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : LinearLayout(context, attributeSet, defStyleAttr, defStyleRes) {
@@ -83,7 +81,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
     private var initialized: Boolean = false
     private var active: Boolean = false
     private var activeColor: Int = getColorWithStyle(context,R.color.srePrimaryPastel)
-    private var inactiveColor: Int = getColorWithStyle(context,R.color.srePrimaryDisabled)
+    private var inactiveColor: Int = ContextCompat.getColor(context,R.color.srePrimaryDisabled)
     private var individualColor: Boolean = false
     var interacted: Boolean = false
     private var autoCollapse: Boolean = false
@@ -99,6 +97,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
 
     init {
         init(context)
+        ISreView.adaptStyle(context,this)
     }
 
     //XML Constructors
@@ -431,7 +430,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         return this
     }
 
-    fun setCounter(topCounter: Int?, bottomCounter: Int?, color: Int = getColorWithStyle(context,R.color.srePrimaryWarn)): SwipeButton {
+    fun setCounter(topCounter: Int?, bottomCounter: Int?, color: Int = ContextCompat.getColor(context,R.color.srePrimaryWarn)): SwipeButton {
         topLabelText?.text = topCounter?.toString()
         bottomLabelText?.text = bottomCounter?.toString()
         topLabelText?.setTextColor(color)
@@ -514,6 +513,7 @@ class SwipeButton(context: Context, attributeSet: AttributeSet?, defStyleAttr: I
         leftIconText?.setPadding(dpiPadding, dpiPadding, dpiPadding, dpiPadding)
         topIconText?.setPadding(dpiPadding, dpiPaddingSmall, dpiPadding, dpiPadding)
         bottomIconText?.setPadding(dpiPadding, dpiPadding, dpiPadding,dpiPaddingSmall)
+        ISreView.adaptStyle(context,this)
         return this
     }
 

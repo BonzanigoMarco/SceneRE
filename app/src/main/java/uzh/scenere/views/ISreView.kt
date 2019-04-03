@@ -1,10 +1,15 @@
 package uzh.scenere.views
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import uzh.scenere.helpers.SreStyle
+import uzh.scenere.helpers.StyleHelper
+import uzh.scenere.helpers.getSreStyle
+import uzh.scenere.helpers.reStyle
 import uzh.scenere.views.ISreView.ParentLayout.*
 
 interface ISreView {
@@ -129,6 +134,25 @@ interface ISreView {
             LINEAR -> (getView().layoutParams as LinearLayout.LayoutParams).bottomMargin
             FRAME -> (getView().layoutParams as FrameLayout.LayoutParams).bottomMargin
             else -> 0
+        }
+    }
+
+    fun adaptStyle(context: Context){
+        ISreView.adaptStyle(context,getView())
+    }
+
+    companion object {
+        fun adaptStyle(context: Context, view: View){
+            val sreStyle = getSreStyle(context)
+            if (sreStyle != SreStyle.NORMAL){
+                StyleHelper.get(context).switchColors(context,view,sreStyle)
+            }
+        }
+        fun adaptStyle(context: Context, view: ViewGroup){
+            val sreStyle = getSreStyle(context)
+            if (sreStyle != SreStyle.NORMAL){
+                reStyle(context,view,sreStyle)
+            }
         }
     }
 

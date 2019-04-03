@@ -225,6 +225,10 @@
     <string name="cockpit_wipe_walkthroughs">Wipe All Walkthroughs</string>
     <string name="cockpit_wipe_data_confirm">All Data wiped!</string>
     <string name="cockpit_wipe_walkthroughs_confirm">All Walkthroughs wiped!</string>
+    <string name="cockpit_mode_contrast">Display Mode: CONTRAST</string>
+    <string name="cockpit_mode_oled">Display Mode: OLED</string>
+    <string name="cockpit_mode_normal">Display Mode: NORMAL</string>
+    <string name="cockpit_mode_x">Display Mode: %1$s</string>
     <string name="permission_description_network_title">Network-Permissions</string>
     <string name="permission_description_storage_title">Storage-Permissions</string>
     <string name="permission_description_audio_title">Audio-Permissions</string>
