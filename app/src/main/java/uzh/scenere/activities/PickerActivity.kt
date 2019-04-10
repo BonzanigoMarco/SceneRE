@@ -70,12 +70,12 @@ class PickerActivity: AbstractBaseActivity (), OnMapReadyCallback {
     }
 
     private fun createButtons() {
-        val resetButton = SreButton(applicationContext, picker_reset_holder, "Reset Location")
+        val resetButton = SreButton(applicationContext, picker_reset_holder, getString(R.string.picker_reset))
         val cancelButton = SreButton(applicationContext, picker_button_holder, getString(R.string.picker_cancel))
         copyButton = SreButton(applicationContext, picker_button_holder, getString(R.string.picker_copy_to_clipboard))
         resetButton.setWeight(1f,true)
-        copyButton?.setWeight(1f,true)
-        cancelButton.setWeight(1f,true)
+        copyButton?.setWeight(1f,false)
+        cancelButton.setWeight(1f,false)
         resetButton.setExecutable {
             current = zurich
             marker?.remove()

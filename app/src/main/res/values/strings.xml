@@ -650,6 +650,7 @@
     <string name="picker_cancel">Cancel</string>
     <string name="picker_no_location_copied">No Location copied!</string>
     <string name="picker_location_picked">Location copied to Clipboard!</string>
+    <string name="picker_reset">Reset Location</string>
 
     <string name="pdf_start_title">PDF-Export started in Background</string>
     <string name="cockpit_user_mode">Scene-RE Mode:  %1$s</string>
