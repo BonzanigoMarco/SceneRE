@@ -18,8 +18,8 @@ import uzh.scenere.const.Constants.Companion.WALKTHROUGH_UID_IDENTIFIER
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.database.SreDatabase
 import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.datamodel.trigger.AbstractTrigger
-import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
+import uzh.scenere.datamodel.triggers.AbstractTrigger
+import uzh.scenere.datamodel.triggers.direct.IfElseTrigger
 import uzh.scenere.views.Element
 import java.io.Serializable
 import kotlin.reflect.KClass

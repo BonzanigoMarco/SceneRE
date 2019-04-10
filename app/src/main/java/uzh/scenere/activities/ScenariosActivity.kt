@@ -14,8 +14,6 @@ import uzh.scenere.datamodel.AbstractObject
 import uzh.scenere.datamodel.Project
 import uzh.scenere.datamodel.Scenario
 import uzh.scenere.datamodel.Stakeholder
-import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.datamodel.trigger.AbstractTrigger
 import uzh.scenere.helpers.*
 import uzh.scenere.views.SreTutorialLayoutDialog
 import uzh.scenere.views.SwipeButton

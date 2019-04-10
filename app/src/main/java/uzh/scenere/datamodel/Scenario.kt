@@ -3,7 +3,7 @@ package uzh.scenere.datamodel
 import android.content.Context
 import uzh.scenere.datamodel.steps.AbstractStep
 import uzh.scenere.datamodel.steps.ResourceStep
-import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
+import uzh.scenere.datamodel.triggers.direct.IfElseTrigger
 import uzh.scenere.helpers.DatabaseHelper
 import uzh.scenere.helpers.NumberHelper
 import java.io.Serializable

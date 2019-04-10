@@ -2,7 +2,7 @@ package uzh.scenere.helpers
 
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.datamodel.trigger.AbstractTrigger
+import uzh.scenere.datamodel.triggers.AbstractTrigger
 import java.io.Serializable
 import kotlin.reflect.KClass
 

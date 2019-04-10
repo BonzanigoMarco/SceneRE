@@ -518,11 +518,11 @@ class AnalyticsActivity : AbstractManagementActivity() {
                     content.add(arrayOf(getString(R.string.literal_scenario), activeScenarios[scenarioPointer!!].title))
                     content.add(arrayOf(getString(R.string.literal_paths), activeScenarios[scenarioPointer!!].getAllPaths().size.toString()))
                     content.add(arrayOf(getString(R.string.literal_steps), StringHelper.concatTokens(COMMA_TOKEN, activeScenarios[scenarioPointer!!].getAllStepTitles().size.toString())))
-                    content.add(arrayOf(getString(R.string.literal_objects), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllContextObject()), COMMA_TOKEN))
-                    content.add(arrayOf(getString(R.string.literal_resources), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllResources()), COMMA_TOKEN))
+                    content.add(arrayOf(getString(R.string.literal_objects), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllContextObject(), COMMA_TOKEN)))
+                    content.add(arrayOf(getString(R.string.literal_resources), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllResources(), COMMA_TOKEN)))
                     content.add(arrayOf(getString(R.string.literal_introduction), activeScenarios[scenarioPointer!!].intro))
                     content.add(arrayOf(getString(R.string.literal_conclusion), activeScenarios[scenarioPointer!!].outro))
-                    content.add(arrayOf(getString(R.string.literal_stakeholders), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllStakeholdersWithPaths(applicationContext)), COMMA_TOKEN))
+                    content.add(arrayOf(getString(R.string.literal_stakeholders), StringHelper.toListString(activeScenarios[scenarioPointer!!].getAllStakeholdersWithPaths(applicationContext), COMMA_TOKEN)))
                 }
                 if (!activeWalkthroughs.isNullOrEmpty()){
                     content.add(arrayOf(SPACE))

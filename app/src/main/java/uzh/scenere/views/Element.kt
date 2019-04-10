@@ -3,7 +3,6 @@ package uzh.scenere.views
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.support.v4.content.ContextCompat
 import android.text.Spanned
 import android.util.TypedValue
 import android.view.View
@@ -13,9 +12,9 @@ import uzh.scenere.R
 import uzh.scenere.datamodel.IElement
 import uzh.scenere.datamodel.Stakeholder
 import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.datamodel.trigger.communication.NfcTrigger
-import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
-import uzh.scenere.datamodel.trigger.direct.StakeholderInteractionTrigger
+import uzh.scenere.datamodel.triggers.communication.NfcTrigger
+import uzh.scenere.datamodel.triggers.direct.IfElseTrigger
+import uzh.scenere.datamodel.triggers.direct.StakeholderInteractionTrigger
 import uzh.scenere.helpers.*
 import uzh.scenere.views.SreTextView.TextStyle.DARK
 import uzh.scenere.views.SreTextView.TextStyle.LIGHT

@@ -15,29 +15,32 @@ class CppHelper {
             System.loadLibrary("native-lib")
         }
 
-        fun evaluate(context: Context){
+        fun evaluate(context: Context, grid: Int){
             val cpp = CppHelper()
-            val gridSize = 500
-            val runs = 20
-            val bitmapGrid = array2dOfInt(gridSize,gridSize)
-            for (w in 0 until gridSize){
-                for (h in 0 until gridSize){
+            val gridSize = grid
+            val runs = 1
+            val bitmapGrid = array2dOfInt(gridSize, gridSize)
+            for (w in 0 until gridSize) {
+                for (h in 0 until gridSize) {
                     bitmapGrid[w][h] = Random().nextInt(COLOR_BOUND)
                 }
             }
-            for (i in 1 .. runs) {
-                val startCpp = System.currentTimeMillis()
+            for (i in 1..runs) {
+                val startCpp = System.nanoTime()
                 val cppResult = cpp.evaluateAverage(bitmapGrid)
-                val startKotlin = System.currentTimeMillis()
+                val startKotlin = System.nanoTime()
                 val kotlinResult = evaluate(bitmapGrid)
-                val startKotlinStream = System.currentTimeMillis()
+                val startKotlinStream = System.nanoTime()
                 val kotlinStreamResult = evaluateStream(bitmapGrid)
-                val endTime = System.currentTimeMillis()
+                val endTime = System.nanoTime()
                 Log.d("JNI Performance", "To process ${gridSize * gridSize} values, \n" +
-                        "C++ took ${startKotlin - startCpp} ms, outcome: $cppResult;\n" +
-                        "Kotlin took ${startKotlinStream - startKotlin} ms, outcome $kotlinResult;\n" +
-                        "Kotlin Streams took ${endTime - startKotlinStream} ms, outcome $kotlinStreamResult;")
+                        "C++ took ${startKotlin - startCpp} ns, outcome: $cppResult;\n" +
+                        "Kotlin took ${startKotlinStream - startKotlin} ns, outcome $kotlinResult;\n" +
+                        "Kotlin Streans took ${endTime - startKotlinStream} ns, outcome $kotlinStreamResult;")
+                Log.i("JNI Performance", "${gridSize * gridSize};${startKotlin - startCpp};${startKotlinStream - startKotlin}" +
+                        ";${endTime - startKotlinStream}")
             }
+            System.gc()
         }
 
         private fun evaluate(grid: Array<IntArray>): Double {

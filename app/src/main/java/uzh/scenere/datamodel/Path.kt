@@ -1,7 +1,7 @@
 package uzh.scenere.datamodel
 
 import uzh.scenere.const.Constants.Companion.STARTING_POINT
-import uzh.scenere.datamodel.trigger.direct.IfElseTrigger
+import uzh.scenere.datamodel.triggers.direct.IfElseTrigger
 import uzh.scenere.helpers.NullHelper
 import java.io.Serializable
 import java.util.*

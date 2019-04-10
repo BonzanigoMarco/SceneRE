@@ -9,12 +9,11 @@ import uzh.scenere.const.Constants.Companion.NEW_LINE_TOKEN
 import uzh.scenere.const.Constants.Companion.NOTHING
 import uzh.scenere.const.Constants.Companion.NOT_CONSULTED
 import uzh.scenere.const.Constants.Companion.NO_DATA
-import uzh.scenere.const.Constants.Companion.ZERO
 import uzh.scenere.const.Constants.Companion.ZERO_L
 import uzh.scenere.datamodel.Walkthrough.WalkthroughProperty.*
 import uzh.scenere.datamodel.Walkthrough.WalkthroughStepProperty.*
 import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.datamodel.trigger.AbstractTrigger
+import uzh.scenere.datamodel.triggers.AbstractTrigger
 import uzh.scenere.helpers.DataHelper
 import uzh.scenere.helpers.NullHelper
 import uzh.scenere.helpers.StringHelper

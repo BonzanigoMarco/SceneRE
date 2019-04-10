@@ -33,7 +33,7 @@ import uzh.scenere.const.Constants.Companion.VALIDATION_NO_DATA
 import uzh.scenere.const.Constants.Companion.VALIDATION_OK
 import uzh.scenere.datamodel.*
 import uzh.scenere.datamodel.steps.AbstractStep
-import uzh.scenere.datamodel.trigger.AbstractTrigger
+import uzh.scenere.datamodel.triggers.AbstractTrigger
 import uzh.scenere.datastructures.ShareWrapper
 import uzh.scenere.helpers.*
 import uzh.scenere.views.*
