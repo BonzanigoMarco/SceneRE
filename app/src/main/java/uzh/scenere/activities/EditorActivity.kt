@@ -687,7 +687,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = NfcTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_nfc))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_EDIT, element.message, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.MULTI_LINE_EDIT, element.message, true, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 is WifiTrigger -> {
