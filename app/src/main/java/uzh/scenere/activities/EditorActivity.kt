@@ -829,7 +829,7 @@ class EditorActivity : AbstractManagementActivity() {
                     creationUnitClass = TimeTrigger::class
                     var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_time))
                     getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, null, false, -1))
-                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_SIGNED_EDIT, null, false, -1))
+                    getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.NUMBER_EDIT, null, false, -1))
                     execMorphInfoBar(InfoState.MAXIMIZED)
                 }
                 resources.getString(R.string.trigger_bt) -> {
