@@ -95,7 +95,7 @@ class CommunicationHelper private constructor () {
         fun requestBeamActivation(context: Context, open: Boolean = false): Boolean {
             val nfcAdapter = NfcAdapter.getDefaultAdapter(context) ?: return false
             if (open && !nfcAdapter.isNdefPushEnabled){
-                context.startActivity(Intent(Settings.ACTION_NFCSHARING_SETTINGS))
+                startActivity(context,Intent(Settings.ACTION_NFCSHARING_SETTINGS))
             }
             return nfcAdapter.isNdefPushEnabled
         }
@@ -179,7 +179,7 @@ class CommunicationHelper private constructor () {
                     }
                 }
                 Communications.NETWORK -> {
-                    activity.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                    startActivity(activity,Intent(Settings.ACTION_WIRELESS_SETTINGS))
                 }
                 Communications.WIFI -> {
                     val wifiManager = activity.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -190,7 +190,7 @@ class CommunicationHelper private constructor () {
                     bluetoothAdapter.enable()
                 }
                 Communications.NFC -> {
-                    activity.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                    startActivity(activity,Intent(Settings.ACTION_WIRELESS_SETTINGS))
                 }
             }
             return true
@@ -203,7 +203,7 @@ class CommunicationHelper private constructor () {
                     unregisterGpsListener(activity)
                 }
                 Communications.NETWORK -> {
-                    activity.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                    startActivity(activity,Intent(Settings.ACTION_WIRELESS_SETTINGS))
                 }
                 Communications.WIFI -> {
                     val wifiManager = activity.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -214,13 +214,21 @@ class CommunicationHelper private constructor () {
                     bluetoothAdapter?.disable()
                 }
                 Communications.NFC -> {
-                    activity.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                    startActivity(activity,Intent(Settings.ACTION_WIRELESS_SETTINGS))
                 }
             }
             return false
         }
 
-
+        fun startActivity(context: Context, intent: Intent){
+            try{
+                startActivity(context,intent)
+            }catch (t: Throwable){
+                //NOP
+            }
+        }
+        
+        
         fun toggle(context: Activity, communications: Communications): Boolean{
             return if (check(context,communications)) disable(context, communications) else enable(context,communications)
         }
