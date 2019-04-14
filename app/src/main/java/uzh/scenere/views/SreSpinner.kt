@@ -64,14 +64,20 @@ class SreSpinner(context: Context, parent: ViewGroup?, lookupData: Array<String>
                 }
                 if (selectCount == 0){
                     if (initSelectionExecutable != null){
-                        initSelectionExecutable?.invoke(spinnerText)
+                        try{
+                            initSelectionExecutable?.invoke(spinnerText)
+                        }catch (e: Exception){/*NOP*/ }
                     }
                 }else{
                     if (selectionExecutable != null){
-                        selectionExecutable?.invoke(spinnerText,dataObject)
+                        try{
+                            selectionExecutable?.invoke(spinnerText,dataObject)
+                        }catch (e: Exception){/*NOP*/ }
                     }
                     if (indexExecutable != null){
-                        indexExecutable?.invoke(position,dataObject)
+                        try{
+                            indexExecutable?.invoke(position,dataObject)
+                        }catch (e: Exception){/*NOP*/ }
                     }
                 }
                 selectCount++
@@ -79,7 +85,9 @@ class SreSpinner(context: Context, parent: ViewGroup?, lookupData: Array<String>
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 if (nothingSelectedExecutable != null){
-                    nothingSelectedExecutable?.invoke()
+                    try {
+                        nothingSelectedExecutable?.invoke()
+                    }catch (e: Exception){/*NOP*/ }
                 }
             }
         }

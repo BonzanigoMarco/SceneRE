@@ -607,7 +607,9 @@ class EditorActivity : AbstractManagementActivity() {
                         getInfoContentWrap().addView(createLine(elementAttributes[index], LineInputType.LOOKUP, null, false, -1, addToArrayBefore(element.getDeletableIndexedOptions(),"")))
                         tutorialDrawable = "info_option_removal"
                     }else {
-                        pathNameList.remove(pathNameList.last())
+                        if (pathNameList.isNotEmpty()){
+                            pathNameList.remove(pathNameList.last())
+                        }
                         var index = adaptAttributes(*resources.getStringArray(R.array.editor_attributes_trigger_if_else))
                         getInfoContentWrap().addView(createLine(elementAttributes[index++], LineInputType.SINGLE_LINE_EDIT, element.text, false, -1))
                         for (string in element.getOptions()){
