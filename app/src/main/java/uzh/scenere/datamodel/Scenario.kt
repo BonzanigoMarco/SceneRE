@@ -77,7 +77,7 @@ open class Scenario private constructor(val id: String, val projectId: String, v
     }
 
     fun removePath(stakeholder: Stakeholder, pathLayer: Int?): Path?{
-        if (pathLayer != null) {
+        if (pathLayer != null && paths.containsKey(stakeholder.id)) {
             val path = paths[stakeholder.id]!![pathLayer]
             paths[stakeholder.id]!!.remove(pathLayer)
             if (path != null){

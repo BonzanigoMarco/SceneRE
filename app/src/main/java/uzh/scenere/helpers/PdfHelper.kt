@@ -852,13 +852,14 @@ class PdfHelper(val context: Context) {
                         }
                     }
                     for (e in entries) {
-                        for (cutEntry in checkStringLengthForTable(pdfConstructor,e, textLengthList.subList(0,column))) {
+                        val lengthSplitString = checkStringLengthForTable(pdfConstructor, e, textLengthList.subList(0, column))
+                        for (cutEntryPos in lengthSplitString.indices) {
                             contentStream.beginText()
                             contentStream.newLineAtOffset(textX, textY)
                             contentStream.setFont(if (rows == pdfConstructor.getTablePointer(tableName)) pdfConstructor.getFontBold() else pdfConstructor.getFont(), pdfConstructor.getFontSize())
-                            contentStream.showText(cutEntry)
+                            contentStream.showText(lengthSplitString[cutEntryPos])
                             contentStream.endText()
-                            textY -= if (entry.contains(NEW_LINE) || rows == pdfConstructor.getTablePointer(tableName)) rowHeight else rowHeight * multiLines[rows]!! - 2 * prePostSpace
+                            textY -= if (entry.contains(NEW_LINE) || rows == pdfConstructor.getTablePointer(tableName) || (lengthSplitString.size > 1 && cutEntryPos < lengthSplitString.size-1)) rowHeight else rowHeight * multiLines[rows]!! - 2 * prePostSpace
                         }
                     }
                     textY -= prePostSpace
