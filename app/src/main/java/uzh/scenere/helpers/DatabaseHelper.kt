@@ -625,7 +625,6 @@ class DatabaseHelper private constructor(context: Context) {
             for (walkthrough in walkthroughs){
                 delete(walkthrough.id,Walkthrough::class)
             }
-//            database!!.dropAndRecreateTable("WALKTHROUGH_TABLE")
             database!!.close()
         }
     }
