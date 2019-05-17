@@ -621,7 +621,11 @@ class DatabaseHelper private constructor(context: Context) {
     fun dropAndRecreateWalkthroughs(){
         if (mode == DataMode.DATABASE) {
             database!!.openWritable()
-            database!!.dropAndRecreateTable("WALKTHROUGH_TABLE")
+            val walkthroughs = database!!.readWalkthroughs(null)
+            for (walkthrough in walkthroughs){
+                delete(walkthrough.id,Walkthrough::class)
+            }
+//            database!!.dropAndRecreateTable("WALKTHROUGH_TABLE")
             database!!.close()
         }
     }

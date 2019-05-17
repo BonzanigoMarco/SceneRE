@@ -252,7 +252,11 @@ class WalkthroughPlayLayout(context: Context, private var scenario: Scenario, pr
                         }else{
                             text = context.getString(R.string.walkthrough_resource_deleted)
                         }
-                        val textView = generateText(title,(first as ResourceStep).text.plus(BREAK).plus(text), (first as ResourceStep).objects,arrayListOf(title, text))
+                        val objects = (first as ResourceStep).objects
+                        if (resource != null){
+                            objects.add(resource)
+                        }
+                        val textView = generateText(title,(first as ResourceStep).text.plus(BREAK).plus(text), objects,arrayListOf(title, text))
                         stepLayout.addView(textView)
                         if (activeResource != null){
                             activeResourceInput = generateEditText("Amount",textView)
