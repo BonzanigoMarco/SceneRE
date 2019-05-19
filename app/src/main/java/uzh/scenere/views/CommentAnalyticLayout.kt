@@ -103,7 +103,9 @@ class CommentAnalyticLayout(context: Context, vararg  val walkthroughs: Walkthro
         }
         //SORTING
         for (entry in sortingMap.entries){
-            sortedStepList.add(entry.value)
+            if (!sortedStepList.contains(entry.value)) {
+                sortedStepList.add(entry.value)
+            }
         }
         //CLEANUP
         val removalList = ArrayList<String>()
